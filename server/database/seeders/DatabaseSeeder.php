@@ -1,0 +1,40 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\User;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+
+class DatabaseSeeder extends Seeder
+{
+    use WithoutModelEvents;
+
+    /**
+     * Seed the application's database.
+     */
+    public function run(): void
+    {
+        User::factory(2)->create();
+        $this->call(PositionSeeder::class);
+        $this->call(BranchSeeder::class);
+        $this->call(EmployeeSeeder::class);
+        $this->call(AccountSeeder::class);
+        $this->call(TransactionSeeder::class);
+        $this->call(PatientSeeder::class);
+        $this->call(ClinicMaterialSeeder::class);
+        $this->call(ClinicAssetSeeder::class);
+        $this->call(EmployeeSalarySeeder::class);
+        $this->call(EmployeeExperienceSeeder::class);
+        $this->call(PrescriptionSeeder::class);
+        $this->call(ReceptionSeeder::class);
+        $this->call(ClinicExpenseSeeder::class);
+        $this->call(DentalXraySeeder::class);
+        $this->call(AppointmentSeeder::class);
+        $this->call(TreatmentSeeder::class);
+        $this->call(AllergySeeder::class);
+        $this->call(PatientFileSeeder::class);
+        $this->call(ManyToManySeeder::class);
+    }
+}

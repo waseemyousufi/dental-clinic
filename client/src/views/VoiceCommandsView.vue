@@ -1,0 +1,1307 @@
+<script lang="ts">
+type CommandItem = {
+  command: string
+  subtitle?: string
+  recordingSeconds?: number
+}
+
+function normalizeLabel(command: string): string {
+  return command.trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+const BACKGROUND_NOISE_COMMAND = 'Background Noise'
+const NOISE_LABEL = normalizeLabel(BACKGROUND_NOISE_COMMAND)
+
+const toothNumbers: CommandItem[] = [
+  { command: '11', subtitle: 'Upper right central incisor' },
+  { command: '12', subtitle: 'Upper right lateral incisor' },
+]
+
+const surfaceCommands: CommandItem[] = [
+  { command: 'Mesial', subtitle: 'Toward the midline' },
+  { command: 'Distal', subtitle: 'Away from the midline' },
+]
+
+const conditionCommands: CommandItem[] = [
+  { command: 'Caries', subtitle: 'Active decay' },
+  { command: 'Recurrent Caries', subtitle: 'Decay around restoration' },
+]
+
+const noiseCommands: CommandItem[] = [
+  { command: BACKGROUND_NOISE_COMMAND, subtitle: 'Ambient room sound for augmentation', recordingSeconds: 10 },
+]
+</script>
+
+<script setup lang="ts">
+import VoiceCommandRecorder from '@/components/VoiceCommandRecorder.vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, markRaw, shallowReactive } from 'vue'
+import * as tf from '@tensorflow/tfjs'
+import '@tensorflow/tfjs-backend-webgl'
+import { useMessage } from 'naive-ui'
+
+/**
+ * TYPE DEFINITIONS
+ */
+type RecorderPayload = { command: string; total: number; blob?: Blob; index?: number }
+type CommandGroup = { title: string; description: string; items: CommandItem[] }
+type Category = 'tooth' | 'surface' | 'condition'
+type TrainSummary = {
+  loss: number
+  accuracy: number
+  valLoss?: number
+  valAccuracy?: number
+  samples: number
+  labels: string[]
+  inputShape: [number, number, number]
+}
+type FeatureExample = { features: Float32Array; labelIndex: number; command: string; createdAt: number }
+type PredictionResult = {
+  label: string
+  confidence: number
+  probabilities: number[]
+  labels: string[]
+  inputShape: [number, number, number]
+}
+
+/**
+ * STATE & REPEATABLE LOGIC
+ */
+const message = useMessage()
+
+const groups: CommandGroup[] = [
+  { title: 'Tooth Location', description: 'FDI / ISO 3950 tooth numbers.', items: toothNumbers },
+  { title: 'Surface', description: 'Surface descriptors for dental charting.', items: surfaceCommands },
+  { title: 'Condition', description: 'Common clinical findings.', items: conditionCommands },
+  { title: 'Noise', description: 'Ambient samples used for augmentation.', items: noiseCommands },
+]
+
+const COMMAND_TO_CATEGORY = new Map<string, Category>()
+
+const CATEGORY_LABELS: Record<Category, string[]> = {
+  tooth: toothNumbers.map((x) => normalizeLabel(x.command)),
+  surface: surfaceCommands.map((x) => normalizeLabel(x.command)),
+  condition: conditionCommands.map((x) => normalizeLabel(x.command)),
+}
+
+for (const item of toothNumbers) COMMAND_TO_CATEGORY.set(normalizeLabel(item.command), 'tooth')
+for (const item of surfaceCommands) COMMAND_TO_CATEGORY.set(normalizeLabel(item.command), 'surface')
+for (const item of conditionCommands) COMMAND_TO_CATEGORY.set(normalizeLabel(item.command), 'condition')
+
+const samplesByCommand = reactive<Record<string, number>>({})
+const voiceSamples = reactive<Record<string, Blob[]>>({})
+const backgroundNoiseSamples = reactive<Blob[]>([])
+const trainingState = reactive({
+  status: 'idle' as 'idle' | 'ready' | 'training' | 'done' | 'error',
+  message: '',
+  progress: 0,
+})
+const trainedModels = shallowReactive<Partial<Record<Category, tf.LayersModel>>>({})
+const labelCache: Partial<Record<Category, string[]>> = {}
+
+// Incremental learning cache
+const featureStore = reactive<Record<Category, FeatureExample[]>>({
+  tooth: [],
+  surface: [],
+  condition: [],
+})
+let featureStoreHydrated = false
+
+// TF Setup Constants
+const SAMPLE_RATE = 16_000
+const TARGET_DURATION_SECONDS = 1
+const TARGET_SAMPLES = SAMPLE_RATE * TARGET_DURATION_SECONDS
+const MIN_LABEL_SAMPLES = 2
+const MODEL_PREFIX = 'dental-voice-dscnn'
+
+// DS-CNN feature extraction constants
+const FRAME_LENGTH = 480
+const FRAME_STEP = 160
+const FFT_LENGTH = 512
+const MEL_BINS = 40
+const MEL_LOW_FREQ = 20
+const MEL_HIGH_FREQ = SAMPLE_RATE / 2
+const FEATURE_FRAMES = 97
+const FEATURE_SHAPE: [number, number, number] = [FEATURE_FRAMES, MEL_BINS, 1]
+
+// Noise augmentation constants
+const AUGMENTATIONS_PER_SAMPLE = 0
+const MAX_SHIFT_MS = 120
+const SNR_DB_MIN = 5
+const SNR_DB_MAX = 20
+
+const REPLAY_PER_LABEL = 4
+const FRESH_PER_LABEL = 24
+
+const waveformCache = new WeakMap<Blob, Float32Array>()
+let audioContext: AudioContext | null = null
+let MEL_FILTERBANK: tf.Tensor2D | null = null
+
+// IndexedDB for incremental feature cache
+const FEATURE_DB_NAME = `${MODEL_PREFIX}-feature-store`
+const FEATURE_DB_VERSION = 1
+const FEATURE_STORE_NAME = 'feature_examples'
+let featureDbPromise: Promise<IDBDatabase> | null = null
+
+// Floating Button States
+const isGlobalRecording = ref(false)
+const timeLeft = ref(2.0)
+const totalDuration = 2.0
+const circlesCircumference = 2 * Math.PI * 26
+let mediaRecorder: MediaRecorder | null = null
+let audioChunks: Blob[] = []
+let timerInterval: number | null = null
+
+/**
+ * COMPUTED PROPERTIES
+ */
+const totalCommands = computed(() => groups.reduce((count, group) => count + group.items.length, 0))
+const totalSamples = computed(() => Object.values(voiceSamples).reduce((sum, samples) => sum + (samples?.length ?? 0), 0))
+const noiseSamples = computed(() => backgroundNoiseSamples.length)
+const completedCommands = computed(() => Object.values(samplesByCommand).filter((count) => count >= 5).length)
+const canTrain = computed(() =>
+  (['tooth', 'surface', 'condition'] as Category[]).every((cat) =>
+    CATEGORY_LABELS[cat].filter((l) => getKnownSampleCount(cat, l) >= MIN_LABEL_SAMPLES).length >= 2,
+  ),
+)
+
+const recordingCircleOffset = computed(() => circlesCircumference * (1 - timeLeft.value / totalDuration))
+const trainingCircleOffset = computed(() => 188.5 * (1 - trainingState.progress / 100))
+
+/**
+ * INDEXEDDB FEATURE CACHE
+ */
+function makeId() {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID()
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`
+}
+
+function openFeatureDb(): Promise<IDBDatabase> {
+  if (featureDbPromise) return featureDbPromise
+
+  featureDbPromise = new Promise((resolve, reject) => {
+    const req = indexedDB.open(FEATURE_DB_NAME, FEATURE_DB_VERSION)
+
+    req.onupgradeneeded = () => {
+      const db = req.result
+      if (!db.objectStoreNames.contains(FEATURE_STORE_NAME)) {
+        const store = db.createObjectStore(FEATURE_STORE_NAME, { keyPath: 'id' })
+        store.createIndex('by_category', 'category', { unique: false })
+        store.createIndex('by_category_command', ['category', 'command'], { unique: false })
+        store.createIndex('by_category_createdAt', ['category', 'createdAt'], { unique: false })
+      }
+    }
+
+    req.onsuccess = () => resolve(req.result)
+    req.onerror = () => reject(req.error)
+  })
+
+  return featureDbPromise
+}
+
+function toFloat32Array(value: Float32Array | number[] | ArrayBuffer | ArrayBufferView): Float32Array {
+  if (value instanceof Float32Array) return value
+  if (Array.isArray(value)) return Float32Array.from(value)
+  if (ArrayBuffer.isView(value)) {
+    const view = value as ArrayBufferView
+    return new Float32Array(view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength))
+  }
+  return new Float32Array(value)
+}
+
+function normalizeStoredFeatureExample(raw: unknown): FeatureExample | null {
+  if (!raw || typeof raw !== 'object') return null
+  const item = raw as Partial<FeatureExample> & { id?: string; category?: Category; features?: unknown; labelIndex?: number; command?: string; createdAt?: number }
+
+  if (!item.category || !item.command || typeof item.labelIndex !== 'number' || !item.features || typeof item.createdAt !== 'number') {
+    return null
+  }
+
+  const labels = CATEGORY_LABELS[item.category]
+  const labelIndex = labels.indexOf(item.command)
+  if (labelIndex < 0) return null
+
+  return {
+    command: item.command,
+    createdAt: item.createdAt,
+    labelIndex,
+    features: toFloat32Array(item.features as Float32Array | number[] | ArrayBuffer | ArrayBufferView),
+  }
+}
+
+async function putFeatureExample(example: FeatureExample, category: Category): Promise<void> {
+  const db = await openFeatureDb()
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(FEATURE_STORE_NAME, 'readwrite')
+    const store = tx.objectStore(FEATURE_STORE_NAME)
+    const id = makeId()
+    const req = store.put({
+      id,
+      category,
+      command: example.command,
+      createdAt: example.createdAt,
+      labelIndex: example.labelIndex,
+      features: example.features,
+    })
+
+    req.onerror = () => reject(req.error)
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error)
+    tx.onabort = () => reject(tx.error)
+  })
+}
+
+async function deleteFeatureExamplesByCommand(category: Category, command: string): Promise<void> {
+  const db = await openFeatureDb()
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(FEATURE_STORE_NAME, 'readwrite')
+    const store = tx.objectStore(FEATURE_STORE_NAME)
+    const index = store.index('by_category_command')
+    const keyRange = IDBKeyRange.only([category, command])
+
+    const req = index.openCursor(keyRange)
+    req.onerror = () => reject(req.error)
+    req.onsuccess = () => {
+      const cursor = req.result
+      if (cursor) {
+        cursor.delete()
+        cursor.continue()
+      }
+    }
+
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error)
+    tx.onabort = () => reject(tx.error)
+  })
+}
+
+async function loadFeatureExamplesByCategory(category: Category): Promise<FeatureExample[]> {
+  const db = await openFeatureDb()
+  return new Promise<FeatureExample[]>((resolve, reject) => {
+    const tx = db.transaction(FEATURE_STORE_NAME, 'readonly')
+    const store = tx.objectStore(FEATURE_STORE_NAME)
+    const index = store.index('by_category')
+    const req = index.getAll(IDBKeyRange.only(category))
+
+    req.onerror = () => reject(req.error)
+    req.onsuccess = () => {
+      const result = (req.result || [])
+        .map((item) => normalizeStoredFeatureExample(item))
+        .filter((x): x is FeatureExample => Boolean(x))
+      resolve(result)
+    }
+  })
+}
+
+function setFeatureStoreCategory(category: Category, values: FeatureExample[]) {
+  featureStore[category].splice(0, featureStore[category].length, ...values)
+}
+
+async function hydrateFeatureStoreFromDb() {
+  const categories: Category[] = ['tooth', 'surface', 'condition']
+  const loaded = await Promise.all(categories.map(async (category) => [category, await loadFeatureExamplesByCategory(category)] as const))
+
+  for (const [category, items] of loaded) {
+    setFeatureStoreCategory(category, items)
+  }
+
+  featureStoreHydrated = true
+}
+
+function getKnownSampleCount(category: Category, command: string): number {
+  const fromVoice = voiceSamples[command]?.length ?? 0
+  const fromFeatures = featureStore[category].filter((x) => x.command === command).length
+  return Math.max(fromVoice, fromFeatures)
+}
+
+function sampleUpTo<T>(items: T[], limit: number): T[] {
+  if (items.length <= limit) return [...items]
+  const copy = [...items]
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+      ;[copy[i], copy[j]] = [copy[j]!, copy[i]!]
+  }
+  return copy.slice(0, limit)
+}
+
+function buildIncrementalBatch(category: Category, allExamples: FeatureExample[]): FeatureExample[] {
+  const labels = CATEGORY_LABELS[category]
+  const lastTrainedAtKey = `${MODEL_PREFIX}:${category}:lastTrainedAt`
+  const lastTrainedAt = Number(localStorage.getItem(lastTrainedAtKey) || '0')
+
+  const fresh = allExamples.filter((x) => x.createdAt > lastTrainedAt)
+  const old = allExamples.filter((x) => x.createdAt <= lastTrainedAt)
+
+  const freshSelected: FeatureExample[] = []
+  const replaySelected: FeatureExample[] = []
+
+  for (let labelIndex = 0; labelIndex < labels.length; labelIndex++) {
+    const freshForLabel = sampleUpTo(
+      fresh.filter((x) => x.labelIndex === labelIndex),
+      FRESH_PER_LABEL,
+    )
+    const oldForLabel = sampleUpTo(
+      old.filter((x) => x.labelIndex === labelIndex),
+      REPLAY_PER_LABEL,
+    )
+
+    freshSelected.push(...freshForLabel)
+    replaySelected.push(...oldForLabel)
+  }
+
+  const batch = [...freshSelected, ...replaySelected]
+  if (batch.length > 0) return batch
+
+  const fallback = sampleUpTo(allExamples, Math.min(allExamples.length, labels.length * 8))
+  return fallback
+}
+
+/**
+ * CORE TF.JS FUNCTIONS
+ */
+function getAudioContext() {
+  if (!audioContext) audioContext = new AudioContext()
+  return audioContext
+}
+
+async function blobToWaveform(blob: Blob): Promise<Float32Array> {
+  const cached = waveformCache.get(blob)
+  if (cached) return Float32Array.from(cached)
+
+  const arrayBuffer = await blob.arrayBuffer()
+  const ctx = getAudioContext()
+  const decoded = await ctx.decodeAudioData(arrayBuffer)
+
+  const mono = new Float32Array(decoded.length)
+  for (let i = 0; i < decoded.length; i++) {
+    let sum = 0
+    for (let ch = 0; ch < decoded.numberOfChannels; ch++) {
+      sum += decoded.getChannelData(ch)?.[i] || 0
+    }
+    mono[i] = sum / Math.max(1, decoded.numberOfChannels)
+  }
+
+  const resampled = resampleLinear(mono, decoded.sampleRate, SAMPLE_RATE)
+  const fixed = padOrTrim(resampled, TARGET_SAMPLES)
+  waveformCache.set(blob, fixed)
+  return fixed
+}
+
+function padOrTrim2D(tensor: tf.Tensor2D, targetFrames: number) {
+  const [frames, bins] = tensor.shape
+
+  if (frames === targetFrames) return tensor
+
+  if (frames > targetFrames) {
+    return tensor.slice([0, 0], [targetFrames, bins])
+  }
+
+  const padAmount = targetFrames - frames
+  const padding = tf.zeros([padAmount, bins])
+  return tf.concat([tensor, padding], 0)
+}
+
+function resampleLinear(input: Float32Array, sR: number, tR: number) {
+  if (sR === tR) return input
+  const ratio = sR / tR
+  const out = new Float32Array(Math.round(input.length / ratio))
+
+  for (let i = 0; i < out.length; i++) {
+    const sIdx = i * ratio
+    const i0 = Math.floor(sIdx)
+    const i1 = Math.min(input.length - 1, i0 + 1)
+    const frac = sIdx - i0
+    out[i] = input[i0]! * (1 - frac) + input[i1]! * frac
+  }
+  return out
+}
+
+function padOrTrim(input: Float32Array, length: number) {
+  if (input.length === length) return input
+  const out = new Float32Array(length)
+  out.set(input.slice(0, length))
+  return out
+}
+
+function rand(min: number, max: number) {
+  return Math.random() * (max - min) + min
+}
+
+function clamp(v: number, min = -1, max = 1) {
+  return Math.max(min, Math.min(max, v))
+}
+
+function rms(wf: Float32Array) {
+  let sum = 0
+  for (let i = 0; i < wf.length; i++) sum += wf[i]! * wf[i]!
+  return Math.sqrt(sum / Math.max(1, wf.length))
+}
+
+function applyGain(input: Float32Array, gain: number) {
+  const out = new Float32Array(input.length)
+  for (let i = 0; i < input.length; i++) out[i] = clamp(input[i]! * gain)
+  return out
+}
+
+function timeShift(input: Float32Array, shiftSamples: number) {
+  const out = new Float32Array(input.length)
+
+  if (shiftSamples > 0) {
+    out.set(input.subarray(0, Math.max(0, input.length - shiftSamples)), shiftSamples)
+  } else if (shiftSamples < 0) {
+    out.set(input.subarray(Math.min(input.length, -shiftSamples)))
+  } else {
+    out.set(input)
+  }
+
+  return out
+}
+
+function synthNoise(length: number, amp = 0.02) {
+  const out = new Float32Array(length)
+  for (let i = 0; i < length; i++) {
+    out[i] = (Math.random() * 2 - 1) * amp
+  }
+  return out
+}
+
+function sliceNoiseToLength(noise: Float32Array, length: number) {
+  if (noise.length === 0) return synthNoise(length)
+  if (noise.length === length) return Float32Array.from(noise)
+
+  const out = new Float32Array(length)
+  const start = Math.floor(Math.random() * noise.length)
+
+  for (let i = 0; i < length; i++) {
+    out[i] = noise[(start + i) % noise.length]!
+  }
+  return out
+}
+
+function mixWithNoise(signal: Float32Array, noise: Float32Array, snrDb: number) {
+  const sRms = Math.max(rms(signal), 1e-8)
+  const n = sliceNoiseToLength(noise, signal.length)
+  const nRms = Math.max(rms(n), 1e-8)
+
+  const desiredNoiseRms = sRms / Math.pow(10, snrDb / 20)
+  const scale = desiredNoiseRms / nRms
+
+  const out = new Float32Array(signal.length)
+  for (let i = 0; i < signal.length; i++) {
+    out[i] = clamp(signal[i]! + n[i]! * scale)
+  }
+  return out
+}
+
+function augmentWaveform(wf: Float32Array, noisePool: Float32Array[]) {
+  let out = Float32Array.from(wf)
+
+  out = applyGain(out, rand(0.8, 1.2))
+
+  const shiftSamples = Math.round((rand(-MAX_SHIFT_MS, MAX_SHIFT_MS) / 1000) * SAMPLE_RATE)
+  out = timeShift(out, shiftSamples)
+
+  if (noisePool.length > 0 && Math.random() < 0.9) {
+    const noise = noisePool[Math.floor(Math.random() * noisePool.length)]!
+    const snrDb = rand(SNR_DB_MIN, SNR_DB_MAX)
+    out = mixWithNoise(out, noise, snrDb)
+  } else {
+    const snrDb = rand(SNR_DB_MIN, SNR_DB_MAX)
+    out = mixWithNoise(out, synthNoise(out.length, rand(0.01, 0.05)), snrDb)
+  }
+
+  return out
+}
+
+function hzToMel(hz: number) {
+  return 2595 * Math.log10(1 + hz / 700)
+}
+
+function melToHz(mel: number) {
+  return 700 * (Math.pow(10, mel / 2595) - 1)
+}
+
+function createMelFilterbank(
+  numMelBins: number,
+  numSpectrogramBins: number,
+  sampleRate: number,
+  lowFreq: number,
+  highFreq: number,
+): tf.Tensor2D {
+  const lowMel = hzToMel(lowFreq)
+  const highMel = hzToMel(highFreq)
+
+  const melPoints: number[] = []
+  for (let i = 0; i < numMelBins + 2; i++) {
+    melPoints.push(lowMel + (i / (numMelBins + 1)) * (highMel - lowMel))
+  }
+
+  const hzPoints = melPoints.map(melToHz)
+  const bin = hzPoints.map((hz) => Math.floor(((FFT_LENGTH + 1) * hz) / sampleRate))
+
+  const filterbank: number[][] = []
+  for (let i = 0; i < numMelBins; i++) {
+    const f_m_minus = bin[i]!
+    const f_m = bin[i + 1]!
+    const f_m_plus = bin[i + 2]!
+
+    const row = new Array(numSpectrogramBins).fill(0)
+
+    const leftDenom = Math.max(1, f_m - f_m_minus)
+    const rightDenom = Math.max(1, f_m_plus - f_m)
+
+    for (let k = f_m_minus; k < f_m; k++) {
+      if (k >= 0 && k < numSpectrogramBins) {
+        row[k] = (k - f_m_minus) / leftDenom
+      }
+    }
+
+    for (let k = f_m; k < f_m_plus; k++) {
+      if (k >= 0 && k < numSpectrogramBins) {
+        row[k] = (f_m_plus - k) / rightDenom
+      }
+    }
+
+    filterbank.push(row)
+  }
+
+  return tf.tensor2d(filterbank, [numMelBins, numSpectrogramBins]).transpose()
+}
+
+async function ensureBackendReady() {
+  await tf.ready()
+  await tf.setBackend('webgl')
+
+  if (!MEL_FILTERBANK) {
+    MEL_FILTERBANK = createMelFilterbank(
+      MEL_BINS,
+      Math.floor(FFT_LENGTH / 2) + 1,
+      SAMPLE_RATE,
+      MEL_LOW_FREQ,
+      MEL_HIGH_FREQ,
+    )
+  }
+
+  trainingState.status = 'ready'
+}
+
+/**
+ * MODEL RESTORATION
+ */
+async function loadSavedModel(category: Category): Promise<boolean> {
+  const modelKey = `indexeddb://${MODEL_PREFIX}-${category}`
+
+  try {
+    const model = await tf.loadLayersModel(modelKey)
+    trainedModels[category] = markRaw(model)
+
+    const labelsRaw = localStorage.getItem(`${MODEL_PREFIX}:${category}:labels`)
+    if (labelsRaw) {
+      try {
+        labelCache[category] = JSON.parse(labelsRaw) as string[]
+      } catch {
+        labelCache[category] = CATEGORY_LABELS[category]
+      }
+    } else {
+      labelCache[category] = CATEGORY_LABELS[category]
+      localStorage.setItem(`${MODEL_PREFIX}:${category}:labels`, JSON.stringify(CATEGORY_LABELS[category]))
+    }
+
+    return true
+  } catch {
+    return false
+  }
+}
+
+async function restoreSavedModels() {
+  if (tf.getBackend() !== 'webgl') {
+    await tf.setBackend('webgl')
+  }
+
+  const categories: Category[] = ['tooth', 'surface', 'condition']
+  let loadedCount = 0
+
+  for (const category of categories) {
+    const loaded = await loadSavedModel(category)
+    if (loaded) loadedCount += 1
+  }
+
+  if (loadedCount > 0) {
+    trainingState.status = 'done'
+    trainingState.message = 'Saved models loaded.'
+  } else {
+    trainingState.status = 'ready'
+    trainingState.message = 'No saved model found.'
+  }
+}
+
+/**
+ * TRAINING LOGIC
+ */
+async function waveformToFeatures(waveform: Float32Array): Promise<Float32Array> {
+  if (!MEL_FILTERBANK) {
+    throw new Error('Mel filterbank not initialized')
+  }
+
+  const featureTensor = tf.tidy(() => {
+    const input = tf.tensor1d(waveform)
+    const stft = tf.signal.stft(input, FRAME_LENGTH, FRAME_STEP, FFT_LENGTH, tf.signal.hannWindow)
+    const magnitude = tf.abs(stft)
+
+    const melFilterbank = MEL_FILTERBANK!
+    let melSpectrogram = tf.matMul(magnitude, melFilterbank)
+
+    melSpectrogram = padOrTrim2D(melSpectrogram, FEATURE_FRAMES)
+
+    const logMel = tf.log(melSpectrogram.add(1e-6))
+    const mean = tf.mean(logMel)
+    const std = tf.sqrt(tf.mean(tf.square(logMel.sub(mean))))
+    const normalized = logMel.sub(mean).div(std.add(1e-6))
+
+    return normalized.expandDims(-1)
+  })
+
+  const data = await featureTensor.data()
+  featureTensor.dispose()
+  return Float32Array.from(data)
+}
+
+function buildClassifier(inputShape: [number, number, number], classCount: number) {
+  const model = tf.sequential()
+
+  model.add(
+    tf.layers.conv2d({
+      inputShape,
+      filters: 16,
+      kernelSize: [3, 3],
+      padding: 'same',
+      activation: 'relu',
+      dataFormat: 'channelsLast',
+    }),
+  )
+  model.add(tf.layers.batchNormalization())
+
+  model.add(
+    tf.layers.separableConv2d({
+      filters: 32,
+      kernelSize: [3, 3],
+      padding: 'same',
+      activation: 'relu',
+      depthMultiplier: 1,
+      dataFormat: 'channelsLast',
+    }),
+  )
+  model.add(tf.layers.batchNormalization())
+  model.add(tf.layers.maxPooling2d({ poolSize: [2, 2], strides: [2, 2], dataFormat: 'channelsLast' }))
+  model.add(tf.layers.dropout({ rate: 0.2 }))
+
+  model.add(
+    tf.layers.separableConv2d({
+      filters: 64,
+      kernelSize: [3, 3],
+      padding: 'same',
+      activation: 'relu',
+      depthMultiplier: 1,
+      dataFormat: 'channelsLast',
+    }),
+  )
+  model.add(tf.layers.batchNormalization())
+  model.add(tf.layers.maxPooling2d({ poolSize: [2, 2], strides: [2, 2], dataFormat: 'channelsLast' }))
+  model.add(tf.layers.dropout({ rate: 0.25 }))
+
+  model.add(tf.layers.globalAveragePooling2d({ dataFormat: 'channelsLast' }))
+  model.add(tf.layers.dense({ units: classCount, activation: 'softmax' }))
+
+  model.compile({
+    optimizer: tf.train.adam(1e-3),
+    loss: 'categoricalCrossentropy',
+    metrics: ['accuracy'],
+  })
+
+  return model
+}
+
+function lastNumber(values: unknown): number | undefined {
+  if (!Array.isArray(values) || values.length === 0) return undefined
+  const last = values[values.length - 1]
+  return typeof last === 'number' && Number.isFinite(last) ? last : undefined
+}
+
+async function storeFeatureExampleFromBlob(
+  blob: Blob,
+  category: Category,
+  command: string,
+  labelIndex: number,
+  saveToDb = true,
+): Promise<FeatureExample> {
+  const wf = await blobToWaveform(blob)
+  const feat = await waveformToFeatures(wf)
+  const example: FeatureExample = {
+    command,
+    createdAt: Date.now(),
+    labelIndex,
+    features: feat,
+  }
+
+  featureStore[category].push(example)
+  if (saveToDb) {
+    await putFeatureExample(example, category)
+  }
+
+  return example
+}
+
+async function backfillFeatureStoreFromVoiceSamples(category: Category) {
+  const labels = CATEGORY_LABELS[category]
+
+  for (const label of labels) {
+    const blobs = voiceSamples[label] ?? []
+    const existingCount = featureStore[category].filter((x) => x.command === label).length
+
+    for (let i = existingCount; i < blobs.length; i++) {
+      const blob = blobs[i]
+      if (!blob) continue
+      await storeFeatureExampleFromBlob(blob, category, label, labels.indexOf(label), true)
+    }
+  }
+}
+
+async function ensureFeatureStoreReady() {
+  if (!featureStoreHydrated) {
+    await hydrateFeatureStoreFromDb()
+  }
+  await Promise.all((['tooth', 'surface', 'condition'] as Category[]).map((category) => backfillFeatureStoreFromVoiceSamples(category)))
+}
+
+async function trainCategoryIncremental(category: Category): Promise<TrainSummary> {
+  const labels = CATEGORY_LABELS[category]
+  labelCache[category] = labels
+
+  await ensureFeatureStoreReady()
+
+  let model = trainedModels[category]
+  if (!model) {
+    const loaded = await loadSavedModel(category)
+    model = loaded ? trainedModels[category] : undefined
+  }
+
+  if (!model) {
+    model = buildClassifier(FEATURE_SHAPE, labels.length)
+  }
+
+  model.compile({
+    optimizer: tf.train.adam(1e-4),
+    loss: 'categoricalCrossentropy',
+    metrics: ['accuracy'],
+  })
+
+  const allExamples = featureStore[category]
+  const batch = buildIncrementalBatch(category, allExamples)
+
+  if (batch.length === 0) {
+    throw new Error(`No training examples found for ${category}`)
+  }
+
+  if (batch[0]!.features.length !== FEATURE_FRAMES * MEL_BINS) {
+    throw new Error('Feature shape mismatch — check spectrogram sizing')
+  }
+
+  const inputShape: [number, number, number] = FEATURE_SHAPE
+  const featureLength = FEATURE_FRAMES * MEL_BINS
+
+  const flat = new Float32Array(batch.length * featureLength)
+  batch.forEach((e, i) => {
+    flat.set(e.features, i * featureLength)
+  })
+
+  const xTrain = tf.tensor4d(flat, [batch.length, FEATURE_FRAMES, MEL_BINS, 1])
+  const yTrain = tf.oneHot(tf.tensor1d(batch.map((e) => e.labelIndex), 'int32'), labels.length)
+
+  const history = await model.fit(xTrain, yTrain, {
+    epochs: 4,
+    batchSize: 16,
+    shuffle: true,
+    validationSplit: batch.length >= 12 ? 0.15 : 0,
+    callbacks: {
+      onEpochEnd: (e) => {
+        trainingState.progress = Math.round(((e + 1) / 4) * 100)
+      },
+    },
+  })
+
+  xTrain.dispose()
+  yTrain.dispose()
+
+  await model.save(`indexeddb://${MODEL_PREFIX}-${category}`)
+  localStorage.setItem(`${MODEL_PREFIX}:${category}:labels`, JSON.stringify(labels))
+  localStorage.setItem(`${MODEL_PREFIX}:${category}:lastTrainedAt`, String(Math.max(...batch.map((x) => x.createdAt), Date.now())))
+  trainedModels[category] = markRaw(model)
+
+  const loss = lastNumber(history.history.loss) ?? 0
+  const accuracy = lastNumber(history.history.accuracy ?? history.history.acc) ?? 0
+  const valLoss = lastNumber(history.history.val_loss)
+  const valAccuracy = lastNumber(history.history.val_accuracy ?? history.history.val_acc)
+
+  return {
+    loss,
+    accuracy,
+    valLoss,
+    valAccuracy,
+    samples: batch.length,
+    labels,
+    inputShape,
+  }
+}
+
+async function train() {
+  trainingState.status = 'training'
+  trainingState.progress = 0
+  trainingState.message = ''
+
+  try {
+    await trainCategoryIncremental('tooth')
+    await trainCategoryIncremental('surface')
+    await trainCategoryIncremental('condition')
+    trainingState.status = 'done'
+    trainingState.message = 'Incremental training complete.'
+    message.success('Incremental training complete.')
+  } catch (e: unknown) {
+    trainingState.status = 'error'
+    const errorMessage = e instanceof Error ? e.message : String(e)
+    trainingState.message = errorMessage
+    message.error(errorMessage)
+    console.error(e)
+  }
+}
+
+async function getCategoryModel(category: Category): Promise<tf.LayersModel> {
+  const cached = trainedModels[category]
+  if (cached) return cached
+
+  const restored = await loadSavedModel(category)
+  if (restored && trainedModels[category]) {
+    return trainedModels[category]!
+  }
+
+  throw new Error('Model not trained')
+}
+
+async function predictRecordedCommand(payload: { blob: Blob; category: Category }): Promise<PredictionResult> {
+  const model = await getCategoryModel(payload.category)
+  const labels = labelCache[payload.category] || CATEGORY_LABELS[payload.category]
+
+  const wf = await blobToWaveform(payload.blob)
+  const feat = await waveformToFeatures(wf)
+  const input = tf.tensor4d(feat, [1, FEATURE_SHAPE[0], FEATURE_SHAPE[1], FEATURE_SHAPE[2]])
+  const output = model.predict(input) as tf.Tensor
+  const probs = Array.from(await output.data())
+  const bestIdx = probs.indexOf(Math.max(...probs))
+
+  input.dispose()
+  output.dispose()
+
+  if (bestIdx < 0 || bestIdx >= labels.length) {
+    throw new Error('Invalid prediction index')
+  }
+
+  return {
+    label: labels[bestIdx]!,
+    confidence: probs[bestIdx]!,
+    probabilities: probs,
+    labels,
+    inputShape: FEATURE_SHAPE,
+  }
+}
+
+/**
+ * ACTION HANDLERS
+ */
+async function storeRecordedSample(p: RecorderPayload) {
+  const cmd = normalizeLabel(p.command)
+  if (!p.blob) return
+
+  if (cmd === NOISE_LABEL) return
+
+  const category = COMMAND_TO_CATEGORY.get(cmd)
+  if (!category) return
+
+  const labelIndex = CATEGORY_LABELS[category].indexOf(cmd)
+  if (labelIndex < 0) return
+
+  try {
+    await storeFeatureExampleFromBlob(p.blob, category, cmd, labelIndex, true)
+  } catch (e) {
+    console.error('Failed to cache feature example:', e)
+  }
+}
+
+const startGlobalRecording = async () => {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+  mediaRecorder = new MediaRecorder(stream)
+
+  audioChunks = []
+  isGlobalRecording.value = true
+  timeLeft.value = totalDuration
+
+  mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data)
+  mediaRecorder.onstop = async () => {
+    const blob = new Blob(audioChunks, { type: mediaRecorder?.mimeType || 'audio/webm' })
+    stream.getTracks().forEach((t) => t.stop())
+
+    const load = message.loading('Predicting...', { duration: 0 })
+    try {
+      const res = await predictRecordedCommand({ blob, category: 'surface' })
+      message.success(`Detected: ${res.label}`)
+    } catch (e) {
+      console.warn(e)
+      message.error('Not recognized. Train first or load a saved model.')
+    } finally {
+      load.destroy()
+    }
+  }
+
+  mediaRecorder.start()
+
+  timerInterval = window.setInterval(() => {
+    timeLeft.value -= 0.1
+    if (timeLeft.value <= 0) {
+      if (timerInterval !== null) clearInterval(timerInterval)
+      mediaRecorder?.stop()
+      isGlobalRecording.value = false
+    }
+  }, 100)
+}
+
+const handleTrainClick = async () => {
+  if (!canTrain.value) return message.warning('Need more samples to train.')
+  await train()
+}
+
+function handleRecorded(p: RecorderPayload) {
+  const cmd = normalizeLabel(p.command)
+  if (!p.blob) {
+    samplesByCommand[cmd] = p.total
+    return
+  }
+
+  if (cmd === NOISE_LABEL) {
+    backgroundNoiseSamples.push(p.blob)
+    samplesByCommand[cmd] = p.total
+    return
+  }
+
+  if (!voiceSamples[cmd]) voiceSamples[cmd] = []
+  voiceSamples[cmd].push(p.blob)
+  samplesByCommand[cmd] = p.total
+
+  void storeRecordedSample(p)
+}
+
+async function removeFeaturesForCommand(cmd: string) {
+  const category = COMMAND_TO_CATEGORY.get(cmd)
+  if (!category) return
+
+  featureStore[category] = featureStore[category].filter((x) => x.command !== cmd)
+  await deleteFeatureExamplesByCommand(category, cmd)
+}
+
+function handleDeleted(p: { command: string; total: number }) {
+  const cmd = normalizeLabel(p.command)
+
+  if (cmd === NOISE_LABEL) {
+    backgroundNoiseSamples.splice(0, backgroundNoiseSamples.length)
+    samplesByCommand[cmd] = p.total
+    return
+  }
+
+  voiceSamples[cmd] = []
+  samplesByCommand[cmd] = p.total
+
+  void removeFeaturesForCommand(cmd)
+}
+
+onMounted(async () => {
+  await ensureBackendReady()
+  await hydrateFeatureStoreFromDb()
+  featureStoreHydrated = true
+  await restoreSavedModels()
+})
+
+onBeforeUnmount(() => {
+  Object.values(trainedModels).forEach((m) => m?.dispose())
+  MEL_FILTERBANK?.dispose()
+  MEL_FILTERBANK = null
+})
+</script>
+
+<template>
+  <div class="voice-page">
+    <header class="page-header">
+      <div class="page-header__copy">
+        <p class="eyebrow">Hands-free odontogram setup</p>
+        <h1>Voice Commands</h1>
+        <p class="lead">
+          Record each command multiple times to build your localized AI model.
+        </p>
+      </div>
+
+      <div class="page-header__stats">
+        <div class="stat-card">
+          <span>Commands</span>
+          <strong>{{ totalCommands }}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Completed</span>
+          <strong>{{ completedCommands }}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Samples</span>
+          <strong>{{ totalSamples }}</strong>
+        </div>
+      </div>
+    </header>
+
+    <section v-for="group in groups" :key="group.title" class="command-group">
+      <div class="command-group__header">
+        <div>
+          <h2>{{ group.title }}</h2>
+          <p>{{ group.description }}</p>
+        </div>
+        <span class="group-badge">{{ group.items.length }} items</span>
+      </div>
+
+      <div class="command-group__list">
+        <VoiceCommandRecorder v-for="item in group.items" :recordingSeconds="item.recordingSeconds || 2"
+          :key="item.command" :command="item.command" :subtitle="item.subtitle" :max-samples="5"
+          @recorded="handleRecorded" @deleted="handleDeleted" />
+      </div>
+    </section>
+
+    <!-- FABs -->
+    <div class="voice-fab-container">
+      <!-- RECORD -->
+      <div class="fab-wrapper">
+        <div v-if="isGlobalRecording" class="fab-timer-overlay">
+          <svg viewBox="0 0 64 64">
+            <circle stroke="#18a058" stroke-width="4" fill="transparent" r="28" cx="32" cy="32" stroke-dasharray="175.9"
+              :stroke-dashoffset="recordingCircleOffset" />
+          </svg>
+        </div>
+
+        <button class="fab-btn rec-btn" :class="{ 'is-active': isGlobalRecording }" @click="startGlobalRecording"
+          :disabled="isGlobalRecording">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+            <path
+              d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- TRAIN -->
+      <div class="fab-wrapper">
+        <div v-if="trainingState.status === 'training'" class="fab-timer-overlay">
+          <svg viewBox="0 0 64 64">
+            <circle stroke="#2563eb" stroke-width="4" fill="transparent" r="28" cx="32" cy="32" stroke-dasharray="175.9"
+              :stroke-dashoffset="trainingCircleOffset" />
+          </svg>
+        </div>
+
+        <button class="fab-btn train-btn" :class="{ 'is-training': trainingState.status === 'training' }"
+          @click="handleTrainClick" :disabled="trainingState.status === 'training' || !canTrain">
+          <span v-if="trainingState.status === 'training'" class="progress-text">
+            {{ trainingState.progress }}%
+          </span>
+
+          <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.voice-page {
+  min-height: 100vh;
+  padding: 24px;
+  background: linear-gradient(to bottom, #f8fbff, #f1f5f9);
+}
+
+/* HEADER */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 24px;
+  border-radius: 24px;
+  background: white;
+  border: 1px solid #dbe4f0;
+  margin-bottom: 24px;
+}
+
+.page-header__stats {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.stat-card {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #f9fbff;
+  border: 1px solid #e6edf5;
+  text-align: center;
+  min-width: 110px;
+}
+
+.stat-card span {
+  display: block;
+  font-size: 12px;
+  color: #666;
+}
+
+.stat-card strong {
+  font-size: 18px;
+  display: block;
+  margin-top: 4px;
+}
+
+/* TYPOGRAPHY */
+.eyebrow {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.lead {
+  color: #475569;
+  margin-top: 6px;
+}
+
+/* GROUPS */
+.command-group {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: white;
+  border-radius: 20px;
+  border: 1px solid #e6edf5;
+}
+
+.command-group__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.group-badge {
+  font-size: 12px;
+  background: #eef2ff;
+  color: #4338ca;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+.command-group__list {
+  display: grid;
+  gap: 10px;
+}
+
+/* FAB */
+.voice-fab-container {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 16px;
+  align-items: center;
+  z-index: 1000;
+}
+
+.fab-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fab-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.fab-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+}
+
+.fab-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.rec-btn {
+  background: #18a058;
+}
+
+.train-btn {
+  background: #2563eb;
+}
+
+.fab-btn:disabled {
+  background: #999;
+  cursor: not-allowed;
+}
+
+.fab-btn.is-active {
+  background: #d03050;
+}
+
+/* PERFECTLY CENTERED PROGRESS RING */
+.fab-timer-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.fab-timer-overlay svg {
+  width: 64px;
+  height: 64px;
+  transform: rotate(-90deg);
+}
+
+/* TEXT */
+.progress-text {
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .voice-fab-container {
+    bottom: 16px;
+    right: 16px;
+  }
+}
+</style>
