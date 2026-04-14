@@ -45,10 +45,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/employee-salary/{id}', [Receptionist\EmployeeController::class, 'employeeSalary']);
         Route::delete('/employee/{id}', [Receptionist\EmployeeController::class, 'delete']);
 
-        Route::post('/material', [Receptionist\CliniMaterialController::class, 'store']);
-        Route::get('/material', [Receptionist\CliniMaterialController::class, 'index']);
-        Route::put('/material/{id}', [Receptionist\CliniMaterialController::class, 'update']);
-        Route::delete('/material/{id}', [Receptionist\CliniMaterialController::class, 'delete']);
+        Route::post('/material', [Receptionist\ClinicMaterialController::class, 'store']);
+        Route::get('/material', [Receptionist\ClinicMaterialController::class, 'index']);
+        Route::get('/material/{id}', [Receptionist\ClinicMaterialController::class, 'show']);
+        Route::put('/material/{id}', [Receptionist\ClinicMaterialController::class, 'update']);
+        Route::delete('/material/{id}', [Receptionist\ClinicMaterialController::class, 'delete']);
 
         Route::post('/reception', [Receptionist\ReceptionController::class, 'store']);
 
@@ -82,8 +83,47 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/assets', [Shared\ClinicAssetController::class, 'store']);
         Route::get('/assets', [Shared\ClinicAssetController::class, 'index']);
+        Route::get('/assets/{id}', [Shared\ClinicAssetController::class, 'show']);
         Route::put('/assets/{id}', [Shared\ClinicAssetController::class, 'update']);
         Route::delete('/assets/{id}', [Shared\ClinicAssetController::class, 'delete']);
+
+        // Supplier routes
+        Route::post('/suppliers', [Shared\SupplierController::class, 'store']);
+        Route::get('/suppliers', [Shared\SupplierController::class, 'index']);
+        Route::get('/suppliers/{id}', [Shared\SupplierController::class, 'show']);
+        Route::put('/suppliers/{id}', [Shared\SupplierController::class, 'update']);
+        Route::delete('/suppliers/{id}', [Shared\SupplierController::class, 'delete']);
+
+        // Item routes
+        Route::get('/items', [Shared\ItemController::class, 'index']);
+        Route::get('/items/{id}', [Shared\ItemController::class, 'show']);
+        Route::post('/items', [Shared\ItemController::class, 'store']);
+        Route::put('/items/{id}', [Shared\ItemController::class, 'update']);
+        Route::delete('/items/{id}', [Shared\ItemController::class, 'delete']);
+        Route::get('/items/categories', [Shared\ItemController::class, 'categories']);
+
+        // Order routes
+        Route::post('/orders', [Shared\OrderController::class, 'store']);
+        Route::get('/orders', [Shared\OrderController::class, 'index']);
+        Route::get('/orders/{id}', [Shared\OrderController::class, 'show']);
+        Route::put('/orders/{id}', [Shared\OrderController::class, 'update']);
+        Route::delete('/orders/{id}', [Shared\OrderController::class, 'delete']);
+
+        // Shelf routes
+        Route::post('/shelves', [Shared\ShelfController::class, 'store']);
+        Route::get('/shelves', [Shared\ShelfController::class, 'index']);
+        Route::get('/shelves/{id}', [Shared\ShelfController::class, 'show']);
+        Route::put('/shelves/{id}', [Shared\ShelfController::class, 'update']);
+        Route::delete('/shelves/{id}', [Shared\ShelfController::class, 'delete']);
+
+        // Inventory Stock routes
+        Route::post('/inventory-stock', [Shared\InventoryStockController::class, 'store']);
+        Route::get('/inventory-stock', [Shared\InventoryStockController::class, 'index']);
+        Route::get('/inventory-stock/{id}', [Shared\InventoryStockController::class, 'show']);
+        Route::put('/inventory-stock/{id}', [Shared\InventoryStockController::class, 'update']);
+        Route::delete('/inventory-stock/{id}', [Shared\InventoryStockController::class, 'delete']);
+        Route::get('/inventory-stock/pending', [Shared\InventoryStockController::class, 'pending']);
+        Route::get('/inventory-stock/placed', [Shared\InventoryStockController::class, 'placed']);
 
         Route::get('/me', function (Request $request) {
             return Auth::user()->load('employee');

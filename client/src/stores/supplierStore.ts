@@ -1,11 +1,19 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import type { Supplier, Product, PurchaseOrder } from '@/types/supplier';
+import type { Supplier, Product, PurchaseOrder, PurchaseOrderItem } from '@/types/supplier';
+import supplierApi from '@/api/supplier';
+import orderApi from '@/api/order';
+import itemApi from '@/api/item';
+import type SupplierData from '@/api/interfaces/Supplier';
+import type OrderData from '@/api/interfaces/Order';
+import type OrderItemData from '@/api/interfaces/OrderItem';
+import type ItemData from '@/api/interfaces/Item';
 
 export const useSupplierStore = defineStore('supplier', () => {
   const suppliers = ref<Supplier[]>([]);
   const products = ref<Product[]>([]);
   const purchaseOrders = ref<PurchaseOrder[]>([]);
+  const loading = ref(false);
 
   // Computed
   const activeSuppliers = computed(() => suppliers.value.filter(s => s.isActive));
@@ -23,188 +31,248 @@ export const useSupplierStore = defineStore('supplier', () => {
     return products.value.filter(p => supplier.productIds.includes(p.id));
   };
 
-  // Actions
-  const addSupplier = (supplier: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const newSupplier: Supplier = {
-      ...supplier,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    suppliers.value.push(newSupplier);
-    return newSupplier;
-  };
+  // --- Mapping helpers ---
+  const mapApiSupplierToUi = (api: SupplierData & { id?: number; items?: ItemData[] }): Supplier => ({
+    id: String(api.id ?? Date.now()),
+    name: api.organizationName,
+    contactPerson: api.contactPersonName,
+    phone: api.phone,
+    email: api.email,
+    businessId: api.businessId,
+    notes: '',
+    productIds: (api.items ?? []).map(i => String(i.id)),
+    isActive: api.status === 'active',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
 
-  const updateSupplier = (id: string, updates: Partial<Supplier>) => {
-    const idx = suppliers.value.findIndex(s => s.id === id);
-    if (idx === -1) return false;
-    suppliers.value[idx] = {
-      ...suppliers.value[idx],
-      ...updates,
-      updatedAt: new Date().toISOString(),
-    };
-    return true;
-  };
+  const mapUiSupplierToApi = (ui: Partial<Supplier> & { contactPersonName?: string; organizationName?: string; itemIds?: number[] }): SupplierData & { itemIds?: number[] } => ({
+    contactPersonName: ui.contactPersonName ?? ui.contactPerson ?? '',
+    organizationName: ui.organizationName ?? ui.name ?? '',
+    phone: ui.phone ?? '',
+    email: ui.email,
+    status: ui.isActive !== false ? 'active' : 'inactive',
+    businessId: ui.businessId,
+    itemIds: ui.itemIds,
+  });
 
-  const toggleSupplierStatus = (id: string) => {
-    const supplier = getSupplierById(id);
-    if (supplier) {
-      updateSupplier(id, { isActive: !supplier.isActive });
+  const mapApiOrderToUi = (api: OrderData): PurchaseOrder => ({
+    id: String(api.id ?? Date.now()),
+    supplierId: api.supplierName,
+    items: (api.items ?? []).map((item: OrderItemData) => ({
+      productId: String(item.itemId),
+      productName: (item.item as ItemData | undefined)?.name ?? `Item #${item.itemId}`,
+      quantity: item.quantity,
+      unit: 'piece',
+      notes: '',
+    })),
+    totalItems: (api.items ?? []).reduce((sum: number, i: OrderItemData) => sum + i.quantity, 0),
+    createdAt: api.date,
+    status: api.status as PurchaseOrder['status'],
+  });
+
+  const mapUiOrderToApi = (supplierName: string, items: PurchaseOrderItem[]): OrderData => ({
+    supplierName,
+    date: new Date().toISOString().split('T')[0],
+    status: 'draft',
+    notes: '',
+    items: items.map(item => ({
+      itemId: Number(item.productId),
+      quantity: item.quantity,
+      unitPrice: 0,
+      totalPrice: 0,
+    })),
+  });
+
+  // Actions - API backed
+  const loadInitialData = async () => {
+    loading.value = true;
+    try {
+      // Load suppliers with their items
+      const { data: suppliersData } = await supplierApi.getSuppliers();
+      suppliers.value = (suppliersData.data ?? []).map(mapApiSupplierToUi);
+
+      // Load items as products
+      const { data: itemsData } = await itemApi.getItems();
+      const items = itemsData.data ?? [];
+      products.value = items.map((item: ItemData) => ({
+        id: String(item.id),
+        name: item.name,
+        sku: `ITEM-${item.id}`,
+        unit: item.isConsumable ? 'piece' : 'piece',
+        stock: item.totalQuantityInStock ?? 0,
+        minStock: item.requiresExpiry ? 10 : 5,
+      }));
+
+      // Load orders
+      const { data: ordersData } = await orderApi.getOrders();
+      purchaseOrders.value = (ordersData.data ?? []).map(mapApiOrderToUi);
+    } catch (err) {
+      console.error('Failed to load supplier data:', err);
+    } finally {
+      loading.value = false;
     }
   };
 
-  const createPurchaseOrder = (supplierId: string, items: PurchaseOrderItem[]) => {
-    const order: PurchaseOrder = {
-      id: crypto.randomUUID(),
-      supplierId,
-      items,
-      totalItems: items.reduce((sum, i) => sum + i.quantity, 0),
-      createdAt: new Date().toISOString(),
-      status: 'draft',
-    };
-    purchaseOrders.value.unshift(order);
-    return order;
+  const addSupplier = async (supplier: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'> & { itemIds?: number[] }) => {
+    const apiData = mapUiSupplierToApi({ ...supplier, contactPersonName: supplier.contactPerson, organizationName: supplier.name, itemIds: supplier.itemIds });
+    try {
+      const { data } = await supplierApi.postSupplier(apiData);
+      const newSupplier = mapApiSupplierToUi(data.data);
+      suppliers.value.push(newSupplier);
+      return newSupplier;
+    } catch (err) {
+      console.error('Failed to create supplier:', err);
+      throw err;
+    }
   };
 
-  const markOrderSent = (orderId: string) => {
+  const updateSupplier = async (id: string, updates: Partial<Supplier> & { itemIds?: number[] }) => {
+    const existing = suppliers.value.find(s => s.id === id);
+    if (!existing) return false;
+
+    const apiData = mapUiSupplierToApi({ ...existing, ...updates, contactPersonName: updates.contactPerson ?? existing.contactPerson, organizationName: updates.name ?? existing.name, itemIds: updates.itemIds });
+    try {
+      const { data } = await supplierApi.updateSupplier(Number(id), apiData);
+      const idx = suppliers.value.findIndex(s => s.id === id);
+      if (idx > -1) {
+        suppliers.value[idx] = mapApiSupplierToUi(data.data);
+      }
+      return true;
+    } catch (err) {
+      console.error('Failed to update supplier:', err);
+      return false;
+    }
+  };
+
+  const toggleSupplierStatus = async (id: string) => {
+    const supplier = getSupplierById(id);
+    if (supplier) {
+      await updateSupplier(id, { isActive: !supplier.isActive });
+    }
+  };
+
+  const createPurchaseOrder = async (supplierId: string, items: PurchaseOrderItem[]) => {
+    const supplier = getSupplierById(supplierId);
+    if (!supplier) throw new Error('Supplier not found');
+
+    const apiData = mapUiOrderToApi(supplier.name, items);
+    try {
+      const { data } = await orderApi.postOrder(apiData);
+      const newOrder = mapApiOrderToUi(data.data);
+      purchaseOrders.value.unshift(newOrder);
+      return newOrder;
+    } catch (err) {
+      console.error('Failed to create order:', err);
+      throw err;
+    }
+  };
+
+  const markOrderSent = async (orderId: string) => {
     const idx = purchaseOrders.value.findIndex(o => o.id === orderId);
     if (idx === -1) return false;
-    purchaseOrders.value[idx].status = 'sent';
-    purchaseOrders.value[idx].sentAt = new Date().toISOString();
-    return true;
+
+    const order = purchaseOrders.value[idx];
+    const apiData: OrderData = {
+      supplierName: order.supplierId,
+      date: order.createdAt,
+      status: 'sent',
+      items: order.items.map(item => ({
+        itemId: Number(item.productId),
+        quantity: item.quantity,
+        unitPrice: 0,
+        totalPrice: 0,
+      })),
+    };
+
+    try {
+      await orderApi.updateOrder(Number(orderId), apiData);
+      purchaseOrders.value[idx].status = 'sent';
+      purchaseOrders.value[idx].sentAt = new Date().toISOString();
+      return true;
+    } catch (err) {
+      console.error('Failed to mark order sent:', err);
+      return false;
+    }
   };
 
-  const cancelOrder = (orderId: string) => {
+  const cancelOrder = async (orderId: string) => {
     const idx = purchaseOrders.value.findIndex(o => o.id === orderId);
     if (idx === -1) return null;
-    const order = { ...purchaseOrders.value[idx] };
-    order.status = 'cancelled';
-    purchaseOrders.value[idx] = order;
-    return order;
+
+    const order = purchaseOrders.value[idx];
+    const apiData: OrderData = {
+      supplierName: order.supplierId,
+      date: order.createdAt,
+      status: 'cancelled',
+    };
+
+    try {
+      await orderApi.updateOrder(Number(orderId), apiData);
+      purchaseOrders.value[idx].status = 'cancelled';
+      return purchaseOrders.value[idx];
+    } catch (err) {
+      console.error('Failed to cancel order:', err);
+      return null;
+    }
   };
 
-  const confirmDelivery = (orderId: string) => {
+  const confirmDelivery = async (orderId: string) => {
     const idx = purchaseOrders.value.findIndex(o => o.id === orderId);
     if (idx === -1) return false;
-    purchaseOrders.value[idx].status = 'delivered';
-    return true;
+
+    const order = purchaseOrders.value[idx];
+    const apiData: OrderData = {
+      supplierName: order.supplierId,
+      date: order.createdAt,
+      status: 'delivered',
+    };
+
+    try {
+      await orderApi.updateOrder(Number(orderId), apiData);
+      purchaseOrders.value[idx].status = 'delivered';
+      return true;
+    } catch (err) {
+      console.error('Failed to confirm delivery:', err);
+      return false;
+    }
   };
 
-  const deleteOrder = (orderId: string) => {
-    const idx = purchaseOrders.value.findIndex(o => o.id === orderId);
+  const deleteSupplier = async (id: string) => {
+    const idx = suppliers.value.findIndex(s => s.id === id);
     if (idx > -1) {
-      purchaseOrders.value.splice(idx, 1);
-      return true;
+      try {
+        await supplierApi.deleteSupplier(Number(id));
+        suppliers.value.splice(idx, 1);
+        return true;
+      } catch (err) {
+        console.error('Failed to delete supplier:', err);
+        return false;
+      }
     }
     return false;
   };
 
-  // Mock data loader (replace with API calls when backend is ready)
-  const loadInitialData = () => {
-    // Sample products
-    products.value = [
-      { id: 'p1', name: 'Composite Resin A2', sku: 'CR-A2-001', unit: 'piece', stock: 24, minStock: 10 },
-      { id: 'p2', name: 'Disposable Gloves (Box)', sku: 'GLV-LAT-M', unit: 'box', stock: 15, minStock: 5 },
-      { id: 'p3', name: 'Anesthetic Carpules', sku: 'ANC-LID-2%', unit: 'pack', stock: 8, minStock: 20 },
-      { id: 'p4', name: 'Sterilization Pouches', sku: 'STP-MED-100', unit: 'pack', stock: 3, minStock: 10 },
-      { id: 'p5', name: 'Dental Mirror', sku: 'DM-STD-001', unit: 'piece', stock: 12, minStock: 5 },
-      { id: 'p6', name: 'Explorer Probe', sku: 'EP-STD-001', unit: 'piece', stock: 8, minStock: 5 },
-      { id: 'p7', name: 'Cotton Rolls (100pk)', sku: 'CR-100-001', unit: 'pack', stock: 20, minStock: 10 },
-      { id: 'p8', name: 'Bib Clips', sku: 'BC-STD-001', unit: 'piece', stock: 30, minStock: 15 },
-    ];
-
-    // Sample suppliers (if empty)
-    if (suppliers.value.length === 0) {
-      suppliers.value = [
-        {
-          id: 's1',
-          name: 'DentalSupply Co.',
-          contactPerson: 'John Smith',
-          phone: '+1234567890',
-          email: 'orders@dentalsupply.com',
-          address: '123 Main St, Suite 100, New York, NY 10001',
-          businessId: 'DS-123456',
-          notes: 'Net 30 payment terms. Free shipping over $500.',
-          productIds: ['p1', 'p2', 'p3', 'p7'],
-          isActive: true,
-          createdAt: '2024-01-15T10:00:00Z',
-          updatedAt: '2024-01-15T10:00:00Z',
-        },
-        {
-          id: 's2',
-          name: 'MedEquip Distributors',
-          contactPerson: 'Sarah Johnson',
-          phone: '+1987654321',
-          email: 'sales@medequip.com',
-          address: '456 Oak Ave, Los Angeles, CA 90001',
-          businessId: 'ME-789012',
-          notes: 'COD. 10% discount on orders over $1000.',
-          productIds: ['p4', 'p5', 'p6', 'p8'],
-          isActive: true,
-          createdAt: '2024-02-20T14:30:00Z',
-          updatedAt: '2024-02-20T14:30:00Z',
-        },
-        {
-          id: 's3',
-          name: 'Global Dental Imports',
-          contactPerson: 'Mike Chen',
-          phone: '+1555123456',
-          email: 'info@globaldental.com',
-          businessId: 'GD-345678',
-          productIds: ['p1', 'p5', 'p6'],
-          isActive: false,
-          createdAt: '2024-03-10T09:00:00Z',
-          updatedAt: '2024-03-10T09:00:00Z',
-        },
-      ];
+  const deleteOrder = async (orderId: string) => {
+    const idx = purchaseOrders.value.findIndex(o => o.id === orderId);
+    if (idx > -1) {
+      try {
+        await orderApi.deleteOrder(Number(orderId));
+        purchaseOrders.value.splice(idx, 1);
+        return true;
+      } catch (err) {
+        console.error('Failed to delete order:', err);
+        return false;
+      }
     }
-
-    // Sample pending orders (if empty)
-    if (purchaseOrders.value.length === 0) {
-      purchaseOrders.value = [
-        {
-          id: 'po1',
-          supplierId: 's1',
-          items: [
-            { productId: 'p1', productName: 'Composite Resin A2', quantity: 20, unit: 'piece', notes: 'Urgent' },
-            { productId: 'p2', productName: 'Disposable Gloves (Box)', quantity: 30, unit: 'box' },
-          ],
-          totalItems: 50,
-          createdAt: '2025-04-10T09:00:00Z',
-          sentAt: '2025-04-10T09:15:00Z',
-          status: 'sent',
-        },
-        {
-          id: 'po2',
-          supplierId: 's2',
-          items: [
-            { productId: 'p4', productName: 'Sterilization Pouches', quantity: 50, unit: 'pack', notes: 'Restock' },
-          ],
-          totalItems: 50,
-          createdAt: '2025-04-11T14:00:00Z',
-          sentAt: '2025-04-11T14:05:00Z',
-          status: 'sent',
-        },
-        {
-          id: 'po3',
-          supplierId: 's1',
-          items: [
-            { productId: 'p3', productName: 'Anesthetic Carpules', quantity: 100, unit: 'pack' },
-            { productId: 'p7', productName: 'Cotton Rolls (100pk)', quantity: 25, unit: 'pack' },
-          ],
-          totalItems: 125,
-          createdAt: '2025-04-08T11:00:00Z',
-          sentAt: '2025-04-08T11:10:00Z',
-          status: 'delivered',
-        },
-      ];
-    }
+    return false;
   };
 
   return {
     suppliers,
     products,
     purchaseOrders,
+    loading,
     pendingOrders,
     activeSuppliers,
     getSupplierById,
@@ -212,6 +280,7 @@ export const useSupplierStore = defineStore('supplier', () => {
     addSupplier,
     updateSupplier,
     toggleSupplierStatus,
+    deleteSupplier,
     createPurchaseOrder,
     markOrderSent,
     cancelOrder,

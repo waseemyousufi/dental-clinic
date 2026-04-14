@@ -210,7 +210,9 @@ const columns = computed(() => [
         type: type as any,
         size: 'small' as const,
         style: { cursor: 'pointer' },
-        onClick: () => store.toggleSupplierStatus(row.id)
+        onClick: async () => {
+          await store.toggleSupplierStatus(row.id)
+        }
       }, {
         default: () => [h(NIcon, { style: { marginRight: '4px' } }, { default: () => h(Icon, { icon }) }), label]
       });
@@ -359,7 +361,11 @@ const orderColumns = computed(() => [
           if (!isPending) {
             buttons.push(
               h(NPopconfirm, {
-                onPositiveClick: () => { store.deleteOrder(row.id); message.success('Order removed'); },
+                onPositiveClick: async () => {
+                  const success = await store.deleteOrder(row.id);
+                  if (success) message.success('Order removed');
+                  else message.error('Failed to remove order');
+                },
                 negativeText: 'Cancel',
                 positiveText: 'Delete'
               }, {
@@ -403,51 +409,64 @@ const closeFormModal = () => {
   editingSupplier.value = null;
 };
 
-const handleSupplierSubmit = (data: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'> & { businessId?: string }) => {
-  if (editingSupplier.value?.id) {
-    store.updateSupplier(editingSupplier.value.id, data);
-    message.success('Supplier updated');
-  } else {
-    store.addSupplier(data);
-    message.success('Supplier created');
+const handleSupplierSubmit = async (data: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'> & { businessId?: string }) => {
+  try {
+    if (editingSupplier.value?.id) {
+      const success = await store.updateSupplier(editingSupplier.value.id, data);
+      if (success) message.success('Supplier updated');
+      else message.error('Failed to update supplier');
+    } else {
+      await store.addSupplier(data);
+      message.success('Supplier created');
+    }
+    closeFormModal();
+  } catch {
+    message.error('Something went wrong');
   }
-  closeFormModal();
 };
 
-const handleOrderSubmit = (items: PurchaseOrderItem[]) => {
+const handleOrderSubmit = async (items: PurchaseOrderItem[]) => {
   if (!selectedSupplier.value) return;
 
-  const order = store.createPurchaseOrder(selectedSupplier.value.id, items);
-  const waLink = generateWhatsAppOrderLink(
-    selectedSupplier.value.phone,
-    selectedSupplier.value.name,
-    items
-  );
+  try {
+    const order = await store.createPurchaseOrder(selectedSupplier.value.id, items);
+    const waLink = generateWhatsAppOrderLink(
+      selectedSupplier.value.phone,
+      selectedSupplier.value.name,
+      items
+    );
 
-  dialog.warning({
-    title: 'Send Purchase Order?',
-    content: `Send order with ${items.length} item(s) to *${selectedSupplier.value.name}* via WhatsApp?`,
-    positiveText: 'Send via WhatsApp',
-    negativeText: 'Save as Draft',
-    onPositiveClick: () => {
-      sendViaWhatsApp(waLink);
-      store.markOrderSent(order.id);
-      message.success('Order sent!');
-    },
-    onNegativeClick: () => {
-      message.info('Order saved as draft');
-    }
-  });
+    dialog.warning({
+      title: 'Send Purchase Order?',
+      content: `Send order with ${items.length} item(s) to *${selectedSupplier.value.name}* via WhatsApp?`,
+      positiveText: 'Send via WhatsApp',
+      negativeText: 'Save as Draft',
+      onPositiveClick: async () => {
+        sendViaWhatsApp(waLink);
+        await store.markOrderSent(order.id);
+        message.success('Order sent!');
+      },
+      onNegativeClick: () => {
+        message.info('Order saved as draft');
+      }
+    });
 
-  showOrderModal.value = false;
+    showOrderModal.value = false;
+  } catch {
+    message.error('Failed to create order');
+  }
 };
 
-const handleConfirmDelivery = (orderId: string) => {
-  store.confirmDelivery(orderId);
-  message.success('Delivery confirmed!');
+const handleConfirmDelivery = async (orderId: string) => {
+  const success = await store.confirmDelivery(orderId);
+  if (success) {
+    message.success('Delivery confirmed!');
+  } else {
+    message.error('Failed to confirm delivery');
+  }
 };
 
-const handleCancelOrder = (orderId: string, supplier: Supplier | undefined, viaWhatsApp: boolean) => {
+const handleCancelOrder = async (orderId: string, supplier: Supplier | undefined, viaWhatsApp: boolean) => {
   const order = store.purchaseOrders.find(o => o.id === orderId);
   if (!order || !supplier) return;
 
@@ -457,16 +476,21 @@ const handleCancelOrder = (orderId: string, supplier: Supplier | undefined, viaW
     orderId.slice(0, 8),
     order.items.map(i => ({ productName: i.productName, quantity: i.quantity, unit: i.unit }))
   );
-  store.cancelOrder(orderId);
-  sendViaWhatsApp(cancelLink);
-  message.success('Order cancelled & WhatsApp message sent!');
+  const result = await store.cancelOrder(orderId);
+  if (result) {
+    sendViaWhatsApp(cancelLink);
+    message.success('Order cancelled & WhatsApp message sent!');
+  } else {
+    message.error('Failed to cancel order');
+  }
 };
 
-const handleDelete = (id: string) => {
-  const idx = store.suppliers.findIndex(s => s.id === id);
-  if (idx > -1) {
-    store.suppliers.splice(idx, 1);
+const handleDelete = async (id: string) => {
+  const success = await store.deleteSupplier(id);
+  if (success) {
     message.success('Supplier deleted');
+  } else {
+    message.error('Failed to delete supplier');
   }
 };
 

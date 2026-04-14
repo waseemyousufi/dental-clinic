@@ -54,6 +54,13 @@
             placeholder="Select products this supplier provides" :render-tag="renderTag" />
         </n-form-item-gi>
 
+        <!-- Items Supplied - Full Width -->
+        <n-form-item-gi :span="2" label="Items">
+          <n-select v-model:value="form.itemIds" :options="itemOptions" multiple filterable
+            placeholder="Select items this supplier provides" :loading="loadingItems"
+            :render-tag="renderItemTag" />
+        </n-form-item-gi>
+
         <!-- Notes - Full Width -->
         <n-form-item-gi :span="2" label="Notes">
           <n-input v-model:value="form.notes" type="textarea" :autosize="{ minRows: 2 }"
@@ -74,11 +81,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, h, watch } from 'vue';
-import { NModal, NForm, NFormItemGi, NInput, NButton, NIcon, NSpace, NSwitch, NGrid, NSelect, NTag, useMessage } from 'naive-ui';
+import { ref, computed, h, watch, onMounted } from 'vue';
+import { NModal, NForm, NFormItemGi, NInput, NButton, NIcon, NSpace, NSwitch, NGrid, NSelect, NTag, useMessage, useLoadingBar } from 'naive-ui';
 import type { FormInst, FormRules, SelectOption, CSSProperties } from 'naive-ui';
 import { Icon } from '@iconify/vue';
 import type { Supplier } from '@/types/supplier';
+import type ItemData from '@/api/interfaces/Item';
+import itemApi from '@/api/item';
 
 const props = defineProps<{
   productOptions: Array<{ label: string; value: string; sku: string }>;
@@ -86,7 +95,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'submit', data: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'> & { businessId?: string }): void;
+  (e: 'submit', data: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'> & { businessId?: string; itemIds?: number[] }): void;
   (e: 'cancel'): void;
 }>();
 
@@ -95,7 +104,35 @@ const formRef = ref<FormInst>();
 const showModal = ref(true);
 const submitting = ref(false);
 
-const defaultForm = (): Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'> & { businessId?: string } => ({
+// Items from API
+const items = ref<ItemData[]>([]);
+const loadingItems = ref(false);
+
+const loadItems = async () => {
+  loadingItems.value = true;
+  try {
+    const { data } = await itemApi.getItems();
+    console.log('Items API response:', data);
+    items.value = data.data ?? [];
+    console.log('Loaded items:', items.value.length, items.value);
+  } catch (err) {
+    console.error('Failed to load items:', err);
+  } finally {
+    loadingItems.value = false;
+  }
+};
+
+onMounted(() => loadItems());
+
+const itemOptions = computed(() =>
+  items.value.map(i => ({
+    label: i.name,
+    value: i.id,
+    category: i.category,
+  }))
+);
+
+const defaultForm = (): Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'> & { businessId?: string; itemIds?: number[] } => ({
   name: '',
   contactPerson: '',
   phone: '',
@@ -103,6 +140,7 @@ const defaultForm = (): Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'> & { bus
   address: '',
   notes: '',
   productIds: [],
+  itemIds: [],
   isActive: true,
   businessId: '',
 });
@@ -124,6 +162,7 @@ watch(
         address: data.address || '',
         notes: data.notes || '',
         productIds: [...data.productIds],
+        itemIds: data.itemIds ? [...data.itemIds] : [],
         isActive: data.isActive,
         businessId: (data as any).businessId || '',
       };
@@ -161,6 +200,12 @@ const formatPhone = () => {
 const renderTag = ({ option }: { option: SelectOption }) => {
   return h(NTag, { type: 'info', size: 'small' as const }, {
     default: () => `${option.label} (${option.sku})`
+  });
+};
+
+const renderItemTag = ({ option }: { option: SelectOption }) => {
+  return h(NTag, { type: 'warning', size: 'small' as const }, {
+    default: () => `${option.label} [${option.category ?? 'item'}]`
   });
 };
 

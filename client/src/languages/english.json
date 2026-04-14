@@ -25,8 +25,8 @@
       "gender": "Gender",
       "bloodType": "Blood type",
       "phone": "Phone",
-      "emergencyContact": "Emergency contact",
-      "registrationDate": "Registration date",
+      "emergencyContact": "Emg contact",
+      "registrationDate": "Reg date",
       "actions": "Actions"
     },
     "actions": {

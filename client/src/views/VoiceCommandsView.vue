@@ -45,6 +45,7 @@ import { useMessage } from 'naive-ui'
 type RecorderPayload = { command: string; total: number; blob?: Blob; index?: number }
 type CommandGroup = { title: string; description: string; items: CommandItem[] }
 type Category = 'tooth' | 'surface' | 'condition'
+type TrainingMode = 'initial' | 'personalized'
 type TrainSummary = {
   loss: number
   accuracy: number
@@ -62,11 +63,15 @@ type PredictionResult = {
   labels: string[]
   inputShape: [number, number, number]
 }
+type ModelKind = 'binary' | 'multiclass'
 
 /**
  * STATE & REPEATABLE LOGIC
  */
 const message = useMessage()
+
+const trainingMode = ref<TrainingMode>('initial')
+const currentModeLabel = computed(() => (trainingMode.value === 'initial' ? 'Initial training' : 'End-user training'))
 
 const groups: CommandGroup[] = [
   { title: 'Tooth Location', description: 'FDI / ISO 3950 tooth numbers.', items: toothNumbers },
@@ -88,29 +93,40 @@ for (const item of surfaceCommands) COMMAND_TO_CATEGORY.set(normalizeLabel(item.
 for (const item of conditionCommands) COMMAND_TO_CATEGORY.set(normalizeLabel(item.command), 'condition')
 
 const samplesByCommand = reactive<Record<string, number>>({})
-const voiceSamples = reactive<Record<string, Blob[]>>({})
 const backgroundNoiseSamples = reactive<Blob[]>([])
 const trainingState = reactive({
   status: 'idle' as 'idle' | 'ready' | 'training' | 'done' | 'error',
   message: '',
   progress: 0,
 })
-const trainedModels = shallowReactive<Partial<Record<Category, tf.LayersModel>>>({})
-const labelCache: Partial<Record<Category, string[]>> = {}
-
-// Incremental learning cache
-const featureStore = reactive<Record<Category, FeatureExample[]>>({
-  tooth: [],
-  surface: [],
-  condition: [],
+const trainedModels: Record<TrainingMode, Partial<Record<Category, tf.LayersModel>>> = shallowReactive({
+  initial: {},
+  personalized: {},
 })
-let featureStoreHydrated = false
+const labelCache: Record<TrainingMode, Partial<Record<Category, string[]>>> = {
+  initial: {},
+  personalized: {},
+}
+
+// Backing stores, split by mode so the base model and user model do not overwrite each other.
+const voiceSamplesByMode = reactive<Record<TrainingMode, Record<string, Blob[]>>>({
+  initial: {},
+  personalized: {},
+})
+const featureStoreByMode = reactive<Record<TrainingMode, Record<Category, FeatureExample[]>>>({
+  initial: { tooth: [], surface: [], condition: [] },
+  personalized: { tooth: [], surface: [], condition: [] },
+})
+const featureStoreHydrated = reactive<Record<TrainingMode, boolean>>({
+  initial: false,
+  personalized: false,
+})
 
 // TF Setup Constants
 const SAMPLE_RATE = 16_000
 const TARGET_DURATION_SECONDS = 1
 const TARGET_SAMPLES = SAMPLE_RATE * TARGET_DURATION_SECONDS
-const MIN_LABEL_SAMPLES = 2
+const MIN_LABEL_SAMPLES = 5
 const MODEL_PREFIX = 'dental-voice-dscnn'
 
 // DS-CNN feature extraction constants
@@ -123,24 +139,29 @@ const MEL_HIGH_FREQ = SAMPLE_RATE / 2
 const FEATURE_FRAMES = 97
 const FEATURE_SHAPE: [number, number, number] = [FEATURE_FRAMES, MEL_BINS, 1]
 
-// Noise augmentation constants
-const AUGMENTATIONS_PER_SAMPLE = 0
-const MAX_SHIFT_MS = 120
-const SNR_DB_MIN = 5
-const SNR_DB_MAX = 20
+// Speech cleanup constants
+const SILENCE_THRESHOLD_RATIO = 0.06
+const SILENCE_FLOOR = 0.008
+const SILENCE_PAD_MS = 120
 
-const REPLAY_PER_LABEL = 4
-const FRESH_PER_LABEL = 24
+// Training constants
+const BALANCED_TARGET_PER_LABEL = 24
+const AUGMENTATIONS_PER_SAMPLE = 3
+const FEATURE_JITTER_STD = 0.03
+const INITIAL_TRAIN_LR = 8e-4
+const PERSONALIZED_TRAIN_LR = 5e-5
+const PERSONALIZED_EPOCHS = 18
+const INITIAL_EPOCHS = 36
+const LOW_CONFIDENCE_MARGIN = 0.15
 
 const waveformCache = new WeakMap<Blob, Float32Array>()
 let audioContext: AudioContext | null = null
 let MEL_FILTERBANK: tf.Tensor2D | null = null
 
-// IndexedDB for incremental feature cache
-const FEATURE_DB_NAME = `${MODEL_PREFIX}-feature-store`
+// IndexedDB for feature cache, split by mode.
 const FEATURE_DB_VERSION = 1
 const FEATURE_STORE_NAME = 'feature_examples'
-let featureDbPromise: Promise<IDBDatabase> | null = null
+const featureDbPromiseByMode: Partial<Record<TrainingMode, Promise<IDBDatabase>>> = {}
 
 // Floating Button States
 const isGlobalRecording = ref(false)
@@ -155,31 +176,108 @@ let timerInterval: number | null = null
  * COMPUTED PROPERTIES
  */
 const totalCommands = computed(() => groups.reduce((count, group) => count + group.items.length, 0))
-const totalSamples = computed(() => Object.values(voiceSamples).reduce((sum, samples) => sum + (samples?.length ?? 0), 0))
+const totalSamples = computed(() => {
+  const mode = trainingMode.value
+  return Object.values(voiceSamplesByMode[mode]).reduce((sum, samples) => sum + (samples?.length ?? 0), 0)
+})
 const noiseSamples = computed(() => backgroundNoiseSamples.length)
 const completedCommands = computed(() => Object.values(samplesByCommand).filter((count) => count >= 5).length)
-const canTrain = computed(() =>
-  (['tooth', 'surface', 'condition'] as Category[]).every((cat) =>
-    CATEGORY_LABELS[cat].filter((l) => getKnownSampleCount(cat, l) >= MIN_LABEL_SAMPLES).length >= 2,
-  ),
-)
+const canTrain = computed(() => {
+  const mode = trainingMode.value
+  return (['tooth', 'surface', 'condition'] as Category[]).every((cat) =>
+    CATEGORY_LABELS[cat].filter((l) => getKnownSampleCount(cat, l, mode) >= MIN_LABEL_SAMPLES).length >= 2,
+  )
+})
 
 const recordingCircleOffset = computed(() => circlesCircumference * (1 - timeLeft.value / totalDuration))
 const trainingCircleOffset = computed(() => 188.5 * (1 - trainingState.progress / 100))
 
 /**
- * INDEXEDDB FEATURE CACHE
+ * SMALL UTILS
  */
 function makeId() {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID()
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
 
-function openFeatureDb(): Promise<IDBDatabase> {
-  if (featureDbPromise) return featureDbPromise
+function getModePrefix(mode: TrainingMode) {
+  return mode === 'initial' ? 'base' : 'user'
+}
 
-  featureDbPromise = new Promise((resolve, reject) => {
-    const req = indexedDB.open(FEATURE_DB_NAME, FEATURE_DB_VERSION)
+function getModelKey(mode: TrainingMode, category: Category) {
+  return `indexeddb://${MODEL_PREFIX}-${getModePrefix(mode)}-${category}`
+}
+
+function getLabelKey(mode: TrainingMode, category: Category) {
+  return `${MODEL_PREFIX}-${getModePrefix(mode)}:${category}:labels`
+}
+
+function getLastTrainedAtKey(mode: TrainingMode, category: Category) {
+  return `${MODEL_PREFIX}-${getModePrefix(mode)}:${category}:lastTrainedAt`
+}
+
+function getFeatureDbName(mode: TrainingMode) {
+  return `${MODEL_PREFIX}-${getModePrefix(mode)}-feature-store`
+}
+
+function rand(min: number, max: number) {
+  return Math.random() * (max - min) + min
+}
+
+function randn() {
+  let u = 0
+  let v = 0
+  while (u === 0) u = Math.random()
+  while (v === 0) v = Math.random()
+  return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v)
+}
+
+function clamp(v: number, min = -1, max = 1) {
+  return Math.max(min, Math.min(max, v))
+}
+
+function shuffleCopy<T>(items: T[]): T[] {
+  const out = [...items]
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+      ;[out[i], out[j]] = [out[j]!, out[i]!]
+  }
+  return out
+}
+
+function toFloat32Array(value: Float32Array | number[] | ArrayBuffer | ArrayBufferView): Float32Array {
+  if (value instanceof Float32Array) return value
+  if (Array.isArray(value)) return Float32Array.from(value)
+  if (ArrayBuffer.isView(value)) {
+    const view = value as ArrayBufferView
+    return new Float32Array(view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength))
+  }
+  return new Float32Array(value)
+}
+
+function lastNumber(values: unknown): number | undefined {
+  if (!Array.isArray(values) || values.length === 0) return undefined
+  const last = values[values.length - 1]
+  return typeof last === 'number' && Number.isFinite(last) ? last : undefined
+}
+
+function clearModelCacheForMode(mode: TrainingMode, category: Category) {
+  const model = trainedModels[mode][category]
+  if (model) {
+    model.dispose()
+    trainedModels[mode][category] = undefined
+  }
+}
+
+/**
+ * INDEXEDDB FEATURE CACHE
+ */
+function openFeatureDb(mode: TrainingMode): Promise<IDBDatabase> {
+  const cached = featureDbPromiseByMode[mode]
+  if (cached) return cached
+
+  const promise = new Promise<IDBDatabase>((resolve, reject) => {
+    const req = indexedDB.open(getFeatureDbName(mode), FEATURE_DB_VERSION)
 
     req.onupgradeneeded = () => {
       const db = req.result
@@ -195,17 +293,8 @@ function openFeatureDb(): Promise<IDBDatabase> {
     req.onerror = () => reject(req.error)
   })
 
-  return featureDbPromise
-}
-
-function toFloat32Array(value: Float32Array | number[] | ArrayBuffer | ArrayBufferView): Float32Array {
-  if (value instanceof Float32Array) return value
-  if (Array.isArray(value)) return Float32Array.from(value)
-  if (ArrayBuffer.isView(value)) {
-    const view = value as ArrayBufferView
-    return new Float32Array(view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength))
-  }
-  return new Float32Array(value)
+  featureDbPromiseByMode[mode] = promise
+  return promise
 }
 
 function normalizeStoredFeatureExample(raw: unknown): FeatureExample | null {
@@ -228,8 +317,8 @@ function normalizeStoredFeatureExample(raw: unknown): FeatureExample | null {
   }
 }
 
-async function putFeatureExample(example: FeatureExample, category: Category): Promise<void> {
-  const db = await openFeatureDb()
+async function putFeatureExample(example: FeatureExample, category: Category, mode: TrainingMode): Promise<void> {
+  const db = await openFeatureDb(mode)
   await new Promise<void>((resolve, reject) => {
     const tx = db.transaction(FEATURE_STORE_NAME, 'readwrite')
     const store = tx.objectStore(FEATURE_STORE_NAME)
@@ -250,8 +339,8 @@ async function putFeatureExample(example: FeatureExample, category: Category): P
   })
 }
 
-async function deleteFeatureExamplesByCommand(category: Category, command: string): Promise<void> {
-  const db = await openFeatureDb()
+async function deleteFeatureExamplesByCommand(category: Category, command: string, mode: TrainingMode): Promise<void> {
+  const db = await openFeatureDb(mode)
   await new Promise<void>((resolve, reject) => {
     const tx = db.transaction(FEATURE_STORE_NAME, 'readwrite')
     const store = tx.objectStore(FEATURE_STORE_NAME)
@@ -274,8 +363,8 @@ async function deleteFeatureExamplesByCommand(category: Category, command: strin
   })
 }
 
-async function loadFeatureExamplesByCategory(category: Category): Promise<FeatureExample[]> {
-  const db = await openFeatureDb()
+async function loadFeatureExamplesByCategory(category: Category, mode: TrainingMode): Promise<FeatureExample[]> {
+  const db = await openFeatureDb(mode)
   return new Promise<FeatureExample[]>((resolve, reject) => {
     const tx = db.transaction(FEATURE_STORE_NAME, 'readonly')
     const store = tx.objectStore(FEATURE_STORE_NAME)
@@ -292,67 +381,127 @@ async function loadFeatureExamplesByCategory(category: Category): Promise<Featur
   })
 }
 
-function setFeatureStoreCategory(category: Category, values: FeatureExample[]) {
-  featureStore[category].splice(0, featureStore[category].length, ...values)
+function setFeatureStoreCategory(mode: TrainingMode, category: Category, values: FeatureExample[]) {
+  featureStoreByMode[mode][category].splice(0, featureStoreByMode[mode][category].length, ...values)
 }
 
-async function hydrateFeatureStoreFromDb() {
+async function hydrateFeatureStoreFromDb(mode: TrainingMode) {
   const categories: Category[] = ['tooth', 'surface', 'condition']
-  const loaded = await Promise.all(categories.map(async (category) => [category, await loadFeatureExamplesByCategory(category)] as const))
+  const loaded = await Promise.all(categories.map(async (category) => [category, await loadFeatureExamplesByCategory(category, mode)] as const))
 
   for (const [category, items] of loaded) {
-    setFeatureStoreCategory(category, items)
+    setFeatureStoreCategory(mode, category, items)
   }
 
-  featureStoreHydrated = true
+  featureStoreHydrated[mode] = true
 }
 
-function getKnownSampleCount(category: Category, command: string): number {
-  const fromVoice = voiceSamples[command]?.length ?? 0
-  const fromFeatures = featureStore[category].filter((x) => x.command === command).length
+function getKnownSampleCount(category: Category, command: string, mode: TrainingMode): number {
+  const fromVoice = voiceSamplesByMode[mode][command]?.length ?? 0
+  const fromFeatures = featureStoreByMode[mode][category].filter((x) => x.command === command).length
   return Math.max(fromVoice, fromFeatures)
 }
 
 function sampleUpTo<T>(items: T[], limit: number): T[] {
   if (items.length <= limit) return [...items]
-  const copy = [...items]
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-      ;[copy[i], copy[j]] = [copy[j]!, copy[i]!]
-  }
-  return copy.slice(0, limit)
+  return shuffleCopy(items).slice(0, limit)
 }
 
-function buildIncrementalBatch(category: Category, allExamples: FeatureExample[]): FeatureExample[] {
+function buildBalancedBatch(mode: TrainingMode, category: Category, allExamples: FeatureExample[]): FeatureExample[] {
   const labels = CATEGORY_LABELS[category]
-  const lastTrainedAtKey = `${MODEL_PREFIX}:${category}:lastTrainedAt`
-  const lastTrainedAt = Number(localStorage.getItem(lastTrainedAtKey) || '0')
+  const perLabel = labels.map((_, labelIndex) => allExamples.filter((x) => x.labelIndex === labelIndex))
 
-  const fresh = allExamples.filter((x) => x.createdAt > lastTrainedAt)
-  const old = allExamples.filter((x) => x.createdAt <= lastTrainedAt)
+  if (perLabel.some((group) => group.length === 0)) return []
 
-  const freshSelected: FeatureExample[] = []
-  const replaySelected: FeatureExample[] = []
+  const minCount = Math.min(...perLabel.map((group) => group.length))
+  const targetPerLabel = Math.max(minCount, BALANCED_TARGET_PER_LABEL)
 
-  for (let labelIndex = 0; labelIndex < labels.length; labelIndex++) {
-    const freshForLabel = sampleUpTo(
-      fresh.filter((x) => x.labelIndex === labelIndex),
-      FRESH_PER_LABEL,
-    )
-    const oldForLabel = sampleUpTo(
-      old.filter((x) => x.labelIndex === labelIndex),
-      REPLAY_PER_LABEL,
-    )
+  const batch: FeatureExample[] = []
+  for (const group of perLabel) {
+    const selected = sampleUpTo(group, targetPerLabel)
 
-    freshSelected.push(...freshForLabel)
-    replaySelected.push(...oldForLabel)
+    for (const base of selected) {
+      batch.push({
+        command: base.command,
+        createdAt: base.createdAt,
+        labelIndex: base.labelIndex,
+        features: Float32Array.from(base.features),
+      })
+
+      for (let i = 0; i < AUGMENTATIONS_PER_SAMPLE; i++) {
+        batch.push({
+          command: base.command,
+          createdAt: base.createdAt,
+          labelIndex: base.labelIndex,
+          features: jitterFeatures(base.features, FEATURE_JITTER_STD * (1 + i * 0.25)),
+        })
+      }
+    }
   }
 
-  const batch = [...freshSelected, ...replaySelected]
-  if (batch.length > 0) return batch
+  return shuffleCopy(batch)
+}
 
-  const fallback = sampleUpTo(allExamples, Math.min(allExamples.length, labels.length * 8))
-  return fallback
+/**
+ * SPEECH CLEANUP
+ */
+function trimSilence(input: Float32Array, sampleRate: number): Float32Array {
+  if (input.length === 0) return input
+
+  let peak = 0
+  for (let i = 0; i < input.length; i++) {
+    const a = Math.abs(input[i]!)
+    if (a > peak) peak = a
+  }
+
+  if (peak < 1e-6) return input
+
+  const threshold = Math.max(SILENCE_FLOOR, peak * SILENCE_THRESHOLD_RATIO)
+  let start = 0
+  let end = input.length - 1
+
+  while (start < input.length && Math.abs(input[start]!) < threshold) start++
+  while (end > start && Math.abs(input[end]!) < threshold) end--
+
+  if (end <= start) return input
+
+  const pad = Math.round((SILENCE_PAD_MS / 1000) * sampleRate)
+  const from = Math.max(0, start - pad)
+  const to = Math.min(input.length, end + pad + 1)
+
+  return input.slice(from, to)
+}
+
+function peakNormalize(input: Float32Array, targetPeak = 0.95): Float32Array {
+  let peak = 0
+  for (let i = 0; i < input.length; i++) {
+    const a = Math.abs(input[i]!)
+    if (a > peak) peak = a
+  }
+  if (peak < 1e-8) return input
+
+  const gain = targetPeak / peak
+  const out = new Float32Array(input.length)
+  for (let i = 0; i < input.length; i++) out[i] = clamp(input[i]! * gain)
+  return out
+}
+
+function preEmphasis(input: Float32Array, coeff = 0.97): Float32Array {
+  if (input.length === 0) return input
+  const out = new Float32Array(input.length)
+  out[0] = input[0]!
+  for (let i = 1; i < input.length; i++) {
+    out[i] = input[i]! - coeff * input[i - 1]!
+  }
+  return out
+}
+
+function jitterFeatures(input: Float32Array, sigma = FEATURE_JITTER_STD): Float32Array {
+  const out = new Float32Array(input.length)
+  for (let i = 0; i < input.length; i++) {
+    out[i] = input[i]! + randn() * sigma
+  }
+  return out
 }
 
 /**
@@ -381,7 +530,10 @@ async function blobToWaveform(blob: Blob): Promise<Float32Array> {
   }
 
   const resampled = resampleLinear(mono, decoded.sampleRate, SAMPLE_RATE)
-  const fixed = padOrTrim(resampled, TARGET_SAMPLES)
+  const trimmed = trimSilence(resampled, SAMPLE_RATE)
+  const emphasized = preEmphasis(trimmed)
+  const normalized = peakNormalize(emphasized)
+  const fixed = padOrTrim(normalized, TARGET_SAMPLES)
   waveformCache.set(blob, fixed)
   return fixed
 }
@@ -420,14 +572,6 @@ function padOrTrim(input: Float32Array, length: number) {
   const out = new Float32Array(length)
   out.set(input.slice(0, length))
   return out
-}
-
-function rand(min: number, max: number) {
-  return Math.random() * (max - min) + min
-}
-
-function clamp(v: number, min = -1, max = 1) {
-  return Math.max(min, Math.min(max, v))
 }
 
 function rms(wf: Float32Array) {
@@ -495,18 +639,18 @@ function mixWithNoise(signal: Float32Array, noise: Float32Array, snrDb: number) 
 function augmentWaveform(wf: Float32Array, noisePool: Float32Array[]) {
   let out = Float32Array.from(wf)
 
-  out = applyGain(out, rand(0.8, 1.2))
+  out = applyGain(out, rand(0.85, 1.15))
 
-  const shiftSamples = Math.round((rand(-MAX_SHIFT_MS, MAX_SHIFT_MS) / 1000) * SAMPLE_RATE)
+  const shiftSamples = Math.round((rand(-120, 120) / 1000) * SAMPLE_RATE)
   out = timeShift(out, shiftSamples)
 
-  if (noisePool.length > 0 && Math.random() < 0.9) {
+  if (noisePool.length > 0 && Math.random() < 0.85) {
     const noise = noisePool[Math.floor(Math.random() * noisePool.length)]!
-    const snrDb = rand(SNR_DB_MIN, SNR_DB_MAX)
+    const snrDb = rand(7, 22)
     out = mixWithNoise(out, noise, snrDb)
   } else {
-    const snrDb = rand(SNR_DB_MIN, SNR_DB_MAX)
-    out = mixWithNoise(out, synthNoise(out.length, rand(0.01, 0.05)), snrDb)
+    const snrDb = rand(8, 24)
+    out = mixWithNoise(out, synthNoise(out.length, rand(0.01, 0.04)), snrDb)
   }
 
   return out
@@ -587,23 +731,23 @@ async function ensureBackendReady() {
 /**
  * MODEL RESTORATION
  */
-async function loadSavedModel(category: Category): Promise<boolean> {
-  const modelKey = `indexeddb://${MODEL_PREFIX}-${category}`
+async function loadSavedModel(mode: TrainingMode, category: Category): Promise<boolean> {
+  const modelKey = getModelKey(mode, category)
 
   try {
     const model = await tf.loadLayersModel(modelKey)
-    trainedModels[category] = markRaw(model)
+    trainedModels[mode][category] = markRaw(model)
 
-    const labelsRaw = localStorage.getItem(`${MODEL_PREFIX}:${category}:labels`)
+    const labelsRaw = localStorage.getItem(getLabelKey(mode, category))
     if (labelsRaw) {
       try {
-        labelCache[category] = JSON.parse(labelsRaw) as string[]
+        labelCache[mode][category] = JSON.parse(labelsRaw) as string[]
       } catch {
-        labelCache[category] = CATEGORY_LABELS[category]
+        labelCache[mode][category] = CATEGORY_LABELS[category]
       }
     } else {
-      labelCache[category] = CATEGORY_LABELS[category]
-      localStorage.setItem(`${MODEL_PREFIX}:${category}:labels`, JSON.stringify(CATEGORY_LABELS[category]))
+      labelCache[mode][category] = CATEGORY_LABELS[category]
+      localStorage.setItem(getLabelKey(mode, category), JSON.stringify(CATEGORY_LABELS[category]))
     }
 
     return true
@@ -617,12 +761,15 @@ async function restoreSavedModels() {
     await tf.setBackend('webgl')
   }
 
+  const modes: TrainingMode[] = ['initial', 'personalized']
   const categories: Category[] = ['tooth', 'surface', 'condition']
   let loadedCount = 0
 
-  for (const category of categories) {
-    const loaded = await loadSavedModel(category)
-    if (loaded) loadedCount += 1
+  for (const mode of modes) {
+    for (const category of categories) {
+      const loaded = await loadSavedModel(mode, category)
+      if (loaded) loadedCount += 1
+    }
   }
 
   if (loadedCount > 0) {
@@ -665,7 +812,23 @@ async function waveformToFeatures(waveform: Float32Array): Promise<Float32Array>
   return Float32Array.from(data)
 }
 
-function buildClassifier(inputShape: [number, number, number], classCount: number) {
+function compileClassifier(model: tf.LayersModel, kind: ModelKind, learningRate: number) {
+  if (kind === 'binary') {
+    model.compile({
+      optimizer: tf.train.adam(learningRate),
+      loss: 'binaryCrossentropy',
+      metrics: ['accuracy'],
+    })
+  } else {
+    model.compile({
+      optimizer: tf.train.adam(learningRate),
+      loss: 'categoricalCrossentropy',
+      metrics: ['accuracy'],
+    })
+  }
+}
+
+function buildClassifier(inputShape: [number, number, number], classCount: number, kind: ModelKind) {
   const model = tf.sequential()
 
   model.add(
@@ -676,6 +839,7 @@ function buildClassifier(inputShape: [number, number, number], classCount: numbe
       padding: 'same',
       activation: 'relu',
       dataFormat: 'channelsLast',
+      kernelInitializer: 'heNormal',
     }),
   )
   model.add(tf.layers.batchNormalization())
@@ -688,11 +852,15 @@ function buildClassifier(inputShape: [number, number, number], classCount: numbe
       activation: 'relu',
       depthMultiplier: 1,
       dataFormat: 'channelsLast',
+      depthwiseInitializer: 'heNormal',
+      pointwiseInitializer: 'heNormal',
+      depthwiseRegularizer: tf.regularizers.l2({ l2: 1e-4 }),
+      pointwiseRegularizer: tf.regularizers.l2({ l2: 1e-4 }),
     }),
   )
   model.add(tf.layers.batchNormalization())
   model.add(tf.layers.maxPooling2d({ poolSize: [2, 2], strides: [2, 2], dataFormat: 'channelsLast' }))
-  model.add(tf.layers.dropout({ rate: 0.2 }))
+  model.add(tf.layers.dropout({ rate: 0.25 }))
 
   model.add(
     tf.layers.separableConv2d({
@@ -702,28 +870,37 @@ function buildClassifier(inputShape: [number, number, number], classCount: numbe
       activation: 'relu',
       depthMultiplier: 1,
       dataFormat: 'channelsLast',
+      depthwiseInitializer: 'heNormal',
+      pointwiseInitializer: 'heNormal',
+      depthwiseRegularizer: tf.regularizers.l2({ l2: 1e-4 }),
+      pointwiseRegularizer: tf.regularizers.l2({ l2: 1e-4 }),
     }),
   )
   model.add(tf.layers.batchNormalization())
   model.add(tf.layers.maxPooling2d({ poolSize: [2, 2], strides: [2, 2], dataFormat: 'channelsLast' }))
-  model.add(tf.layers.dropout({ rate: 0.25 }))
+  model.add(tf.layers.dropout({ rate: 0.35 }))
 
   model.add(tf.layers.globalAveragePooling2d({ dataFormat: 'channelsLast' }))
-  model.add(tf.layers.dense({ units: classCount, activation: 'softmax' }))
 
-  model.compile({
-    optimizer: tf.train.adam(1e-3),
-    loss: 'categoricalCrossentropy',
-    metrics: ['accuracy'],
-  })
+  if (kind === 'binary') {
+    model.add(tf.layers.dense({ units: 1, activation: 'sigmoid', biasInitializer: 'zeros' }))
+  } else {
+    model.add(tf.layers.dense({ units: classCount, activation: 'softmax', biasInitializer: 'zeros' }))
+  }
 
+  compileClassifier(model, kind, INITIAL_TRAIN_LR)
   return model
 }
 
-function lastNumber(values: unknown): number | undefined {
-  if (!Array.isArray(values) || values.length === 0) return undefined
-  const last = values[values.length - 1]
-  return typeof last === 'number' && Number.isFinite(last) ? last : undefined
+function seedModelForMode(mode: TrainingMode, category: Category, kind: ModelKind) {
+  if (mode === 'personalized') {
+    const base = trainedModels.initial[category]
+    if (base) {
+      compileClassifier(base, kind, PERSONALIZED_TRAIN_LR)
+      return base
+    }
+  }
+  return undefined
 }
 
 async function storeFeatureExampleFromBlob(
@@ -734,71 +911,94 @@ async function storeFeatureExampleFromBlob(
   saveToDb = true,
 ): Promise<FeatureExample> {
   const wf = await blobToWaveform(blob)
-  const feat = await waveformToFeatures(wf)
-  const example: FeatureExample = {
+
+  // 🔹 Collect noise pool
+  const noiseWaveforms: Float32Array[] = []
+  for (const noiseBlob of backgroundNoiseSamples) {
+    try {
+      const n = await blobToWaveform(noiseBlob)
+      noiseWaveforms.push(n)
+    } catch { }
+  }
+
+  // 🔹 ALWAYS store original
+  const baseFeat = await waveformToFeatures(wf)
+  const baseExample: FeatureExample = {
     command,
     createdAt: Date.now(),
     labelIndex,
-    features: feat,
+    features: baseFeat,
   }
 
-  featureStore[category].push(example)
-  if (saveToDb) {
-    await putFeatureExample(example, category)
+  featureStore[category].push(baseExample)
+  if (saveToDb) await putFeatureExample(baseExample, category)
+
+  // 🔥 ADD REAL AUGMENTATION HERE
+  for (let i = 0; i < AUGMENTATIONS_PER_SAMPLE; i++) {
+    const augmented = augmentWaveform(wf, noiseWaveforms)
+    const feat = await waveformToFeatures(augmented)
+
+    const example: FeatureExample = {
+      command,
+      createdAt: Date.now(),
+      labelIndex,
+      features: feat,
+    }
+
+    featureStore[category].push(example)
+    if (saveToDb) await putFeatureExample(example, category)
   }
 
-  return example
+  return baseExample
 }
 
-async function backfillFeatureStoreFromVoiceSamples(category: Category) {
+async function backfillFeatureStoreFromVoiceSamples(mode: TrainingMode, category: Category) {
   const labels = CATEGORY_LABELS[category]
 
   for (const label of labels) {
-    const blobs = voiceSamples[label] ?? []
-    const existingCount = featureStore[category].filter((x) => x.command === label).length
+    const blobs = voiceSamplesByMode[mode][label] ?? []
+    const existingCount = featureStoreByMode[mode][category].filter((x) => x.command === label).length
 
     for (let i = existingCount; i < blobs.length; i++) {
       const blob = blobs[i]
       if (!blob) continue
-      await storeFeatureExampleFromBlob(blob, category, label, labels.indexOf(label), true)
+      await storeFeatureExampleFromBlob(blob, category, label, labels.indexOf(label), mode, true)
     }
   }
 }
 
-async function ensureFeatureStoreReady() {
-  if (!featureStoreHydrated) {
-    await hydrateFeatureStoreFromDb()
+async function ensureFeatureStoreReady(mode: TrainingMode) {
+  if (!featureStoreHydrated[mode]) {
+    await hydrateFeatureStoreFromDb(mode)
   }
-  await Promise.all((['tooth', 'surface', 'condition'] as Category[]).map((category) => backfillFeatureStoreFromVoiceSamples(category)))
+  await Promise.all((['tooth', 'surface', 'condition'] as Category[]).map((category) => backfillFeatureStoreFromVoiceSamples(mode, category)))
 }
 
 async function trainCategoryIncremental(category: Category): Promise<TrainSummary> {
+  const mode = trainingMode.value
   const labels = CATEGORY_LABELS[category]
-  labelCache[category] = labels
+  labelCache[mode][category] = labels
 
-  await ensureFeatureStoreReady()
+  await ensureFeatureStoreReady(mode)
 
-  let model = trainedModels[category]
+  let model = trainedModels[mode][category]
   if (!model) {
-    const loaded = await loadSavedModel(category)
-    model = loaded ? trainedModels[category] : undefined
+    if (mode === 'personalized') {
+      const base = seedModelForMode(mode, category, labels.length === 2 ? 'binary' : 'multiclass')
+      model = base ?? buildClassifier(FEATURE_SHAPE, labels.length, labels.length === 2 ? 'binary' : 'multiclass')
+    } else {
+      model = buildClassifier(FEATURE_SHAPE, labels.length, labels.length === 2 ? 'binary' : 'multiclass')
+    }
   }
 
-  if (!model) {
-    model = buildClassifier(FEATURE_SHAPE, labels.length)
-  }
+  const kind: ModelKind = labels.length === 2 ? 'binary' : 'multiclass'
+  compileClassifier(model, kind, mode === 'personalized' ? PERSONALIZED_TRAIN_LR : INITIAL_TRAIN_LR)
 
-  model.compile({
-    optimizer: tf.train.adam(1e-4),
-    loss: 'categoricalCrossentropy',
-    metrics: ['accuracy'],
-  })
-
-  const allExamples = featureStore[category]
-  const batch = buildIncrementalBatch(category, allExamples)
+  const allExamples = featureStoreByMode[mode][category]
+  const batch = buildBalancedBatch(mode, category, allExamples)
 
   if (batch.length === 0) {
-    throw new Error(`No training examples found for ${category}`)
+    throw new Error(`No training examples found for ${mode} / ${category}`)
   }
 
   if (batch[0]!.features.length !== FEATURE_FRAMES * MEL_BINS) {
@@ -814,16 +1014,23 @@ async function trainCategoryIncremental(category: Category): Promise<TrainSummar
   })
 
   const xTrain = tf.tensor4d(flat, [batch.length, FEATURE_FRAMES, MEL_BINS, 1])
-  const yTrain = tf.oneHot(tf.tensor1d(batch.map((e) => e.labelIndex), 'int32'), labels.length)
 
+  let yTrain: tf.Tensor
+  if (kind === 'binary') {
+    yTrain = tf.tensor2d(batch.map((e) => [e.labelIndex]), [batch.length, 1], 'float32')
+  } else {
+    yTrain = tf.oneHot(tf.tensor1d(batch.map((e) => e.labelIndex), 'int32'), labels.length)
+  }
+
+  const epochs = mode === 'personalized' ? PERSONALIZED_EPOCHS : INITIAL_EPOCHS
   const history = await model.fit(xTrain, yTrain, {
-    epochs: 4,
-    batchSize: 16,
+    epochs,
+    batchSize: Math.min(8, batch.length),
     shuffle: true,
-    validationSplit: batch.length >= 12 ? 0.15 : 0,
+    validationSplit: batch.length >= 10 ? 0.2 : 0,
     callbacks: {
       onEpochEnd: (e) => {
-        trainingState.progress = Math.round(((e + 1) / 4) * 100)
+        trainingState.progress = Math.round(((e + 1) / epochs) * 100)
       },
     },
   })
@@ -831,10 +1038,10 @@ async function trainCategoryIncremental(category: Category): Promise<TrainSummar
   xTrain.dispose()
   yTrain.dispose()
 
-  await model.save(`indexeddb://${MODEL_PREFIX}-${category}`)
-  localStorage.setItem(`${MODEL_PREFIX}:${category}:labels`, JSON.stringify(labels))
-  localStorage.setItem(`${MODEL_PREFIX}:${category}:lastTrainedAt`, String(Math.max(...batch.map((x) => x.createdAt), Date.now())))
-  trainedModels[category] = markRaw(model)
+  await model.save(getModelKey(mode, category))
+  localStorage.setItem(getLabelKey(mode, category), JSON.stringify(labels))
+  localStorage.setItem(getLastTrainedAtKey(mode, category), String(Math.max(...batch.map((x) => x.createdAt), Date.now())))
+  trainedModels[mode][category] = markRaw(model)
 
   const loss = lastNumber(history.history.loss) ?? 0
   const accuracy = lastNumber(history.history.accuracy ?? history.history.acc) ?? 0
@@ -853,6 +1060,7 @@ async function trainCategoryIncremental(category: Category): Promise<TrainSummar
 }
 
 async function train() {
+  const mode = trainingMode.value
   trainingState.status = 'training'
   trainingState.progress = 0
   trainingState.message = ''
@@ -862,8 +1070,8 @@ async function train() {
     await trainCategoryIncremental('surface')
     await trainCategoryIncremental('condition')
     trainingState.status = 'done'
-    trainingState.message = 'Incremental training complete.'
-    message.success('Incremental training complete.')
+    trainingState.message = mode === 'initial' ? 'Initial training complete.' : 'End-user training complete.'
+    message.success(trainingState.message)
   } catch (e: unknown) {
     trainingState.status = 'error'
     const errorMessage = e instanceof Error ? e.message : String(e)
@@ -874,12 +1082,20 @@ async function train() {
 }
 
 async function getCategoryModel(category: Category): Promise<tf.LayersModel> {
-  const cached = trainedModels[category]
-  if (cached) return cached
+  const personalized = trainedModels.personalized[category]
+  if (personalized) return personalized
 
-  const restored = await loadSavedModel(category)
-  if (restored && trainedModels[category]) {
-    return trainedModels[category]!
+  const loadedPersonalized = await loadSavedModel('personalized', category)
+  if (loadedPersonalized && trainedModels.personalized[category]) {
+    return trainedModels.personalized[category]!
+  }
+
+  const base = trainedModels.initial[category]
+  if (base) return base
+
+  const loadedBase = await loadSavedModel('initial', category)
+  if (loadedBase && trainedModels.initial[category]) {
+    return trainedModels.initial[category]!
   }
 
   throw new Error('Model not trained')
@@ -887,17 +1103,46 @@ async function getCategoryModel(category: Category): Promise<tf.LayersModel> {
 
 async function predictRecordedCommand(payload: { blob: Blob; category: Category }): Promise<PredictionResult> {
   const model = await getCategoryModel(payload.category)
-  const labels = labelCache[payload.category] || CATEGORY_LABELS[payload.category]
+  const labels = labelCache.personalized[payload.category] || labelCache.initial[payload.category] || CATEGORY_LABELS[payload.category]
 
   const wf = await blobToWaveform(payload.blob)
   const feat = await waveformToFeatures(wf)
   const input = tf.tensor4d(feat, [1, FEATURE_SHAPE[0], FEATURE_SHAPE[1], FEATURE_SHAPE[2]])
   const output = model.predict(input) as tf.Tensor
-  const probs = Array.from(await output.data())
-  const bestIdx = probs.indexOf(Math.max(...probs))
+  const raw = Array.from(await output.data())
 
   input.dispose()
   output.dispose()
+
+  if (labels.length === 2) {
+    let probs: number[]
+    let bestIdx: number
+
+    if (raw.length === 1) {
+      const p1 = raw[0]!
+      probs = [1 - p1, p1]
+      bestIdx = p1 >= 0.5 ? 1 : 0
+    } else {
+      probs = raw.slice(0, 2)
+      bestIdx = probs[1]! >= probs[0]! ? 1 : 0
+    }
+
+    const sorted = [...probs].sort((a, b) => b - a)
+    const confidence = Math.max(0, (sorted[0] ?? 0) - (sorted[1] ?? 0))
+
+    return {
+      label: labels[bestIdx]!,
+      confidence,
+      probabilities: probs,
+      labels,
+      inputShape: FEATURE_SHAPE,
+    }
+  }
+
+  const probs = raw
+  const bestIdx = probs.indexOf(Math.max(...probs))
+  const sorted = [...probs].sort((a, b) => b - a)
+  const confidence = Math.max(0, (sorted[0] ?? 0) - (sorted[1] ?? 0))
 
   if (bestIdx < 0 || bestIdx >= labels.length) {
     throw new Error('Invalid prediction index')
@@ -905,7 +1150,7 @@ async function predictRecordedCommand(payload: { blob: Blob; category: Category 
 
   return {
     label: labels[bestIdx]!,
-    confidence: probs[bestIdx]!,
+    confidence,
     probabilities: probs,
     labels,
     inputShape: FEATURE_SHAPE,
@@ -927,8 +1172,10 @@ async function storeRecordedSample(p: RecorderPayload) {
   const labelIndex = CATEGORY_LABELS[category].indexOf(cmd)
   if (labelIndex < 0) return
 
+  const mode = trainingMode.value
+
   try {
-    await storeFeatureExampleFromBlob(p.blob, category, cmd, labelIndex, true)
+    await storeFeatureExampleFromBlob(p.blob, category, cmd, labelIndex, mode, true)
   } catch (e) {
     console.error('Failed to cache feature example:', e)
   }
@@ -950,7 +1197,13 @@ const startGlobalRecording = async () => {
     const load = message.loading('Predicting...', { duration: 0 })
     try {
       const res = await predictRecordedCommand({ blob, category: 'surface' })
-      message.success(`Detected: ${res.label}`)
+      console.log(res)
+
+      if (res.confidence < LOW_CONFIDENCE_MARGIN) {
+        message.warning(`Low confidence: ${res.label} (${Math.round(res.confidence * 100)}%)`)
+      } else {
+        message.success(`Detected: ${res.label} (${Math.round(res.confidence * 100)}%)`)
+      }
     } catch (e) {
       console.warn(e)
       message.error('Not recognized. Train first or load a saved model.')
@@ -989,23 +1242,25 @@ function handleRecorded(p: RecorderPayload) {
     return
   }
 
-  if (!voiceSamples[cmd]) voiceSamples[cmd] = []
-  voiceSamples[cmd].push(p.blob)
+  const mode = trainingMode.value
+  if (!voiceSamplesByMode[mode][cmd]) voiceSamplesByMode[mode][cmd] = []
+  voiceSamplesByMode[mode][cmd].push(p.blob)
   samplesByCommand[cmd] = p.total
 
   void storeRecordedSample(p)
 }
 
-async function removeFeaturesForCommand(cmd: string) {
+async function removeFeaturesForCommand(cmd: string, mode: TrainingMode) {
   const category = COMMAND_TO_CATEGORY.get(cmd)
   if (!category) return
 
-  featureStore[category] = featureStore[category].filter((x) => x.command !== cmd)
-  await deleteFeatureExamplesByCommand(category, cmd)
+  featureStoreByMode[mode][category] = featureStoreByMode[mode][category].filter((x) => x.command !== cmd)
+  await deleteFeatureExamplesByCommand(category, cmd, mode)
 }
 
 function handleDeleted(p: { command: string; total: number }) {
   const cmd = normalizeLabel(p.command)
+  const mode = trainingMode.value
 
   if (cmd === NOISE_LABEL) {
     backgroundNoiseSamples.splice(0, backgroundNoiseSamples.length)
@@ -1013,25 +1268,26 @@ function handleDeleted(p: { command: string; total: number }) {
     return
   }
 
-  voiceSamples[cmd] = []
+  voiceSamplesByMode[mode][cmd] = []
   samplesByCommand[cmd] = p.total
 
-  void removeFeaturesForCommand(cmd)
+  void removeFeaturesForCommand(cmd, mode)
 }
 
 onMounted(async () => {
   await ensureBackendReady()
-  await hydrateFeatureStoreFromDb()
-  featureStoreHydrated = true
+  await Promise.all((['initial', 'personalized'] as TrainingMode[]).map((mode) => hydrateFeatureStoreFromDb(mode)))
   await restoreSavedModels()
 })
 
 onBeforeUnmount(() => {
-  Object.values(trainedModels).forEach((m) => m?.dispose())
+  Object.values(trainedModels.initial).forEach((m) => m?.dispose())
+  Object.values(trainedModels.personalized).forEach((m) => m?.dispose())
   MEL_FILTERBANK?.dispose()
   MEL_FILTERBANK = null
 })
 </script>
+
 
 <template>
   <div class="voice-page">
@@ -1071,7 +1327,7 @@ onBeforeUnmount(() => {
 
       <div class="command-group__list">
         <VoiceCommandRecorder v-for="item in group.items" :recordingSeconds="item.recordingSeconds || 2"
-          :key="item.command" :command="item.command" :subtitle="item.subtitle" :max-samples="5"
+          :key="item.command" :command="item.command" :subtitle="item.subtitle" :max-samples="15"
           @recorded="handleRecorded" @deleted="handleDeleted" />
       </div>
     </section>

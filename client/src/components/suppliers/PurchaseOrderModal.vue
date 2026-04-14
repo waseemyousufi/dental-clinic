@@ -17,12 +17,14 @@
     <n-space justify="space-between" align="center">
       <n-text depth="3">
         Total Items: <strong>{{ totalQuantity }}</strong> •
-        Unique Products: <strong>{{ selectedItems.length }}</strong>
+        Products: <strong>{{ selectedItems.length }}</strong>
       </n-text>
       <n-space>
         <n-button @click="closeModal">Cancel</n-button>
         <n-button type="primary" :disabled="selectedItems.length === 0" @click="handleSubmit">
-          <n-icon><Icon icon="mdi:whatsapp" /></n-icon> Send via WhatsApp
+          <n-icon>
+            <Icon icon="mdi:whatsapp" />
+          </n-icon> Send via WhatsApp
         </n-button>
       </n-space>
     </n-space>

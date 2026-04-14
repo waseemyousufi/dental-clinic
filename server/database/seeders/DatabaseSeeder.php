@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
         $this->call(PatientSeeder::class);
         $this->call(ClinicMaterialSeeder::class);
         $this->call(ClinicAssetSeeder::class);
+        $this->call(ItemSeeder::class);
         $this->call(EmployeeSalarySeeder::class);
         $this->call(EmployeeExperienceSeeder::class);
         $this->call(PrescriptionSeeder::class);
@@ -36,5 +37,9 @@ class DatabaseSeeder extends Seeder
         $this->call(AllergySeeder::class);
         $this->call(PatientFileSeeder::class);
         $this->call(ManyToManySeeder::class);
+        $this->call(SupplierSeeder::class);
+        $this->call(OrderSeeder::class);
+        $this->call(ShelfSeeder::class);
+        $this->call(InventoryStockSeeder::class);
     }
 }

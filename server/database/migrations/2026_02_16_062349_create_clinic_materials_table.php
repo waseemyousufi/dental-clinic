@@ -13,12 +13,11 @@ return new class extends Migration
     {
         Schema::create('clinic_materials', function (Blueprint $table) {
             $table->id();
-            $table->string('materials_name', 30);
+            $table->string('material_name')->nullable();
             $table->unsignedSmallInteger('quantity');
             $table->integer('amount', false, true);
             $table->integer('total_amount', false, true);
-            $table->date('expense_date');
-            $table->string('description', 250);
+            $table->date('expense_date')->nullable();
         });
     }
 
