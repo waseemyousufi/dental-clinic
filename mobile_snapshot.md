@@ -1,0 +1,247 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - button [active] [ref=e6] [cursor=pointer]:
+        - img [ref=e8]
+      - generic [ref=e10]:
+        - generic [ref=e11]:
+          - button [ref=e12] [cursor=pointer]:
+            - img [ref=e13]
+          - generic [ref=e15]:
+            - link [ref=e16] [cursor=pointer]:
+              - /url: /patients
+              - img [ref=e17]
+            - link [ref=e20] [cursor=pointer]:
+              - /url: /employees
+              - img [ref=e21]:
+                - img [ref=e22]
+            - link [ref=e25] [cursor=pointer]:
+              - /url: /accounts
+              - img [ref=e26]:
+                - img [ref=e27]
+            - link [ref=e30] [cursor=pointer]:
+              - /url: /transactions
+              - img [ref=e31]:
+                - img [ref=e32]
+            - link [ref=e35] [cursor=pointer]:
+              - /url: /appointments
+              - img [ref=e36]:
+                - img [ref=e37]
+            - link [ref=e40] [cursor=pointer]:
+              - /url: /xrays
+              - img [ref=e41]:
+                - img [ref=e42]
+            - link [ref=e45] [cursor=pointer]:
+              - /url: /prescriptions
+              - img [ref=e46]
+            - link [ref=e50] [cursor=pointer]:
+              - /url: /inventory
+              - img [ref=e51]
+            - link [ref=e54] [cursor=pointer]:
+              - /url: /suppliers
+              - img [ref=e55]
+        - separator [ref=e60]
+        - button [ref=e62] [cursor=pointer]:
+          - img [ref=e63]
+        - separator [ref=e65]
+        - button [ref=e67] [cursor=pointer]:
+          - img [ref=e68]
+    - generic [ref=e70]:
+      - generic [ref=e71]:
+        - heading "Supplier Management" [level=2] [ref=e72]:
+          - img [ref=e73]:
+            - img [ref=e74]
+          - text: Supplier Management
+        - button "Add New Supplier" [ref=e76] [cursor=pointer]:
+          - img [ref=e78]:
+            - img [ref=e79]
+          - generic [ref=e81]: Add New Supplier
+      - generic [ref=e82]:
+        - generic [ref=e85]:
+          - img [ref=e86]:
+            - img [ref=e87]
+          - generic [ref=e89]:
+            - generic [ref=e90]: "3"
+            - generic [ref=e91]: Total Suppliers
+        - generic [ref=e94]:
+          - img [ref=e95]:
+            - img [ref=e96]
+          - generic [ref=e98]:
+            - generic [ref=e99]: "2"
+            - generic [ref=e100]: Active
+        - generic [ref=e103]:
+          - img [ref=e104]:
+            - img [ref=e105]
+          - generic [ref=e107]:
+            - generic [ref=e108]: "30"
+            - generic [ref=e109]: Products
+        - generic [ref=e112]:
+          - img [ref=e113]:
+            - img [ref=e114]
+          - generic [ref=e116]:
+            - generic [ref=e117]: "0"
+            - generic [ref=e118]: Pending Orders
+        - generic [ref=e121]:
+          - img [ref=e122]:
+            - img [ref=e123]
+          - generic [ref=e125]:
+            - generic [ref=e126]: "0"
+            - generic [ref=e127]: Orders This Month
+      - generic [ref=e128]:
+        - generic [ref=e130]:
+          - img [ref=e132]:
+            - img [ref=e133]
+          - generic [ref=e135]:
+            - textbox "Search suppliers..." [ref=e136]
+            - generic:
+              - generic: Search suppliers...
+        - generic [ref=e141] [cursor=pointer]:
+          - generic "All" [ref=e142]:
+            - generic [ref=e143]: All
+          - img "loading" [ref=e144]:
+            - img [ref=e149]
+        - button [ref=e151] [cursor=pointer]:
+          - img [ref=e153]:
+            - img [ref=e154]
+      - generic [ref=e156]:
+        - heading "Suppliers" [ref=e157]:
+          - heading "Suppliers" [ref=e158]
+        - generic [ref=e159]:
+          - table [ref=e162]:
+            - rowgroup [ref=e169]:
+              - row "Supplier Contact Items Status Actions" [ref=e170]:
+                - columnheader "Supplier" [ref=e171]:
+                  - generic [ref=e173]: Supplier
+                - columnheader "Contact" [ref=e174]:
+                  - generic [ref=e176]: Contact
+                - columnheader "Items" [ref=e177]:
+                  - generic [ref=e179]: Items
+                - columnheader "Status" [ref=e180]:
+                  - generic [ref=e182]: Status
+                - columnheader "Actions" [ref=e183]:
+                  - generic [ref=e185]: Actions
+            - rowgroup [ref=e186]:
+              - row "Medical Supplies Co. John Smith +1234567890 john@medicalsupplies.com 3 items Active Order" [ref=e187]:
+                - cell "Medical Supplies Co. John Smith" [ref=e188]:
+                  - generic [ref=e189]:
+                    - generic [ref=e190]: Medical Supplies Co.
+                    - generic [ref=e191]: John Smith
+                - cell "+1234567890 john@medicalsupplies.com" [ref=e192]:
+                  - button "+1234567890" [ref=e193] [cursor=pointer]:
+                    - generic [ref=e194]:
+                      - img [ref=e195]:
+                        - img [ref=e196]
+                      - text: "+1234567890"
+                  - button "john@medicalsupplies.com" [ref=e198] [cursor=pointer]:
+                    - generic [ref=e199]:
+                      - img [ref=e200]:
+                        - img [ref=e201]
+                      - text: john@medicalsupplies.com
+                - cell "3 items" [ref=e203]:
+                  - generic [ref=e205]:
+                    - img [ref=e206]:
+                      - img [ref=e207]
+                    - text: 3 items
+                - cell "Active" [ref=e209]:
+                  - generic [ref=e211] [cursor=pointer]:
+                    - img [ref=e212]:
+                      - img [ref=e213]
+                    - text: Active
+                - cell "Order" [ref=e215]:
+                  - button "Order" [ref=e216] [cursor=pointer]:
+                    - generic [ref=e217]:
+                      - img [ref=e218]:
+                        - img [ref=e219]
+                      - text: Order
+                  - button [ref=e221] [cursor=pointer]:
+                    - img [ref=e223]:
+                      - img [ref=e224]
+                  - button [ref=e226] [cursor=pointer]:
+                    - img [ref=e228]:
+                      - img [ref=e229]
+              - row "Dental Equipment Ltd. Jane Doe +0987654321 jane@dentalequipment.com No items Active Order" [ref=e231]:
+                - cell "Dental Equipment Ltd. Jane Doe" [ref=e232]:
+                  - generic [ref=e233]:
+                    - generic [ref=e234]: Dental Equipment Ltd.
+                    - generic [ref=e235]: Jane Doe
+                - cell "+0987654321 jane@dentalequipment.com" [ref=e236]:
+                  - button "+0987654321" [ref=e237] [cursor=pointer]:
+                    - generic [ref=e238]:
+                      - img [ref=e239]:
+                        - img [ref=e240]
+                      - text: "+0987654321"
+                  - button "jane@dentalequipment.com" [ref=e242] [cursor=pointer]:
+                    - generic [ref=e243]:
+                      - img [ref=e244]:
+                        - img [ref=e245]
+                      - text: jane@dentalequipment.com
+                - cell "No items" [ref=e247]
+                - cell "Active" [ref=e248]:
+                  - generic [ref=e250] [cursor=pointer]:
+                    - img [ref=e251]:
+                      - img [ref=e252]
+                    - text: Active
+                - cell "Order" [ref=e254]:
+                  - button "Order" [ref=e255] [cursor=pointer]:
+                    - generic [ref=e256]:
+                      - img [ref=e257]:
+                        - img [ref=e258]
+                      - text: Order
+                  - button [ref=e260] [cursor=pointer]:
+                    - img [ref=e262]:
+                      - img [ref=e263]
+                  - button [ref=e265] [cursor=pointer]:
+                    - img [ref=e267]:
+                      - img [ref=e268]
+              - row "Pharma Distributors Inc. Robert Johnson +1122334455 robert@pharmadist.com No items Inactive Order" [ref=e270]:
+                - cell "Pharma Distributors Inc. Robert Johnson" [ref=e271]:
+                  - generic [ref=e272]:
+                    - generic [ref=e273]: Pharma Distributors Inc.
+                    - generic [ref=e274]: Robert Johnson
+                - cell "+1122334455 robert@pharmadist.com" [ref=e275]:
+                  - button "+1122334455" [ref=e276] [cursor=pointer]:
+                    - generic [ref=e277]:
+                      - img [ref=e278]:
+                        - img [ref=e279]
+                      - text: "+1122334455"
+                  - button "robert@pharmadist.com" [ref=e281] [cursor=pointer]:
+                    - generic [ref=e282]:
+                      - img [ref=e283]:
+                        - img [ref=e284]
+                      - text: robert@pharmadist.com
+                - cell "No items" [ref=e286]
+                - cell "Inactive" [ref=e287]:
+                  - generic [ref=e289] [cursor=pointer]:
+                    - img [ref=e290]:
+                      - img [ref=e291]
+                    - text: Inactive
+                - cell "Order" [ref=e293]:
+                  - button "Order" [ref=e294] [cursor=pointer]:
+                    - generic [ref=e295]:
+                      - img [ref=e296]:
+                        - img [ref=e297]
+                      - text: Order
+                  - button [ref=e299] [cursor=pointer]:
+                    - img [ref=e301]:
+                      - img [ref=e302]
+                  - button [ref=e304] [cursor=pointer]:
+                    - img [ref=e306]:
+                      - img [ref=e307]
+          - generic [ref=e310]:
+            - img [ref=e313]
+            - generic [ref=e315] [cursor=pointer]: "1"
+            - img [ref=e318]
+      - generic [ref=e320]:
+        - heading "Pending Orders" [ref=e321]:
+          - heading "Pending Orders" [ref=e322]:
+            - img [ref=e323]:
+              - img [ref=e324]
+            - text: Pending Orders
+        - generic [ref=e326]:
+          - img [ref=e329]
+          - generic [ref=e332]: No pending orders right now
+  - generic [ref=e333]:
+    - generic "Toggle devtools panel" [ref=e334] [cursor=pointer]:
+      - img [ref=e335]
+    - generic "Toggle Component Inspector" [ref=e340] [cursor=pointer]:
+      - img [ref=e341]

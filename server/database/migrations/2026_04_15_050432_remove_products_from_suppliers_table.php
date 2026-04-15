@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Schema::table('patients', function (Blueprint $table) {
-        //     $table->foreignId('patient_file_id')->unique()->constrained()->cascadeOnDelete();
-        // });
+        Schema::table('suppliers', function (Blueprint $table) {
+            $table->dropColumn('products');
+        });
     }
 
     /**
@@ -21,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Schema::dropColumns('patients', 'patient_file_id');
+        Schema::table('suppliers', function (Blueprint $table) {
+            $table->json('products')->nullable();
+        });
     }
 };

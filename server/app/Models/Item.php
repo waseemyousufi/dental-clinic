@@ -30,8 +30,6 @@ class Item extends Model
         'is_consumable' => 'boolean',
     ];
 
-    protected $appends = ['total_quantity'];
-
     /**
      * Get the suppliers that provide this item.
      */

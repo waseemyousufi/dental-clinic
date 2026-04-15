@@ -22,7 +22,7 @@ class OrderController extends Controller
         $data = $request->validate([
             'supplierName' => 'required|string|max:255',
             'date' => 'required|date',
-            'status' => 'required|string|in:pending,received,cancelled',
+            'status' => 'required|string|in:pending,received,cancelled,draft',
             'notes' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.itemId' => 'required|integer|exists:items,id',
@@ -69,7 +69,7 @@ class OrderController extends Controller
         $data = $request->validate([
             'supplierName' => 'sometimes|string|max:255',
             'date' => 'sometimes|date',
-            'status' => 'sometimes|string|in:pending,received,cancelled',
+            'status' => 'sometimes|string|in:pending,received,cancelled,draft',
             'notes' => 'nullable|string',
             'items' => 'sometimes|array',
             'items.*.itemId' => 'required_with:items|integer|exists:items,id',

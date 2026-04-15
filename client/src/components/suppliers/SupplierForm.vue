@@ -48,12 +48,6 @@
             placeholder="Street, City, State, ZIP" />
         </n-form-item-gi>
 
-        <!-- Products Supplied - Full Width -->
-        <n-form-item-gi :span="2" label="Products">
-          <n-select v-model:value="form.productIds" :options="productOptions" multiple filterable
-            placeholder="Select products this supplier provides" :render-tag="renderTag" />
-        </n-form-item-gi>
-
         <!-- Items Supplied - Full Width -->
         <n-form-item-gi :span="2" label="Items">
           <n-select v-model:value="form.itemIds" :options="itemOptions" multiple filterable
@@ -90,12 +84,11 @@ import type ItemData from '@/api/interfaces/Item';
 import itemApi from '@/api/item';
 
 const props = defineProps<{
-  productOptions: Array<{ label: string; value: string; sku: string }>;
   initialData?: Supplier | null;
 }>();
 
 const emit = defineEmits<{
-  (e: 'submit', data: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'> & { businessId?: string; itemIds?: number[] }): void;
+  (e: 'submit', data: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>): void;
   (e: 'cancel'): void;
 }>();
 
@@ -132,14 +125,13 @@ const itemOptions = computed(() =>
   }))
 );
 
-const defaultForm = (): Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'> & { businessId?: string; itemIds?: number[] } => ({
+const defaultForm = (): Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'> => ({
   name: '',
   contactPerson: '',
   phone: '',
   email: '',
   address: '',
   notes: '',
-  productIds: [],
   itemIds: [],
   isActive: true,
   businessId: '',
@@ -161,8 +153,7 @@ watch(
         email: data.email || '',
         address: data.address || '',
         notes: data.notes || '',
-        productIds: [...data.productIds],
-        itemIds: data.itemIds ? [...data.itemIds] : [],
+        itemIds: [...data.itemIds],
         isActive: data.isActive,
         businessId: (data as any).businessId || '',
       };
@@ -195,12 +186,6 @@ const formatPhone = () => {
   } else if (!form.value.phone.startsWith('+') && form.value.phone.length >= 10) {
     form.value.phone = '+' + form.value.phone;
   }
-};
-
-const renderTag = ({ option }: { option: SelectOption }) => {
-  return h(NTag, { type: 'info', size: 'small' as const }, {
-    default: () => `${option.label} (${option.sku})`
-  });
 };
 
 const renderItemTag = ({ option }: { option: SelectOption }) => {

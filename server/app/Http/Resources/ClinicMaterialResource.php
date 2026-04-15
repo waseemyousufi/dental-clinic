@@ -33,14 +33,14 @@ class ClinicMaterialResource extends JsonResource
             'activePrice' => $this->whenLoaded('activePrice'),
             'prices' => ProductPriceResource::collection($this->whenLoaded('prices')),
             'inventoryStock' => InventoryStockResource::collection($this->whenLoaded('inventoryStock')),
-            'branches' => $this->branches->map(fn($branch) => [
-                'id' => $branch->id,
-                'name' => $branch->branch_name,
-            ]),
-            'accountTransactions' => $this->accountTransactions->map(fn($transaction) => [
-                'id' => $transaction->id,
-                'amount' => $transaction->amount,
-            ]),
+            // 'branches' => $this->branches->map(fn($branch) => [
+            //     'id' => $branch->id,
+            //     'name' => $branch->branch_name,
+            // ]),
+            // 'accountTransactions' => $this->accountTransactions->map(fn($transaction) => [
+            //     'id' => $transaction->id,
+            //     'amount' => $transaction->amount,
+            // ]),
         ];
     }
 }

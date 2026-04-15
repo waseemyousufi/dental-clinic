@@ -1,0 +1,72 @@
+[     898ms] [LOG] null @ http://10.2.0.2:1234/src/App.vue:37
+[     943ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[     944ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[     947ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[     948ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[    1062ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[    1062ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[    1062ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[    1063ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[    1113ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable class="data-table" columns= [Object, Object, Object, Object, Object, Object, Object, Object] data= []  ... > 
+  at <Card size="small" class="patient-panel" > 
+  at <PatientView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< undefined > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[    5862ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:8000/api/patient:0
+[    5903ms] [ERROR] AxiosError: Request failed with status code 404
+    at settle (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1319:7)
+    at XMLHttpRequest.onloadend (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1682:7)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async fetchPatients (http://10.2.0.2:1234/src/views/PatientView.vue:219:26) @ http://10.2.0.2:1234/src/views/PatientView.vue:222
+[   29584ms] [LOG] null @ http://10.2.0.2:1234/src/App.vue:37
+[   29627ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   29628ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   29631ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   29632ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   29847ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   29848ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   29848ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   29848ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   29976ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://10.2.0.2:1234/login:0
+[   45160ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   45160ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   45161ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   45161ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   45192ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable class="data-table" columns= [Object, Object, Object, Object, Object, Object, Object, Object] data= []  ... > 
+  at <Card size="small" class="patient-panel" > 
+  at <PatientView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[   48146ms] [LOG] [Object] @ http://10.2.0.2:1234/src/views/PatientView.vue:219
+[   52802ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   52803ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   52803ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   52803ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   52851ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[   52883ms] [LOG] 🍍 "supplier" store installed 🆕 @ http://10.2.0.2:1234/node_modules/.vite/deps/pinia.js?v=deffc1ee:4415
+[   57342ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8000/api/chores/orders:0
+[   57344ms] [ERROR] Failed to load supplier data: AxiosError: Request failed with status code 500
+    at settle (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1319:7)
+    at XMLHttpRequest.onloadend (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1682:7)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async Proxy.loadInitialData (http://10.2.0.2:1234/src/stores/supplierStore.ts:83:36) @ http://10.2.0.2:1234/src/stores/supplierStore.ts:85

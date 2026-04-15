@@ -16,8 +16,7 @@ export interface Supplier {
   address?: string;
   businessId?: string; // Business registration/tax ID
   notes?: string;
-  productIds: string[]; // IDs of products this supplier provides
-  itemIds?: number[]; // IDs of items this supplier provides (from items table)
+  itemIds: number[]; // IDs of items this supplier provides (from items table)
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

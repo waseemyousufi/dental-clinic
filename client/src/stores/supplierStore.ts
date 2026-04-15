@@ -22,13 +22,13 @@ export const useSupplierStore = defineStore('supplier', () => {
     purchaseOrders.value.filter(o => o.status === 'sent')
   );
 
-  const getSupplierById = (id: string) =>
-    suppliers.value.find(s => s.id === id);
+  const getSupplierById = (supplierName: string) =>
+    suppliers.value.find(s => s.id === supplierName);
 
   const getProductsBySupplier = (supplierId: string) => {
     const supplier = getSupplierById(supplierId);
     if (!supplier) return [];
-    return products.value.filter(p => supplier.productIds.includes(p.id));
+    return products.value.filter(p => supplier.itemIds.includes(Number(p.id)));
   };
 
   // --- Mapping helpers ---
@@ -40,7 +40,7 @@ export const useSupplierStore = defineStore('supplier', () => {
     email: api.email,
     businessId: api.businessId,
     notes: '',
-    productIds: (api.items ?? []).map(i => String(i.id)),
+    itemIds: (api.items ?? []).map(i => Number(i.id)),
     isActive: api.status === 'active',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -53,7 +53,7 @@ export const useSupplierStore = defineStore('supplier', () => {
     email: ui.email,
     status: ui.isActive !== false ? 'active' : 'inactive',
     businessId: ui.businessId,
-    itemIds: ui.itemIds,
+    itemIds: ui.itemIds ?? [],
   });
 
   const mapApiOrderToUi = (api: OrderData): PurchaseOrder => ({
@@ -92,10 +92,9 @@ export const useSupplierStore = defineStore('supplier', () => {
       const { data: suppliersData } = await supplierApi.getSuppliers();
       suppliers.value = (suppliersData.data ?? []).map(mapApiSupplierToUi);
 
-      // Load items as products
+      // Load items
       const { data: itemsData } = await itemApi.getItems();
-      const items = itemsData.data ?? [];
-      products.value = items.map((item: ItemData) => ({
+      products.value = (itemsData.data ?? []).map((item: ItemData) => ({
         id: String(item.id),
         name: item.name,
         sku: `ITEM-${item.id}`,
@@ -114,7 +113,7 @@ export const useSupplierStore = defineStore('supplier', () => {
     }
   };
 
-  const addSupplier = async (supplier: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'> & { itemIds?: number[] }) => {
+  const addSupplier = async (supplier: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>) => {
     const apiData = mapUiSupplierToApi({ ...supplier, contactPersonName: supplier.contactPerson, organizationName: supplier.name, itemIds: supplier.itemIds });
     try {
       const { data } = await supplierApi.postSupplier(apiData);
@@ -127,11 +126,11 @@ export const useSupplierStore = defineStore('supplier', () => {
     }
   };
 
-  const updateSupplier = async (id: string, updates: Partial<Supplier> & { itemIds?: number[] }) => {
+  const updateSupplier = async (id: string, updates: Partial<Supplier>) => {
     const existing = suppliers.value.find(s => s.id === id);
     if (!existing) return false;
 
-    const apiData = mapUiSupplierToApi({ ...existing, ...updates, contactPersonName: updates.contactPerson ?? existing.contactPerson, organizationName: updates.name ?? existing.name, itemIds: updates.itemIds });
+    const apiData = mapUiSupplierToApi({ ...existing, ...updates, contactPersonName: updates.contactPerson ?? existing.contactPerson, organizationName: updates.name ?? existing.name, itemIds: updates.itemIds ?? existing.itemIds });
     try {
       const { data } = await supplierApi.updateSupplier(Number(id), apiData);
       const idx = suppliers.value.findIndex(s => s.id === id);
@@ -157,6 +156,7 @@ export const useSupplierStore = defineStore('supplier', () => {
     if (!supplier) throw new Error('Supplier not found');
 
     const apiData = mapUiOrderToApi(supplier.name, items);
+    console.log('Creating order with API data:', apiData);
     try {
       const { data } = await orderApi.postOrder(apiData);
       const newOrder = mapApiOrderToUi(data.data);

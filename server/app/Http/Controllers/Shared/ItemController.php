@@ -12,7 +12,7 @@ class ItemController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Item::with(['activePrice', 'suppliers']);
+        $query = Item::with(['activePrice', 'suppliers', 'inventoryStock']);
 
         // Filter by category
         if ($request->has('category')) {

@@ -11,7 +11,7 @@ class SupplierController extends Controller
 {
     public function index()
     {
-        $suppliers = Supplier::withCount('orders')->get();
+        $suppliers = Supplier::withCount(['orders', 'items'])->with('items')->get();
         return SupplierResource::collection($suppliers);
     }
 
@@ -42,7 +42,7 @@ class SupplierController extends Controller
             $supplier->items()->sync($data['itemIds']);
         }
 
-        return new SupplierResource($supplier->loadCount('items'));
+        return new SupplierResource($supplier->load(['items']));
     }
 
     public function show($id)

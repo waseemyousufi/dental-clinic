@@ -24,12 +24,16 @@ class ItemResource extends JsonResource
             'requiresBatch' => $this->requires_batch,
             'requiresExpiry' => $this->requires_expiry,
             'isConsumable' => $this->is_consumable,
-            'totalQuantityInStock' => $this->total_quantity,
+            'totalQuantityInStock' => $this->when(
+                $this->relationLoaded('inventoryStock'),
+                fn() => $this->inventoryStock->sum('quantity'),
+                fn() => $this->inventoryStock()->sum('quantity')
+            ),
             'activePrice' => $this->whenLoaded('activePrice'),
-            'suppliers' => $this->suppliers->map(fn($s) => [
+            'suppliers' => $this->whenLoaded('suppliers', fn() => $this->suppliers->map(fn($s) => [
                 'id' => $s->id,
                 'name' => $s->organization_name,
-            ]),
+            ])),
         ];
     }
 }

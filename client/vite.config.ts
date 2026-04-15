@@ -31,6 +31,7 @@ export default defineConfig({
     allowedHosts: [
       "4d4d-203-171-101-118.ngrok-free.app"
     ],
-    port: 1234
+    port: 1234,
+    host: true,
   }
 })

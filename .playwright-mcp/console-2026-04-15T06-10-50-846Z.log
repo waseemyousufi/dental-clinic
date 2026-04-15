@@ -1,0 +1,1331 @@
+[     608ms] [LOG] {id: 3, name: jhon doe doe, email: receptionist@gmail.com, email_verified_at: null, created_at: 2026-04-15T05:50:38.000000Z} @ http://10.2.0.2:1234/src/App.vue:37
+[     642ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[     643ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[     650ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[     652ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[     838ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[     840ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[     841ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[     842ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[     942ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< undefined > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[     991ms] [LOG] 🍍 "supplier" store installed 🆕 @ http://10.2.0.2:1234/node_modules/.vite/deps/pinia.js?v=deffc1ee:4415
+[    9600ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8000/api/chores/orders:0
+[    9602ms] [ERROR] Failed to load supplier data: AxiosError: Request failed with status code 500
+    at settle (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1319:7)
+    at XMLHttpRequest.onloadend (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1682:7)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async Proxy.loadInitialData (http://10.2.0.2:1234/src/stores/supplierStore.ts:83:36) @ http://10.2.0.2:1234/src/stores/supplierStore.ts:85
+[   41371ms] [LOG] {id: 3, name: jhon doe doe, email: receptionist@gmail.com, email_verified_at: null, created_at: 2026-04-15T05:50:38.000000Z} @ http://10.2.0.2:1234/src/App.vue:37
+[   41406ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   41408ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   41410ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   41411ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   41536ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   41536ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   41537ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   41538ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   41609ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< undefined > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[   41657ms] [LOG] 🍍 "supplier" store installed 🆕 @ http://10.2.0.2:1234/node_modules/.vite/deps/pinia.js?v=deffc1ee:4415
+[   45554ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8000/api/chores/orders:0
+[   45567ms] [ERROR] Failed to load supplier data: AxiosError: Request failed with status code 500
+    at settle (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1319:7)
+    at XMLHttpRequest.onloadend (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1682:7)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async Proxy.loadInitialData (http://10.2.0.2:1234/src/stores/supplierStore.ts:83:36) @ http://10.2.0.2:1234/src/stores/supplierStore.ts:85
+[   46926ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[  208590ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[  208631ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [Proxy(Object), Proxy(Object), Proxy(Object)] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[  217767ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8000/api/chores/orders:0
+[  217769ms] [ERROR] Failed to load supplier data: AxiosError: Request failed with status code 500
+    at settle (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1319:7)
+    at XMLHttpRequest.onloadend (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1682:7)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async Proxy.loadInitialData (http://10.2.0.2:1234/src/stores/supplierStore.ts:83:36) @ http://10.2.0.2:1234/src/stores/supplierStore.ts:85
+[  222065ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[  222096ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [Proxy(Object), Proxy(Object), Proxy(Object)] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[  227120ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8000/api/chores/orders:0
+[  227124ms] [ERROR] Failed to load supplier data: AxiosError: Request failed with status code 500
+    at settle (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1319:7)
+    at XMLHttpRequest.onloadend (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1682:7)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async Proxy.loadInitialData (http://10.2.0.2:1234/src/stores/supplierStore.ts:83:36) @ http://10.2.0.2:1234/src/stores/supplierStore.ts:85
+[ 1757624ms] [LOG] {id: 3, name: jhon doe doe, email: receptionist@gmail.com, email_verified_at: null, created_at: 2026-04-15T05:50:38.000000Z} @ http://10.2.0.2:1234/src/App.vue:37
+[ 1757658ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1757660ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1757668ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1757669ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1757873ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1757873ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1757873ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1757874ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1757901ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< undefined > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 1757975ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< undefined > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 1758023ms] [LOG] 🍍 "supplier" store installed 🆕 @ http://10.2.0.2:1234/node_modules/.vite/deps/pinia.js?v=deffc1ee:4415
+[ 1766106ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8000/api/chores/orders:0
+[ 1766108ms] [ERROR] Failed to load supplier data: AxiosError: Request failed with status code 500
+    at settle (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1319:7)
+    at XMLHttpRequest.onloadend (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1682:7)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async Proxy.loadInitialData (http://10.2.0.2:1234/src/stores/supplierStore.ts:83:36) @ http://10.2.0.2:1234/src/stores/supplierStore.ts:85
+[ 1774123ms] [LOG] {id: 3, name: jhon doe doe, email: receptionist@gmail.com, email_verified_at: null, created_at: 2026-04-15T05:50:38.000000Z} @ http://10.2.0.2:1234/src/App.vue:37
+[ 1774144ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1774145ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1774147ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1774147ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1774237ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1774238ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1774238ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1774238ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1774250ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< undefined > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 1774290ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< undefined > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 1774320ms] [LOG] 🍍 "supplier" store installed 🆕 @ http://10.2.0.2:1234/node_modules/.vite/deps/pinia.js?v=deffc1ee:4415
+[ 1776944ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8000/api/chores/orders:0
+[ 1776945ms] [ERROR] Failed to load supplier data: AxiosError: Request failed with status code 500
+    at settle (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1319:7)
+    at XMLHttpRequest.onloadend (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1682:7)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async Proxy.loadInitialData (http://10.2.0.2:1234/src/stores/supplierStore.ts:83:36) @ http://10.2.0.2:1234/src/stores/supplierStore.ts:85
+[ 1786476ms] [LOG] {id: 3, name: jhon doe doe, email: receptionist@gmail.com, email_verified_at: null, created_at: 2026-04-15T05:50:38.000000Z} @ http://10.2.0.2:1234/src/App.vue:37
+[ 1786498ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1786499ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1786501ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1786502ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1786599ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1786599ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1786600ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1786600ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1786617ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< undefined > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 1786669ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< undefined > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 1786701ms] [LOG] 🍍 "supplier" store installed 🆕 @ http://10.2.0.2:1234/node_modules/.vite/deps/pinia.js?v=deffc1ee:4415
+[ 1789437ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8000/api/chores/orders:0
+[ 1789438ms] [ERROR] Failed to load supplier data: AxiosError: Request failed with status code 500
+    at settle (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1319:7)
+    at XMLHttpRequest.onloadend (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1682:7)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async Proxy.loadInitialData (http://10.2.0.2:1234/src/stores/supplierStore.ts:83:36) @ http://10.2.0.2:1234/src/stores/supplierStore.ts:85
+[ 1791670ms] [LOG] {id: 3, name: jhon doe doe, email: receptionist@gmail.com, email_verified_at: null, created_at: 2026-04-15T05:50:38.000000Z} @ http://10.2.0.2:1234/src/App.vue:37
+[ 1791695ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1791696ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1791698ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1791699ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1791790ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1791790ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1791791ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1791791ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 1791805ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< undefined > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 1791849ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< undefined > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 1791899ms] [LOG] 🍍 "supplier" store installed 🆕 @ http://10.2.0.2:1234/node_modules/.vite/deps/pinia.js?v=deffc1ee:4415
+[ 1795701ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:8000/api/chores/orders:0
+[ 1795702ms] [ERROR] Failed to load supplier data: AxiosError: Request failed with status code 500
+    at settle (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1319:7)
+    at XMLHttpRequest.onloadend (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1682:7)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async Proxy.loadInitialData (http://10.2.0.2:1234/src/stores/supplierStore.ts:83:36) @ http://10.2.0.2:1234/src/stores/supplierStore.ts:85
+[ 8640823ms] [LOG] [vite] server connection lost. Polling for restart... @ http://10.2.0.2:1234/@vite/client:864
+[ 8641817ms] [LOG] {id: 3, name: jhon doe doe, email: receptionist@gmail.com, email_verified_at: null, created_at: 2026-04-15T05:50:38.000000Z} @ http://10.2.0.2:1234/src/App.vue:37
+[ 8641844ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 8641845ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 8641848ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 8641849ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 8641991ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 8641992ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 8641992ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 8641992ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[ 8642008ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< undefined > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 8642052ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< undefined > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 8642086ms] [LOG] [] @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776242082127:38
+[ 8642091ms] [LOG] 🍍 "supplier" store installed 🆕 @ http://10.2.0.2:1234/node_modules/.vite/deps/pinia.js?v=deffc1ee:4415
+[ 8670849ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 8670898ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [Proxy(Object), Proxy(Object), Proxy(Object)] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 8682652ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 8682688ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [Proxy(Object), Proxy(Object), Proxy(Object)] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 8682766ms] [LOG] Proxy(Object) @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776242133401:38
+[ 8750127ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 8750181ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [Proxy(Object), Proxy(Object), Proxy(Object)] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 8750256ms] [LOG] Proxy(Object) Proxy(Array) @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776242200863:38
+[ 8851671ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 8851692ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [Proxy(Object), Proxy(Object), Proxy(Object)] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 8851738ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable key=0 columns= [Object, Object, Object, Object, Object, Object] data= [Object, Object]  ... > 
+  at <Card size="small" class="orders-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 8851782ms] [LOG] Proxy(Object) Proxy(Array) @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776242302436:38
+[ 9355476ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 9355506ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [Proxy(Object), Proxy(Object), Proxy(Object)] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 9355568ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable key=0 columns= [Object, Object, Object, Object, Object, Object] data= [Object, Object]  ... > 
+  at <Card size="small" class="orders-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 9355574ms] [LOG] Rendering supplier for order 1 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776242806226:185
+[ 9355589ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776242806226:185
+[ 9355623ms] [LOG] Proxy(Object) Proxy(Array) @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776242806226:38
+[ 9361568ms] [LOG] Rendering supplier for order 1 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776242806226:185
+[ 9361570ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776242806226:185
+[ 9365493ms] [LOG] Rendering supplier for order 1 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776242806226:185
+[ 9365496ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776242806226:185
+[ 9698934ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 9698974ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [Proxy(Object), Proxy(Object), Proxy(Object)] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 9699031ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable key=0 columns= [Object, Object, Object, Object, Object, Object] data= [Object, Object]  ... > 
+  at <Card size="small" class="orders-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 9699037ms] [LOG] Rendering supplier for order 1 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243149728:185
+[ 9699051ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243149728:185
+[ 9699069ms] [LOG] Proxy(Object) Proxy(Array) @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243149728:38
+[ 9704868ms] [LOG] Rendering supplier for order 1 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243149728:185
+[ 9704870ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243149728:185
+[ 9707897ms] [LOG] Rendering supplier for order 1 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243149728:185
+[ 9707901ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243149728:185
+[ 9710745ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 9710773ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [Proxy(Object), Proxy(Object), Proxy(Object)] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 9710834ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable key=0 columns= [Object, Object, Object, Object, Object, Object] data= [Object, Object]  ... > 
+  at <Card size="small" class="orders-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 9710839ms] [LOG] Rendering supplier for order 1 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243161541:185
+[ 9710853ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243161541:185
+[ 9710879ms] [LOG] Proxy(Object) Proxy(Array) @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243161541:38
+[ 9712991ms] [LOG] Rendering supplier for order 1 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243161541:185
+[ 9712993ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243161541:185
+[ 9714891ms] [LOG] Rendering supplier for order 1 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243161541:185
+[ 9714896ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243161541:185
+[ 9719255ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 9719287ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [Proxy(Object), Proxy(Object), Proxy(Object)] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 9719352ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable key=0 columns= [Object, Object, Object, Object, Object, Object] data= [Object, Object]  ... > 
+  at <Card size="small" class="orders-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 9719355ms] [LOG] Rendering supplier for order 1 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243170051:185
+[ 9719364ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243170051:185
+[ 9719376ms] [LOG] Proxy(Object) Proxy(Array) @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243170051:38
+[ 9721698ms] [LOG] Rendering supplier for order 1 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243170051:185
+[ 9721700ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243170051:185
+[ 9724225ms] [LOG] Rendering supplier for order 1 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243170051:185
+[ 9724228ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243170051:185
+[ 9929785ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 9929815ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [Proxy(Object), Proxy(Object), Proxy(Object)] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 9929863ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable key=0 columns= [Object, Object, Object, Object, Object, Object] data= [Object, Object]  ... > 
+  at <Card size="small" class="orders-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[ 9929865ms] [LOG] Rendering supplier for order 1 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243380536:185
+[ 9929877ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243380536:185
+[ 9929903ms] [LOG] Proxy(Object) Proxy(Array) @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243380536:38
+[ 9935750ms] [LOG] Rendering supplier for order 1 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243380536:185
+[ 9935752ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243380536:185
+[ 9940665ms] [LOG] Rendering supplier for order 1 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243380536:185
+[ 9940668ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243380536:185
+[10339360ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[10339388ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [Proxy(Object), Proxy(Object), Proxy(Object)] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[10339446ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable key=0 columns= [Object, Object, Object, Object, Object, Object] data= [Object, Object]  ... > 
+  at <Card size="small" class="orders-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[10339452ms] [LOG] Rendering supplier for order 1 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243790111:185
+[10339464ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243790111:185
+[10339496ms] [LOG] Proxy(Object) Proxy(Array) @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243790111:38
+[10345889ms] [LOG] Rendering supplier for order 1 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243790111:185
+[10345890ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243790111:185
+[10349315ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243790111:185
+[10352870ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[10352898ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [Proxy(Object), Proxy(Object), Proxy(Object)] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[10352961ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable key=0 columns= [Object, Object, Object, Object, Object, Object] data= [Object]  ... > 
+  at <Card size="small" class="orders-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[10352964ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243803654:185
+[10352984ms] [LOG] Proxy(Object) Proxy(Array) @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243803654:38
+[10355216ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243803654:185
+[10357279ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776243803654:185
+[10801875ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 y-gap=16 > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[10801897ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object] data= [Proxy(Object), Proxy(Object), Proxy(Object)] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" class="table-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[10801919ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable key=0 columns= [Object, Object] data= [Object]  ... > 
+  at <Card size="small" class="table-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[10983297ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 class="stats-grid" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[10983336ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [Proxy(Object), Proxy(Object), Proxy(Object)] pagination= {pageSize: 10}  ... > 
+  at <Card size="small" title="Suppliers" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[10983386ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable key=0 columns= [Object, Object, Object, Object, Object, Object] data= [Object]  ... > 
+  at <Card size="small" class="orders-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[10983390ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776244434062:185
+[10983408ms] [LOG] Proxy(Object) Proxy(Array) @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776244434062:38
+[10989506ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776244434062:185
+[10992089ms] [LOG] Rendering supplier for order 2 Supplier: undefined @ http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776244434062:185
+[11068218ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 y-gap=16  ... > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[11068266ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [Proxy(Object), Proxy(Object), Proxy(Object)] pagination= {pageSize: 10, showSizePicker: true, pageSizes: Array(3)}  ... > 
+  at <Card size="small" title="Suppliers" class="table-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[11068373ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable key=0 columns= [Object, Object, Object, Object, Object, Object] data= [Object]  ... > 
+  at <Card size="small" class="orders-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[12153509ms] [LOG] [vite] server connection lost. Polling for restart... @ http://10.2.0.2:1234/@vite/client:864
+[12154756ms] [LOG] {id: 3, name: jhon doe doe, email: receptionist@gmail.com, email_verified_at: null, created_at: 2026-04-15T05:50:38.000000Z} @ http://10.2.0.2:1234/src/App.vue:37
+[12154813ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[12154814ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[12154821ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[12154823ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[12155042ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[12155043ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[12155044ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[12155045ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[12155079ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 y-gap=16  ... > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< undefined > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[12155164ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [] pagination= {pageSize: 10, showSizePicker: true, pageSizes: Array(3)}  ... > 
+  at <Card size="small" title="Suppliers" class="table-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< undefined > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[12155224ms] [LOG] 🍍 "supplier" store installed 🆕 @ http://10.2.0.2:1234/node_modules/.vite/deps/pinia.js?v=deffc1ee:4415
+[12225820ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable key=0 columns= [Object, Object, Object, Object, Object, Object] data= [Object]  ... > 
+  at <Card size="small" class="orders-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[12250469ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 y-gap=16  ... > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[12250569ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [Proxy(Object), Proxy(Object), Proxy(Object)] pagination= {pageSize: 10, showSizePicker: true, pageSizes: Array(3)}  ... > 
+  at <Card size="small" title="Suppliers" class="table-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[12250688ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable key=0 columns= [Object, Object, Object, Object, Object, Object] data= [Object]  ... > 
+  at <Card size="small" class="orders-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[14443176ms] [LOG] [vite] server connection lost. Polling for restart... @ http://10.2.0.2:1234/@vite/client:864
+[14443806ms] [LOG] {id: 3, name: jhon doe doe, email: receptionist@gmail.com, email_verified_at: null, created_at: 2026-04-15T05:50:38.000000Z} @ http://10.2.0.2:1234/src/App.vue:37
+[14443849ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[14443851ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[14443858ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[14443860ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[14443982ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[14443982ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[14443983ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[14443983ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[14444010ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 y-gap=16  ... > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< undefined > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[14444056ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [] pagination= {pageSize: 10, showSizePicker: true, pageSizes: Array(3)}  ... > 
+  at <Card size="small" title="Suppliers" class="table-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< undefined > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[14444104ms] [LOG] 🍍 "supplier" store installed 🆕 @ http://10.2.0.2:1234/node_modules/.vite/deps/pinia.js?v=deffc1ee:4415
+[14451504ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable key=0 columns= [Object, Object, Object, Object, Object, Object] data= [Object]  ... > 
+  at <Card size="small" class="orders-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[14470144ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 y-gap=16  ... > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[14470173ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [Proxy(Object), Proxy(Object), Proxy(Object)] pagination= {pageSize: 10, showSizePicker: true, pageSizes: Array(3)}  ... > 
+  at <Card size="small" title="Suppliers" class="table-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[14470255ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable key=0 columns= [Object, Object, Object, Object, Object, Object] data= [Object]  ... > 
+  at <Card size="small" class="orders-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[14470265ms] [WARNING] [Vue warn]: Unhandled error during execution of render function 
+  at <DataTableCell clsPrefix="n" index=0 row= {id: 2, supplierId: Dental Equipment Ltd., items: Array(3), totalItems: 60, createdAt: 2026-04-10}  ... > 
+  at <ResizeObserver onResize=fn<handleContentResize> > 
+  at <ResizeObserver onResize=fn<handleContainerResize> > 
+  at <Scrollbar ref="scrollbarInstRef" scrollable=true class="n-data-table-base-table-body"  ... > 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable key=0 columns= [Object, Object, Object, Object, Object, Object] data= [Object]  ... > 
+  at <Card size="small" class="orders-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[14470268ms] [WARNING] [Vue warn]: Unhandled error during execution of scheduler flush 
+  at <DataTableCell clsPrefix="n" index=0 row= {id: 2, supplierId: Dental Equipment Ltd., items: Array(3), totalItems: 60, createdAt: 2026-04-10}  ... > 
+  at <ResizeObserver onResize=fn<handleContentResize> > 
+  at <ResizeObserver onResize=fn<handleContainerResize> > 
+  at <Scrollbar ref="scrollbarInstRef" scrollable=true class="n-data-table-base-table-body"  ... > 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable key=0 columns= [Object, Object, Object, Object, Object, Object] data= [Object]  ... > 
+  at <Card size="small" class="orders-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[14470319ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470320ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470322ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470326ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470328ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470330ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470332ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470334ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470336ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470340ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470341ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470344ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470345ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470347ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470348ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470349ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470350ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470351ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470353ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470354ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470355ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470355ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470356ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470356ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470357ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470357ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470358ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470360ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470362ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470363ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470364ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14470364ms] ReferenceError: style is not defined
+    at render (http://10.2.0.2:1234/src/views/SupplierView.vue?t=1776247920879:306:33)
+    at Proxy.render (http://10.2.0.2:1234/node_modules/.vite/deps/naive-ui.js?v=deffc1ee:81864:14)
+    at renderComponentRoot (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:6900:17)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8468:46)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at setupRenderEffect (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8603:5)
+    at mountComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8375:7)
+    at processComponent (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8327:9)
+    at patch (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:7824:11)
+    at mountChildren (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8075:7)
+[14478859ms] [WARNING] [Vue warn]: Unhandled error during execution of scheduler flush 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[14478862ms] TypeError: Cannot read properties of null (reading 'parentNode')
+    at parentNode (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:11028:30)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8559:11)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2869:27
+    at callWithErrorHandling (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2531:33)
+    at flushJobs (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2739:9)
+[14630117ms] [WARNING] [Vue warn]: Unhandled error during execution of scheduler flush 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[14630122ms] TypeError: Cannot read properties of null (reading 'parentNode')
+    at parentNode (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:11028:30)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8559:11)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2869:27
+    at callWithErrorHandling (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2531:33)
+    at flushJobs (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2739:9)
+[14636123ms] [WARNING] [Vue warn]: Unhandled error during execution of scheduler flush 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[14636126ms] TypeError: Cannot read properties of null (reading 'parentNode')
+    at parentNode (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:11028:30)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8559:11)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2869:27
+    at callWithErrorHandling (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2531:33)
+    at flushJobs (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2739:9)
+[15006560ms] [WARNING] [Vue warn]: Unhandled error during execution of scheduler flush 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[15006568ms] TypeError: Cannot read properties of null (reading 'parentNode')
+    at parentNode (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:11028:30)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8559:11)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2869:27
+    at callWithErrorHandling (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2531:33)
+    at flushJobs (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2739:9)
+[15064273ms] [WARNING] [Vue warn]: Unhandled error during execution of scheduler flush 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[15064279ms] TypeError: Cannot read properties of null (reading 'parentNode')
+    at parentNode (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:11028:30)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8559:11)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2869:27
+    at callWithErrorHandling (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2531:33)
+    at flushJobs (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2739:9)
+[15142094ms] [WARNING] [Vue warn]: Unhandled error during execution of scheduler flush 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[15142098ms] TypeError: Cannot read properties of null (reading 'parentNode')
+    at parentNode (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:11028:30)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8559:11)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2869:27
+    at callWithErrorHandling (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2531:33)
+    at flushJobs (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2739:9)
+[15147156ms] [WARNING] [Vue warn]: Unhandled error during execution of scheduler flush 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[15147160ms] TypeError: Cannot read properties of null (reading 'parentNode')
+    at parentNode (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:11028:30)
+    at ReactiveEffect.componentUpdateFn [as fn] (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:8559:11)
+    at ReactiveEffect.run (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:687:19)
+    at http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2869:27
+    at callWithErrorHandling (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2531:33)
+    at flushJobs (http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2739:9)
+[16102052ms] [LOG] [vite] server connection lost. Polling for restart... @ http://10.2.0.2:1234/@vite/client:864
