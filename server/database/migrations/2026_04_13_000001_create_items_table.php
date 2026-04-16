@@ -21,6 +21,13 @@ return new class extends Migration
             $table->boolean('requires_batch')->default(false);
             $table->boolean('requires_expiry')->default(false);
             $table->boolean('is_consumable')->default(false);
+            $table->string('description')->nullable()->after('name');
+            $table->string('category')->nullable()->after('description');
+            $table->decimal('width', 10, 2)->nullable()->after('category');
+            $table->decimal('height', 10, 2)->nullable()->after('width');
+            $table->decimal('depth', 10, 2)->nullable()->after('height');
+            $table->boolean('is_sterile')->default(false)->after('depth');
+            $table->date("expire_date")->nullable()->after('is_sterile');
             $table->timestamps();
         });
     }

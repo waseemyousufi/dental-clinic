@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('organization_name');
             $table->string('phone');
             $table->string('email')->nullable();
-            $table->json('products')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->unsignedBigInteger('business_id')->nullable();
             $table->timestamps();

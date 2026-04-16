@@ -1,3 +1,484 @@
+<script setup lang="ts">
+import { ref, reactive, computed, onMounted } from 'vue'
+import { Icon } from '@iconify/vue'
+
+import InventoryStockApi from '@/api/inventoryStock'
+import ShelfApi from '@/api/shelf'
+
+import type InventoryStockData from '@/api/interfaces/InventoryStock'
+import type ShelfData from '@/api/interfaces/Shelf'
+
+type ShelfTypeKey = 'glass' | 'wooden' | 'iron' | 'fridge'
+
+const SHELF_TYPES: Record<ShelfTypeKey, { label: string; icon: string }> = {
+  glass: { label: 'Glass case', icon: '⬚' },
+  wooden: { label: 'Wood storage', icon: '▤' },
+  iron: { label: 'Iron rack', icon: '▦' },
+  fridge: { label: 'Cold storage', icon: '❄' },
+}
+
+/** Iconify icons for shelf storage types */
+const SHELF_TYPE_ICONIFY: Record<ShelfTypeKey, string> = {
+  glass: 'mdi:glass-fragile',
+  wooden: 'mdi:wardrobe-outline',
+  iron: 'mdi:warehouse',
+  fridge: 'mdi:snowflake-thermometer',
+}
+
+interface ShelfItemView {
+  name: string
+  qty: number
+  volume: number
+  raw: InventoryRow
+}
+
+interface ShelfView {
+  id: number
+  name: string
+  type: ShelfTypeKey
+  locked: boolean
+  pin: string
+  capacity: number
+  items: ShelfItemView[]
+  raw: ShelfData
+}
+
+interface InventoryRow {
+  id: number
+  name: string
+  quantity: number
+  expiry: string
+  category: string
+  status: 'pending' | 'placed'
+  stockableId: number
+  stockableType: InventoryStockData['stockableType']
+  shelfId?: number
+  shelfName?: string
+  shelfType?: ShelfTypeKey
+  raw: InventoryStockData
+}
+
+const normalizePinDigits = (raw: string, maxLen = 4) =>
+  raw.replace(/\D/g, '').slice(0, maxLen)
+
+const searchWrapRef = ref<HTMLElement | null>(null)
+
+const ui = reactive({
+  shelfModal: false,
+  pinModal: false,
+  pinInput: '',
+  pinMsg: '',
+  onPinSuccess: null as null | (() => void | Promise<void>),
+  searchFocused: false,
+})
+
+const form = reactive({
+  name: '',
+  type: 'glass' as ShelfTypeKey,
+  capacity: 30,
+  pin: '',
+})
+
+const search = ref('')
+const notifications = ref<{ id: number; text: string }[]>([])
+
+const shelfRows = ref<ShelfData[]>([])
+const stockRows = ref<InventoryStockData[]>([])
+
+const shelfLocks = reactive<Record<number, boolean>>({})
+const selectedShelf = reactive<Record<number, number | undefined>>({})
+
+const onVerifyPinInput = (e: Event) => {
+  ui.pinInput = normalizePinDigits((e.target as HTMLInputElement).value)
+}
+
+const onFormPinInput = (e: Event) => {
+  form.pin = normalizePinDigits((e.target as HTMLInputElement).value)
+}
+
+const notify = (text: string) => {
+  const id = Date.now() + Math.floor(Math.random() * 1000)
+  notifications.value.push({ id, text })
+  setTimeout(() => {
+    notifications.value = notifications.value.filter((n) => n.id !== id)
+  }, 2800)
+}
+
+const formatDate = (date?: string) => {
+  if (!date) return 'N/A'
+  const parsed = new Date(date)
+  if (Number.isNaN(parsed.getTime())) return date
+  return parsed.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
+const resolveShelfType = (value: unknown): ShelfTypeKey => {
+  const v = String(value || '').toLowerCase()
+  if (v === 'glass' || v === 'wooden' || v === 'iron' || v === 'fridge') return v
+  return 'glass'
+}
+
+const getStockable = (stock: InventoryStockData) => stock.stockable as Record<string, any> | undefined
+
+const getStockName = (stock: InventoryStockData) => {
+  const s = getStockable(stock)
+  return (
+    s?.name ||
+    s?.materialName ||
+    s?.assetName ||
+    'Unknown item'
+  )
+}
+
+const getStockCategory = (stock: InventoryStockData) => {
+  const s = getStockable(stock)
+  return String(s?.category || '')
+}
+
+const getStockShelf = (stock: InventoryStockData): ShelfData | undefined => {
+  const shelfId = Number(stock.shelfId || 0)
+  if (!shelfId) return undefined
+  return shelfMap.value.get(shelfId)
+}
+
+const makeRow = (stock: InventoryStockData): InventoryRow => {
+  const shelf = getStockShelf(stock)
+  return {
+    id: Number(stock.id || 0),
+    name: getStockName(stock),
+    quantity: Number(stock.quantity || 0),
+    expiry: stock.expiryDate || '',
+    category: getStockCategory(stock),
+    status: stock.status,
+    stockableId: Number(stock.stockableId || 0),
+    stockableType: stock.stockableType,
+    shelfId: Number(stock.shelfId || shelf?.id || 0) || undefined,
+    shelfName: shelf?.shelfName,
+    shelfType: resolveShelfType(shelf?.shelfType),
+    raw: stock,
+  }
+}
+
+const shelfMap = computed(() => {
+  const map = new Map<number, ShelfData>()
+  for (const shelf of shelfRows.value) {
+    if (shelf.id != null) map.set(Number(shelf.id), shelf)
+  }
+  return map
+})
+
+const pendingRows = computed<InventoryRow[]>(() =>
+  stockRows.value
+    .filter((stock) => stock.status === 'pending')
+    .map((stock) => makeRow(stock)),
+)
+
+const placedRows = computed<InventoryRow[]>(() =>
+  stockRows.value
+    .filter((stock) => stock.status === 'placed')
+    .map((stock) => makeRow(stock)),
+)
+
+const inventory = computed(() => pendingRows.value)
+
+const allRows = computed(() => [...pendingRows.value, ...placedRows.value])
+
+const getItemVolume = (row: InventoryRow) => {
+  const stockable = getStockable(row.raw)
+  const width = Number(stockable?.width || 0)
+  const height = Number(stockable?.height || 0)
+  const depth = Number(stockable?.depth || 0)
+
+  const perUnitVolume = width > 0 && height > 0 && depth > 0 ? width * height * depth : 1
+  return perUnitVolume * Math.max(1, Number(row.quantity || 0))
+}
+
+const shelves = computed<ShelfView[]>(() => {
+  return shelfRows.value
+    .filter((shelf) => shelf.id != null)
+    .map((rawShelf) => {
+      const id = Number(rawShelf.id)
+      const items = placedRows.value
+        .filter((row) => row.shelfId === id)
+        .map((row) => ({
+          name: row.name,
+          qty: row.quantity,
+          volume: getItemVolume(row),
+          raw: row,
+        }))
+
+      return {
+        id,
+        name: rawShelf.shelfName || `Shelf ${id}`,
+        type: resolveShelfType(rawShelf.shelfType),
+        locked: shelfLocks[id] ?? !!rawShelf.accessPin,
+        pin: rawShelf.accessPin || '',
+        capacity: Math.max(1, Number(rawShelf.totalCapacityCm3 || 0) || 1),
+        items,
+        raw: rawShelf,
+      }
+    })
+})
+
+const getShelfLoad = (shelf: ShelfView) => {
+  return shelf.items.reduce((acc, cur) => acc + cur.volume, 0)
+}
+
+const filteredInventory = computed(() => {
+  const q = search.value.toLowerCase().trim()
+  if (!q) return inventory.value
+
+  return inventory.value.filter((item) => {
+    return (
+      item.name.toLowerCase().includes(q) ||
+      item.category.toLowerCase().includes(q)
+    )
+  })
+})
+
+function lookupMatchScore(
+  name: string,
+  shelfName: string | undefined,
+  category: string | undefined,
+  q: string,
+): number {
+  const n = name.toLowerCase()
+  const s = (shelfName || '').toLowerCase()
+  const c = (category || '').toLowerCase()
+
+  if (n.startsWith(q)) return 0
+  if (s.startsWith(q)) return 1
+  if (c.startsWith(q)) return 2
+  if (n.includes(q)) return 3
+  if (s.includes(q)) return 4
+  if (c.includes(q)) return 5
+  return 6
+}
+
+const searchLookupResults = computed(() => {
+  const q = search.value.toLowerCase().trim()
+  if (!q) return []
+
+  const matched = allRows.value.filter((r) => {
+    const hay = [r.name, r.category || '', r.shelfName || ''].join(' ').toLowerCase()
+    return hay.includes(q)
+  })
+
+  matched.sort(
+    (a, b) =>
+      lookupMatchScore(a.name, a.shelfName, a.category, q) -
+        lookupMatchScore(b.name, b.shelfName, b.category, q) ||
+      a.name.localeCompare(b.name),
+  )
+
+  return matched.slice(0, 14)
+})
+
+const showSearchLookup = computed(() => {
+  return search.value.trim().length > 0 && ui.searchFocused
+})
+
+const onSearchWrapFocusIn = () => {
+  ui.searchFocused = true
+}
+
+const onSearchWrapFocusOut = (e: FocusEvent) => {
+  const next = e.relatedTarget as Node | null
+  const wrap = searchWrapRef.value
+  if (wrap && next && wrap.contains(next)) return
+  ui.searchFocused = false
+}
+
+const onLookupSelect = (row: InventoryRow) => {
+  ui.searchFocused = false
+  ;(document.getElementById('shelf-inventory-search') as HTMLInputElement | null)?.blur()
+
+  if (row.status === 'placed' && row.shelfId) {
+    document.getElementById(`shelf-${row.shelfId}`)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    })
+  } else {
+    document.getElementById(`pool-${row.id}`)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    })
+  }
+}
+
+const metrics = computed(() => {
+  const pressureCount = shelves.value.filter((s) => getShelfLoad(s) > s.capacity * 0.8).length
+
+  return [
+    {
+      label: 'Unassigned items',
+      value: inventory.value.length,
+      isAlert: false,
+      icon: 'mdi:tray-arrow-up',
+    },
+    {
+      label: 'Security locks',
+      value: shelves.value.filter((s) => s.locked).length,
+      isAlert: false,
+      icon: 'mdi:lock-outline',
+    },
+    {
+      label: 'Storage pressure',
+      value: pressureCount,
+      isAlert: pressureCount > 0,
+      icon: 'mdi:gauge',
+    },
+  ]
+})
+
+const loadData = async () => {
+  try {
+    const [shelvesRes, stockRes] = await Promise.all([
+      ShelfApi.getShelves(),
+      InventoryStockApi.getInventoryStock(),
+    ])
+
+    shelfRows.value = Array.isArray(shelvesRes.data)
+      ? shelvesRes.data
+      : (shelvesRes.data?.data || [])
+
+    stockRows.value = Array.isArray(stockRes.data)
+      ? stockRes.data
+      : (stockRes.data?.data || [])
+
+    for (const shelf of shelfRows.value) {
+      if (shelf.id == null) continue
+      if (shelfLocks[Number(shelf.id)] === undefined) {
+        shelfLocks[Number(shelf.id)] = !!shelf.accessPin
+      }
+    }
+  } catch {
+    notify('Failed to load inventory data')
+  }
+}
+
+onMounted(loadData)
+
+const transfer = async (item: InventoryRow) => {
+  const shelfId = selectedShelf[item.id]
+  if (!shelfId) return
+
+  const shelf = shelves.value.find((s) => s.id === Number(shelfId))
+  if (!shelf) return
+
+  const performTransfer = async () => {
+    const extraVolume = getItemVolume(item)
+    if (getShelfLoad(shelf) + extraVolume > shelf.capacity) {
+      notify('Exceeds capacity')
+      return
+    }
+
+    try {
+      const payload: InventoryStockData = {
+        ...item.raw,
+        shelfId: shelf.id,
+        status: 'placed',
+      }
+
+      await InventoryStockApi.updateInventoryStock(item.id, payload)
+      delete selectedShelf[item.id]
+      notify(`${item.name} stored in ${shelf.name}`)
+      await loadData()
+    } catch {
+      notify('Transfer failed')
+    } finally {
+      ui.pinModal = false
+      ui.onPinSuccess = null
+      ui.pinInput = ''
+    }
+  }
+
+  if (shelf.locked) {
+    ui.pinMsg = `Authorize transfer of ${item.name} to ${shelf.name}`
+    ui.pinInput = ''
+    ui.onPinSuccess = async () => {
+      if (ui.pinInput === shelf.pin) {
+        await performTransfer()
+      } else {
+        notify('Invalid PIN')
+      }
+    }
+    ui.pinModal = true
+  } else {
+    await performTransfer()
+  }
+}
+
+const toggleShelfLock = (shelf: ShelfView) => {
+  if (shelf.locked) {
+    if (!shelf.pin) {
+      shelfLocks[shelf.id] = false
+      notify('Shelf unlocked')
+      return
+    }
+
+    ui.pinMsg = `Unlocking ${shelf.name}`
+    ui.pinInput = ''
+    ui.onPinSuccess = async () => {
+      if (ui.pinInput === shelf.pin) {
+        shelfLocks[shelf.id] = false
+        ui.pinModal = false
+        ui.onPinSuccess = null
+        notify('Shelf unlocked')
+      } else {
+        notify('Invalid PIN')
+      }
+    }
+    ui.pinModal = true
+  } else {
+    shelfLocks[shelf.id] = true
+    notify('Shelf locked')
+  }
+}
+
+const confirmPin = async () => {
+  if (ui.onPinSuccess) {
+    await ui.onPinSuccess()
+  }
+}
+
+const cancelPin = () => {
+  ui.pinModal = false
+  ui.pinInput = ''
+  ui.onPinSuccess = null
+}
+
+const saveShelf = async () => {
+  if (!form.name.trim() || !form.pin) {
+    notify('Missing configuration')
+    return
+  }
+
+  try {
+    await ShelfApi.postShelf({
+      shelfName: form.name.trim(),
+      shelfType: form.type,
+      accessPin: form.pin,
+      totalCapacityCm3: Math.max(1, Number(form.capacity) || 1),
+    })
+
+    form.name = ''
+    form.pin = ''
+    form.capacity = 30
+    form.type = 'glass'
+    ui.shelfModal = false
+
+    notify('Shelf initialized')
+    await loadData()
+  } catch {
+    notify('Failed to create shelf')
+  }
+}
+</script>
+
 <template>
   <div class="cms-inventory">
     <header class="top-bar">
@@ -7,39 +488,83 @@
       </div>
 
       <div class="actions">
-        <div ref="searchWrapRef" class="search-field-wrap" @focusin="onSearchWrapFocusIn"
-          @focusout="onSearchWrapFocusOut">
+        <div
+          ref="searchWrapRef"
+          class="search-field-wrap"
+          @focusin="onSearchWrapFocusIn"
+          @focusout="onSearchWrapFocusOut"
+        >
           <div class="search-input">
             <Icon icon="mdi:magnify" class="search-input__iconify" aria-hidden="true" />
-            <input id="shelf-inventory-search" v-model="search" type="search" name="shelf-inventory-filter"
-              class="search-input__field" placeholder="Search materials, shelves, locations…" autocomplete="off"
-              autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true"
-              data-form-type="other" role="combobox" aria-autocomplete="list" :aria-expanded="showSearchLookup"
-              aria-controls="shelf-search-lookup-panel" />
+            <input
+              id="shelf-inventory-search"
+              v-model="search"
+              type="search"
+              name="shelf-inventory-filter"
+              class="search-input__field"
+              placeholder="Search materials, shelves, locations…"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-form-type="other"
+              role="combobox"
+              aria-autocomplete="list"
+              :aria-expanded="showSearchLookup"
+              aria-controls="shelf-search-lookup-panel"
+            />
           </div>
-          <div v-show="showSearchLookup" id="shelf-search-lookup-panel" class="search-lookup" role="listbox"
-            aria-label="Search results" @mousedown.prevent>
+
+          <div
+            v-show="showSearchLookup"
+            id="shelf-search-lookup-panel"
+            class="search-lookup"
+            role="listbox"
+            aria-label="Search results"
+            @mousedown.prevent
+          >
             <template v-if="searchLookupResults.length">
-              <button v-for="row in searchLookupResults" :key="row.key" type="button" class="search-lookup__row"
-                role="option" @click="onLookupSelect(row)">
+              <button
+                v-for="row in searchLookupResults"
+                :key="row.id + '-' + row.status"
+                type="button"
+                class="search-lookup__row"
+                role="option"
+                @click="onLookupSelect(row)"
+              >
                 <span class="search-lookup__icon" aria-hidden="true">
-                  <Icon v-if="row.status === 'shelved' && row.shelfType" :icon="SHELF_TYPE_ICONIFY[row.shelfType]"
-                    class="search-lookup__iconify" />
-                  <Icon v-else icon="mdi:tray-arrow-up"
-                    class="search-lookup__iconify search-lookup__iconify--pending" />
+                  <Icon
+                    v-if="row.status === 'placed' && row.shelfType"
+                    :icon="SHELF_TYPE_ICONIFY[row.shelfType]"
+                    class="search-lookup__iconify"
+                  />
+                  <Icon
+                    v-else
+                    icon="mdi:tray-arrow-up"
+                    class="search-lookup__iconify search-lookup__iconify--pending"
+                  />
                 </span>
+
                 <span class="search-lookup__main">
                   <span class="search-lookup__name">{{ row.name }}</span>
                   <span class="search-lookup__meta">
-                    <span v-if="row.status === 'pending'" class="location-pill location-pill--pending">Pending</span>
+                    <span v-if="row.status === 'pending'" class="location-pill location-pill--pending">
+                      Pending
+                    </span>
                     <template v-else>
                       <span class="location-pill location-pill--shelf">
-                        <Icon v-if="row.shelfType" :icon="SHELF_TYPE_ICONIFY[row.shelfType]" class="location-pill__icon"
-                          aria-hidden="true" />
+                        <Icon
+                          v-if="row.shelfType"
+                          :icon="SHELF_TYPE_ICONIFY[row.shelfType]"
+                          class="location-pill__icon"
+                          aria-hidden="true"
+                        />
                         {{ row.shelfName }}
                       </span>
                     </template>
-                    <span class="search-lookup__qty">×{{ row.qty }}</span>
+                    <span class="search-lookup__qty">×{{ row.quantity }}</span>
                     <span v-if="row.category" class="search-lookup__cat">{{ row.category }}</span>
                   </span>
                 </span>
@@ -48,6 +573,7 @@
             <p v-else class="search-lookup__empty">No matches for this search.</p>
           </div>
         </div>
+
         <button type="button" class="btn btn--primary" @click="ui.shelfModal = true">
           + Add shelf
         </button>
@@ -79,12 +605,17 @@
           <p v-if="!filteredInventory.length" class="empty-state">
             {{ search.trim() ? 'No materials match your filter.' : 'All materials are assigned to shelves.' }}
           </p>
+
           <transition-group v-else name="stagger" tag="div" class="pool-list__inner">
-            <article v-for="item in filteredInventory" :id="'pool-' + item.id" :key="item.id"
-              class="inventory-row inventory-row--pending">
+            <article
+              v-for="item in filteredInventory"
+              :id="'pool-' + item.id"
+              :key="item.id"
+              class="inventory-row inventory-row--pending"
+            >
               <div class="item-details">
                 <div class="item-details__tags">
-                  <span class="category-tag">{{ item.category }}</span>
+                  <span class="category-tag">{{ item.category || 'Uncategorized' }}</span>
                   <span class="pending-badge">Pending</span>
                 </div>
                 <h3>{{ item.name }}</h3>
@@ -95,12 +626,21 @@
                 <div class="qty-pill" aria-label="Quantity">×{{ item.quantity }}</div>
                 <select v-model="selectedShelf[item.id]" class="shelf-select" aria-label="Assign shelf">
                   <option value="" disabled>Assign shelf…</option>
-                  <option v-for="s in shelves" :key="s.id" :value="s.id" :disabled="getShelfLoad(s) >= s.capacity">
+                  <option
+                    v-for="s in shelves"
+                    :key="s.id"
+                    :value="s.id"
+                    :disabled="getShelfLoad(s) + 1 > s.capacity"
+                  >
                     {{ s.locked ? '🔒 ' : '' }}{{ s.name }} ({{ Math.max(0, s.capacity - getShelfLoad(s)) }} free)
                   </option>
                 </select>
-                <button type="button" class="btn btn--action" :disabled="!selectedShelf[item.id]"
-                  @click="transfer(item)">
+                <button
+                  type="button"
+                  class="btn btn--action"
+                  :disabled="!selectedShelf[item.id]"
+                  @click="transfer(item)"
+                >
                   Place
                 </button>
               </div>
@@ -115,8 +655,13 @@
         </div>
 
         <div class="shelf-scroll">
-          <div v-for="shelf in shelves" :id="'shelf-' + shelf.id" :key="shelf.id" class="shelf-box"
-            :class="{ 'shelf-box--locked': shelf.locked }">
+          <div
+            v-for="shelf in shelves"
+            :id="'shelf-' + shelf.id"
+            :key="shelf.id"
+            class="shelf-box"
+            :class="{ 'shelf-box--locked': shelf.locked }"
+          >
             <div class="shelf-top">
               <div class="shelf-meta">
                 <span class="type-icon" aria-hidden="true">{{ SHELF_TYPES[shelf.type].icon }}</span>
@@ -128,13 +673,20 @@
             </div>
 
             <div class="shelf-progress">
-              <div class="progress-bar" role="progressbar" :aria-valuenow="getShelfLoad(shelf)"
-                :aria-valuemax="shelf.capacity" aria-label="Shelf capacity">
-                <div class="progress-bar__fill"
+              <div
+                class="progress-bar"
+                role="progressbar"
+                :aria-valuenow="getShelfLoad(shelf)"
+                :aria-valuemax="shelf.capacity"
+                aria-label="Shelf capacity"
+              >
+                <div
+                  class="progress-bar__fill"
                   :class="{ 'progress-bar__fill--warn': getShelfLoad(shelf) / shelf.capacity > 0.8 }"
-                  :style="{ width: Math.min(100, (getShelfLoad(shelf) / shelf.capacity) * 100) + '%' }" />
+                  :style="{ width: Math.min(100, (getShelfLoad(shelf) / shelf.capacity) * 100) + '%' }"
+                />
               </div>
-              <span class="shelf-progress__label">{{ getShelfLoad(shelf) }} / {{ shelf.capacity }} units</span>
+              <span class="shelf-progress__label">{{ getShelfLoad(shelf) }} / {{ shelf.capacity }} cm³</span>
             </div>
 
             <ul v-if="shelf.items.length" class="shelf-items">
@@ -152,8 +704,15 @@
     <teleport to="body">
       <transition name="shelf-modal-fade">
         <div v-if="ui.pinModal" class="shelf-overlay" role="presentation" @click.self="cancelPin">
-          <form class="shelf-dialog shelf-dialog--security" role="dialog" aria-modal="true" aria-labelledby="pin-title"
-            autocomplete="off" @submit.prevent="confirmPin" @click.stop>
+          <form
+            class="shelf-dialog shelf-dialog--security"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="pin-title"
+            autocomplete="off"
+            @submit.prevent="confirmPin"
+            @click.stop
+          >
             <div class="shelf-dialog__header shelf-dialog__header--security">
               <div class="shelf-dialog__icon-wrap" aria-hidden="true">
                 <span class="shelf-dialog__icon">🔒</span>
@@ -163,9 +722,20 @@
             <div class="shelf-dialog__body">
               <p class="shelf-dialog__hint">{{ ui.pinMsg }}</p>
               <label class="visually-hidden" for="shelf-pin-verify">Shelf PIN</label>
-              <input id="shelf-pin-verify" :value="ui.pinInput" type="text" inputmode="numeric" maxlength="4"
-                class="shelf-dialog__pin shelf-pin-masked" placeholder="····" autocomplete="one-time-code"
-                name="shelf-pin-verify" autofocus @input="onVerifyPinInput" @keyup.enter="confirmPin" />
+              <input
+                id="shelf-pin-verify"
+                :value="ui.pinInput"
+                type="text"
+                inputmode="numeric"
+                maxlength="4"
+                class="shelf-dialog__pin shelf-pin-masked"
+                placeholder="····"
+                autocomplete="one-time-code"
+                name="shelf-pin-verify"
+                autofocus
+                @input="onVerifyPinInput"
+                @keyup.enter="confirmPin"
+              />
             </div>
             <div class="shelf-dialog__footer">
               <button type="button" class="shelf-btn shelf-btn--ghost" @click="cancelPin">Cancel</button>
@@ -177,8 +747,15 @@
 
       <transition name="shelf-modal-fade">
         <div v-if="ui.shelfModal" class="shelf-overlay" role="presentation" @click.self="ui.shelfModal = false">
-          <form class="shelf-dialog shelf-dialog--form" role="dialog" aria-modal="true"
-            aria-labelledby="shelf-form-title" autocomplete="off" @submit.prevent="saveShelf" @click.stop>
+          <form
+            class="shelf-dialog shelf-dialog--form"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="shelf-form-title"
+            autocomplete="off"
+            @submit.prevent="saveShelf"
+            @click.stop
+          >
             <div class="shelf-dialog__header">
               <h3 id="shelf-form-title" class="shelf-dialog__title">Register new shelf</h3>
               <p class="shelf-dialog__subtitle">Add a shelf to the clinical inventory map.</p>
@@ -187,27 +764,61 @@
               <div class="shelf-form-grid">
                 <div class="shelf-field shelf-field--full">
                   <label class="shelf-field__label" for="shelf-name">Shelf name</label>
-                  <input id="shelf-name" v-model="form.name" class="shelf-field__input" type="text"
-                    name="shelf-display-name" placeholder="e.g. Surgery cabinet A" autocomplete="off"
-                    autocorrect="off" />
+                  <input
+                    id="shelf-name"
+                    v-model="form.name"
+                    class="shelf-field__input"
+                    type="text"
+                    name="shelf-display-name"
+                    placeholder="e.g. Surgery cabinet A"
+                    autocomplete="off"
+                    autocorrect="off"
+                  />
                 </div>
+
                 <div class="shelf-field">
-                  <label class="shelf-field__label" for="shelf-cap">Capacity (units)</label>
-                  <input id="shelf-cap" v-model.number="form.capacity" class="shelf-field__input" type="number"
-                    name="shelf-capacity" min="1" autocomplete="off" />
+                  <label class="shelf-field__label" for="shelf-cap">Capacity (cm³)</label>
+                  <input
+                    id="shelf-cap"
+                    v-model.number="form.capacity"
+                    class="shelf-field__input"
+                    type="number"
+                    name="shelf-capacity"
+                    min="1"
+                    autocomplete="off"
+                  />
                 </div>
+
                 <div class="shelf-field">
                   <label class="shelf-field__label" for="shelf-type">Storage type</label>
-                  <select id="shelf-type" v-model="form.type" class="shelf-field__input shelf-field__select"
-                    name="shelf-storage-type" autocomplete="off">
-                    <option v-for="(v, k) in SHELF_TYPES" :key="k" :value="k">{{ v.label }}</option>
+                  <select
+                    id="shelf-type"
+                    v-model="form.type"
+                    class="shelf-field__input shelf-field__select"
+                    name="shelf-storage-type"
+                    autocomplete="off"
+                  >
+                    <option v-for="(v, k) in SHELF_TYPES" :key="k" :value="k">
+                      {{ v.label }}
+                    </option>
                   </select>
                 </div>
+
                 <div class="shelf-field shelf-field--full">
                   <label class="shelf-field__label" for="shelf-pin">Access PIN (4 digits)</label>
-                  <input id="shelf-pin" :value="form.pin" class="shelf-field__input shelf-pin-masked" type="text"
-                    name="shelf-access-code" maxlength="4" inputmode="numeric" autocomplete="one-time-code"
-                    autocorrect="off" spellcheck="false" @input="onFormPinInput" />
+                  <input
+                    id="shelf-pin"
+                    :value="form.pin"
+                    class="shelf-field__input shelf-pin-masked"
+                    type="text"
+                    name="shelf-access-code"
+                    maxlength="4"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    autocorrect="off"
+                    spellcheck="false"
+                    @input="onFormPinInput"
+                  />
                 </div>
               </div>
             </div>
@@ -229,313 +840,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
-import { Icon } from '@iconify/vue'
-
-type ShelfTypeKey = 'glass' | 'wooden' | 'iron' | 'fridge'
-
-const SHELF_TYPES: Record<ShelfTypeKey, { label: string; icon: string }> = {
-  glass: { label: 'Glass case', icon: '⬚' },
-  wooden: { label: 'Wood storage', icon: '▤' },
-  iron: { label: 'Iron rack', icon: '▦' },
-  fridge: { label: 'Cold storage', icon: '❄' },
-}
-
-/** Iconify icons for shelf storage types (lookup + pills) */
-const SHELF_TYPE_ICONIFY: Record<ShelfTypeKey, string> = {
-  glass: 'mdi:glass-fragile',
-  wooden: 'mdi:wardrobe-outline',
-  iron: 'mdi:warehouse',
-  fridge: 'mdi:snowflake-thermometer',
-}
-
-interface PoolItem {
-  id: string
-  name: string
-  quantity: number
-  expiry: string
-  category: string
-}
-
-interface ShelfEntry {
-  name: string
-  qty: number
-}
-
-interface Shelf {
-  id: string
-  name: string
-  type: ShelfTypeKey
-  locked: boolean
-  pin: string
-  capacity: number
-  items: ShelfEntry[]
-}
-
-interface MaterialLookupRow {
-  key: string
-  name: string
-  qty: number
-  category?: string
-  status: 'pending' | 'shelved'
-  poolItemId?: string
-  shelfId?: string
-  shelfName?: string
-  shelfType?: ShelfTypeKey
-}
-
-const normalizePinDigits = (raw: string, maxLen = 4) => raw.replace(/\D/g, '').slice(0, maxLen)
-
-const onVerifyPinInput = (e: Event) => {
-  ui.pinInput = normalizePinDigits((e.target as HTMLInputElement).value)
-}
-
-const onFormPinInput = (e: Event) => {
-  form.pin = normalizePinDigits((e.target as HTMLInputElement).value)
-}
-
-const searchWrapRef = ref<HTMLElement | null>(null)
-
-const ui = reactive({
-  shelfModal: false,
-  pinModal: false,
-  pinInput: '',
-  pinMsg: '',
-  onPinSuccess: null as (() => void) | null,
-  searchFocused: false,
-})
-
-const form = reactive({ name: '', type: 'glass' as ShelfTypeKey, capacity: 30, pin: '' })
-const search = ref('')
-const selectedShelf = reactive<Record<string, string>>({})
-const notifications = ref<{ id: number; text: string }[]>([])
-
-const inventory = ref<PoolItem[]>([
-  { id: '1', name: 'Surgical gloves', quantity: 50, expiry: '2026-10-12', category: 'PPE' },
-  { id: '2', name: 'Amalgam capsules', quantity: 120, expiry: '2027-02-20', category: 'Materials' },
-  { id: '3', name: 'Insulin vial', quantity: 10, expiry: '2026-05-15', category: 'Cold chain' },
-])
-
-const shelves = ref<Shelf[]>([
-  {
-    id: 's1',
-    name: 'Cabinet Alpha',
-    type: 'glass',
-    locked: false,
-    pin: '1234',
-    capacity: 100,
-    items: [{ name: 'Disposable masks', qty: 200 }],
-  },
-  { id: 's2', name: 'Cold Box 1', type: 'fridge', locked: true, pin: '0000', capacity: 20, items: [] },
-])
-
-const filteredInventory = computed(() => {
-  const q = search.value.toLowerCase().trim()
-  if (!q) return inventory.value
-  return inventory.value.filter(
-    (i) => i.name.toLowerCase().includes(q) || i.category.toLowerCase().includes(q),
-  )
-})
-
-function buildMaterialLookup(): MaterialLookupRow[] {
-  const rows: MaterialLookupRow[] = []
-  for (const item of inventory.value) {
-    rows.push({
-      key: `pool-${item.id}`,
-      name: item.name,
-      qty: item.quantity,
-      category: item.category,
-      status: 'pending',
-      poolItemId: item.id,
-    })
-  }
-  for (const shelf of shelves.value) {
-    shelf.items.forEach((entry, idx) => {
-      rows.push({
-        key: `shelf-${shelf.id}-${idx}-${entry.name}`,
-        name: entry.name,
-        qty: entry.qty,
-        status: 'shelved',
-        shelfId: shelf.id,
-        shelfName: shelf.name,
-        shelfType: shelf.type,
-      })
-    })
-  }
-  return rows
-}
-
-function lookupMatchScore(name: string, shelfName: string | undefined, category: string | undefined, q: string): number {
-  const n = name.toLowerCase()
-  const s = (shelfName || '').toLowerCase()
-  const c = (category || '').toLowerCase()
-  if (n.startsWith(q)) return 0
-  if (s.startsWith(q)) return 1
-  if (c.startsWith(q)) return 2
-  if (n.includes(q)) return 3
-  if (s.includes(q)) return 4
-  if (c.includes(q)) return 5
-  return 6
-}
-
-const searchLookupResults = computed(() => {
-  const q = search.value.toLowerCase().trim()
-  if (!q) return []
-  const matched = buildMaterialLookup().filter((r) => {
-    const hay = [r.name, r.category || '', r.shelfName || ''].join(' ').toLowerCase()
-    return hay.includes(q)
-  })
-  matched.sort(
-    (a, b) =>
-      lookupMatchScore(a.name, a.shelfName, a.category, q) -
-      lookupMatchScore(b.name, b.shelfName, b.category, q) || a.name.localeCompare(b.name),
-  )
-  return matched.slice(0, 14)
-})
-
-const showSearchLookup = computed(() => search.value.trim().length > 0 && ui.searchFocused)
-
-const onSearchWrapFocusIn = () => {
-  ui.searchFocused = true
-}
-
-const onSearchWrapFocusOut = (e: FocusEvent) => {
-  const next = e.relatedTarget as Node | null
-  const wrap = searchWrapRef.value
-  if (wrap && next && wrap.contains(next)) return
-  ui.searchFocused = false
-}
-
-const onLookupSelect = (row: MaterialLookupRow) => {
-  ui.searchFocused = false
-    ; (document.getElementById('shelf-inventory-search') as HTMLInputElement | null)?.blur()
-  if (row.status === 'shelved' && row.shelfId) {
-    document.getElementById(`shelf-${row.shelfId}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-  } else if (row.status === 'pending' && row.poolItemId) {
-    document.getElementById(`pool-${row.poolItemId}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-  }
-}
-
-const metrics = computed(() => {
-  const pressureCount = shelves.value.filter((s) => getShelfLoad(s) > s.capacity * 0.8).length
-  return [
-    {
-      label: 'Unassigned items',
-      value: inventory.value.length,
-      isAlert: false,
-      icon: 'mdi:tray-arrow-up',
-    },
-    {
-      label: 'Security locks',
-      value: shelves.value.filter((s) => s.locked).length,
-      isAlert: false,
-      icon: 'mdi:lock-outline',
-    },
-    {
-      label: 'Storage pressure',
-      value: pressureCount,
-      isAlert: pressureCount > 0,
-      icon: 'mdi:gauge',
-    },
-  ]
-})
-
-const getShelfLoad = (s: Shelf) => s.items.reduce((acc, cur) => acc + cur.qty, 0)
-
-const notify = (text: string) => {
-  const id = Date.now()
-  notifications.value.push({ id, text })
-  setTimeout(() => {
-    notifications.value = notifications.value.filter((n) => n.id !== id)
-  }, 2800)
-}
-
-const formatDate = (date: string) =>
-  new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
-
-const transfer = (item: PoolItem) => {
-  const shelf = shelves.value.find((s) => s.id === selectedShelf[item.id])
-  if (!shelf) return
-
-  const performTransfer = () => {
-    if (getShelfLoad(shelf) + item.quantity > shelf.capacity) {
-      notify('Exceeds capacity')
-      return
-    }
-    shelf.items.push({ name: item.name, qty: item.quantity })
-    inventory.value = inventory.value.filter((i) => i.id !== item.id)
-    delete selectedShelf[item.id]
-    notify(`${item.name} stored in ${shelf.name}`)
-    ui.pinModal = false
-    ui.onPinSuccess = null
-  }
-
-  if (shelf.locked) {
-    ui.pinMsg = `Authorize transfer of ${item.name} to ${shelf.name}`
-    ui.pinInput = ''
-    ui.onPinSuccess = () => {
-      if (ui.pinInput === shelf.pin) performTransfer()
-      else notify('Invalid PIN')
-    }
-    ui.pinModal = true
-  } else {
-    performTransfer()
-  }
-}
-
-const toggleShelfLock = (shelf: Shelf) => {
-  if (shelf.locked) {
-    ui.pinMsg = `Unlocking ${shelf.name}`
-    ui.pinInput = ''
-    ui.onPinSuccess = () => {
-      if (ui.pinInput === shelf.pin) {
-        shelf.locked = false
-        ui.pinModal = false
-        ui.onPinSuccess = null
-      } else notify('Invalid PIN')
-    }
-    ui.pinModal = true
-  } else {
-    shelf.locked = true
-  }
-}
-
-const confirmPin = () => {
-  if (ui.onPinSuccess) ui.onPinSuccess()
-  ui.pinInput = ''
-}
-
-const cancelPin = () => {
-  ui.pinModal = false
-  ui.pinInput = ''
-  ui.onPinSuccess = null
-}
-
-const saveShelf = () => {
-  if (!form.name.trim() || !form.pin) {
-    notify('Missing configuration')
-    return
-  }
-  const newShelf: Shelf = {
-    id: Date.now().toString(),
-    name: form.name.trim(),
-    type: form.type,
-    capacity: Math.max(1, Number(form.capacity) || 1),
-    pin: form.pin,
-    locked: true,
-    items: [],
-  }
-  shelves.value.unshift(newShelf)
-  form.name = ''
-  form.pin = ''
-  form.capacity = 30
-  form.type = 'glass'
-  ui.shelfModal = false
-  notify('Shelf initialized')
-}
-</script>
 
 <style scoped lang="scss">
 .cms-inventory {

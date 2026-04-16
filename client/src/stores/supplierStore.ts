@@ -19,11 +19,11 @@ export const useSupplierStore = defineStore('supplier', () => {
   const activeSuppliers = computed(() => suppliers.value.filter(s => s.isActive));
 
   const pendingOrders = computed(() =>
-    purchaseOrders.value.filter(o => o.status === 'sent')
+    purchaseOrders.value.filter(o => o.status === 'pending')
   );
 
   const getSupplierById = (supplierName: string) =>
-    suppliers.value.find(s => s.id === supplierName);
+    suppliers.value.find(s => (s.id === supplierName) || (s.name === supplierName));
 
   const getProductsBySupplier = (supplierId: string) => {
     const supplier = getSupplierById(supplierId);
@@ -176,7 +176,7 @@ export const useSupplierStore = defineStore('supplier', () => {
     const apiData: OrderData = {
       supplierName: order.supplierId,
       date: order.createdAt,
-      status: 'sent',
+      status: 'pending',
       items: order.items.map(item => ({
         itemId: Number(item.productId),
         quantity: item.quantity,
@@ -187,7 +187,7 @@ export const useSupplierStore = defineStore('supplier', () => {
 
     try {
       await orderApi.updateOrder(Number(orderId), apiData);
-      purchaseOrders.value[idx].status = 'sent';
+      purchaseOrders.value[idx].status = 'pending';
       purchaseOrders.value[idx].sentAt = new Date().toISOString();
       return true;
     } catch (err) {
@@ -225,15 +225,42 @@ export const useSupplierStore = defineStore('supplier', () => {
     const apiData: OrderData = {
       supplierName: order.supplierId,
       date: order.createdAt,
-      status: 'delivered',
+      status: 'received',
     };
 
     try {
       await orderApi.updateOrder(Number(orderId), apiData);
-      purchaseOrders.value[idx].status = 'delivered';
+      purchaseOrders.value[idx].status = 'received';
       return true;
     } catch (err) {
       console.error('Failed to confirm delivery:', err);
+      return false;
+    }
+  };
+
+  const updateOrderStatus = async (orderId: string, newStatus: PurchaseOrder['status']) => {
+    const idx = purchaseOrders.value.findIndex(o => o.id === orderId);
+    if (idx === -1) return false;
+
+    const order = purchaseOrders.value[idx];
+    const apiData: OrderData = {
+      supplierName: order.supplierId,
+      date: order.createdAt,
+      status: newStatus,
+      items: order.items.map(item => ({
+        itemId: Number(item.productId),
+        quantity: item.quantity,
+        unitPrice: 0,
+        totalPrice: 0,
+      })),
+    };
+
+    try {
+      await orderApi.updateOrder(Number(orderId), apiData);
+      purchaseOrders.value[idx].status = newStatus;
+      return true;
+    } catch (err) {
+      console.error('Failed to update order status:', err);
       return false;
     }
   };
@@ -253,11 +280,11 @@ export const useSupplierStore = defineStore('supplier', () => {
     return false;
   };
 
-  const deleteOrder = async (orderId: string) => {
-    const idx = purchaseOrders.value.findIndex(o => o.id === orderId);
+  const deleteOrder = async (id: string) => {
+    const idx = purchaseOrders.value.findIndex(o => o.id === id);
     if (idx > -1) {
       try {
-        await orderApi.deleteOrder(Number(orderId));
+        await orderApi.deleteOrder(Number(id));
         purchaseOrders.value.splice(idx, 1);
         return true;
       } catch (err) {

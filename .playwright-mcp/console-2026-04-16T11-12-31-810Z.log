@@ -1,0 +1,148 @@
+[   83498ms] [LOG] {id: 3, name: jhon doe doe, email: receptionist@gmail.com, email_verified_at: null, created_at: 2026-04-15T05:50:38.000000Z} @ http://10.2.0.2:1234/src/App.vue:37
+[   83541ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   83542ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   83546ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   83547ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   83672ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   83672ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   83672ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   83672ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   83701ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable class="data-table" columns= [Object, Object, Object, Object, Object, Object, Object, Object] data= []  ... > 
+  at <Card size="small" class="patient-panel" > 
+  at <PatientView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< undefined > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[   83795ms] [ERROR] AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1717:19)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async fetchPatients (http://10.2.0.2:1234/src/views/PatientView.vue:219:26) @ http://10.2.0.2:1234/src/views/PatientView.vue:222
+[   83827ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8000/api/receptionist/patient:0
+[   94045ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   94045ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   94045ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   94045ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[   94064ms] [WARNING] [Vue warn]: Invalid prop: type check failed for prop "cols". Expected Number | String, got Object  
+  at <Grid cols= {xs: 1, s: 2, m: 3, l: 4, xl: 5} x-gap=16 y-gap=16  ... > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[   94094ms] [WARNING] [Vue warn]: injection "n-config-provider" not found. 
+  at <DataTableBody ref="bodyInstRef" bodyStyle= {maxHeight: undefined, minHeight: undefined} showHeader=true  ... > 
+  at <MainTable ref="mainTableInstRef" > 
+  at <DataTable columns= [Object, Object, Object, Object, Object] data= [] pagination= {pageSize: 10, showSizePicker: true, pageSizes: Array(3)}  ... > 
+  at <Card size="small" title="Suppliers" class="table-card" > 
+  at <Space vertical="" size=24 class="supplier-view" > 
+  at <SupplierView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< null > > 
+  at <RouterView > 
+  at <MessageProvider > 
+  at <DialogProvider > 
+  at <App> @ http://10.2.0.2:1234/node_modules/.vite/deps/chunk-4GLPX4MA.js?v=deffc1ee:2383
+[   94153ms] [LOG] 🍍 "supplier" store installed 🆕 @ http://10.2.0.2:1234/node_modules/.vite/deps/pinia.js?v=deffc1ee:4415
+[   94164ms] [ERROR] Failed to load supplier data: AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1717:19)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async Proxy.loadInitialData (http://10.2.0.2:1234/src/stores/supplierStore.ts?t=1776322924302:72:39) @ http://10.2.0.2:1234/src/stores/supplierStore.ts?t=1776322924302:85
+[   94165ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8000/api/chores/suppliers:0
+[  108258ms] [LOG] {id: 3, name: jhon doe doe, email: receptionist@gmail.com, email_verified_at: null, created_at: 2026-04-15T05:50:38.000000Z} @ http://10.2.0.2:1234/src/App.vue:37
+[  108283ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[  108284ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[  108287ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[  108288ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[  108367ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[  108367ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[  108367ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[  108368ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[  108503ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://10.2.0.2:1234/login:0
+[  120471ms] [ERROR] AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1717:19)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async handleSubmit (http://10.2.0.2:1234/src/views/LoginView.vue:38:26) @ http://10.2.0.2:1234/src/views/LoginView.vue:50
+[  120487ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8000/api/receptionist/login:0
+[  137924ms] [ERROR] AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1717:19)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async handleSubmit (http://10.2.0.2:1234/src/views/LoginView.vue:38:26) @ http://10.2.0.2:1234/src/views/LoginView.vue:50
+[  137934ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8000/api/receptionist/login:0
+[  138837ms] [ERROR] AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1717:19)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async handleSubmit (http://10.2.0.2:1234/src/views/LoginView.vue:38:26) @ http://10.2.0.2:1234/src/views/LoginView.vue:50
+[  138851ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8000/api/receptionist/login:0
+[  139348ms] [ERROR] AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1717:19)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async handleSubmit (http://10.2.0.2:1234/src/views/LoginView.vue:38:26) @ http://10.2.0.2:1234/src/views/LoginView.vue:50
+[  139374ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8000/api/receptionist/login:0
+[  139511ms] [ERROR] AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1717:19)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async handleSubmit (http://10.2.0.2:1234/src/views/LoginView.vue:38:26) @ http://10.2.0.2:1234/src/views/LoginView.vue:50
+[  139537ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8000/api/receptionist/login:0
+[  139679ms] [ERROR] AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1717:19)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async handleSubmit (http://10.2.0.2:1234/src/views/LoginView.vue:38:26) @ http://10.2.0.2:1234/src/views/LoginView.vue:50
+[  139701ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8000/api/receptionist/login:0
+[  139830ms] [ERROR] AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1717:19)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async handleSubmit (http://10.2.0.2:1234/src/views/LoginView.vue:38:26) @ http://10.2.0.2:1234/src/views/LoginView.vue:50
+[  139853ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8000/api/receptionist/login:0
+[  139988ms] [ERROR] AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1717:19)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async handleSubmit (http://10.2.0.2:1234/src/views/LoginView.vue:38:26) @ http://10.2.0.2:1234/src/views/LoginView.vue:50
+[  140005ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8000/api/receptionist/login:0
+[  140257ms] [ERROR] AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1717:19)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async handleSubmit (http://10.2.0.2:1234/src/views/LoginView.vue:38:26) @ http://10.2.0.2:1234/src/views/LoginView.vue:50
+[  140276ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8000/api/receptionist/login:0
+[  140390ms] [ERROR] AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1717:19)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async handleSubmit (http://10.2.0.2:1234/src/views/LoginView.vue:38:26) @ http://10.2.0.2:1234/src/views/LoginView.vue:50
+[  140418ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8000/api/receptionist/login:0
+[  175316ms] [ERROR] AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1717:19)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async handleSubmit (http://10.2.0.2:1234/src/views/LoginView.vue:38:26) @ http://10.2.0.2:1234/src/views/LoginView.vue:50
+[  175331ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8000/api/receptionist/login:0
+[  204843ms] [ERROR] AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1717:19)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async handleSubmit (http://10.2.0.2:1234/src/views/LoginView.vue:38:26) @ http://10.2.0.2:1234/src/views/LoginView.vue:50
+[  204864ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8000/api/login:0
+[  209303ms] [ERROR] AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1717:19)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async handleSubmit (http://10.2.0.2:1234/src/views/LoginView.vue:38:26) @ http://10.2.0.2:1234/src/views/LoginView.vue:50
+[  209316ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8000/api/login:0
+[  217031ms] [LOG] null @ http://10.2.0.2:1234/src/App.vue:37
+[  217071ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[  217072ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[  217075ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[  217077ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[  217165ms] [WARNING] [Vue Router warn]: No match found for location with path "/profile" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[  217166ms] [WARNING] [Vue Router warn]: No match found for location with path "/settings" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[  217166ms] [WARNING] [Vue Router warn]: No match found for location with path "/help" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[  217167ms] [WARNING] [Vue Router warn]: No match found for location with path "/contact" @ http://10.2.0.2:1234/node_modules/.vite/deps/vue-router.js?v=deffc1ee:3649
+[  217312ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://10.2.0.2:1234/login:0
+[  224529ms] [ERROR] AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1717:19)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async handleSubmit (http://10.2.0.2:1234/src/views/LoginView.vue:38:26) @ http://10.2.0.2:1234/src/views/LoginView.vue:50
+[  224575ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8000/api/login:0
+[  245797ms] [ERROR] AxiosError: Network Error
+    at XMLHttpRequest.handleError (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:1717:19)
+    at Axios.request (http://10.2.0.2:1234/node_modules/.vite/deps/axios.js?v=deffc1ee:2330:41)
+    at async handleSubmit (http://10.2.0.2:1234/src/views/LoginView.vue:38:26) @ http://10.2.0.2:1234/src/views/LoginView.vue:50
+[  245817ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8000/api/login:0

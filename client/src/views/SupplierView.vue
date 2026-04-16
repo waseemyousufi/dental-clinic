@@ -52,6 +52,10 @@
           </template>
         </n-input>
 
+
+            <n-select v-model:value="selectedBranchId" :options="branchOptions" placeholder="Select Branch" size="small"
+              class="branch-select" />
+
         <div class="toolbar-actions">
           <n-select v-model:value="filterStatus" :options="statusOptions" class="status-select" size="small" />
           <n-button quaternary :loading="isRefreshing" @click="refreshData">
@@ -86,8 +90,8 @@
         <n-badge :value="purchaseOrders.length" :max="99" type="warning" />
       </template>
 
-      <n-data-table v-if="purchaseOrders.length > 0" :columns="orderColumns" :data="purchaseOrders" :bordered="false"
-        size="small" :row-key="(row) => row.id" :scroll-x="980" />
+      <n-data-table v-if="purchaseOrders.length > 0" :pagination="orderPagination" :columns="orderColumns"
+        :data="purchaseOrders" :bordered="false" size="small" :row-key="(row) => row.id" :scroll-x="980" />
       <n-empty v-else description="No pending orders right now" style="padding: 24px" />
     </n-card>
 
@@ -96,7 +100,8 @@
       @cancel="closeFormModal" />
 
     <PurchaseOrderModal v-if="showOrderModal" :supplier="selectedSupplier"
-      :available-products="selectedSupplierProducts" @submit="handleOrderSubmit" @cancel="showOrderModal = false" />
+      :available-products="selectedSupplierProducts" :branch-id="selectedBranchId" @submit="handleOrderSubmit"
+      @cancel="showOrderModal = false" />
   </n-space>
 </template>
 
@@ -126,13 +131,22 @@ import {
   generateWhatsAppCancellationLink,
   sendViaWhatsApp
 } from '@/utils/whatsapp';
-import type { Supplier, PurchaseOrderItem, PurchaseOrder } from '@/types/supplier';
+import type { Supplier, PurchaseOrderItem, PurchaseOrder, Branch } from '@/types/supplier';
 import SupplierForm from '@/components/suppliers/SupplierForm.vue';
 import PurchaseOrderModal from '@/components/suppliers/PurchaseOrderModal.vue';
 
 const message = useMessage();
 const dialog = useDialog();
 const store = useSupplierStore();
+
+const selectedBranchId = ref<number | null>(null);
+const branchOptions = ref<{ label: string; value: number }[]>([]);
+
+// Placeholder for fetching branches
+const fetchBranches = () => {
+  const branches = branch.get
+  selectedBranchId.value = branchOptions.value[0]?.value || null; // Select first branch by default
+};
 
 const searchQuery = ref('');
 const filterStatus = ref<'all' | 'active' | 'inactive'>('all');
@@ -154,8 +168,15 @@ const pagination = {
   pageSizes: [10, 20, 50]
 };
 
+const orderPagination = {
+  pageSize: 5,
+  showSizePicker: true,
+  pageSizes: [10, 20, 50]
+};
+
 onMounted(() => {
   store.loadInitialData();
+  fetchBranches();
 });
 
 const selectedSupplierProducts = computed(() =>
@@ -206,7 +227,7 @@ const stats = computed(() => [
   },
   {
     label: 'Pending Orders',
-    value: store.purchaseOrders.length,
+    value: store.pendingOrders.length,
     icon: 'mdi:clipboard-list',
     key: 'pending'
   },
@@ -237,14 +258,29 @@ function getStatusMeta(status: PurchaseOrder['status']) {
     { type: 'default' | 'warning' | 'info' | 'success' | 'error'; icon: string; label: string }
   > = {
     draft: { type: 'default', icon: 'mdi:file-document', label: 'Draft' },
-    sent: { type: 'warning', icon: 'mdi:send', label: 'Sent' },
-    confirmed: { type: 'info', icon: 'mdi:check-circle', label: 'Confirmed' },
-    delivered: { type: 'success', icon: 'mdi:package-check', label: 'Delivered' },
+    pending: { type: 'info', icon: 'mdi:clock-outline', label: 'Pending' },
+    received: { type: 'success', icon: 'mdi:check-circle', label: 'Received' },
     cancelled: { type: 'error', icon: 'mdi:cancel', label: 'Cancelled' }
   };
 
   return statusMap[status] ?? statusMap.draft;
 }
+
+const statusCycle = ['draft', 'pending', 'received', 'cancelled'];
+
+function getNextStatus(current: string) {
+  const idx = statusCycle.indexOf(current);
+  return statusCycle[(idx + 1) % statusCycle.length];
+}
+
+const handleStatusChange = async (orderId: string, newStatus: string) => {
+  const success = await store.updateOrderStatus(orderId, newStatus as PurchaseOrder['status']);
+  if (success) {
+    message.success(`Order status updated to ${newStatus}`);
+  } else {
+    message.error('Failed to update order status');
+  }
+};
 
 const columns = computed(() => [
   {
@@ -428,7 +464,7 @@ const orderColumns = computed(() => [
             whiteSpace: "nowrap",
           }
         },
-        row.id.slice(0, 8)
+        "po" + row.id
       )
   },
   {
@@ -436,7 +472,8 @@ const orderColumns = computed(() => [
     key: 'supplierName',
     width: 180,
     render: (row: PurchaseOrder) => {
-      const supplier = store.getSupplierById(row.id);
+      const supplier = store.getSupplierById(row.supplierId);
+      console.log(supplier, row.supplierId);
       return h('div', { class: 'supplier-cell' }, supplier?.name || 'Unknown');
     }
   },
@@ -470,59 +507,103 @@ const orderColumns = computed(() => [
       const meta = getStatusMeta(row.status);
       return h(
         NTag,
-        { type: meta.type as any, size: 'small' as const },
+        {
+          type: meta.type as any,
+          size: 'small' as const,
+          style: { cursor: 'pointer' },
+          onClick: () => handleStatusChange(row.id, getNextStatus(row.status))
+        },
         {
           default: () => [
             h(NIcon, { style: { marginRight: '4px' } }, {
               default: () => h(Icon, { icon: meta.icon })
             }),
+
             meta.label
           ]
-        }
+        },
+
       );
     }
   },
   {
     title: 'Actions',
     key: 'actions',
-    width: 220,
+    width: 260,
     fixed: 'right' as const,
     render: (row: PurchaseOrder) => {
       const supplier = store.getSupplierById(row.supplierId);
-      const isPending = row.status === 'sent';
 
       return h(NSpace, { wrap: true, size: 8 }, {
         default: () => {
           const buttons: any[] = [];
 
-          if (isPending) {
+          if (supplier) {
             buttons.push(
               h(
                 NButton,
                 {
                   size: 'small',
-                  type: 'success',
+                  type: 'info',
                   ghost: true,
-                  onClick: () => handleConfirmDelivery(row.id)
+                  onClick: () => handleReorder(supplier)
                 },
                 {
                   default: () => [
-                    h(NIcon, null, { default: () => h(Icon, { icon: 'mdi:package-check' }) }),
-                    ' Received'
+                    h(NIcon, null, { default: () => h(Icon, { icon: 'mdi:cart-plus' }) }),
+                    ' Order'
                   ]
                 }
               )
             );
           }
 
-          if (supplier && isPending) {
+          if (row.status === 'draft' && supplier) {
+            buttons.push(
+              h(
+                NPopconfirm,
+                {
+                  onPositiveClick: async () => {
+                    const waLink = generateWhatsAppOrderLink(
+                      supplier.phone,
+                      supplier.name,
+                      row.items.map(i => ({ productName: i.productName, quantity: i.quantity, unit: i.unit }))
+                    );
+                    sendViaWhatsApp(waLink);
+                    await store.markOrderSent(row.id);
+                    message.success('Order sent and status updated to pending');
+                  },
+                  negativeText: 'Cancel',
+                  positiveText: 'Send'
+                },
+                {
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: 'small',
+                        type: 'primary',
+                        ghost: true
+                      },
+                      {
+                        default: () => [
+                          h(NIcon, null, { default: () => h(Icon, { icon: 'mdi:send' }) }),
+                          ' Send'
+                        ]
+                      }
+                    ),
+                  default: () => 'Send order via WhatsApp?'
+                }
+              )
+            );
+
             buttons.push(
               h(
                 NPopconfirm,
                 {
                   onPositiveClick: () => handleCancelOrder(row.id, supplier, true),
-                  negativeText: 'Cancel',
-                  positiveText: 'Confirm'
+                  negativeText: 'Back',
+                  positiveText: 'Cancel'
                 },
                 {
                   trigger: () =>
@@ -540,13 +621,62 @@ const orderColumns = computed(() => [
                         ]
                       }
                     ),
-                  default: () => 'Cancel this order and notify supplier via WhatsApp?'
+                  default: () => 'Cancel draft order and notify supplier via WhatsApp?'
                 }
               )
             );
           }
 
-          if (!isPending) {
+          if (row.status === 'pending') {
+            buttons.push(
+              h(
+                NButton,
+                {
+                  size: 'small',
+                  type: 'success',
+                  ghost: true,
+                  onClick: () => handleConfirmDelivery(row.id)
+                },
+                {
+                  default: () => [
+                    h(NIcon, null, { default: () => h(Icon, { icon: 'mdi:package-check' }) }),
+                    ' Received'
+                  ]
+                }
+              )
+            );
+
+            buttons.push(
+              h(
+                NPopconfirm,
+                {
+                  onPositiveClick: () => handleCancelOrder(row.id, supplier, true),
+                  negativeText: 'Back',
+                  positiveText: 'Cancel'
+                },
+                {
+                  trigger: () =>
+                    h(
+                      NButton,
+                      {
+                        size: 'small',
+                        type: 'error',
+                        ghost: true
+                      },
+                      {
+                        default: () => [
+                          h(NIcon, null, { default: () => h(Icon, { icon: 'mdi:whatsapp' }) }),
+                          ' Cancel'
+                        ]
+                      }
+                    ),
+                  default: () => 'Cancel order and notify supplier via WhatsApp?'
+                }
+              )
+            );
+          }
+
+          if (row.status === 'received' || row.status === 'cancelled') {
             buttons.push(
               h(
                 NPopconfirm,
@@ -625,10 +755,10 @@ const handleSupplierSubmit = async (
 };
 
 const handleOrderSubmit = async (items: PurchaseOrderItem[]) => {
-  if (!selectedSupplier.value) return;
+  if (!selectedSupplier.value || selectedBranchId.value === null) return;
 
   try {
-    const order = await store.createPurchaseOrder(selectedSupplier.value.id, items);
+    const order = await store.createPurchaseOrder(selectedSupplier.value.id, selectedBranchId.value, items);
     const waLink = generateWhatsAppOrderLink(
       selectedSupplier.value.phone,
       selectedSupplier.value.name,
@@ -691,6 +821,14 @@ const handleCancelOrder = async (
   } else {
     message.error('Failed to cancel order');
   }
+};
+
+const handleReorder = (supplier: Supplier) => {
+  if (!supplier.isActive) {
+    message.warning('Cannot create an order for an inactive supplier');
+    return;
+  }
+  openOrderModal(supplier);
 };
 
 const handleDelete = async (id: string) => {

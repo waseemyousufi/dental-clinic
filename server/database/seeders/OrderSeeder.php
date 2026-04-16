@@ -26,7 +26,7 @@ class OrderSeeder extends Seeder
             [
                 'supplier_name' => $suppliers->first()->organization_name,
                 'date' => now()->subDays(10),
-                'status' => 'completed',
+                'status' => 'received',
                 'notes' => 'Initial supply order',
             ],
             [

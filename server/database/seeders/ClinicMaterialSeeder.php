@@ -24,75 +24,35 @@ class ClinicMaterialSeeder extends Seeder
     {
         $materials = [
             [
-                'name' => 'Surgical Mask',
                 'material_name' => 'mask',
-                'description' => 'Disposable surgical masks',
-                'category' => 'Consumable',
-                'width' => 17.50,
-                'height' => 9.50,
-                'depth' => 0.50,
-                'is_sterile' => false,
-                'quantity' => 5,
                 'amount' => 400,
                 'total_amount' => 2000,
                 'expense_date' => '2024/04/04',
                 'description' => 'for daily use',
             ],
             [
-                'name' => 'Examination Gloves',
                 'material_name' => 'clinic gloves',
-                'description' => 'Latex examination gloves',
-                'category' => 'Consumable',
-                'width' => 12.00,
-                'height' => 6.00,
-                'depth' => 4.00,
-                'is_sterile' => false,
-                'quantity' => 5,
                 'amount' => 500,
                 'total_amount' => 2500,
                 'expense_date' => '2024/04/04',
                 'description' => 'for daily use',
             ],
             [
-                'name' => 'Dental Syringe',
                 'material_name' => 'dental syringe',
-                'description' => 'Standard dental syringe',
-                'category' => 'Surgical',
-                'width' => 15.00,
-                'height' => 2.00,
-                'depth' => 2.00,
-                'is_sterile' => true,
-                'quantity' => 10,
                 'amount' => 150,
                 'total_amount' => 1500,
                 'expense_date' => '2024/04/04',
                 'description' => 'surgical procedures',
             ],
             [
-                'name' => 'Anesthetic Solution',
                 'material_name' => 'anesthetic',
-                'description' => 'Local anesthetic for dental procedures',
-                'category' => 'Consumable',
-                'width' => 5.00,
-                'height' => 5.00,
-                'depth' => 1.50,
-                'is_sterile' => true,
-                'quantity' => 20,
                 'amount' => 250,
                 'total_amount' => 5000,
                 'expense_date' => '2024/04/04',
                 'description' => 'pain management',
             ],
             [
-                'name' => 'Dental Drill Bit',
                 'material_name' => 'drill bit',
-                'description' => 'Replacement drill bits',
-                'category' => 'Surgical',
-                'width' => 2.00,
-                'height' => 2.00,
-                'depth' => 0.50,
-                'is_sterile' => true,
-                'quantity' => 8,
                 'amount' => 300,
                 'total_amount' => 2400,
                 'expense_date' => '2024/04/04',
@@ -114,6 +74,16 @@ class ClinicMaterialSeeder extends Seeder
                 'is_active' => true,
             ]);
         }
+
+
+                    $table->string('name')->after('id');
+            $table->string('description')->nullable()->after('name');
+            $table->string('category')->nullable()->after('description');
+            $table->decimal('width', 10, 2)->nullable()->after('category');
+            $table->decimal('height', 10, 2)->nullable()->after('width');
+            $table->decimal('depth', 10, 2)->nullable()->after('height');
+            $table->boolean('is_sterile')->default(false)->after('depth');
+            $table->date("expire_date")->nullable()->after('is_sterile');
 
         // Sync with account transactions and branches
         $transaction = AccountTransaction::find(3);

@@ -12,15 +12,27 @@ use Illuminate\Http\Request;
 
 class InventoryStockController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $inventoryStock = InventoryStock::with(['stockable', 'shelf'])->get();
+        $query = InventoryStock::with(['stockable', 'shelf']);
+
+        if ($request->has('branchId')) {
+            $query->where('branch_id', $request->input('branchId'));
+        }
+
+        $inventoryStock = $query->get();
         return InventoryStockResource::collection($inventoryStock);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $inventoryStock = InventoryStock::with(['stockable', 'shelf'])->findOrFail($id);
+        $query = InventoryStock::with(['stockable', 'shelf']);
+
+        if ($request->has('branchId')) {
+            $query->where('branch_id', $request->input('branchId'));
+        }
+
+        $inventoryStock = $query->findOrFail($id);
         return new InventoryStockResource($inventoryStock);
     }
 
@@ -34,6 +46,7 @@ class InventoryStockController extends Controller
             'expiryDate' => 'nullable|date',
             'batchNumber' => 'nullable|string|max:50',
             'status' => 'required|string|in:placed,pending',
+            'branchId' => 'required|integer|exists:branches,id',
         ]);
 
         // Validate stockable exists
@@ -68,6 +81,7 @@ class InventoryStockController extends Controller
             'expiry_date' => $data['expiryDate'] ?? null,
             'batch_number' => $data['batchNumber'] ?? null,
             'status' => $data['status'],
+            'branch_id' => $data['branchId'],
         ]);
 
         return new InventoryStockResource($inventoryStock->load(['stockable', 'shelf']));
@@ -85,6 +99,7 @@ class InventoryStockController extends Controller
             'expiryDate' => 'nullable|date',
             'batchNumber' => 'nullable|string|max:50',
             'status' => 'sometimes|string|in:placed,pending',
+            'branchId' => 'sometimes|integer|exists:branches,id',
         ]);
 
         // Validate stockable if changing
@@ -127,6 +142,7 @@ class InventoryStockController extends Controller
             'expiry_date' => $data['expiryDate'] ?? $inventoryStock->expiry_date,
             'batch_number' => $data['batchNumber'] ?? $inventoryStock->batch_number,
             'status' => $data['status'] ?? $inventoryStock->status,
+            'branch_id' => $data['branchId'] ?? $inventoryStock->branch_id,
         ]);
 
         return new InventoryStockResource($inventoryStock->load(['stockable', 'shelf']));
@@ -143,22 +159,32 @@ class InventoryStockController extends Controller
     /**
      * Get pending inventory items
      */
-    public function pending()
+    public function pending(Request $request)
     {
-        $inventoryStock = InventoryStock::with(['stockable', 'shelf'])
-            ->pending()
-            ->get();
+        $query = InventoryStock::with(['stockable', 'shelf'])
+            ->pending();
+
+        if ($request->has('branchId')) {
+            $query->where('branch_id', $request->input('branchId'));
+        }
+
+        $inventoryStock = $query->get();
         return InventoryStockResource::collection($inventoryStock);
     }
 
     /**
      * Get placed inventory items
      */
-    public function placed()
+    public function placed(Request $request)
     {
-        $inventoryStock = InventoryStock::with(['stockable', 'shelf'])
-            ->placed()
-            ->get();
+        $query = InventoryStock::with(['stockable', 'shelf'])
+            ->placed();
+
+        if ($request->has('branchId')) {
+            $query->where('branch_id', $request->input('branchId'));
+        }
+
+        $inventoryStock = $query->get();
         return InventoryStockResource::collection($inventoryStock);
     }
 }
