@@ -6,20 +6,22 @@ use App\Http\Controllers\Controller;
 use App\Models\Treatment;
 use Illuminate\Http\Client\ResponseSequence;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Test\Constraint\ResponseFormatSame;
 
 class TreatmentController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        $treatments = Auth::user()->employee->Branch->treatments;
+        $branchId = $this->effectiveBranchId($request);
+        $treatments = Treatment::where('branch_id', $branchId)->get();
         return $treatments;
     }
 
     public function store(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data = $request->validate([
             'treatmentType' => 'required|string',
             'diagnosis' => 'required|string',
@@ -40,7 +42,7 @@ class TreatmentController extends Controller
             'description' => $data['description'],
             'patient_id' => $data['patientId'],
             'xray_id' => $data['xrayId'],
-            'branch_id' => $request->user()->employee->branch_id
+            'branch_id' => $branchId
         ]);
 
         return response('created', 201);
@@ -48,6 +50,8 @@ class TreatmentController extends Controller
 
     public function update(Request $request, $id)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data = $request->validate([
             'treatmentType' => 'required|string',
             'diagnosis' => 'required|string',
@@ -68,7 +72,7 @@ class TreatmentController extends Controller
             'description' => $data['description'],
             'patient_id' => $data['patientId'],
             'xray_id' => $data['xrayId'],
-            'branch_id' => $request->user()->employee->branch_id
+            'branch_id' => $branchId
         ]);
 
         return response('done');

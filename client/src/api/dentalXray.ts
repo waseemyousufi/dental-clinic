@@ -1,12 +1,18 @@
 import api from './api'
 import type DentalXrayData from './interfaces/DentalXray'
 import fileManager from './utils/fileManager'
+import { resolveBranchId } from './utils/branchParams'
 
 export default new (class DentalXray {
   constructor() {}
 
-  getBranchDentalXrays() {
-    return api.get('chores/dental-xray')
+  getBranchDentalXrays(branchId?: number) {
+    const resolvedBranchId = resolveBranchId(branchId)
+    return api.get('chores/dental-xray', {
+      params: {
+        ...(resolvedBranchId != null ? { branchId: resolvedBranchId } : {}),
+      },
+    })
   }
 
   postDentalXray(data: DentalXrayData) {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Receptionist;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ClinicMaterialResource;
+use App\Models\Branch;
 use App\Models\ClinicMaterial;
 use App\Models\ProductPrice;
 use Illuminate\Http\Request;
@@ -11,9 +12,10 @@ use Illuminate\Support\Facades\Auth;
 
 class ClinicMaterialController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $branch = Auth::user()->employee->Branch;
+        $branchId = $this->effectiveBranchId($request);
+        $branch = Branch::findOrFail($branchId);
         $clinicMaterials = $branch->ClinicMaterial()
             ->with(['activePrice', 'inventoryStock.shelf'])
             ->get();
@@ -29,6 +31,8 @@ class ClinicMaterialController extends Controller
 
     public function store(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'materialName' => 'required|string|max:255',
@@ -47,7 +51,7 @@ class ClinicMaterialController extends Controller
             'currencyExchangeRate' => 'nullable|numeric|min:0',
         ]);
 
-        $branch = Auth::user()->employee->Branch;
+        $branch = Branch::findOrFail($branchId);
 
         $clinicMaterial = ClinicMaterial::create([
             'name' => $data['name'],

@@ -15,6 +15,8 @@ class XrayController extends Controller
      */
     public function store(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data = $request->validate([
             'xrayType' => 'require|string',
             'createdAt' => 'required|string',
@@ -41,7 +43,7 @@ class XrayController extends Controller
             'patient_id' => $data['patientId'],
             'requestedByEmployee_id' => $data['requestedByEmployeeId'],
             'takenByEmloyee_id' => $data['takenByEmployeeId'],
-            'branch_id' => $request->user()->employee->branch_id,
+            'branch_id' => $branchId,
         ]);
     }
 
@@ -50,6 +52,8 @@ class XrayController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data = $request->validate([
             'xrayType' => 'require|string',
             'createdAt' => 'required|string',
@@ -76,7 +80,7 @@ class XrayController extends Controller
             'patient_id' => $data['patientId'],
             'requestedByEmployee_id' => $data['requestedByEmployeeId'],
             'takenByEmloyee_id' => $data['takenByEmployeeId'],
-            'branch_id' => $request->user()->employee->branch_id,
+            'branch_id' => $branchId,
         ]);
     }
 }

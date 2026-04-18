@@ -31,6 +31,7 @@ async function handleSubmit() {
 
     try {
       localStorage.setItem('user', JSON.stringify(data))
+      window.location.reload() // Refresh to ensure all components read the new user data
     } catch {
       // ignore storage errors
     }

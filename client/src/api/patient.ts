@@ -2,13 +2,19 @@ import api from './api'
 import type { PatientAllergyData } from './interfaces/Patient'
 import type PatientData from './interfaces/Patient'
 import fileManager from './utils/fileManager'
+import { resolveBranchId } from './utils/branchParams'
 
 export default new (class Patient {
   constructor() { }
 
-  getBranchPatients(abbriviate: boolean = false) {
-    if (abbriviate) return api.get('/patient?abr=true')
-    return api.get('/patient')
+  getBranchPatients(abbriviate: boolean = false, branchId?: number) {
+    const resolvedBranchId = resolveBranchId(branchId)
+    return api.get('/patient', {
+      params: {
+        ...(abbriviate ? { abr: true } : {}),
+        ...(resolvedBranchId != null ? { branchId: resolvedBranchId } : {}),
+      },
+    })
   }
 
   getPatient(id: number) {

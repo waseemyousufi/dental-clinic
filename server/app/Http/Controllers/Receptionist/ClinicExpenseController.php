@@ -5,19 +5,21 @@ namespace App\Http\Controllers\Receptionist;
 use App\Http\Controllers\Controller;
 use App\Models\ClinicExpense;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ClinicExpenseController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        $expenses = Auth::user()->employee->Branch->ClinicExpense;
+        $branchId = $this->effectiveBranchId($request);
+        $expenses = ClinicExpense::where('branch_id', $branchId)->get();
         return $expenses;
     }
 
     public function store(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data = $request->validate([
             'expenseCategory' => 'string|required',
             'unit'  => 'string|required',
@@ -34,12 +36,14 @@ class ClinicExpenseController extends Controller
             'expense_date' => $data['expenseDate'],
             'description' => $data['description'],
             'paidByEmployee_id' => $data['paidByEmployeeId'],
-            'branch_id' => $request->user()->employee->branch_id,
+            'branch_id' => $branchId,
         ]);
     }
 
     public function update(Request $request, $id)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data = $request->validate([
             'expenseCategory' => 'string|required',
             'unit'  => 'string|required',
@@ -56,7 +60,7 @@ class ClinicExpenseController extends Controller
             'expense_date' => $data['expenseDate'],
             'description' => $data['description'],
             'paidByEmployee_id' => $data['paidByEmployeeId'],
-            'branch_id' => $request->user()->employee->branch_id,
+            'branch_id' => $branchId,
         ]);
 
         return response('updated');

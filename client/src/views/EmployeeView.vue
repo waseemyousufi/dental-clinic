@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, h } from 'vue'
+import { useRoute } from 'vue-router'
 import {
   NCard,
   NButton,
@@ -30,6 +31,17 @@ import EmployeeProfilePopup from '../components/EmployeeProfilePopup.vue';
 type EmployeeRow = EmployeeData & { id?: number }
 
 const message = useMessage()
+const route = useRoute()
+
+const getEffectiveBranchId = (): number | undefined => {
+  const usr = JSON.parse(localStorage.getItem('user') || 'null')
+  const userBranchId = usr?.user?.employee?.branchId
+  if (typeof userBranchId === 'number' && Number.isFinite(userBranchId)) return userBranchId
+
+  const raw = route.query.branchId
+  const fromQuery = typeof raw === 'string' ? Number(raw) : NaN
+  return Number.isFinite(fromQuery) ? fromQuery : undefined
+}
 
 const loading = ref(false)
 const employees = ref<EmployeeRow[]>([])
@@ -197,7 +209,7 @@ function resetForm() {
 async function fetchEmployees() {
   try {
     loading.value = true
-    const { data } = await employeeApi.getBranchEmployees()
+    const { data } = await employeeApi.getBranchEmployees(false, getEffectiveBranchId())
     employees.value = data.data as EmployeeRow[]
   } catch (error) {
     console.error(error)

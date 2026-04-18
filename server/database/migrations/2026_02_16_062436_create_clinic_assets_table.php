@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('clinic_assets', function (Blueprint $table) {
             $table->id();
             $table->string('asset_name', 30);
-            $table->string('category', 50); //['Medical Equipment', 'Furniture']
+            $table->string('category', 100); //['Medical Equipment', 'Furniture']
             $table->smallInteger('amount', false, true);
             $table->integer('price', false, true);
             $table->integer('total_amount', false, true);

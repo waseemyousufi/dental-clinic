@@ -2,13 +2,19 @@ import api from './api'
 import type EmployeeData from './interfaces/Employee'
 import type { EmployeeSalaryData } from './interfaces/Employee'
 import fileManager from './utils/fileManager'
+import { resolveBranchId } from './utils/branchParams'
 
 export default new (class Employee {
   constructor() { }
 
-  getBranchEmployees(abbreviate: boolean = false) {
-    if (abbreviate) return api.get('/employee?abr=true');
-    return api.get('/employee')
+  getBranchEmployees(abbreviate: boolean = false, branchId?: number) {
+    const resolvedBranchId = resolveBranchId(branchId)
+    return api.get('/employee', {
+      params: {
+        ...(abbreviate ? { abr: true } : {}),
+        ...(resolvedBranchId != null ? { branchId: resolvedBranchId } : {}),
+      },
+    })
   }
 
   postEmployee(data: EmployeeData) {

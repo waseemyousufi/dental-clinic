@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, h } from 'vue'
+import { useRoute } from 'vue-router'
 import {
   NCard,
   NButton,
@@ -30,6 +31,17 @@ type DentalXrayRow = DentalXrayData & {
 }
 
 const message = useMessage()
+const route = useRoute()
+
+const getEffectiveBranchId = (): number | undefined => {
+  const usr = JSON.parse(localStorage.getItem('user') || 'null')
+  const userBranchId = usr?.user?.employee?.branchId
+  if (typeof userBranchId === 'number' && Number.isFinite(userBranchId)) return userBranchId
+
+  const raw = route.query.branchId
+  const fromQuery = typeof raw === 'string' ? Number(raw) : NaN
+  return Number.isFinite(fromQuery) ? fromQuery : undefined
+}
 
 const loading = ref(false)
 const xrays = ref<DentalXrayRow[]>([])
@@ -151,7 +163,7 @@ const columns = [
 async function fetchDentalXrays() {
   try {
     loading.value = true
-    const { data } = await dentalXrayApi.getBranchDentalXrays()
+    const { data } = await dentalXrayApi.getBranchDentalXrays(getEffectiveBranchId())
     xrays.value = data.data as DentalXrayRow[]
   } catch (error) {
     console.error(error)
@@ -163,7 +175,7 @@ async function fetchDentalXrays() {
 
 async function fetchPatients() {
   try {
-    const { data } = await patientApi.getBranchPatients()
+    const { data } = await patientApi.getBranchPatients(false, getEffectiveBranchId())
     patientOptions.value = (data.data as any[]).map((p) => ({
       label: `${p.fName} ${p.lName}`,
       value: p.id,
@@ -175,7 +187,7 @@ async function fetchPatients() {
 
 async function fetchEmployees() {
   try {
-    const { data } = await employeeApi.getBranchEmployees(true)
+    const { data } = await employeeApi.getBranchEmployees(true, getEffectiveBranchId())
     employeeOptions.value = (data.data as any[]).map((e) => ({
       label: e.name || `${e.fName} ${e.lName}`,
       value: e.id,

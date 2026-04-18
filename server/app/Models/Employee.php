@@ -14,7 +14,7 @@ class Employee extends Model
 
 
     public $timestamps = false;
-protected $fillable = [
+    protected $fillable = [
         'f_name',
         'l_name',
         'gender',
@@ -26,6 +26,7 @@ protected $fillable = [
         'work_end_time',
         'position_id',
         'branch_id',
+        'user_id'
     ];
 
     public function casts(): array

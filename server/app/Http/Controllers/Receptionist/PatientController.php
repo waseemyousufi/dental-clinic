@@ -6,16 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PatientResource;
 use App\Models\Patient;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class PatientController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $patients = Auth::user()->employee->Branch->Patient;
+        $branchId = $this->effectiveBranchId($request);
+        $patients = Patient::where('branch_id', $branchId)->get();
         return PatientResource::collection($patients);
     }
 
@@ -26,6 +26,8 @@ class PatientController extends Controller
 
     public function setAllergy(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data = $request->validate([
             'allergyType' => 'string|required',
             'severity' => 'string|required',
@@ -39,7 +41,7 @@ class PatientController extends Controller
             'allergy_type' => $data['allergyType'],
             'severity' => $data['severity'],
             'description' => $data['description'],
-            'branch_id' => $request->user()->employee->branch_id,
+            'branch_id' => $branchId,
         ]);
     }
 
@@ -48,6 +50,8 @@ class PatientController extends Controller
      */
     public function store(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data = $request->validate([
             'fName' => 'required|string',
             'lName' => 'required|string',
@@ -66,7 +70,7 @@ class PatientController extends Controller
             'blood_type' => $data['bloodType'],
             'emergency_contact' => $data['emgContact'],
             'registeration_date' => $data['registerationDate'],
-            'branch_id' => $request->user()->employee->branch_id,
+            'branch_id' => $branchId,
         ]);
     }
 
@@ -77,6 +81,8 @@ class PatientController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data = $request->validate([
             'fName' => 'required|string',
             'lName' => 'required|string',
@@ -95,7 +101,7 @@ class PatientController extends Controller
             'blood_type' => $data['bloodType'],
             'emergency_contact' => $data['emgContact'],
             'registeration_date' => $data['registerationDate'],
-            'branch_id' => $request->user()->employee->branch_id,
+            'branch_id' => $branchId,
         ]);
     }
 

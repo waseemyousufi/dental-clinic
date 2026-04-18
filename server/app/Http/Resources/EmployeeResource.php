@@ -22,6 +22,14 @@ class EmployeeResource extends JsonResource
             ];
         }
 
+        $branch = $this->Branch;
+
+        $isAdmin = ($this->Position?->position_title === 'admin');
+
+        if ($isAdmin) {
+           $branch = null; // hide branch info for admins
+        }
+
         return [
             'id' => $this->id,
             'name' => $this->f_name . ' ' . $this->l_name,
@@ -37,6 +45,7 @@ class EmployeeResource extends JsonResource
             'workStartTime' => $this->work_start_time,
             'workEndTime' => $this->work_end_time,
             'positionId' => $this->position_id,
+            'branchId' => $isAdmin ? null : $this->branch_id,
             'experience' => new EmployeeExperienceResource($this->experience),
         ];
     }

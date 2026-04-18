@@ -28,35 +28,35 @@ class ClinicMaterialSeeder extends Seeder
                 'amount' => 400,
                 'total_amount' => 2000,
                 'expense_date' => '2024/04/04',
-                'description' => 'for daily use',
+                'quantity' => 5
             ],
             [
                 'material_name' => 'clinic gloves',
                 'amount' => 500,
                 'total_amount' => 2500,
                 'expense_date' => '2024/04/04',
-                'description' => 'for daily use',
+                'quantity' => 5
             ],
             [
                 'material_name' => 'dental syringe',
                 'amount' => 150,
                 'total_amount' => 1500,
                 'expense_date' => '2024/04/04',
-                'description' => 'surgical procedures',
+                'quantity' => 5
             ],
             [
                 'material_name' => 'anesthetic',
                 'amount' => 250,
                 'total_amount' => 5000,
                 'expense_date' => '2024/04/04',
-                'description' => 'pain management',
+                'quantity' => 5
             ],
             [
                 'material_name' => 'drill bit',
                 'amount' => 300,
                 'total_amount' => 2400,
                 'expense_date' => '2024/04/04',
-                'description' => 'equipment replacement',
+                'quantity' => 5
             ],
         ];
 
@@ -74,16 +74,6 @@ class ClinicMaterialSeeder extends Seeder
                 'is_active' => true,
             ]);
         }
-
-
-                    $table->string('name')->after('id');
-            $table->string('description')->nullable()->after('name');
-            $table->string('category')->nullable()->after('description');
-            $table->decimal('width', 10, 2)->nullable()->after('category');
-            $table->decimal('height', 10, 2)->nullable()->after('width');
-            $table->decimal('depth', 10, 2)->nullable()->after('height');
-            $table->boolean('is_sterile')->default(false)->after('depth');
-            $table->date("expire_date")->nullable()->after('is_sterile');
 
         // Sync with account transactions and branches
         $transaction = AccountTransaction::find(3);

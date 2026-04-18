@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, h } from 'vue'
+import { useRoute } from 'vue-router'
 import {
   NCard,
   NButton,
@@ -21,6 +22,17 @@ import { Icon } from "@iconify/vue";
 type AccountRow = AccountData & { id?: number }
 
 const message = useMessage()
+const route = useRoute()
+
+const getEffectiveBranchId = (): number | undefined => {
+  const usr = JSON.parse(localStorage.getItem('user') || 'null')
+  const userBranchId = usr?.user?.employee?.branchId
+  if (typeof userBranchId === 'number' && Number.isFinite(userBranchId)) return userBranchId
+
+  const raw = route.query.branchId
+  const fromQuery = typeof raw === 'string' ? Number(raw) : NaN
+  return Number.isFinite(fromQuery) ? fromQuery : undefined
+}
 
 const loading = ref(false)
 const accounts = ref<AccountRow[]>([])
@@ -134,7 +146,7 @@ const columns = [
 async function fetchAccounts() {
   try {
     loading.value = true
-    const { data } = await accountApi.getBranchAccounts(true)
+    const { data } = await accountApi.getBranchAccounts(true, getEffectiveBranchId())
     accounts.value = data.data as AccountRow[]
   } catch (error) {
     console.error(error)

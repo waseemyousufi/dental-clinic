@@ -10,14 +10,17 @@ use Illuminate\Support\Facades\Auth;
 class PrescriptionController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        $prescriptions = Auth::user()->employee->Branch->Prescription;
+        $branchId = $this->effectiveBranchId($request);
+        $prescriptions = Prescription::where('branch_id', $branchId)->get();
         return $prescriptions;
     }
 
     public function store(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data  = $request->validate([
             'prescriptionDate' => 'required|string',
             'instructions' => 'required|string',
@@ -30,13 +33,15 @@ class PrescriptionController extends Controller
             'prescription_date' => $data['prescriptionDate'],
             'instructions' => $data['instructions'],
             'employee_id' => $employee->id,
-            'branch_id' => $employee->branch_id,
+            'branch_id' => $branchId,
             'patient_id' => $data['patientId'],
         ]);
     }
 
     public function update(Request $request,string $id)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data  = $request->validate([
             'prescriptionDate' => 'required|string',
             'instructions' => 'required|string',
@@ -49,7 +54,7 @@ class PrescriptionController extends Controller
             'prescription_date' => $data['prescriptionDate'],
             'instructions' => $data['instructions'],
             'employee_id' => $employee->id,
-            'branch_id' => $employee->branch_id,
+            'branch_id' => $branchId,
             'patient_id' => $data['patientId'],
         ]);
     }

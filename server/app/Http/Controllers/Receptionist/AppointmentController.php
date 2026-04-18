@@ -7,15 +7,15 @@ use App\Models\Appointment;
 use App\Models\Employee;
 use App\Models\Patient;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\AppointmentResource;
 
 class AppointmentController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        $appointments = Auth::user()->employee->Branch->appointments;
+        $branchId = $this->effectiveBranchId($request);
+        $appointments = Appointment::where('branch_id', $branchId)->get();
         return AppointmentResource::collection($appointments);
     }
 
@@ -24,6 +24,8 @@ class AppointmentController extends Controller
      */
     public function store(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data = $request->validate([
             'appointment_timestamp' => 'required',
             'description' => 'string',
@@ -36,7 +38,7 @@ class AppointmentController extends Controller
             'appointment_timestamp' => $data['appointment_timestamp'],
             'description' => $data['description'],
             'status' => $data['status'],
-            'branch_id' => $request->user()->employee->branch_id,
+            'branch_id' => $branchId,
         ]);
 
         $patient = Patient::find($data['patientId']);
@@ -52,6 +54,8 @@ class AppointmentController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data = $request->validate([
             'appointment_timestamp' => 'required',
             'description' => 'string',
@@ -64,7 +68,7 @@ class AppointmentController extends Controller
             'appointment_timestamp' => $data['appointment_timestamp'],
             'description' => $data['description'],
             'status' => $data['status'],
-            'branch_id' => $request->user()->employee->branch_id
+            'branch_id' => $branchId
         ]);
 
         $appointment = Appointment::find($id);

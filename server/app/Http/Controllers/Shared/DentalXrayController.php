@@ -6,19 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\DentalXrayResource;
 use App\Models\DentalXray;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class DentalXrayController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        $xrays = Auth::user()->employee->Branch->DentalXray;
+        $branchId = $this->effectiveBranchId($request);
+        $xrays = DentalXray::where('branch_id', $branchId)->get();
         return DentalXrayResource::collection($xrays);
     }
 
     public function store(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data = $request->validate([
             "xray_type" => 'required|string',
             "xray_timestamp" => 'required|string',
@@ -45,7 +47,7 @@ class DentalXrayController extends Controller
             'patient_id' => $data['patient_id'],
             'requestedByEmployee_id' => $data['requestedByEmployee_id'],
             'takenByEmployee_id' => $data['takenByEmployee_id'],
-            'branch_id' => $request->user()->employee->branch_id,
+            'branch_id' => $branchId,
         ]);
     }
 

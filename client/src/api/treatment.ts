@@ -1,11 +1,17 @@
 import api from './api'
 import type TreatmentData from './interfaces/Treatment'
+import { resolveBranchId } from './utils/branchParams'
 
 export default new (class Treatment {
   constructor() {}
 
-  getBranchTreatments() {
-    return api.get('/treatment')
+  getBranchTreatments(branchId?: number) {
+    const resolvedBranchId = resolveBranchId(branchId)
+    return api.get('/treatment', {
+      params: {
+        ...(resolvedBranchId != null ? { branchId: resolvedBranchId } : {}),
+      },
+    })
   }
 
   postTreatment(data: TreatmentData) {

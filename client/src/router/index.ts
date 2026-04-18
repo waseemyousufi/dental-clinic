@@ -1,11 +1,19 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+const isAuthenticated = () => {
+  const user = localStorage.getItem('user')
+  return user
+}
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      redirect: '/patients',
+      redirect: isAuthenticated() ? '/patients' : '/login',
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: isAuthenticated() ? '/patients' : '/login',
     },
     {
       path: '/register-user',
@@ -75,6 +83,21 @@ const router = createRouter({
       meta: { requiresAuth: true }
     }
   ],
+})
+
+router.beforeEach((to, from, next) => {
+  const user = localStorage.getItem('user')
+  const isLoggedIn = user
+
+  if (to.meta.requiresAuth && !isLoggedIn) {
+    return next('/login')
+  }
+
+  if (to.meta.guestOnly && isLoggedIn) {
+    return next('/')
+  }
+
+  next()
 })
 
 export default router

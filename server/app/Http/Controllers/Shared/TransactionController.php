@@ -15,14 +15,16 @@ class TransactionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $transactions = Auth::user()->employee->Branch->accountTransactions;
+        $branchId = $this->effectiveBranchId($request);
+        $transactions = AccountTransaction::where('branch_id', $branchId)->get();
         return TransactionResource::collection($transactions);
     }
 
     public function store(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
 
         $data = $request->validate([
             'transactionType' => 'required|string',
@@ -42,7 +44,7 @@ class TransactionController extends Controller
             'description' => $data['description'],
             'recorded_by_employee_id' => $data['recordedByEmployeeId'],
             'account_id' => $data['accountId'],
-            'branch_id' => $request->user()->employee->branch_id,
+            'branch_id' => $branchId,
         ]);
 
         Branch::find($transaction->branch_id)->accountTransactions()->save($transaction);
@@ -65,6 +67,7 @@ class TransactionController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $branchId = $this->effectiveBranchId($request);
 
         $data = $request->validate([
             'transactionType' => 'required|string',
@@ -84,7 +87,7 @@ class TransactionController extends Controller
             'description' => $data['description'],
             'recorded_by_employee_id' => $data['recordedByEmployeeId'],
             'account_id' => $data['accountId'],
-            'branch_id' => $request->user()->employee->branch_id,
+            'branch_id' => $branchId,
         ]);
 
         $account = Account::find($data['accountId']);

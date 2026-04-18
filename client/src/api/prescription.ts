@@ -1,11 +1,17 @@
 import api from './api'
 import type PrescriptionData from './interfaces/Prescription'
+import { resolveBranchId } from './utils/branchParams'
 
 export default new (class Prescription {
   constructor() {}
 
-  getBranchPrescriptions() {
-    return api.get('/prescription')
+  getBranchPrescriptions(branchId?: number) {
+    const resolvedBranchId = resolveBranchId(branchId)
+    return api.get('/prescription', {
+      params: {
+        ...(resolvedBranchId != null ? { branchId: resolvedBranchId } : {}),
+      },
+    })
   }
 
   postPrescription(data: PrescriptionData) {

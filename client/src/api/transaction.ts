@@ -1,11 +1,17 @@
 import api from './api'
 import type TransactionData from './interfaces/Transaction'
+import { resolveBranchId } from './utils/branchParams'
 
 export default new (class Transaction {
   constructor() {}
 
-  getBranchTransactions() {
-    return api.get('/chores/transaction')
+  getBranchTransactions(branchId?: number) {
+    const resolvedBranchId = resolveBranchId(branchId)
+    return api.get('/chores/transaction', {
+      params: {
+        ...(resolvedBranchId != null ? { branchId: resolvedBranchId } : {}),
+      },
+    })
   }
 
   postTransaction(data: TransactionData) {

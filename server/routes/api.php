@@ -1,14 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\Admin;
-use App\Http\Controllers\Admin\EmployeeController as AdminEmployeeController;
 use App\Http\Controllers\Doctor;
 use App\Http\Controllers\Receptionist;
 use App\Http\Controllers\Shared;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 
@@ -16,14 +12,18 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:admin')->prefix('admin')->group(function () {
         Route::post('/create-user', [Admin\EmployeeController::class, 'store']);
+
+        Route::get('/branch', [Admin\BranchController::class, 'index']);
+        Route::post('/branch', [Admin\BranchController::class, 'store']);
+        Route::put('/branch/{id}', [Admin\BranchController::class, 'update']);
+        Route::delete('/branch/{id}', [Admin\BranchController::class, 'delete']);
     });
 
     Route::middleware('role:doctor,assisstant')->prefix('doctor')->group(function () {
         Route::get('/appointments', [Doctor\AppointmentController::class, 'index']);
     });
 
-    Route::middleware('role:receptionist')->prefix('receptionist')->group(function () {
-
+    Route::middleware('role:receptionist,admin')->prefix('admin/receptionist')->group(function () {
         Route::post('/appointment', [Receptionist\AppointmentController::class, 'store']);
         Route::get('/appointment', [Receptionist\AppointmentController::class, 'index']);
         Route::put('/appointment/{id}', [Receptionist\AppointmentController::class, 'update']);
@@ -125,16 +125,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/inventory-stock/pending', [Shared\InventoryStockController::class, 'pending']);
         Route::get('/inventory-stock/placed', [Shared\InventoryStockController::class, 'placed']);
 
-        Route::get('/me', function (Request $request) {
-            return Auth::user()->load('employee');
-        });
-
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+        Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/logout', [AuthController::class, 'logout']);
+        Route::post('/refresh', [AuthController::class, 'refresh']);
+        Route::get('/me', [AuthController::class, 'me']);
     });
 });
 
 
 // Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/create-employee', [Admin\EmployeeController::class, 'store']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::get('/test', function () {
+    return response()->json(['message' => 'API is working']);
+});

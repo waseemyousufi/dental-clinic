@@ -2,86 +2,133 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Auth\Events\PasswordReset;
+use App\Http\Resources\UserResource;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\ValidationException;
+use App\Models\User;
+use App\Models\Employee;
 
 class AuthController extends Controller
 {
-    // public function register(Request $request)
-    // {
-    //     $fields = $request->validate([
-    //         'name' => 'required|string',
-    //         'email' => 'required|string|unique:users,email',
-    //     ]);
-
-    //     return DB::transaction(function () use ($fields) {
-    //         $user = User::create([
-    //             'name' => $fields['name'],
-    //             'email' => $fields['email'],
-    //             'password' => Hash::make($fields['password'])
-    //         ]);
-
-    //         $user->employee()->create([
-    //             'department' => $fields['department'],
-    //         ]);
-
-    //         $token = $user->createToken('clinic-token')->plainTextToken;
-
-    //         return response(['user' => $user->load('employee'), 'token' => $token], 201);
-    //     });
-    // }
-
-    public function login(Request $request)
-    {
-        $fields = $request->validate([
-            'email' => 'required|string',
-            'password' => 'required|string'
-        ]);
-
-        $user = User::where('email', $fields['email'])->first();
-
-        if (!$user || !Hash::check($fields['password'], $user->password)) {
-            return response(['message' => 'Bad credentials'], 401);
-        }
-
-        $token = $user->createToken('clinic-token')->plainTextToken;
-
-        return response(['user' => $user->load(['employee.Position']), 'token' => $token], 200);
-    }
-
-    public function resetPassword(Request $request)
+    /**
+     * Register new user + employee
+     */
+    public function register(Request $request)
     {
         $request->validate([
-            'token' => 'required',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|unique:users,email',
+            'password' => 'required|string|min:6|confirmed',
+
+            // employee fields
+            'f_name' => 'required|string',
+            'l_name' => 'required|string',
+            'gender' => 'required',
+            'position_id' => 'required|exists:positions,id',
+            'branch_id' => 'required|exists:branches,id',
+        ]);
+
+        // create user
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => $request->password, // auto hashed (casts)
+        ]);
+
+        // create employee linked to user
+        $employee = Employee::create([
+            'f_name' => $request->f_name,
+            'l_name' => $request->l_name,
+            'gender' => $request->gender,
+            'position_id' => $request->position_id,
+            'branch_id' => $request->branch_id,
+            'user_id' => $user->id,
+        ]);
+
+        // create token
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'User registered successfully',
+            'user' => new UserResource($user),
+            'token' => $token,
+        ], 201);
+    }
+
+    /**
+     * Login
+     */
+    public function login(Request $request)
+    {
+        $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
-        $status = Password::broker()->reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user, $password) {
-                $user->forceFill([
-                    'password' => Hash::make($password)
-                ])->save();
+        $user = User::with([
+            'employee.Position',
+            'employee.Branch',
+            'employee.experience',
+        ])->where('email', $request->email)->first();
 
-                event(new PasswordReset($user));
-            }
-        );
-
-        if ($status === Password::PASSWORD_RESET) {
-            return response()->json(['message' => 'Password has been set successfully. You can now log in.']);
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['Invalid credentials'],
+            ]);
         }
 
-        return response()->json(['message' => __($status)], 400);
+        // delete old tokens (one-device login)
+        // $user->tokens()->delete();
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Login successful',
+            'user' => new UserResource($user),
+            'token' => $token,
+        ]);
     }
 
-    // public function logout(Request $request) {
-    //     $request->user()->currentAccessToken()->delete();
-    //     return response(['message' => 'Logged out'], 200);
-    // }
+    /**
+     * Logout (current token)
+     */
+    public function logout(Request $request)
+    {
+        $token = $request->user()->currentAccessToken();
+
+        if($token) {
+            $token->delete();
+        }
+        return response()->json([
+            'message' => 'Logged out successfully',
+        ]);
+    }
+
+    /**
+     * Get authenticated user
+     */
+    public function me(Request $request)
+    {
+        return response()->json([
+            'user' => new UserResource($request->user()),
+        ]);
+    }
+
+    /**
+     * Optional: refresh token
+     */
+    public function refresh(Request $request)
+    {
+        $user = $request->user();
+
+        $user->tokens()->delete();
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+        ]);
+    }
 }

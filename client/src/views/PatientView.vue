@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, h } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import {
   NCard,
   NButton,
@@ -28,6 +28,17 @@ type PatientRow = PatientData & { id?: number }
 
 const message = useMessage()
 const router = useRouter()
+const route = useRoute()
+
+const getEffectiveBranchId = (): number | undefined => {
+  const usr = JSON.parse(localStorage.getItem('user') || 'null')
+  const userBranchId = usr?.user?.employee?.branchId
+  if (typeof userBranchId === 'number' && Number.isFinite(userBranchId)) return userBranchId
+
+  const raw = route.query.branchId
+  const fromQuery = typeof raw === 'string' ? Number(raw) : NaN
+  return Number.isFinite(fromQuery) ? fromQuery : undefined
+}
 
 const loading = ref(false)
 const patients = ref<PatientRow[]>([])
@@ -209,7 +220,7 @@ function resetForm() {
 async function fetchPatients() {
   try {
     loading.value = true
-    const { data } = await patientApi.getBranchPatients()
+    const { data } = await patientApi.getBranchPatients(false, getEffectiveBranchId())
     console.log(data.data)
     patients.value = data.data as PatientRow[]
   } catch (error) {
@@ -525,4 +536,3 @@ onMounted(fetchPatients)
   justify-content: center;
 }
 </style>
-

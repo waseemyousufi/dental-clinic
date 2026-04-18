@@ -16,9 +16,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory(2)->create();
+        // User::factory(2)->create();
+        // $users = [
+        //     [
+        //         "email" =>
+        //     ]
+        // ];
+
         $this->call(PositionSeeder::class);
         $this->call(BranchSeeder::class);
+        $this->call(UserSeeder::class);
         $this->call(EmployeeSeeder::class);
         $this->call(AccountSeeder::class);
         $this->call(TransactionSeeder::class);

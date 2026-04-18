@@ -23,7 +23,7 @@ return new class extends Migration
             $table->time('work_start_time');
             $table->time('work_end_time');
             $table->foreignId('position_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('branch_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
         });
     }

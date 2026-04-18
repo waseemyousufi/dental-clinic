@@ -7,7 +7,6 @@ use App\Http\Resources\EmployeeResource;
 use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -18,9 +17,10 @@ class EmployeeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $employees = Auth::user()->employee->Branch->Employee;
+        $branchId = $this->effectiveBranchId($request);
+        $employees = Employee::where('branch_id', $branchId)->get();
         return EmployeeResource::collection($employees);
     }
 
@@ -29,6 +29,8 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data = $request->validate([
             'fName' => 'required|string',
             'lName' => 'required|string',
@@ -63,7 +65,7 @@ class EmployeeController extends Controller
                 'medical_license_number' => $data['midLicenseNum'],
                 'work_start_time' => $data['workStartTime'],
                 'work_end_time' => $data['workEndTime'],
-                'branch_id' => $request->user()->employee->branch_id,
+                'branch_id' => $branchId,
                 'position_id' => $data['positionId'],
             ]);
             
@@ -126,6 +128,7 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $branchId = $this->effectiveBranchId($request);
 
         $data = $request->validate([
             'fName' => 'required|string',
@@ -157,7 +160,7 @@ class EmployeeController extends Controller
                     'medical_license_number' => $data['midLicenseNum'],
                     'work_start_time' => $data['workStartTime'],
                     'work_end_time' => $data['workEndTime'],
-                    'branch_id' => $request->user()->employee->branch_id,
+                    'branch_id' => $branchId,
                     'position_id' => $data['positionId'],
                 ]);
 

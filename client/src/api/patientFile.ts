@@ -1,11 +1,17 @@
 import api from './api'
 import type PatientFileData from './interfaces/PatientFile'
+import { resolveBranchId } from './utils/branchParams'
 
 export default new (class PatientFile {
   constructor() {}
 
-  getBranchPatientFiles() {
-    return api.get('/patient-files')
+  getBranchPatientFiles(branchId?: number) {
+    const resolvedBranchId = resolveBranchId(branchId)
+    return api.get('/patient-files', {
+      params: {
+        ...(resolvedBranchId != null ? { branchId: resolvedBranchId } : {}),
+      },
+    })
   }
 
   postPatientFile(data: PatientFileData) {

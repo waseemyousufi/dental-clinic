@@ -5,15 +5,17 @@ namespace App\Http\Controllers\Shared;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ClinicAssetResource;
 use App\Models\ClinicAsset;
+use App\Models\Branch;
 use App\Models\ProductPrice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ClinicAssetController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $branch = Auth::user()->employee->Branch;
+        $branchId = $this->effectiveBranchId($request);
+        $branch = Branch::findOrFail($branchId);
         $clinicAssets = $branch->ClinicAssets()
             ->with(['Employee', 'Branch', 'activePrice', 'inventoryStock.shelf'])
             ->get();
@@ -29,6 +31,8 @@ class ClinicAssetController extends Controller
 
     public function store(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'assetName' => 'required|string|max:255',
@@ -63,7 +67,7 @@ class ClinicAssetController extends Controller
             'date_of_purchase' => $data['dateOfPurchase'],
             'status' => $data['status'],
             'purchasedByEmployee_id' => $data['purchasedByEmployeeId'] ?? Auth::user()->employee->id,
-            'branch_id' => Auth::user()->employee->branch_id,
+            'branch_id' => $branchId,
         ]);
 
         // Create price record
@@ -82,6 +86,8 @@ class ClinicAssetController extends Controller
 
     public function update(Request $request, $id)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $clinicAsset = ClinicAsset::findOrFail($id);
 
         $data = $request->validate([
@@ -118,7 +124,7 @@ class ClinicAssetController extends Controller
             'date_of_purchase' => $data['dateOfPurchase'] ?? $clinicAsset->date_of_purchase,
             'status' => $data['status'] ?? $clinicAsset->status,
             'purchasedByEmployee_id' => $data['purchasedByEmployeeId'] ?? $clinicAsset->purchasedByEmployee_id,
-            'branch_id' => Auth::user()->employee->branch_id,
+            'branch_id' => $branchId,
         ]);
 
         // Update price if provided

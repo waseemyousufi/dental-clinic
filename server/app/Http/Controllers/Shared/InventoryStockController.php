@@ -14,11 +14,9 @@ class InventoryStockController extends Controller
 {
     public function index(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
         $query = InventoryStock::with(['stockable', 'shelf']);
-
-        if ($request->has('branchId')) {
-            $query->where('branch_id', $request->input('branchId'));
-        }
+        $query->where('branch_id', $branchId);
 
         $inventoryStock = $query->get();
         return InventoryStockResource::collection($inventoryStock);
@@ -26,11 +24,9 @@ class InventoryStockController extends Controller
 
     public function show(Request $request, $id)
     {
+        $branchId = $this->effectiveBranchId($request);
         $query = InventoryStock::with(['stockable', 'shelf']);
-
-        if ($request->has('branchId')) {
-            $query->where('branch_id', $request->input('branchId'));
-        }
+        $query->where('branch_id', $branchId);
 
         $inventoryStock = $query->findOrFail($id);
         return new InventoryStockResource($inventoryStock);
@@ -38,6 +34,7 @@ class InventoryStockController extends Controller
 
     public function store(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
         $data = $request->validate([
             'stockableType' => 'required|string|in:App\Models\ClinicMaterial,App\Models\ClinicAsset',
             'stockableId' => 'required|integer',
@@ -46,7 +43,7 @@ class InventoryStockController extends Controller
             'expiryDate' => 'nullable|date',
             'batchNumber' => 'nullable|string|max:50',
             'status' => 'required|string|in:placed,pending',
-            'branchId' => 'required|integer|exists:branches,id',
+            'branchId' => 'sometimes|integer|exists:branches,id',
         ]);
 
         // Validate stockable exists
@@ -81,7 +78,7 @@ class InventoryStockController extends Controller
             'expiry_date' => $data['expiryDate'] ?? null,
             'batch_number' => $data['batchNumber'] ?? null,
             'status' => $data['status'],
-            'branch_id' => $data['branchId'],
+            'branch_id' => $branchId,
         ]);
 
         return new InventoryStockResource($inventoryStock->load(['stockable', 'shelf']));
@@ -89,6 +86,7 @@ class InventoryStockController extends Controller
 
     public function update(Request $request, $id)
     {
+        $branchId = $this->effectiveBranchId($request);
         $inventoryStock = InventoryStock::findOrFail($id);
 
         $data = $request->validate([
@@ -142,7 +140,7 @@ class InventoryStockController extends Controller
             'expiry_date' => $data['expiryDate'] ?? $inventoryStock->expiry_date,
             'batch_number' => $data['batchNumber'] ?? $inventoryStock->batch_number,
             'status' => $data['status'] ?? $inventoryStock->status,
-            'branch_id' => $data['branchId'] ?? $inventoryStock->branch_id,
+            'branch_id' => $branchId,
         ]);
 
         return new InventoryStockResource($inventoryStock->load(['stockable', 'shelf']));
@@ -161,12 +159,10 @@ class InventoryStockController extends Controller
      */
     public function pending(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
         $query = InventoryStock::with(['stockable', 'shelf'])
             ->pending();
-
-        if ($request->has('branchId')) {
-            $query->where('branch_id', $request->input('branchId'));
-        }
+        $query->where('branch_id', $branchId);
 
         $inventoryStock = $query->get();
         return InventoryStockResource::collection($inventoryStock);
@@ -177,12 +173,10 @@ class InventoryStockController extends Controller
      */
     public function placed(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
         $query = InventoryStock::with(['stockable', 'shelf'])
             ->placed();
-
-        if ($request->has('branchId')) {
-            $query->where('branch_id', $request->input('branchId'));
-        }
+        $query->where('branch_id', $branchId);
 
         $inventoryStock = $query->get();
         return InventoryStockResource::collection($inventoryStock);

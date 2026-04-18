@@ -1,4 +1,5 @@
 <template>
+
   <n-space vertical :size="24" class="supplier-view">
     <!-- Header -->
     <div class="view-header">
@@ -51,11 +52,6 @@
             </n-icon>
           </template>
         </n-input>
-
-
-            <n-select v-model:value="selectedBranchId" :options="branchOptions" placeholder="Select Branch" size="small"
-              class="branch-select" />
-
         <div class="toolbar-actions">
           <n-select v-model:value="filterStatus" :options="statusOptions" class="status-select" size="small" />
           <n-button quaternary :loading="isRefreshing" @click="refreshData">
@@ -131,22 +127,20 @@ import {
   generateWhatsAppCancellationLink,
   sendViaWhatsApp
 } from '@/utils/whatsapp';
-import type { Supplier, PurchaseOrderItem, PurchaseOrder, Branch } from '@/types/supplier';
+import type { Supplier, PurchaseOrderItem, PurchaseOrder } from '@/types/supplier';
 import SupplierForm from '@/components/suppliers/SupplierForm.vue';
 import PurchaseOrderModal from '@/components/suppliers/PurchaseOrderModal.vue';
+import { useBranchStore } from '@/stores/branchStore';
 
 const message = useMessage();
 const dialog = useDialog();
 const store = useSupplierStore();
+const branchStore = useBranchStore();
 
-const selectedBranchId = ref<number | null>(null);
-const branchOptions = ref<{ label: string; value: number }[]>([]);
-
-// Placeholder for fetching branches
-const fetchBranches = () => {
-  const branches = branch.get
-  selectedBranchId.value = branchOptions.value[0]?.value || null; // Select first branch by default
-};
+const selectedBranchId = computed<number | null>({
+  get: () => branchStore.selectedBranchId,
+  set: (value) => branchStore.setSelectedBranchId(value)
+});
 
 const searchQuery = ref('');
 const filterStatus = ref<'all' | 'active' | 'inactive'>('all');
@@ -176,7 +170,7 @@ const orderPagination = {
 
 onMounted(() => {
   store.loadInitialData();
-  fetchBranches();
+  branchStore.fetchBranches();
 });
 
 const selectedSupplierProducts = computed(() =>
@@ -758,7 +752,7 @@ const handleOrderSubmit = async (items: PurchaseOrderItem[]) => {
   if (!selectedSupplier.value || selectedBranchId.value === null) return;
 
   try {
-    const order = await store.createPurchaseOrder(selectedSupplier.value.id, selectedBranchId.value, items);
+    const order = await store.createPurchaseOrder(selectedSupplier.value.id, items);
     const waLink = generateWhatsAppOrderLink(
       selectedSupplier.value.phone,
       selectedSupplier.value.name,
@@ -781,7 +775,8 @@ const handleOrderSubmit = async (items: PurchaseOrderItem[]) => {
     });
 
     showOrderModal.value = false;
-  } catch {
+  } catch(err) {
+    console.log(err)
     message.error('Failed to create order');
   }
 };
@@ -984,10 +979,6 @@ const refreshData = async () => {
   line-height: 1.2;
 }
 
-.toolbar-card {
-  border-radius: 18px;
-}
-
 .search-filters-container {
   display: flex;
   flex-direction: column;
@@ -1120,5 +1111,23 @@ const refreshData = async () => {
 
 div.n-card-header .iconify {
   margin-top: .4em;
+}
+
+
+.toolbar-card {
+  border-radius: 18px;
+  display:flex;
+  /* /align-items: center; */
+  justify-content: space-between !important;
+}
+
+
+.n-select.branch-select {
+  max-width: 200px;
+  margin-left: auto !important;
+}
+
+.n-input.n-input--medium-size.n-input--resizable.n-input--stateful.search-input {
+  max-width: 370px;
 }
 </style>

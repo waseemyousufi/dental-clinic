@@ -6,22 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\AccountResource;
 use App\Models\Account;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class AccountController extends Controller
 {
 
     public function index(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         if($request->query('all')) {
-            $accounts = Account::where('branch_id', $request->user()->employee->branch_id)->get();
+            $accounts = Account::where('branch_id', $branchId)->get();
             return AccountResource::collection($accounts);
         }
 
-        $user = Auth::user();
-        $accounts = $user->employee
-            ->branch
-            ->Account()
+        $accounts = Account::where('branch_id', $branchId)
             ->where('status', 'active')
             ->get();
         return AccountResource::collection($accounts);
@@ -29,6 +27,8 @@ class AccountController extends Controller
 
     public function store(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data = $request->validate([
             'accountName' => 'required|string',
             'accountType' => 'required|string',
@@ -41,7 +41,7 @@ class AccountController extends Controller
             'account_type' => $data['accountType'],
             'total_amount' => $data['totalAmount'],
             'status' => $data['status'],
-            'branch_id' => $request->user()->employee->branch_id,
+            'branch_id' => $branchId,
         ]);
 
         return response('created', 201);
@@ -49,6 +49,8 @@ class AccountController extends Controller
 
     public function update(Request $request, $id)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data = $request->validate([
             'accountName' => 'string',
             'accountType' => 'string',
@@ -61,7 +63,7 @@ class AccountController extends Controller
             'account_type' => $data['accountType'],
             'total_amount' => $data['totalAmount'],
             'status' => $data['status'],
-            'branch_id' => $request->user()->employee->branch_id,
+            'branch_id' => $branchId,
         ]);
     }
 

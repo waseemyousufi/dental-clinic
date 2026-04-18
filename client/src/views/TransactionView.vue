@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, h } from 'vue'
+import { useRoute } from 'vue-router'
 import {
   NCard,
   NButton,
@@ -26,6 +27,17 @@ import { Icon } from '@iconify/vue'
 type TransactionRow = TransactionData & { id?: number }
 
 const message = useMessage()
+const route = useRoute()
+
+const getEffectiveBranchId = (): number | undefined => {
+  const usr = JSON.parse(localStorage.getItem('user') || 'null')
+  const userBranchId = usr?.user?.employee?.branchId
+  if (typeof userBranchId === 'number' && Number.isFinite(userBranchId)) return userBranchId
+
+  const raw = route.query.branchId
+  const fromQuery = typeof raw === 'string' ? Number(raw) : NaN
+  return Number.isFinite(fromQuery) ? fromQuery : undefined
+}
 
 const loading = ref(false)
 const transactions = ref<TransactionRow[]>([])
@@ -145,7 +157,7 @@ const columns = [
 async function fetchTransactions() {
   try {
     loading.value = true
-    const { data } = await transactionApi.getBranchTransactions()
+    const { data } = await transactionApi.getBranchTransactions(getEffectiveBranchId())
     transactions.value = data.data as TransactionRow[]
     console.log(transactions.value)
   } catch (error) {
@@ -158,7 +170,7 @@ async function fetchTransactions() {
 
 async function fetchEmployees() {
   try {
-    const { data } = await employeeApi.getBranchEmployees(true)
+    const { data } = await employeeApi.getBranchEmployees(true, getEffectiveBranchId())
     employeeOptions.value = data.data.map((emp: EmployeeData & { id?: number }): SelectOption => {
       return {
         label: emp.name as string,
@@ -173,7 +185,7 @@ async function fetchEmployees() {
 
 async function fetchAccounts() {
   try {
-    const { data } = await accountApi.getBranchAccounts()
+    const { data } = await accountApi.getBranchAccounts(false, getEffectiveBranchId())
     accountOptions.value = data.data.map((acc: AccountData & { id?: number }): SelectOption => {
       return {
         label: acc.accountName as string,

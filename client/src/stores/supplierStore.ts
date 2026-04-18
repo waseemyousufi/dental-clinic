@@ -89,7 +89,7 @@ export const useSupplierStore = defineStore('supplier', () => {
     loading.value = true;
     try {
       // Load suppliers with their items
-      const { data: suppliersData } = await supplierApi.getSuppliers();
+      const { data: suppliersData } = await supplierApi.getBranchSuppliers();
       suppliers.value = (suppliersData.data ?? []).map(mapApiSupplierToUi);
 
       // Load items
@@ -104,7 +104,7 @@ export const useSupplierStore = defineStore('supplier', () => {
       }));
 
       // Load orders
-      const { data: ordersData } = await orderApi.getOrders();
+      const { data: ordersData } = await orderApi.getBranchOrders();
       purchaseOrders.value = (ordersData.data ?? []).map(mapApiOrderToUi);
     } catch (err) {
       console.error('Failed to load supplier data:', err);

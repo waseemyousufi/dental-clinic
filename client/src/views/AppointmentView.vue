@@ -5,6 +5,7 @@ import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
+import { useRoute } from 'vue-router'
 import appointmentApi from '@api/appointment'
 import employeeApi from '@api/employee'
 import patientApi from '@api/patient'
@@ -32,6 +33,17 @@ import {
 const message = useMessage()
 const calendarRef = ref<InstanceType<typeof FullCalendar> | null>(null)
 const isSidebarCollapsed = inject<Ref<boolean>>('isSidebarCollapsed', ref(false))
+const route = useRoute()
+
+const getEffectiveBranchId = (): number | undefined => {
+  const usr = JSON.parse(localStorage.getItem('user') || 'null')
+  const userBranchId = usr?.user?.employee?.branchId
+  if (typeof userBranchId === 'number' && Number.isFinite(userBranchId)) return userBranchId
+
+  const raw = route.query.branchId
+  const fromQuery = typeof raw === 'string' ? Number(raw) : NaN
+  return Number.isFinite(fromQuery) ? fromQuery : undefined
+}
 
 // --- Types ---
 type AppointmentWithNames = AppointmentData & {
@@ -111,9 +123,10 @@ const getStatusColor = (status: string) => {
 // --- API Calls ---
 const loadData = async () => {
   try {
+    const branchId = getEffectiveBranchId()
     const [empRes, patRes] = await Promise.all([
-      employeeApi.getBranchEmployees(true),
-      patientApi.getBranchPatients(true)
+      employeeApi.getBranchEmployees(true, branchId),
+      patientApi.getBranchPatients(true, branchId)
     ])
 
     const rawEmps = empRes.data?.data || empRes.data
@@ -137,7 +150,7 @@ const loadData = async () => {
 
 const fetchAppointments = async () => {
   try {
-    const response = await appointmentApi.getBranchAppointments()
+    const response = await appointmentApi.getBranchAppointments(getEffectiveBranchId())
     const raw = response.data?.data || response.data
     if (Array.isArray(raw)) {
       appointments.value = raw.map((apt: AppointmentData) => {

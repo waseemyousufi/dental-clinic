@@ -25,6 +25,7 @@ class ClinicAssetSeeder extends Seeder
                 'status' => 'active',
                 'purchasedByEmployee_id' => 1,
                 'branch_id' => 1,
+                'category' => 'Medical Equipment',
             ],
             [
                 'asset_name' => 'x-ray machine',
@@ -35,6 +36,7 @@ class ClinicAssetSeeder extends Seeder
                 'status' => 'active',
                 'purchasedByEmployee_id' => 1,
                 'branch_id' => 1,
+                'category' => 'Medical Equipment',
             ],
             [
                 'asset_name' => 'desk',
@@ -45,6 +47,7 @@ class ClinicAssetSeeder extends Seeder
                 'status' => 'active',
                 'purchasedByEmployee_id' => 1,
                 'branch_id' => 1,
+                'category' => 'Furniture',
             ],
         ];
 
