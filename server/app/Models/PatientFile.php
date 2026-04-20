@@ -8,9 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class PatientFile extends Model
 {
-
-
-    public function Patient() : BelongsTo
+    protected $fillable = ['diagnosis', 'notes', 'odontogram_data', 'patient_id', 'employee_id', 'appointmentDate_id', 'allergy_id', 'treatment_id', 'diagnosis_notes'];
     {
         return $this->belongsTo(Patient::class);
     }

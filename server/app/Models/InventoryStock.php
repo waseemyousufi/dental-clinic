@@ -19,6 +19,7 @@ class InventoryStock extends Model
         'expiry_date',
         'batch_number',
         'status',
+        'branch_id'
     ];
 
     protected $casts = [
@@ -32,6 +33,13 @@ class InventoryStock extends Model
     public function stockable()
     {
         return $this->morphTo();
+    }
+
+
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     /**

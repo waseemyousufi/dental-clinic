@@ -31,6 +31,7 @@ class InventoryStockSeeder extends Seeder
                 'expiry_date' => now()->addMonths(12),
                 'batch_number' => 'SM-2026-001',
                 'status' => 'placed',
+                'branch_id' => 1, // Assuming branch_id 1 for seeding
             ],
             [
                 'material_index' => 1, // Examination Gloves
@@ -39,6 +40,7 @@ class InventoryStockSeeder extends Seeder
                 'expiry_date' => now()->addMonths(18),
                 'batch_number' => 'EG-2026-001',
                 'status' => 'placed',
+                'branch_id' => 1, // Assuming branch_id 1 for seeding
             ],
             [
                 'material_index' => 2, // Dental Syringe
@@ -47,6 +49,7 @@ class InventoryStockSeeder extends Seeder
                 'expiry_date' => null,
                 'batch_number' => 'DS-2026-001',
                 'status' => 'placed',
+                'branch_id' => 1, // Assuming branch_id 1 for seeding
             ],
             [
                 'material_index' => 3, // Anesthetic Solution
@@ -55,6 +58,7 @@ class InventoryStockSeeder extends Seeder
                 'expiry_date' => now()->addMonths(6),
                 'batch_number' => 'AS-2026-001',
                 'status' => 'placed',
+                'branch_id' => 2, // Assuming branch_id 1 for seeding
             ],
             [
                 'material_index' => 4, // Dental Drill Bit
@@ -63,6 +67,7 @@ class InventoryStockSeeder extends Seeder
                 'expiry_date' => null,
                 'batch_number' => 'DB-2026-001',
                 'status' => 'placed',
+                'branch_id' => 1, // Assuming branch_id 1 for seeding
             ],
             // Pending distribution items (shelf_id = null)
             [
@@ -72,6 +77,7 @@ class InventoryStockSeeder extends Seeder
                 'expiry_date' => now()->addMonths(12),
                 'batch_number' => 'SM-2026-002',
                 'status' => 'pending',
+                'branch_id' => 1, // Assuming branch_id 1 for seeding
             ],
             [
                 'material_index' => 1, // Examination Gloves
@@ -80,6 +86,7 @@ class InventoryStockSeeder extends Seeder
                 'expiry_date' => now()->addMonths(18),
                 'batch_number' => 'EG-2026-002',
                 'status' => 'pending',
+                'branch_id' => 1, // Assuming branch_id 1 for seeding
             ],
         ];
 
@@ -92,6 +99,7 @@ class InventoryStockSeeder extends Seeder
                 'expiry_date' => $item['expiry_date'],
                 'batch_number' => $item['batch_number'],
                 'status' => $item['status'],
+                'branch_id' => $item['branch_id'],
             ]);
         }
     }

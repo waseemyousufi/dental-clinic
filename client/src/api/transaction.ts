@@ -7,7 +7,7 @@ export default new (class Transaction {
 
   getBranchTransactions(branchId?: number) {
     const resolvedBranchId = resolveBranchId(branchId)
-    return api.get('/chores/transaction', {
+    return api.get('/transaction', {
       params: {
         ...(resolvedBranchId != null ? { branchId: resolvedBranchId } : {}),
       },
@@ -15,14 +15,14 @@ export default new (class Transaction {
   }
 
   postTransaction(data: TransactionData) {
-    return api.post('/chores/transaction', data)
+    return api.post('/transaction', data)
   }
 
-  updateTransaction(id: Number, data: TransactionData) {
-    return api.put(`/chores/transaction/${id}`, data)
+  updateTransaction(id: number, data: TransactionData) {
+    return api.put(`/transaction/${id}`, data)
   }
 
-  deleteTransaction(id: Number) {
-    return api.delete(`/chores/transaction/${id}`)
+  deleteTransaction(id: number) {
+    return api.delete(`/transaction/${id}`)
   }
 })()

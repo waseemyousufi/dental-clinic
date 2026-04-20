@@ -17,8 +17,10 @@ return new class extends Migration
             $table->string('organization_name');
             $table->string('phone');
             $table->string('email')->nullable();
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->string('status')->default('active'); // e.g., active, inactive
+            $table->string('address')->nullable();
             $table->unsignedBigInteger('business_id')->nullable();
+            $table->foreignId('branch_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

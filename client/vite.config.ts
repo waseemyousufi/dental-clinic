@@ -7,6 +7,12 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
+    optimizeDeps: {
+    include: [
+      '@cornerstonejs/dicom-image-loader',
+      'dicom-parser'
+    ],
+  },
   plugins: [
     vue(),
     vueJsx(),

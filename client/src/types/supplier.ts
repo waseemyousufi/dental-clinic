@@ -20,14 +20,21 @@ export interface Supplier {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  branchId: number;
+  
 }
 
-export interface PurchaseOrderItem {
-  productId: string;
-  productName: string;
-  quantity: number;
-  unit: string;
-  notes?: string;
+// In PurchaseOrder interface:
+export interface PurchaseOrder {
+  id: string;
+  supplierId: string;          
+  _supplierName?: string;
+  items: PurchaseOrderItem[];
+  totalItems: number;
+  createdAt: string;
+  sentAt?: string;
+  updatedAt?: string;
+  status: 'draft' | 'pending' | 'received' | 'cancelled';
 }
 
 export interface PurchaseOrder {

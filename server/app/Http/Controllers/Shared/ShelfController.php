@@ -11,7 +11,16 @@ class ShelfController extends Controller
 {
     public function index()
     {
-        $shelves = Shelf::with(['inventoryStock.stockable'])->get();
+        $branchId = $this->effectiveBranchId(request());
+
+        $query = Shelf::with(['inventoryStocks.stockable']);
+
+        if ($branchId) {
+            $query->where('branch_id', $branchId);
+        }
+
+        $shelves = $query->get();
+
         return ShelfResource::collection($shelves);
     }
 
@@ -37,6 +46,7 @@ class ShelfController extends Controller
             'access_pin' => $data['accessPin'] ?? null,
             'total_capacity_cm3' => $data['totalCapacityCm3'],
             'category_restriction' => $data['categoryRestriction'] ?? null,
+            'branch_id' => $this->effectiveBranchId($request),
         ]);
 
         return new ShelfResource($shelf);
@@ -60,6 +70,7 @@ class ShelfController extends Controller
             'access_pin' => $data['accessPin'] ?? $shelf->access_pin,
             'total_capacity_cm3' => $data['totalCapacityCm3'] ?? $shelf->total_capacity_cm3,
             'category_restriction' => $data['categoryRestriction'] ?? $shelf->category_restriction,
+            'branch_id' => $this->effectiveBranchId($request),
         ]);
 
         return new ShelfResource($shelf);

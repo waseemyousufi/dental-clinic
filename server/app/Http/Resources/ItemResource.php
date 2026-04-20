@@ -25,9 +25,9 @@ class ItemResource extends JsonResource
             'requiresExpiry' => $this->requires_expiry,
             'isConsumable' => $this->is_consumable,
             'totalQuantityInStock' => $this->when(
-                $this->relationLoaded('inventoryStock'),
-                fn() => $this->inventoryStock->sum('quantity'),
-                fn() => $this->inventoryStock()->sum('quantity')
+                $this->relationLoaded('inventoryStocks'),
+                fn() => $this->inventoryStocks->sum('quantity'),
+                fn() => $this->inventoryStocks()->sum('quantity')
             ),
             'activePrice' => $this->whenLoaded('activePrice'),
             'suppliers' => $this->whenLoaded('suppliers', fn() => $this->suppliers->map(fn($s) => [

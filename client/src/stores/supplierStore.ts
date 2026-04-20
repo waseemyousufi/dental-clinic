@@ -17,13 +17,19 @@ export const useSupplierStore = defineStore('supplier', () => {
 
   // Computed
   const activeSuppliers = computed(() => suppliers.value.filter(s => s.isActive));
-
   const pendingOrders = computed(() =>
     purchaseOrders.value.filter(o => o.status === 'pending')
   );
 
-  const getSupplierById = (supplierName: string) =>
-    suppliers.value.find(s => (s.id === supplierName) || (s.name === supplierName));
+  // ✅ Fixed: Accept string | number, search by ID or name
+  const getSupplierById = (id: string | number) => {
+    const idStr = String(id);
+    return suppliers.value.find(s => 
+      s.id === idStr || 
+      Number(s.id) === Number(id) ||
+      s.name.toLowerCase() === idStr.toLowerCase()
+    );
+  };
 
   const getProductsBySupplier = (supplierId: string) => {
     const supplier = getSupplierById(supplierId);
@@ -56,24 +62,33 @@ export const useSupplierStore = defineStore('supplier', () => {
     itemIds: ui.itemIds ?? [],
   });
 
-  const mapApiOrderToUi = (api: OrderData): PurchaseOrder => ({
-    id: String(api.id ?? Date.now()),
-    supplierId: api.supplierName,
-    items: (api.items ?? []).map((item: OrderItemData) => ({
-      productId: String(item.itemId),
-      productName: (item.item as ItemData | undefined)?.name ?? `Item #${item.itemId}`,
-      quantity: item.quantity,
-      unit: 'piece',
-      notes: '',
-    })),
-    totalItems: (api.items ?? []).reduce((sum: number, i: OrderItemData) => sum + i.quantity, 0),
-    createdAt: api.date,
-    status: api.status as PurchaseOrder['status'],
-  });
+  // ✅ Fixed: Store both supplierId (numeric) and supplierName for flexibility
+  const mapApiOrderToUi = (api: OrderData): PurchaseOrder => {
+    // Try to resolve numeric supplier ID from name
+    const supplier = suppliers.value.find(s => 
+      s.name.toLowerCase() === (api.supplierName || '').toLowerCase()
+    );
+    
+    return {
+      id: String(api.id ?? Date.now()),
+      supplierId: supplier ? supplier.id : (api.supplierName || String(Date.now())),
+      _supplierName: api.supplierName, // Internal field for API calls
+      items: (api.items ?? []).map((item: OrderItemData) => ({
+        productId: String(item.itemId),
+        productName: (item.item as ItemData | undefined)?.name ?? `Item #${item.itemId}`,
+        quantity: item.quantity,
+        unit: 'piece',
+        notes: '',
+      })),
+      totalItems: (api.items ?? []).reduce((sum: number, i: OrderItemData) => sum + i.quantity, 0),
+      createdAt: api.date,
+      status: api.status as PurchaseOrder['status'],
+    };
+  };
 
   const mapUiOrderToApi = (supplierName: string, items: PurchaseOrderItem[]): OrderData => ({
     supplierName,
-    date: new Date().toISOString().split('T')[0],
+    date: new Date().toISOString().split('T')[0], // ✅ YYYY-MM-DD format
     status: 'draft',
     notes: '',
     items: items.map(item => ({
@@ -84,15 +99,18 @@ export const useSupplierStore = defineStore('supplier', () => {
     })),
   });
 
+  // ✅ Helper: Format date to YYYY-MM-DD
+  const formatDateForApi = (date: string | Date): string => {
+    return new Date(date).toISOString().split('T')[0];
+  };
+
   // Actions - API backed
   const loadInitialData = async () => {
     loading.value = true;
     try {
-      // Load suppliers with their items
       const { data: suppliersData } = await supplierApi.getBranchSuppliers();
       suppliers.value = (suppliersData.data ?? []).map(mapApiSupplierToUi);
-
-      // Load items
+      
       const { data: itemsData } = await itemApi.getItems();
       products.value = (itemsData.data ?? []).map((item: ItemData) => ({
         id: String(item.id),
@@ -103,7 +121,6 @@ export const useSupplierStore = defineStore('supplier', () => {
         minStock: item.requiresExpiry ? 10 : 5,
       }));
 
-      // Load orders
       const { data: ordersData } = await orderApi.getBranchOrders();
       purchaseOrders.value = (ordersData.data ?? []).map(mapApiOrderToUi);
     } catch (err) {
@@ -114,7 +131,12 @@ export const useSupplierStore = defineStore('supplier', () => {
   };
 
   const addSupplier = async (supplier: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const apiData = mapUiSupplierToApi({ ...supplier, contactPersonName: supplier.contactPerson, organizationName: supplier.name, itemIds: supplier.itemIds });
+    const apiData = mapUiSupplierToApi({ 
+      ...supplier, 
+      contactPersonName: supplier.contactPerson, 
+      organizationName: supplier.name, 
+      itemIds: supplier.itemIds 
+    });
     try {
       const { data } = await supplierApi.postSupplier(apiData);
       const newSupplier = mapApiSupplierToUi(data.data);
@@ -130,7 +152,13 @@ export const useSupplierStore = defineStore('supplier', () => {
     const existing = suppliers.value.find(s => s.id === id);
     if (!existing) return false;
 
-    const apiData = mapUiSupplierToApi({ ...existing, ...updates, contactPersonName: updates.contactPerson ?? existing.contactPerson, organizationName: updates.name ?? existing.name, itemIds: updates.itemIds ?? existing.itemIds });
+    const apiData = mapUiSupplierToApi({ 
+      ...existing, 
+      ...updates, 
+      contactPersonName: updates.contactPerson ?? existing.contactPerson, 
+      organizationName: updates.name ?? existing.name, 
+      itemIds: updates.itemIds ?? existing.itemIds 
+    });
     try {
       const { data } = await supplierApi.updateSupplier(Number(id), apiData);
       const idx = suppliers.value.findIndex(s => s.id === id);
@@ -147,7 +175,7 @@ export const useSupplierStore = defineStore('supplier', () => {
   const toggleSupplierStatus = async (id: string) => {
     const supplier = getSupplierById(id);
     if (supplier) {
-      await updateSupplier(id, { isActive: !supplier.isActive });
+      await updateSupplier(supplier.id, { isActive: !supplier.isActive });
     }
   };
 
@@ -155,8 +183,19 @@ export const useSupplierStore = defineStore('supplier', () => {
     const supplier = getSupplierById(supplierId);
     if (!supplier) throw new Error('Supplier not found');
 
-    const apiData = mapUiOrderToApi(supplier.name, items);
-    console.log('Creating order with API data:', apiData);
+    const apiData: OrderData = {
+      supplierName: supplier.name, // ✅ Use name, not numeric ID
+      supplierId: supplier.id,
+      date: formatDateForApi(new Date()),
+      status: 'draft',
+      items: items.map(item => ({
+        itemId: Number(item.productId),
+        quantity: item.quantity,
+        unitPrice: 0,
+        totalPrice: 0,
+      })),
+    };
+    
     try {
       const { data } = await orderApi.postOrder(apiData);
       const newOrder = mapApiOrderToUi(data.data);
@@ -173,9 +212,11 @@ export const useSupplierStore = defineStore('supplier', () => {
     if (idx === -1) return false;
 
     const order = purchaseOrders.value[idx];
+    const supplier = getSupplierById(order.supplierId);
+    
     const apiData: OrderData = {
-      supplierName: order.supplierId,
-      date: order.createdAt,
+      supplierName: supplier?.name || order._supplierName || order.supplierId, // ✅ Use name
+      date: formatDateForApi(order.createdAt), // ✅ YYYY-MM-DD
       status: 'pending',
       items: order.items.map(item => ({
         itemId: Number(item.productId),
@@ -184,7 +225,7 @@ export const useSupplierStore = defineStore('supplier', () => {
         totalPrice: 0,
       })),
     };
-
+    
     try {
       await orderApi.updateOrder(Number(orderId), apiData);
       purchaseOrders.value[idx].status = 'pending';
@@ -201,9 +242,11 @@ export const useSupplierStore = defineStore('supplier', () => {
     if (idx === -1) return null;
 
     const order = purchaseOrders.value[idx];
-    const apiData: OrderData = {
-      supplierName: order.supplierId,
-      date: order.createdAt,
+    const supplier = getSupplierById(order.supplierId);
+    
+    const apiData: Partial<OrderData> = {
+      supplierName: supplier?.name || order._supplierName || order.supplierId, // ✅ Use name
+      date: formatDateForApi(order.createdAt),
       status: 'cancelled',
     };
 
@@ -217,23 +260,38 @@ export const useSupplierStore = defineStore('supplier', () => {
     }
   };
 
+  // ✅ Fixed confirmDelivery - main source of 422 errors
   const confirmDelivery = async (orderId: string) => {
     const idx = purchaseOrders.value.findIndex(o => o.id === orderId);
     if (idx === -1) return false;
 
     const order = purchaseOrders.value[idx];
+    const supplier = getSupplierById(order.supplierId);
+    
     const apiData: OrderData = {
-      supplierName: order.supplierId,
-      date: order.createdAt,
+      supplierName: supplier?.name || order._supplierName || order.supplierId, // ✅ Critical: use name
+      date: formatDateForApi(order.createdAt), // ✅ YYYY-MM-DD format
+      supplierId: order.supplierId,
       status: 'received',
+      items: order.items.map(item => ({
+        itemId: Number(item.productId),
+        quantity: item.quantity,
+        unitPrice: 0,
+        totalPrice: 0,
+      })),
     };
 
     try {
+      console.log('Sending order update:', apiData);
       await orderApi.updateOrder(Number(orderId), apiData);
       purchaseOrders.value[idx].status = 'received';
+      purchaseOrders.value[idx].updatedAt = new Date().toISOString();
       return true;
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to confirm delivery:', err);
+      if (err.response?.data) {
+        console.error('API validation errors:', JSON.stringify(err.response.data, null, 2));
+      }
       return false;
     }
   };
@@ -243,9 +301,11 @@ export const useSupplierStore = defineStore('supplier', () => {
     if (idx === -1) return false;
 
     const order = purchaseOrders.value[idx];
+    const supplier = getSupplierById(order.supplierId);
+    
     const apiData: OrderData = {
-      supplierName: order.supplierId,
-      date: order.createdAt,
+      supplierName: supplier?.name || order._supplierName || order.supplierId, // ✅ Use name
+      date: formatDateForApi(order.createdAt),
       status: newStatus,
       items: order.items.map(item => ({
         itemId: Number(item.productId),

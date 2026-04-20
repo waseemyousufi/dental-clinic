@@ -40,6 +40,7 @@ class EmployeeSeeder extends Seeder
                     'work_start_time' => '09:00',
                     'work_end_time' => '17:00',
                     'position_id' => 4, // admin
+                    'branch_id' => null,
                     'user_id' => 2,
                 ],
                 [

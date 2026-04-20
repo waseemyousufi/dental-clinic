@@ -7,22 +7,19 @@ export default new (class Prescription {
 
   getBranchPrescriptions(branchId?: number) {
     const resolvedBranchId = resolveBranchId(branchId)
-    return api.get('/prescription', {
-      params: {
-        ...(resolvedBranchId != null ? { branchId: resolvedBranchId } : {}),
-      },
-    })
+    const params = resolvedBranchId != null ? { branchId: resolvedBranchId } : {}
+    return api.get('/prescription', { params })
   }
 
   postPrescription(data: PrescriptionData) {
     return api.post('/prescription', data)
   }
 
-  updatePrescription(id: Number, data: PrescriptionData) {
+  updatePrescription(id: number, data: PrescriptionData) {
     return api.put(`/prescription/${id}`, data)
   }
 
-  deletePrescriptionn(id: Number) {
+  deletePrescriptionn(id: number) {
     return api.delete(`/prescription/${id}`)
   }
 })()

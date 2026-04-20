@@ -20,6 +20,7 @@ class SupplierSeeder extends Seeder
                 'email' => 'john@medicalsupplies.com',
                 'status' => 'active',
                 'business_id' => null,
+                'branch_id' => 1, // Assuming branch_id 1 for seeding
             ],
             [
                 'contact_person_name' => 'Jane Doe',
@@ -28,6 +29,7 @@ class SupplierSeeder extends Seeder
                 'email' => 'jane@dentalequipment.com',
                 'status' => 'active',
                 'business_id' => null,
+                'branch_id' => 2, // Assuming branch_id 2 for seeding
             ],
             [
                 'contact_person_name' => 'Robert Johnson',
@@ -36,6 +38,7 @@ class SupplierSeeder extends Seeder
                 'email' => 'robert@pharmadist.com',
                 'status' => 'inactive',
                 'business_id' => null,
+                'branch_id' => 1, // Assuming branch_id 1 for seeding
             ],
         ];
 

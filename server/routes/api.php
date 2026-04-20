@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::middleware('role:admin')->prefix('admin')->group(function () {
+    Route::middleware('role:admin')->group(function () {
         Route::post('/create-user', [Admin\EmployeeController::class, 'store']);
 
         Route::get('/branch', [Admin\BranchController::class, 'index']);
@@ -19,11 +19,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/branch/{id}', [Admin\BranchController::class, 'delete']);
     });
 
-    Route::middleware('role:doctor,assisstant')->prefix('doctor')->group(function () {
+    Route::middleware('role:doctor,assisstant')->group(function () {
         Route::get('/appointments', [Doctor\AppointmentController::class, 'index']);
     });
 
-    Route::middleware('role:receptionist,admin')->prefix('admin/receptionist')->group(function () {
+    Route::middleware('role:receptionist,admin')->group(function () {
         Route::post('/appointment', [Receptionist\AppointmentController::class, 'store']);
         Route::get('/appointment', [Receptionist\AppointmentController::class, 'index']);
         Route::put('/appointment/{id}', [Receptionist\AppointmentController::class, 'update']);
@@ -68,7 +68,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/account/{id}', [Receptionist\AccountController::class, 'update']);
     });
 
-    Route::middleware('role:receptionist,doctor,assisstant,admin')->prefix('chores')->group(function () {
+    Route::middleware('role:receptionist,doctor,assisstant,admin')->group(function () {
         Route::post('/prescription', [Shared\PrescriptionController::class, 'store']);
         Route::get('/prescription', [Shared\PrescriptionController::class, 'index']);
         Route::put('/prescription/{id}', [Shared\PrescriptionController::class, 'update']);

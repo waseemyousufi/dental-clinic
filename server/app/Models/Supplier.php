@@ -18,6 +18,7 @@ class Supplier extends Model
         'email',
         'status',
         'business_id',
+        'branch_id',
     ];
 
     /**
@@ -25,7 +26,7 @@ class Supplier extends Model
      */
     public function orders(): HasMany
     {
-        return $this->hasMany(Order::class, 'supplier_name', 'organization_name');
+        return $this->hasMany(Order::class); // Assumes supplier_id
     }
 
     /**

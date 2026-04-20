@@ -21,6 +21,7 @@ return new class extends Migration
             $table->date('expiry_date')->nullable();
             $table->string('batch_number', 50)->nullable();
             $table->string('status', 20)->default('placed'); // 'placed' or 'pending'
+            $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
             $table->timestamps();
         });
     }

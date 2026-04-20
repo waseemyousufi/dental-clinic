@@ -9,8 +9,10 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 
+use function Laravel\Prompts\info;
 
 class EmployeeController extends Controller
 {
@@ -20,6 +22,7 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         $branchId = $this->effectiveBranchId($request);
+        info('Effective Branch ID: ' . $branchId);
         $employees = Employee::where('branch_id', $branchId)->get();
         return EmployeeResource::collection($employees);
     }
@@ -48,7 +51,7 @@ class EmployeeController extends Controller
             'experience.totalAmount' => 'integer'
         ]);
 
-        return DB::transaction(function () use ($data, $request) {
+        return DB::transaction(function () use ($data, $request, $branchId) {
             $user = User::create([
                 'name' => $data['fName'] . " ". $data['lName'],
                 'password' => Hash::make('temp_pass'),
@@ -68,7 +71,7 @@ class EmployeeController extends Controller
                 'branch_id' => $branchId,
                 'position_id' => $data['positionId'],
             ]);
-            
+
 
             if ($data['experience']) {
                 $employee->experience()->create([
@@ -146,9 +149,9 @@ class EmployeeController extends Controller
             'experience.totalAmount' => 'integer'
         ]);
 
-        return DB::transaction(function () use ($data, $request, $id) {
+        return DB::transaction(function () use ($data, $request, $id, $branchId) {
             $user = User::with(['employee.experience'])->findOrFail($id);
-            
+
             if ($user->employee) {
                 $user->employee()->update([
                     'f_name' => $data['fName'],

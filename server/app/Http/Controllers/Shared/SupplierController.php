@@ -9,11 +9,28 @@ use Illuminate\Http\Request;
 
 class SupplierController extends Controller
 {
-    public function index()
-    {
-        $suppliers = Supplier::withCount(['orders', 'items'])->with('items')->get();
-        return SupplierResource::collection($suppliers);
-    }
+public function index()
+{
+    $branchId = $this->effectiveBranchId(request());
+
+    $suppliers = Supplier::query()
+        ->where('branch_id', $branchId)
+        ->with([
+            'items', // global catalog
+            'orders' => function ($q) use ($branchId) {
+                $q->where('branch_id', $branchId);
+            }
+        ])
+        ->withCount([
+            'orders as orders_count' => function ($q) use ($branchId) {
+                $q->where('branch_id', $branchId);
+            },
+            'items' // total global items
+        ])
+        ->get();
+
+    return SupplierResource::collection($suppliers);
+}
 
     public function store(Request $request)
     {
@@ -26,6 +43,7 @@ class SupplierController extends Controller
             'itemIds.*' => 'integer|exists:items,id',
             'status' => 'required|string|in:active,inactive',
             'businessId' => 'nullable|string|max:255',
+            'supplierId' => 'integer',
         ]);
 
         $supplier = Supplier::create([
@@ -35,6 +53,7 @@ class SupplierController extends Controller
             'email' => $data['email'] ?? null,
             'status' => $data['status'],
             'business_id' => $data['businessId'] ?? null,
+            'branch_id' => $this->effectiveBranchId($request),
         ]);
 
         // Sync items if provided
@@ -64,6 +83,7 @@ class SupplierController extends Controller
             'itemIds.*' => 'integer|exists:items,id',
             'status' => 'sometimes|string|in:active,inactive',
             'businessId' => 'nullable|string|max:255',
+            'supplierId' => 'nullable|integer|exists:suppliers,id', // Optional parent supplier
         ]);
 
         $supplier->update([
@@ -73,6 +93,8 @@ class SupplierController extends Controller
             'email' => $data['email'] ?? $supplier->email,
             'status' => $data['status'] ?? $supplier->status,
             'business_id' => $data['businessId'] ?? $supplier->business_id,
+            'branch_id' => $this->effectiveBranchId($request),
+            'supplier_id' => $data['supplierId'] ?? $supplier->supplier_id, // Optional parent supplier
         ]);
 
         // Sync items if provided

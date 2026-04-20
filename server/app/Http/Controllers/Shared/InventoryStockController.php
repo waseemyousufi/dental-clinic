@@ -12,15 +12,24 @@ use Illuminate\Http\Request;
 
 class InventoryStockController extends Controller
 {
-    public function index(Request $request)
-    {
-        $branchId = $this->effectiveBranchId($request);
-        $query = InventoryStock::with(['stockable', 'shelf']);
-        $query->where('branch_id', $branchId);
+public function index(Request $request)
+{
+    $branchId = $this->effectiveBranchId($request);
 
-        $inventoryStock = $query->get();
-        return InventoryStockResource::collection($inventoryStock);
+    $query = InventoryStock::with(['stockable', 'shelf']);
+
+    // ✅ Only filter by branch if a specific branch ID is provided
+    if ($branchId) {
+        $query->where('branch_id', $branchId);
     }
+
+    // Optional: Add sorting (e.g., by expiry date or name)
+    $query->orderBy('created_at', 'desc');
+
+    $inventoryStock = $query->get();
+
+    return InventoryStockResource::collection($inventoryStock);
+}
 
     public function show(Request $request, $id)
     {
@@ -57,7 +66,7 @@ class InventoryStockController extends Controller
         if (isset($data['shelfId'])) {
             $shelf = Shelf::findOrFail($data['shelfId']);
             $stockable = $data['stockableType']::find($data['stockableId']);
-            
+
             if ($stockable && $stockable->width && $stockable->height && $stockable->depth) {
                 $itemVolume = $stockable->width * $stockable->height * $stockable->depth * $data['quantity'];
                 if ($shelf->available_capacity < $itemVolume) {
@@ -117,7 +126,7 @@ class InventoryStockController extends Controller
                 $stockableType = $data['stockableType'] ?? $inventoryStock->stockable_type;
                 $stockableId = $data['stockableId'] ?? $inventoryStock->stockable_id;
                 $quantity = $data['quantity'] ?? $inventoryStock->quantity;
-                
+
                 $stockable = $stockableType::find($stockableId);
                 if ($stockable && $stockable->width && $stockable->height && $stockable->depth) {
                     $itemVolume = $stockable->width * $stockable->height * $stockable->depth * $quantity;

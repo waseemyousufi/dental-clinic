@@ -5,7 +5,7 @@ export default new (class User {
   constructor() {}
 
   getMe() {
-    return api.get('chores/me')
+    return api.get('/me')
   }
 
   login(data: UserData) {
@@ -13,14 +13,14 @@ export default new (class User {
   }
 
   logout() {
-    return api.post('chores/logout')
+    return api.post('/logout')
   }
 
   resetPassword(data: UserData) {
-    return api.post('chores/reset-password', data)
+    return api.post('/reset-password', data)
   }
 
   sendTokenViaEmail(data: { token: string; email: string }) {
-    return api.post('chores/send-token-via-email', data)
+    return api.post('/send-token-via-email', data)
   }
 })()

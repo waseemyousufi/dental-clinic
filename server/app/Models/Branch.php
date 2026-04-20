@@ -79,4 +79,14 @@ class Branch extends Model
     {
         return $this->hasMany(Treatment::class);
     }
+
+    public function inventoryStocks() : HasMany
+    {
+        return $this->hasMany(InventoryStock::class);
+    }
+
+    public function orders() : HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
 }

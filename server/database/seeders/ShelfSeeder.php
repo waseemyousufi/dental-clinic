@@ -19,6 +19,7 @@ class ShelfSeeder extends Seeder
                 'access_pin' => '1234',
                 'total_capacity_cm3' => 50000.00,
                 'category_restriction' => null,
+                'branch_id' => 1, // Assuming branch_id 1 for seeding
             ],
             [
                 'shelf_name' => 'Metal Cabinet B1',
@@ -26,6 +27,7 @@ class ShelfSeeder extends Seeder
                 'access_pin' => '5678',
                 'total_capacity_cm3' => 75000.00,
                 'category_restriction' => 'Surgical',
+                'branch_id' => 1, // Assuming branch_id 1 for seeding
             ],
             [
                 'shelf_name' => 'Refrigerator R1',
@@ -33,6 +35,7 @@ class ShelfSeeder extends Seeder
                 'access_pin' => '9012',
                 'total_capacity_cm3' => 30000.00,
                 'category_restriction' => 'Consumable',
+                'branch_id' => 1, // Assuming branch_id 1 for seeding
             ],
             [
                 'shelf_name' => 'Wood Cabinet C1',
@@ -40,6 +43,7 @@ class ShelfSeeder extends Seeder
                 'access_pin' => '3456',
                 'total_capacity_cm3' => 60000.00,
                 'category_restriction' => null,
+                'branch_id' => 2, // Assuming branch_id 2 for seeding
             ],
         ];
 

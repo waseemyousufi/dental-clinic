@@ -57,7 +57,7 @@ class Item extends Model
     /**
      * Get the inventory stock for this item.
      */
-    public function inventoryStock(): MorphMany
+    public function inventoryStocks(): MorphMany
     {
         return $this->morphMany(InventoryStock::class, 'stockable');
     }
@@ -67,6 +67,6 @@ class Item extends Model
      */
     public function getTotalQuantityAttribute()
     {
-        return $this->inventoryStock()->sum('quantity');
+        return $this->inventoryStocks()->sum('quantity');
     }
 }

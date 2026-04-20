@@ -26,11 +26,78 @@ const router = useRouter()
 const authStore = useAuthStore()
 const branchStore = useBranchStore()
 
+// Parse user from localStorage
 const storedUser = localStorage.getItem('user')
-const user = storedUser ? JSON.parse(storedUser).user : null
+const parsedUser = storedUser ? JSON.parse(storedUser) : null
+const user = parsedUser?.user || null
+const expandedBranchIds = ref<number[]>([])
+
+// ✅ Get branchId from localStorage->user->employee->branchId
+const userBranchId = computed(() => {
+  const id = user?.employee?.branchId
+  return typeof id === 'number' && Number.isFinite(id) ? id : null
+})
+
+// ✅ Check if user is admin (ADJUST THIS to match your auth system)
+const isAdmin = computed(() => {
+  // Examples - pick what matches your backend:
+  // return user?.role === 'admin'
+  // return user?.employee?.isAdmin === true
+  // return user?.permissions?.includes('manage_branches')
+  return user?.employee?.position === 'admin'
+})
 
 const isSidebarCollapsed = ref(false)
 const showUserMenu = ref(false)
+
+// ✅ Nav links defined HERE in the same script block (DRY)
+const navLinks = [
+  {
+    path: '/patients',
+    label: 'Patients',
+    icon: () => h(Icon, { icon: 'mdi:account-multiple', style: 'font-size: 1.45em;' })
+  },
+  {
+    path: '/employees',
+    label: 'Employees',
+    icon: () => h(Icon, { icon: 'mdi:badge-account-outline', style: 'font-size: 1.45em;' })
+  },
+  {
+    path: '/accounts',
+    label: 'Accounts',
+    icon: () => h(Icon, { icon: 'mdi:wallet-outline', style: 'font-size: 1.45em;' })
+  },
+  {
+    path: '/transactions',
+    label: 'Transactions',
+    icon: () => h(Icon, { icon: 'mdi:receipt-text-outline', style: 'font-size: 1.45em;' })
+  },
+  {
+    path: '/appointments',
+    label: 'Appointments',
+    icon: () => h(Icon, { icon: 'mdi:calendar-clock', style: 'font-size: 1.45em;' })
+  },
+  // {
+  //   path: '/xrays',
+  //   label: 'Dental Xrays',
+  //   icon: () => h(Icon, { icon: 'mdi:image-filter-hdr', style: 'font-size: 1.45em;' })
+  // },
+  {
+    path: '/prescriptions',
+    label: 'Prescriptions',
+    icon: () => h(Icon, { icon: 'mdi:script-text-outline', style: 'font-size: 1.45em;' })
+  },
+  {
+    path: '/inventory',
+    label: 'Inventory',
+    icon: () => h(Icon, { icon: 'mdi:package-variant-closed', style: 'font-size: 1.45em;' })
+  },
+  {
+    path: '/suppliers',
+    label: 'Suppliers',
+    icon: () => h(Icon, { icon: 'mdi:truck-delivery', style: 'font-size: 1.45em;' })
+  },
+]
 
 const selectBranch = (branchId: number) => {
   branchStore.setSelectedBranchId(branchId)
@@ -44,104 +111,116 @@ const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value
 }
 
+const toggleBranchExpansion = (branchId: number) => {
+  const index = expandedBranchIds.value.indexOf(branchId)
+  if (index > -1) {
+    // Remove if already open
+    expandedBranchIds.value.splice(index, 1)
+  } else {
+    // Add if closed
+    expandedBranchIds.value.push(branchId)
+  }
+}
+
+const isBranchExpanded = (branchId: number) => {
+  return expandedBranchIds.value.includes(branchId)
+}
+
+// ... rest of your script
+
 const userMenuOptions = [
   {
     label: 'View profile',
     key: 'profile',
-    icon: () =>
-      h(NIcon, null, {
-        default: () => h(Icon, { icon: 'gg:profile' }),
-      }),
+    icon: () => h(NIcon, null, { default: () => h(Icon, { icon: 'gg:profile' }) }),
   },
   {
     label: 'Settings',
     key: 'settings',
-    icon: () =>
-      h(NIcon, null, {
-        default: () => h(Icon, { icon: 'ph:gear-six' }),
-      }),
+    icon: () => h(NIcon, null, { default: () => h(Icon, { icon: 'ph:gear-six' }) }),
   },
-  {
-    type: 'divider',
-    key: 'divider',
-  },
+  { type: 'divider', key: 'divider' },
   {
     label: 'Logout',
     key: 'logout',
-    icon: () =>
-      h(NIcon, null, {
-        default: () =>
-          h(Icon, { icon: 'material-symbols:logout-rounded' }),
-      }),
+    icon: () => h(NIcon, null, { default: () => h(Icon, { icon: 'material-symbols:logout-rounded' }) }),
   },
 ]
 
 const handleUserSelect = (key: string | number) => {
   showUserMenu.value = false
-
   if (key === 'profile') router.push('/profile')
   if (key === 'settings') router.push('/settings')
-
   if (key === 'logout') {
-    console.log('Logging out...')
     userApi.logout().then(() => {
       authStore.logout()
       router.push('/login')
-    }).catch((err) => {
-      console.log(err)
-    })
+    }).catch(console.log)
   }
 }
 
-const syncBranchFromRoute = () => {
-  const raw = route.query.branchId
-  const asNumber = typeof raw === 'string' ? Number(raw) : NaN
-  if (Number.isFinite(asNumber)) branchStore.setSelectedBranchId(asNumber)
-}
-
+// ✅ Only fetch branches & sync route for admins
 onMounted(async () => {
-  if (authStore.isLoggedIn) {
+  if (!authStore.isLoggedIn) return
+
+  if (isAdmin.value) {
     await branchStore.fetchBranches()
-    syncBranchFromRoute()
+    const raw = route.query.branchId
+    const asNumber = typeof raw === 'string' ? Number(raw) : NaN
+    if (Number.isFinite(asNumber)) branchStore.setSelectedBranchId(asNumber)
+  }
+  // ✅ For non-admins: ensure URL has user's branchId if query params are used
+  else if (userBranchId.value != null) {
+    const current = route.query.branchId
+    if (String(current) !== String(userBranchId.value)) {
+      router.replace({ query: { ...route.query, branchId: String(userBranchId.value) } })
+    }
   }
 })
 
+// ✅ Watch auth state
 watch(
   () => authStore.isLoggedIn,
   async (isLoggedIn) => {
     if (!isLoggedIn) return
-    await branchStore.fetchBranches()
-    syncBranchFromRoute()
+    if (isAdmin.value) {
+      await branchStore.fetchBranches()
+      const raw = route.query.branchId
+      const asNumber = typeof raw === 'string' ? Number(raw) : NaN
+      if (Number.isFinite(asNumber)) branchStore.setSelectedBranchId(asNumber)
+    } else if (userBranchId.value != null) {
+      const current = route.query.branchId
+      if (String(current) !== String(userBranchId.value)) {
+        router.replace({ query: { ...route.query, branchId: String(userBranchId.value) } })
+      }
+    }
   },
 )
 
+// ✅ Only sync branchStore changes to URL for admins
 watch(
-  () => branchStore.selectedBranchId,
+  () => isAdmin.value ? branchStore.selectedBranchId : null,
   (branchId) => {
-    if (!authStore.isLoggedIn) return
+    if (!authStore.isLoggedIn || !isAdmin.value) return
     const current = route.query.branchId
     const currentAsNumber = typeof current === 'string' ? Number(current) : NaN
     if (branchId != null && Number.isFinite(currentAsNumber) && currentAsNumber === branchId) return
-
-    router.replace({
-      query: {
-        ...route.query,
-        branchId: branchId == null ? undefined : String(branchId),
-      },
-    })
+    router.replace({ query: { ...route.query, branchId: String(branchId) } })
   },
 )
 
-// provide
+// ✅ Provide selectedBranchId from correct source
 provide('isSidebarCollapsed', isSidebarCollapsed)
 provide('toggleSidebar', toggleSidebar)
-provide('selectedBranchId', computed(() => branchStore.selectedBranchId))
+provide('selectedBranchId', computed(() =>
+  isAdmin.value ? branchStore.selectedBranchId : userBranchId.value
+))
 </script>
 
 <template>
   <n-dialog-provider>
     <n-message-provider>
-      <div id="app" :class="{ 'sidebar-collapsed': isSidebarCollapsed }" >
+      <div id="app" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
         <div class="sidebar" v-if="authStore.isLoggedIn">
           <div class="sidebar-header">
             <n-button text @click="toggleSidebar" class="sidebar-toggle-button">
@@ -150,76 +229,51 @@ provide('selectedBranchId', computed(() => branchStore.selectedBranchId))
           </div>
 
           <div class="sidebar-content">
-            <sidebar-dropdown icon="proicons:branch" title="Branches" :default-open="true">
+            <!-- ✅ Branches dropdown: ONLY for admins -->
+            <sidebar-dropdown v-if="isAdmin" icon="proicons:branch" title="Branches" :default-open="true">
               <div v-if="branchStore.loading" class="branches-loading">Loading branches...</div>
-              <div v-else-if="branchStore.branches.length === 0" class="branches-empty">No branches found</div>
-
+              <div v-else-if="branchStore.branches.length === 0" class="branches-empty">
+                branches not found wtf
+              </div>
+              <!-- Inside your Admin Sidebar Dropdown -->
               <div v-else class="branches-list">
                 <div v-for="b in branchStore.branches" :key="b.id" class="branch-item">
-                  <button
-                    type="button"
-                    class="branch-item__header"
+
+                  <!-- HEADER -->
+                  <button type="button" class="branch-item__header"
                     :class="{ 'branch-item__header--active': branchStore.selectedBranchId === b.id }"
-                    @click="selectBranch(b.id)"
-                  >
+                    @click.stop="toggleBranchExpansion(b.id)">
                     <span class="branch-item__name">{{ b.branchName }}</span>
-                    <Icon
-                      :icon="branchStore.selectedBranchId === b.id ? 'mdi:chevron-down' : 'mdi:chevron-right'"
-                      class="branch-item__chevron"
-                    />
+                    <Icon :icon="isBranchExpanded(b.id) ? 'mdi:chevron-down' : 'mdi:chevron-right'"
+                      class="branch-item__chevron" />
                   </button>
 
-                  <div v-show="branchStore.selectedBranchId === b.id" class="branch-item__links">
-                    <RouterLink :to="{ path: '/patients', query: { ...route.query, branchId: String(b.id) } }">
-                      <Icon style="font-size: 1.45em;" icon="medical-icon:inpatient" />
-                      <span>Patients</span>
-                    </RouterLink>
-                    <RouterLink :to="{ path: '/employees', query: { ...route.query, branchId: String(b.id) } }">
-                      <n-icon :size="24">
-                        <People20Filled />
-                      </n-icon>
-                      <span>Employees</span>
-                    </RouterLink>
-                    <RouterLink :to="{ path: '/accounts', query: { ...route.query, branchId: String(b.id) } }">
-                      <n-icon :size="24">
-                        <Wallet20Filled />
-                      </n-icon>
-                      <span>Accounts</span>
-                    </RouterLink>
-                    <RouterLink :to="{ path: '/transactions', query: { ...route.query, branchId: String(b.id) } }">
-                      <n-icon :size="24">
-                        <Receipt20Filled />
-                      </n-icon>
-                      <span>Transactions</span>
-                    </RouterLink>
-                    <RouterLink :to="{ path: '/appointments', query: { ...route.query, branchId: String(b.id) } }">
-                      <n-icon :size="24">
-                        <CalendarLtr20Filled />
-                      </n-icon>
-                      <span>Appointments</span>
-                    </RouterLink>
-                    <RouterLink :to="{ path: '/xrays', query: { ...route.query, branchId: String(b.id) } }">
-                      <n-icon :size="24">
-                        <Image20Filled />
-                      </n-icon>
-                      <span>Dental Xrays</span>
-                    </RouterLink>
-                    <RouterLink :to="{ path: '/prescriptions', query: { ...route.query, branchId: String(b.id) } }">
-                      <Icon style="font-size: 1.55em;" icon="majesticons:script-prescription" />
-                      <span>Prescriptions</span>
-                    </RouterLink>
-                    <RouterLink :to="{ path: '/inventory', query: { ...route.query, branchId: String(b.id) } }">
-                      <Icon style="font-size: 1.55em;" icon="si:ai-inventory-fill" />
-                      <span>Inventory</span>
-                    </RouterLink>
-                    <RouterLink :to="{ path: '/suppliers', query: { ...route.query, branchId: String(b.id) } }">
-                      <Icon style="font-size: 1.55em;" icon="fluent-emoji-high-contrast:police-officer" />
-                      <span>Suppliers</span>
+                  <!-- LINKS -->
+                  <!-- Use the helper function here instead of .has() -->
+                  <div v-show="isBranchExpanded(b.id)" class="branch-item__links">
+                    <RouterLink v-for="link in navLinks" :key="link.path"
+                      :to="{ path: link.path, query: { ...route.query, branchId: String(b.id) } }"
+                      @click="branchStore.setSelectedBranchId(b.id)" :class="[
+                        'branch-link-item',
+                        { 'is-active-branch-link': branchStore.selectedBranchId === b.id }
+                      ]">
+                      <component :is="link.icon" />
+                      <span>{{ link.label }}</span>
                     </RouterLink>
                   </div>
+
                 </div>
               </div>
             </sidebar-dropdown>
+
+            <!-- ✅ Direct nav links for non-admins (single branch from localStorage) -->
+            <div v-else-if="userBranchId" class="single-branch-nav">
+              <RouterLink v-for="link in navLinks" :key="link.path"
+                :to="{ path: link.path, query: { ...route.query, branchId: String(userBranchId) } }">
+                <component :is="link.icon" />
+                <span>{{ link.label }}</span>
+              </RouterLink>
+            </div>
 
             <hr style="opacity: .3; margin: .3em 1.45em;" />
 
@@ -250,8 +304,8 @@ provide('selectedBranchId', computed(() => branchStore.selectedBranchId))
           </div>
         </div>
 
-        <div class="content" >
-          <RouterView />
+        <div class="content">
+          <RouterView :key="$route.fullPath" />
         </div>
       </div>
     </n-message-provider>
@@ -259,75 +313,310 @@ provide('selectedBranchId', computed(() => branchStore.selectedBranchId))
 </template>
 
 <style scoped>
-.branches-loading,
-.branches-empty {
-  padding: 6px 12px;
-  opacity: 0.7;
-  font-size: 0.85rem;
-}
-
-.branches-list {
+#app {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding-right: 8px;
+  overflow-x: hidden;
+  min-height: 100vh;
+
+  .sidebar {
+    padding: 0.2em;
+    width: 200px;
+    background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 200;
+    box-sizing: border-box;
+    transition:
+      width 0.3s ease-in-out,
+      min-width 0.3s ease-in-out;
+    will-change: width, min-width;
+
+    .sidebar-header {
+      display: flex;
+      justify-content: flex-end;
+      padding: 8px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle-button {
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .sidebar-content {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 5em;
+
+      &::-webkit-scrollbar {
+        display: none;
+        appearance: none;
+      }
+    }
+
+    .sidebar-footer {
+      padding: 8px;
+      text-align: center;
+      font-size: 0.9em;
+      color: #666;
+      display: flex;
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      color: black;
+      cursor: pointer;
+      border-top: 1px solid #ccc;
+      background-color: rgb(238, 237, 237);
+      z-index: 300;
+
+      &:hover {
+        opacity: 0.9;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: center;
+
+        .details {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+
+          p:first-child {
+            text-transform: capitalize;
+          }
+
+          .gmail {
+            font-size: 0.9em;
+            color: #666;
+          }
+        }
+      }
+    }
+  }
+
+  .content {
+    flex: 1;
+    min-width: 0;
+    min-height: 100vh;
+    margin-left: 200px;
+    min-width: calc(100% - 200px);
+    overflow-x: hidden;
+    box-sizing: border-box;
+    transition:
+      margin-left 0.3s ease-in-out,
+      width 0.3s ease-in-out;
+    will-change: margin-left, width;
+  }
+
+  &.sidebar-collapsed {
+    .sidebar {
+      width: 50px;
+      min-width: 50px;
+
+      .sidebar-toggle-button {
+        transform: rotate(180deg);
+      }
+
+      .sidebar-dropdown__title,
+      .sidebar-dropdown__icon {
+        display: none;
+      }
+
+      .sidebar-dropdown__header {
+        justify-content: center;
+        padding: 8px 0;
+      }
+
+      .sidebar-dropdown__body {
+        padding: 4px 0;
+        border-left: none;
+
+        ::v-deep(> *) {
+          justify-content: center;
+          padding: 4px 0;
+        }
+      }
+
+      .sidebar-content a {
+        display: flex;
+        justify-content: center;
+        padding: 8px 0;
+
+        span {
+          display: none;
+        }
+      }
+    }
+
+    .content {
+      margin-left: 50px;
+      width: calc(100% - 50px);
+    }
+
+    .sidebar-footer {
+      display: none;
+    }
+  }
+
+  /* Styles for RouterLinks */
+  .sidebar-content a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: #333;
+    text-decoration: none;
+    transition:
+      background-color 0.2s ease,
+      transform 0.2s ease;
+
+    &:hover {
+      background-color: #e9ecef;
+      transform: translateX(2px);
+    }
+  }
+
+  .sidebar-content a.router-link-active {
+    background-color: #007bff;
+    color: white;
+
+    &:hover {
+      background-color: #0060cd;
+    }
+  }
+
+  /* ✅ Single branch nav for non-admins */
+  .single-branch-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 8px;
+  }
+
+  /* ✅ Ensure icons center when sidebar collapses (non-admin mode) */
+  .sidebar-collapsed .single-branch-nav a {
+    justify-content: center !important;
+    padding: 10px 0 !important;
+  }
+
+  /* ✅ Hide branch dropdown header/chevron when collapsed (admin mode) */
+  .sidebar-collapsed .branch-item__header {
+    justify-content: center;
+    padding: 8px 0;
+  }
+
+  .sidebar-collapsed .branch-item__name,
+  .sidebar-collapsed .branch-item__chevron {
+    display: none;
+  }
+
+  .branches-loading,
+  .branches-empty {
+    padding: 6px 12px;
+    opacity: 0.7;
+    font-size: 0.85rem;
+  }
+
+  .branches-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-right: 8px;
+  }
+
+  .branch-item__header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(15, 23, 42, 0.03);
+    cursor: pointer;
+    color: inherit;
+    text-align: left;
+    transition: background-color 0.16s ease, transform 0.12s ease;
+  }
+
+  .branch-item__header:hover {
+    background: rgba(15, 23, 42, 0.06);
+    transform: translateX(1px);
+  }
+
+  .branch-item__header--active {
+    background: rgba(15, 23, 42, 0.08);
+  }
+
+  .branch-item__name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 600;
+  }
+
+  .branch-item__chevron {
+    opacity: 0.8;
+  }
+
+  .branch-item__links {
+    margin-top: 4px;
+    margin-left: 10px;
+    padding-left: 10px;
+    border-left: 1px solid rgba(15, 23, 42, 0.12);
+    display: flex;
+    flex-direction: column;
+  }
 }
 
-.branch-item__header {
-  width: 100%;
+.n-dropdown {
+  z-index: 9999 !important;
+}
+
+/* Base style for links inside branches */
+.branch-link-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: 8px;
-  border: none;
-  background: rgba(15, 23, 42, 0.03);
-  cursor: pointer;
-  color: inherit;
-  text-align: left;
-  transition: background-color 0.16s ease, transform 0.12s ease;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-.branch-item__header:hover {
-  background: rgba(15, 23, 42, 0.06);
-  transform: translateX(1px);
+.branch-link-item:hover {
+  background-color: #e9ecef;
+  transform: translateX(2px);
 }
 
-.branch-item__header--active {
-  background: rgba(15, 23, 42, 0.08);
+/* ✅ OVERRIDE: Reset default router-link-active styles to prevent cross-branch highlighting */
+.branch-link-item.router-link-active {
+  background-color: transparent !important;
+  color: #333 !important;
 }
 
-.branch-item__name {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-weight: 600;
+/* ✅ APPLY: Only highlight if it's the active branch AND the active route */
+.branch-link-item.is-active-branch-link.router-link-active {
+  background-color: #007bff !important;
+  color: white !important;
 }
 
-.branch-item__chevron {
-  opacity: 0.8;
-}
-
-.branch-item__links {
-  margin-top: 4px;
-  margin-left: 10px;
-  padding-left: 10px;
-  border-left: 1px solid rgba(15, 23, 42, 0.12);
-  display: flex;
-  flex-direction: column;
-}
-
-.user-trigger {
-  cursor: pointer;
-  width: 100%;
-  border-radius: 12px;
-  padding: 10px 12px;
-  transition: background-color 0.2s ease;
-}
-
-.user-trigger:hover {
-  background: rgba(255, 255, 255, 0.06);
+.branch-link-item.is-active-branch-link.router-link-active:hover {
+  background-color: #0060cd !important;
 }
 </style>

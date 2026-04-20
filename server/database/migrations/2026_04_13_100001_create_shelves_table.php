@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('access_pin', 4)->nullable(); // 4-digit pin
             $table->decimal('total_capacity_cm3', 15, 2)->nullable(); // The physical volume
             $table->string('category_restriction', 100)->nullable(); // Optional: only allow 'Surgical' here
+            $table->foreignId('branch_id')->constrained()->cascadeOnDelete(); // Each shelf belongs to a branch
             $table->timestamps();
         });
     }

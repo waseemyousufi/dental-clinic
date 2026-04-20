@@ -9,11 +9,11 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: isAuthenticated() ? '/patients' : '/login',
+      redirect: isAuthenticated() ? '/patients/?branchId=1' : '/login',
     },
     {
       path: '/:pathMatch(.*)*',
-      redirect: isAuthenticated() ? '/patients' : '/login',
+      redirect: isAuthenticated() ? '/patients/?branchId=1' : '/login',
     },
     {
       path: '/register-user',

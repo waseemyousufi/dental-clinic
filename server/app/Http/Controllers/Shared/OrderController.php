@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Shared;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
+use App\Models\InventoryStock;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
@@ -13,14 +14,31 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $orders = Order::with(['supplier', 'items.item'])->withCount('items')->get();
+        $branchId = $this->effectiveBranchId(request());
+
+        // Start the query
+        $query = Order::query();
+
+        // Filter by branch if a specific branch ID is effective
+        if ($branchId) {
+            $query->where('branch_id', $branchId);
+        }
+
+        // Eager load relationships and count items
+        $orders = $query->with(['supplier', 'items.item'])
+            ->withCount('items')
+            ->get();
+
         return OrderResource::collection($orders);
     }
 
     public function store(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
+
         $data = $request->validate([
             'supplierName' => 'required|string|max:255',
+            'supplierId' => 'required|exists:suppliers,id',
             'date' => 'required|date',
             'status' => 'required|string|in:pending,received,cancelled,draft',
             'notes' => 'nullable|string',
@@ -30,25 +48,25 @@ class OrderController extends Controller
             'items.*.unitPrice' => 'required|numeric|min:0',
         ]);
 
-        return DB::transaction(function () use ($data) {
+        return DB::transaction(function () use ($data, $branchId) {
+
             $order = Order::create([
-                'supplier_name' => $data['supplierName'],
+                'supplier_id' => $data['supplierId'],
                 'date' => $data['date'],
                 'status' => $data['status'],
                 'notes' => $data['notes'] ?? null,
+                'branch_id' => $branchId,
+                'supplier_name' => $data['supplierName'],
             ]);
 
             foreach ($data['items'] as $itemData) {
-                $unitPrice = $itemData['unitPrice'];
-                $quantity = $itemData['quantity'];
-                $totalPrice = $unitPrice * $quantity;
 
-                OrderItem::create([
+                $orderItem = OrderItem::create([
                     'order_id' => $order->id,
                     'item_id' => $itemData['itemId'],
-                    'quantity' => $quantity,
-                    'unit_price' => $unitPrice,
-                    'total_price' => $totalPrice,
+                    'quantity' => $itemData['quantity'],
+                    'unit_price' => $itemData['unitPrice'],
+                    'total_price' => $itemData['unitPrice'] * $itemData['quantity'],
                 ]);
             }
 
@@ -62,48 +80,85 @@ class OrderController extends Controller
         return new OrderResource($order);
     }
 
-    public function update(Request $request, $id)
-    {
-        $order = Order::findOrFail($id);
+public function update(Request $request, $id)
+{
+    $order = Order::with('items')->findOrFail($id);
+    $branchId = $this->effectiveBranchId($request);
 
-        $data = $request->validate([
-            'supplierName' => 'sometimes|string|max:255',
-            'date' => 'sometimes|date',
-            'status' => 'sometimes|string|in:pending,received,cancelled,draft',
-            'notes' => 'nullable|string',
-            'items' => 'sometimes|array',
-            'items.*.itemId' => 'required_with:items|integer|exists:items,id',
-            'items.*.quantity' => 'required_with:items|integer|min:1',
-            'items.*.unitPrice' => 'required_with:items|numeric|min:0',
-        ]);
+    $data = $request->validate([
+        'supplierId' => 'sometimes|exists:suppliers,id',
+        'date' => 'sometimes|date',
+        'status' => 'sometimes|string|in:pending,received,cancelled,draft',
+        'notes' => 'nullable|string',
+        'items' => 'sometimes|array',
+        'items.*.itemId' => 'required_with:items|integer|exists:items,id',
+        'items.*.quantity' => 'required_with:items|integer|min:1',
+        'items.*.unitPrice' => 'required_with:items|numeric|min:0',
+    ]);
 
-        $order->update([
-            'supplier_name' => $data['supplierName'] ?? $order->supplier_name,
-            'date' => $data['date'] ?? $order->date,
-            'status' => $data['status'] ?? $order->status,
-            'notes' => $data['notes'] ?? $order->notes,
-        ]);
+    $oldStatus = $order->status;
 
-        if (isset($data['items'])) {
-            $order->items()->delete();
+    // ✅ Update order
+    $order->update([
+        'supplier_id' => $data['supplierId'] ?? $order->supplier_id,
+        'date' => $data['date'] ?? $order->date,
+        'status' => $data['status'] ?? $order->status,
+        'notes' => $data['notes'] ?? $order->notes,
+        'branch_id' => $branchId,
+    ]);
 
-            foreach ($data['items'] as $itemData) {
-                $unitPrice = $itemData['unitPrice'];
-                $quantity = $itemData['quantity'];
-                $totalPrice = $unitPrice * $quantity;
+    // ✅ Update items if provided
+    if (isset($data['items'])) {
+        $order->items()->delete();
 
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'item_id' => $itemData['itemId'],
-                    'quantity' => $quantity,
-                    'unit_price' => $unitPrice,
-                    'total_price' => $totalPrice,
-                ]);
-            }
+        foreach ($data['items'] as $itemData) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'item_id' => $itemData['itemId'],
+                'quantity' => $itemData['quantity'],
+                'unit_price' => $itemData['unitPrice'],
+                'total_price' => $itemData['unitPrice'] * $itemData['quantity'],
+            ]);
         }
 
-        return new OrderResource($order->load(['supplier', 'items.item']));
+        // reload items after replace
+        $order->load('items');
     }
+
+    // ✅ Create inventory stock when order is received
+    if (
+        isset($data['status']) &&
+        $data['status'] === 'received' &&
+        $oldStatus !== 'received'
+    ) {
+        foreach ($order->items as $orderItem) {
+            // ✅ FIXED: Use the actual item_id as stockable_id
+            InventoryStock::create([
+                'stockable_id' => $orderItem->item_id,  // ✅ Was: ''
+                'stockable_type' => $this->getStockableType($orderItem->item_id), // ✅ Dynamic or hardcoded
+                'shelf_id' => null,
+                'quantity' => $orderItem->quantity,
+                'status' => 'pending', // or 'available' if stock is immediately usable
+                'branch_id' => $branchId,
+                'batch_number' => null,
+                'expiry_date' => null,
+            ]);
+        }
+    }
+
+    return new OrderResource($order->load(['supplier', 'items.item']));
+}
+
+// ✅ Helper: Determine correct polymorphic type for the item
+private function getStockableType(int $itemId): string
+{
+    // Option 1: If all items are ClinicMaterial
+    return \App\Models\ClinicMaterial::class;
+    
+    // Option 2: If you have multiple stockable types, query to determine:
+    // $item = \App\Models\Item::find($itemId);
+    // return $item?->stockable_type ?? \App\Models\ClinicMaterial::class;
+}
 
     public function delete($id)
     {

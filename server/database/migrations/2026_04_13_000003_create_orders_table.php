@@ -17,6 +17,8 @@ return new class extends Migration
             $table->date('date');
             $table->string('status')->default('pending');
             $table->string('notes', 250)->nullable();
+            $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('supplier_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

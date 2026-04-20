@@ -8,7 +8,7 @@ export default new (class DentalXray {
 
   getBranchDentalXrays(branchId?: number) {
     const resolvedBranchId = resolveBranchId(branchId)
-    return api.get('chores/dental-xray', {
+    return api.get('/dental-xray', {
       params: {
         ...(resolvedBranchId != null ? { branchId: resolvedBranchId } : {}),
       },
@@ -16,7 +16,7 @@ export default new (class DentalXray {
   }
 
   postDentalXray(data: DentalXrayData) {
-    return api.post('chores/dental-xray', data)
+    return api.post('/dental-xray', data)
   }
 
   async putXrayImage(image: Blob) {
@@ -28,10 +28,10 @@ export default new (class DentalXray {
   }
 
   updateDentalXray(id: number, data: DentalXrayData) {
-    return api.put(`chores/dental-xray/${id}`, data)
+    return api.put(`/dental-xray/${id}`, data)
   }
 
   deleteDentalXray(id: number) {
-    return api.delete(`chores/dental-xray/${id}`)
+    return api.delete(`/dental-xray/${id}`)
   }
 })()

@@ -14,11 +14,18 @@ class Order extends Model
         'date',
         'status',
         'notes',
+        'supplier_id',
+        'branch_id',
     ];
 
     protected $casts = [
         'date' => 'date',
     ];
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
 
     public function items()
     {

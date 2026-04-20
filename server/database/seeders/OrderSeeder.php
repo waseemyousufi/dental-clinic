@@ -28,12 +28,16 @@ class OrderSeeder extends Seeder
                 'date' => now()->subDays(10),
                 'status' => 'received',
                 'notes' => 'Initial supply order',
+                'branch_id' => 1, // Assuming branch_id 1 for seeding
+                'supplier_id' => 2, // Assuming supplier_id 1 for seeding
             ],
             [
                 'supplier_name' => $suppliers->count() > 1 ? $suppliers[1]->organization_name : $suppliers->first()->organization_name,
                 'date' => now()->subDays(5),
                 'status' => 'pending',
                 'notes' => 'Restocking order',
+                'branch_id' => 1, // Assuming branch_id 1 for seeding
+                'supplier_id' => 1,
             ],
         ];
 

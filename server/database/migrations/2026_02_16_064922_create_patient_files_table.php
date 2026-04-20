@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('patient_files', function (Blueprint $table) {
             $table->id();
             $table->string('diagnosis', 200);
+            $table->text('notes')->nullable();
+            $table->json('odontogram_data')->nullable();
             $table->foreignId('patient_id')->unique()->constrained()->cascadeOnDelete();
             $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
             $table->foreignId('appointmentDate_id')->nullable()->unique()->constrained('appointments')->cascadeOnDelete();
