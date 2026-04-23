@@ -16,13 +16,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(2)->create();
-        // $users = [
-        //     [
-        //         "email" =>
-        //     ]
-        // ];
-
         $this->call(PositionSeeder::class);
         $this->call(BranchSeeder::class);
         $this->call(UserSeeder::class);
@@ -48,5 +41,7 @@ class DatabaseSeeder extends Seeder
         $this->call(OrderSeeder::class);
         $this->call(ShelfSeeder::class);
         $this->call(InventoryStockSeeder::class);
+        $this->call(TeethReferenceSeeder::class);
+        $this->call(ConditionLibrarySeeder::class);
     }
 }

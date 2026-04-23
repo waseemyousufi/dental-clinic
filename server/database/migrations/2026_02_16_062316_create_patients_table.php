@@ -22,13 +22,65 @@ return new class extends Migration
             $table->date('registeration_date');
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
         });
+
+        Schema::create('teeth_reference', function (Blueprint $table) {
+            $table->id();
+            $table->integer('fdi_code')->unique(); // e.g., 11, 51
+            $table->string('universal_code', 2);    // e.g., 1, A
+            $table->enum('type', ['permanent', 'primary']);
+            $table->integer('quadrant');            // 1-8
+            $table->integer('default_position');    // For UI sorting/grid layout
+            $table->timestamps();
+        });
+
+        Schema::create('condition_library', function (Blueprint $table) {
+            $table->id();
+            $table->string('label');         // e.g., "Caries"
+            $table->string('slug')->unique(); // e.g., "caries"
+            $table->enum('category', ['finding', 'procedure', 'restoration']);
+            $table->string('ui_color');      // Hex or Tailwind class
+            $table->text('svg_icon_path')->nullable(); // For drawing logic
+            $table->timestamps();
+        });
+
+        Schema::create('tooth_conditions', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->foreignId('patient_id')->constrained()->onDelete('cascade');
+            $table->foreignId('tooth_id')->constrained('teeth_reference');
+            $table->foreignId('condition_id')->constrained('condition_library');
+
+            $table->jsonb('surfaces')->nullable(); // e.g., ["distal", "occlusal"]
+            $table->jsonb('drawing_data')->nullable(); // For canvas coordinates
+
+            $table->text('notes')->nullable();
+            $table->boolean('is_active')->default(true); // For current state filtering
+            $table->timestamps();
+
+            // Indexing for performance
+            $table->index(['patient_id', 'is_active']);
+        });
+
+        Schema::create('patient_tooth_status', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('patient_id')->constrained()->onDelete('cascade');
+            $table->foreignId('tooth_id')->constrained('teeth_reference');
+            $table->enum('status', ['present', 'erupting', 'shed', 'extracted', 'missing']);
+            $table->timestamps();
+
+            $table->unique(['patient_id', 'tooth_id']);
+        });
     }
 
     /**
      * Reverse the migrations.
      */
-    public function down(): void
-    {
-        Schema::dropIfExists('patients');
-    }
+public function down(): void
+{
+    Schema::dropIfExists('tooth_conditions');
+    Schema::dropIfExists('patient_tooth_status');
+
+    Schema::dropIfExists('patients');
+    Schema::dropIfExists('teeth_reference');
+    Schema::dropIfExists('condition_library');
+}
 };

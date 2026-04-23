@@ -17,7 +17,7 @@ class PatientFileSeeder extends Seeder
     {
         $xray = DentalXray::find(1);
 
-        PatientFile::insert([
+        PatientFile::create(
             [
                 'diagnosis' => 'this is good',
                 'patient_id' => 2,
@@ -27,6 +27,6 @@ class PatientFileSeeder extends Seeder
                 'allergy_id' => 1,
                 'diagnosis_notes' => $xray->diagnosis_notes,
             ]
-        ]);
+        );
     }
 }

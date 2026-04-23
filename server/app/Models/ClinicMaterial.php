@@ -13,7 +13,6 @@ class ClinicMaterial extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'name',
         'description',
         'category',
         'width',

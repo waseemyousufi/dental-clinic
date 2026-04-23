@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('qualification', 50);
             $table->string('speciality', 25);
             $table->string('medical_license_number', 13);
-            $table->time('work_start_time');
-            $table->time('work_end_time');
+            $table->time('work_start_time')->nullable();
+            $table->time('work_end_time')->nullable();
             $table->foreignId('position_id')->constrained()->cascadeOnDelete();
             $table->foreignId('branch_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();

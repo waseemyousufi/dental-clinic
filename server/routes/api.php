@@ -19,8 +19,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/branch/{id}', [Admin\BranchController::class, 'delete']);
     });
 
-    Route::middleware('role:doctor,assisstant')->group(function () {
+    Route::middleware('role:doctor,assistant,admin')->group(function () {
         Route::get('/appointments', [Doctor\AppointmentController::class, 'index']);
+        Route::get('/patients/{id}/odontogram', [Doctor\OdontogramController::class, 'show']);
+        Route::post('/patients/{id}/odontogram', [Doctor\OdontogramController::class, 'store']);
+        Route::get('/condition-library/', [Doctor\ConditionLibraryController::class, 'index']);
+        Route::post('/patients/{patient}/odontogram/condition', [Doctor\ToothConditionController::class, 'store']);
+        Route::delete('/tooth-conditions/{id}', [Doctor\ToothConditionController::class, 'destroy']);
     });
 
     Route::middleware('role:receptionist,admin')->group(function () {
