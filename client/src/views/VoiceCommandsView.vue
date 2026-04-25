@@ -15,16 +15,85 @@ const NOISE_LABEL = normalizeLabel(BACKGROUND_NOISE_COMMAND)
 const toothNumbers: CommandItem[] = [
   { command: '11', subtitle: 'Upper right central incisor' },
   { command: '12', subtitle: 'Upper right lateral incisor' },
+  // { command: '13', subtitle: 'Upper right canine' },
+  // { command: '14', subtitle: 'Upper right first premolar' },
+  // { command: '15', subtitle: 'Upper right second premolar' },
+  // { command: '16', subtitle: 'Upper right first molar' },
+  // { command: '17', subtitle: 'Upper right second molar' },
+  // { command: '18', subtitle: 'Upper right third molar' },
+
+  // { command: '21', subtitle: 'Upper left central incisor' },
+  // { command: '22', subtitle: 'Upper left lateral incisor' },
+  // { command: '23', subtitle: 'Upper left canine' },
+  // { command: '24', subtitle: 'Upper left first premolar' },
+  // { command: '25', subtitle: 'Upper left second premolar' },
+  // { command: '26', subtitle: 'Upper left first molar' },
+  // { command: '27', subtitle: 'Upper left second molar' },
+  // { command: '28', subtitle: 'Upper left third molar' },
+
+  // { command: '31', subtitle: 'Lower left central incisor' },
+  // { command: '32', subtitle: 'Lower left lateral incisor' },
+  // { command: '33', subtitle: 'Lower left canine' },
+  // { command: '34', subtitle: 'Lower left first premolar' },
+  // { command: '35', subtitle: 'Lower left second premolar' },
+  // { command: '36', subtitle: 'Lower left first molar' },
+  // { command: '37', subtitle: 'Lower left second molar' },
+  // { command: '38', subtitle: 'Lower left third molar' },
+
+  // { command: '41', subtitle: 'Lower right central incisor' },
+  // { command: '42', subtitle: 'Lower right lateral incisor' },
+  // { command: '43', subtitle: 'Lower right canine' },
+  // { command: '44', subtitle: 'Lower right first premolar' },
+  // { command: '45', subtitle: 'Lower right second premolar' },
+  // { command: '46', subtitle: 'Lower right first molar' },
+  // { command: '47', subtitle: 'Lower right second molar' },
+  // { command: '48', subtitle: 'Lower right third molar' },
 ]
 
 const surfaceCommands: CommandItem[] = [
   { command: 'Mesial', subtitle: 'Toward the midline' },
   { command: 'Distal', subtitle: 'Away from the midline' },
+  { command: 'Buccal', subtitle: 'Cheek side' },
+  { command: 'Facial', subtitle: 'Front side of anterior teeth' },
+  // { command: 'Lingual', subtitle: 'Tongue side' },
+  // { command: 'Occlusal', subtitle: 'Chewing surface on posterior teeth' },
+  // { command: 'Incisal', subtitle: 'Cutting edge on anterior teeth' },
+  // { command: 'Full Tooth', subtitle: 'Entire tooth' },
 ]
 
 const conditionCommands: CommandItem[] = [
   { command: 'Caries', subtitle: 'Active decay' },
   { command: 'Recurrent Caries', subtitle: 'Decay around restoration' },
+  // { command: 'Fracture', subtitle: 'Broken tooth structure' },
+  // { command: 'Attrition', subtitle: 'Tooth-to-tooth wear' },
+  // { command: 'Abrasion', subtitle: 'Mechanical wear' },
+  // { command: 'Erosion', subtitle: 'Chemical wear' },
+  // { command: 'Filling', subtitle: 'Restored with filling material' },
+  // { command: 'Crown', subtitle: 'Full coverage restoration' },
+  // { command: 'Bridge', subtitle: 'Bridge prosthesis' },
+  // { command: 'Veneer', subtitle: 'Cosmetic veneer' },
+  // { command: 'Inlay', subtitle: 'Lab-made internal restoration' },
+  // { command: 'Onlay', subtitle: 'Partial coverage restoration' },
+  // { command: 'Root Canal', subtitle: 'Endodontically treated tooth' },
+  // { command: 'Pulpitis', subtitle: 'Inflamed pulp' },
+  // { command: 'Necrosis', subtitle: 'Non-vital pulp' },
+  // { command: 'Gingivitis', subtitle: 'Gingival inflammation' },
+  // { command: 'Periodontitis', subtitle: 'Periodontal disease' },
+  // { command: 'Recession', subtitle: 'Gum recession' },
+  // { command: 'Pocket', subtitle: 'Periodontal pocket' },
+  // { command: 'Missing', subtitle: 'Extracted or absent tooth' },
+  // { command: 'Impacted', subtitle: 'Not fully erupted' },
+  // { command: 'Unerupted', subtitle: 'Still unerupted' },
+  // { command: 'Supernumerary', subtitle: 'Extra tooth' },
+  // { command: 'Implant', subtitle: 'Dental implant' },
+  // { command: 'Abutment', subtitle: 'Implant abutment' },
+  // { command: 'Denture', subtitle: 'Removable prosthesis' },
+  // { command: 'Mobility', subtitle: 'Tooth mobility' },
+  // { command: 'Sensitivity', subtitle: 'Sensitivity or pain' },
+  // { command: 'Stain', subtitle: 'Discoloration' },
+  // { command: 'Calculus', subtitle: 'Tartar deposit' },
+  // { command: 'Plaque', subtitle: 'Biofilm/plaque' },
+  // { command: 'Primary', subtitle: 'Primary (baby) tooth' },
 ]
 
 const noiseCommands: CommandItem[] = [
@@ -117,6 +186,7 @@ const featureStoreByMode = reactive<Record<TrainingMode, Record<Category, Featur
   initial: { tooth: [], surface: [], condition: [] },
   personalized: { tooth: [], surface: [], condition: [] },
 })
+
 const featureStoreHydrated = reactive<Record<TrainingMode, boolean>>({
   initial: false,
   personalized: false,
@@ -240,7 +310,7 @@ function shuffleCopy<T>(items: T[]): T[] {
   const out = [...items]
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
-      ;[out[i], out[j]] = [out[j]!, out[i]!]
+    ;[out[i], out[j]] = [out[j]!, out[i]!]
   }
   return out
 }
@@ -892,15 +962,16 @@ function buildClassifier(inputShape: [number, number, number], classCount: numbe
   return model
 }
 
-function seedModelForMode(mode: TrainingMode, category: Category, kind: ModelKind) {
-  if (mode === 'personalized') {
-    const base = trainedModels.initial[category]
-    if (base) {
-      compileClassifier(base, kind, PERSONALIZED_TRAIN_LR)
-      return base
-    }
+async function seedModelForMode(mode: TrainingMode, category: Category, kind: ModelKind) {
+  if (mode !== 'personalized') return undefined
+
+  try {
+    const base = await tf.loadLayersModel(getModelKey('initial', category))
+    compileClassifier(base, kind, PERSONALIZED_TRAIN_LR)
+    return markRaw(base)
+  } catch {
+    return undefined
   }
-  return undefined
 }
 
 async function storeFeatureExampleFromBlob(
@@ -908,20 +979,22 @@ async function storeFeatureExampleFromBlob(
   category: Category,
   command: string,
   labelIndex: number,
+  mode: TrainingMode,
   saveToDb = true,
 ): Promise<FeatureExample> {
   const wf = await blobToWaveform(blob)
 
-  // 🔹 Collect noise pool
+  // collect noise pool
   const noiseWaveforms: Float32Array[] = []
   for (const noiseBlob of backgroundNoiseSamples) {
     try {
       const n = await blobToWaveform(noiseBlob)
       noiseWaveforms.push(n)
-    } catch { }
+    } catch {
+      // ignore bad noise samples
+    }
   }
 
-  // 🔹 ALWAYS store original
   const baseFeat = await waveformToFeatures(wf)
   const baseExample: FeatureExample = {
     command,
@@ -930,10 +1003,9 @@ async function storeFeatureExampleFromBlob(
     features: baseFeat,
   }
 
-  featureStore[category].push(baseExample)
-  if (saveToDb) await putFeatureExample(baseExample, category)
+  featureStoreByMode[mode][category].push(baseExample)
+  if (saveToDb) await putFeatureExample(baseExample, category, mode)
 
-  // 🔥 ADD REAL AUGMENTATION HERE
   for (let i = 0; i < AUGMENTATIONS_PER_SAMPLE; i++) {
     const augmented = augmentWaveform(wf, noiseWaveforms)
     const feat = await waveformToFeatures(augmented)
@@ -945,8 +1017,10 @@ async function storeFeatureExampleFromBlob(
       features: feat,
     }
 
-    featureStore[category].push(example)
-    if (saveToDb) await putFeatureExample(example, category)
+    // FIX: store the actual augmented example, not the base example again.
+    featureStoreByMode[mode][category].push(example)
+
+    if (saveToDb) await putFeatureExample(example, category, mode)
   }
 
   return baseExample
@@ -981,17 +1055,17 @@ async function trainCategoryIncremental(category: Category): Promise<TrainSummar
 
   await ensureFeatureStoreReady(mode)
 
+  const kind: ModelKind = labels.length === 2 ? 'binary' : 'multiclass'
+
   let model = trainedModels[mode][category]
   if (!model) {
     if (mode === 'personalized') {
-      const base = seedModelForMode(mode, category, labels.length === 2 ? 'binary' : 'multiclass')
-      model = base ?? buildClassifier(FEATURE_SHAPE, labels.length, labels.length === 2 ? 'binary' : 'multiclass')
+      model = (await seedModelForMode(mode, category, kind)) ?? buildClassifier(FEATURE_SHAPE, labels.length, kind)
     } else {
-      model = buildClassifier(FEATURE_SHAPE, labels.length, labels.length === 2 ? 'binary' : 'multiclass')
+      model = buildClassifier(FEATURE_SHAPE, labels.length, kind)
     }
   }
 
-  const kind: ModelKind = labels.length === 2 ? 'binary' : 'multiclass'
   compileClassifier(model, kind, mode === 'personalized' ? PERSONALIZED_TRAIN_LR : INITIAL_TRAIN_LR)
 
   const allExamples = featureStoreByMode[mode][category]
@@ -1160,7 +1234,7 @@ async function predictRecordedCommand(payload: { blob: Blob; category: Category 
 /**
  * ACTION HANDLERS
  */
-async function storeRecordedSample(p: RecorderPayload) {
+async function storeRecordedSample(p: RecorderPayload, mode: TrainingMode) {
   const cmd = normalizeLabel(p.command)
   if (!p.blob) return
 
@@ -1171,8 +1245,6 @@ async function storeRecordedSample(p: RecorderPayload) {
 
   const labelIndex = CATEGORY_LABELS[category].indexOf(cmd)
   if (labelIndex < 0) return
-
-  const mode = trainingMode.value
 
   try {
     await storeFeatureExampleFromBlob(p.blob, category, cmd, labelIndex, mode, true)
@@ -1247,7 +1319,7 @@ function handleRecorded(p: RecorderPayload) {
   voiceSamplesByMode[mode][cmd].push(p.blob)
   samplesByCommand[cmd] = p.total
 
-  void storeRecordedSample(p)
+  void storeRecordedSample(p, mode)
 }
 
 async function removeFeaturesForCommand(cmd: string, mode: TrainingMode) {
@@ -1287,7 +1359,6 @@ onBeforeUnmount(() => {
   MEL_FILTERBANK = null
 })
 </script>
-
 
 <template>
   <div class="voice-page">

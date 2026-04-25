@@ -1,3 +1,5 @@
+<!-- BUG the prescription aligner should work with backend data -->
+
 <template>
   <div class="prescription-aligner">
     <aside class="toolbox">

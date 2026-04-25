@@ -9,11 +9,13 @@ class ToothConditionResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'surfaces' => $this->surfaces ?? [], // Returns ['TOP', 'LEFT'] etc.
+            'tooth_id' => $this->tooth_id, // CRITICAL: This connects it to the tooth object
+            'surfaces' => $this->surfaces ?? [],
             'notes' => $this->notes,
             'is_active' => $this->is_active,
-            // Include the UI data (color/label) from the library
             'condition_library' => new ConditionLibraryResource($this->whenLoaded('conditionLibrary')),
+            // Optional: If you want to be extra safe for mapping
+            'fdi_code' => $this->tooth->fdi_code ?? null,
         ];
     }
 }

@@ -53,6 +53,11 @@ const showUserMenu = ref(false)
 // ✅ Nav links defined HERE in the same script block (DRY)
 const navLinks = [
   {
+    path: '/overview',
+    label: 'Overview',
+    icon: () => h(Icon, { icon: 'mdi:view-dashboard-variant', style: 'font-size: 1.45em;' })
+  },
+  {
     path: '/patients',
     label: 'Patients',
     icon: () => h(Icon, { icon: 'mdi:account-multiple', style: 'font-size: 1.45em;' })
@@ -280,6 +285,13 @@ provide('selectedBranchId', computed(() =>
             <sidebar-dropdown icon="ph:gear-six" title="Settings">
               <RouterLink to="/profile">Profile</RouterLink>
               <RouterLink to="/settings">Settings</RouterLink>
+            </sidebar-dropdown>
+
+            <hr style="opacity: .3; margin: .3em 1.45em;" />
+
+            <sidebar-dropdown icon="" title="Reports">
+              <RouterLink to="/employee-activity-log">Employee Activity Log</RouterLink>
+              <RouterLink to="/finance-reports">Finance</RouterLink>
             </sidebar-dropdown>
 
             <hr style="opacity: .3; margin: .3em 1.45em;" />
@@ -534,6 +546,11 @@ provide('selectedBranchId', computed(() =>
     flex-direction: column;
     gap: 6px;
     padding-right: 8px;
+    background-color: transparent;
+  }
+
+  .branches-list:hover {
+    transform: translate(0px);
   }
 
   .branch-item__header {
@@ -566,7 +583,8 @@ provide('selectedBranchId', computed(() =>
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-weight: 600;
+    /* font-weight: 600; */
+    text-transform: capitalize;
   }
 
   .branch-item__chevron {
@@ -580,6 +598,7 @@ provide('selectedBranchId', computed(() =>
     border-left: 1px solid rgba(15, 23, 42, 0.12);
     display: flex;
     flex-direction: column;
+    background-color: transparent;
   }
 }
 
@@ -619,4 +638,5 @@ provide('selectedBranchId', computed(() =>
 .branch-link-item.is-active-branch-link.router-link-active:hover {
   background-color: #0060cd !important;
 }
+
 </style>

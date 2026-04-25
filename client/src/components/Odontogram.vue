@@ -15,39 +15,54 @@ const props = defineProps<{
   readonly?: boolean
 }>()
 
+// Add this to both Odontogram.vue and PrimaryOdontogram.vue inside <script setup>
 const emit = defineEmits<{
   (e: 'update:modelValue', value: OdontogramState): void
+  (e: 'tooth-click', tooth: number, part: string): void // Add this!
 }>()
+
+const togglePart = (toothNumber: number, partId: string) => {
+  if (props.readonly) return
+
+  // 1. Emit the custom event for the API call
+  emit('tooth-click', toothNumber, partId)
+
+  // 2. Keep local color toggle for instant feedback
+  const newState = { ...state.value }
+  if (!newState[toothNumber]) newState[toothNumber] = {}
+  const current = newState[toothNumber][partId]
+  newState[toothNumber][partId] = (current === props.activeFinding) ? null : props.activeFinding
+  state.value = newState
+}
 
 const state = computed({
   get: () => props.modelValue || {},
   set: (val) => emit('update:modelValue', val)
 })
 
-const togglePart = (toothNumber: number, partId: string) => {
-  if (props.readonly) return
-
-  const newState = { ...state.value }
-  if (!newState[toothNumber]) newState[toothNumber] = {}
-
-  // Toggle Logic: If it has the color, remove it. Otherwise, apply active color.
-  const current = newState[toothNumber][partId]
-  newState[toothNumber][partId] = (current === props.activeFinding) ? null : props.activeFinding
-
-  state.value = newState
-}
 
 const getPartStyle = (toothNumber: number, partId: string) => {
-  const color = state.value[toothNumber]?.[partId]
+  const data = state.value[toothNumber]?.[partId];
+
+  // Extract color whether data is an object or a legacy string
+  const color = typeof data === 'object' ? data?.color : data;
+
   return {
     fill: color || '#ffffff',
     transition: 'fill 0.2s ease'
-  }
+  };
 }
-
 // Tooth Rows (FDI Notation)
-const upperRow = [18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28]
-const lowerRow = [48, 47, 46, 45, 44, 43, 42, 41, 31, 32, 33, 34, 35, 36, 37, 38]
+const upperRow = [
+  18, 17, 16, 15, 14, 13, 12, 11, // Quadrant 1 (Right to Mid)
+  21, 22, 23, 24, 25, 26, 27, 28  // Quadrant 2 (Mid to Left)
+];
+
+const lowerRow = [
+  48, 47, 46, 45, 44, 43, 42, 41, // Quadrant 4 (Right to Mid)
+  31, 32, 33, 34, 35, 36, 37, 38  // Quadrant 3 (Mid to Left)
+];
+
 
 const getToothType = (num: number) => {
   const d = num % 10
@@ -160,4 +175,6 @@ const toothConfigs: any = {
   stroke-width: 1;
   stroke: #40a9ff;
 }
+
+
 </style>

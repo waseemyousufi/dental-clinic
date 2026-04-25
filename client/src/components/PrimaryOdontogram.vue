@@ -15,25 +15,29 @@ const props = defineProps<{
   readonly?: boolean
 }>()
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: OdontogramState): void
-}>()
 
 const state = computed({
   get: () => props.modelValue || {},
   set: (val) => emit('update:modelValue', val)
 })
 
+// Add this to both Odontogram.vue and PrimaryOdontogram.vue inside <script setup>
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: OdontogramState): void
+  (e: 'tooth-click', tooth: number, part: string): void // Add this!
+}>()
+
 const togglePart = (toothNumber: number, partId: string) => {
   if (props.readonly) return
 
+  // 1. Emit the custom event for the API call
+  emit('tooth-click', toothNumber, partId)
+
+  // 2. Keep local color toggle for instant feedback
   const newState = { ...state.value }
   if (!newState[toothNumber]) newState[toothNumber] = {}
-
-  // Toggle Logic: If it has the color, remove it. Otherwise, apply active color.
   const current = newState[toothNumber][partId]
   newState[toothNumber][partId] = (current === props.activeFinding) ? null : props.activeFinding
-
   state.value = newState
 }
 

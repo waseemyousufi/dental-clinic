@@ -11,6 +11,26 @@ export function formatWhatsAppPhone(phone: string): string {
   return cleaned.startsWith('+') ? cleaned.slice(1) : cleaned;
 }
 
+export function generateWelcomePatientLink(phone: string, patientName: string, clinicName: string) {
+  const formattedPhone = formatWhatsAppPhone(phone)
+
+  const message = `Hello ${patientName}, welcome to ${clinicName}`
+
+  const encoded = encodeURIComponent(message)
+
+  return `https://wa.me/${formattedPhone}?text=${encoded}`;
+}
+
+export function generatePatientAppointmentReminderLink(phone: string, patientName: string, appointmentDate: string, appointmentReason: string, clinicName: string) {
+  const formattedPhone = formatWhatsAppPhone(phone)
+
+  const message = `Hello ${patientName}, You have an appointment in ${appointmentDate} for ${appointmentReason} in ${clinicName}. `
+
+  const encoded = encodeURIComponent(message)
+
+  return `https://wa.me/${formattedPhone}?text=${encoded}`;
+}
+
 /**
  * Generates wa.me link with pre-filled message for a new order
  */
@@ -23,7 +43,7 @@ export function generateWhatsAppOrderLink(
   const formattedPhone = formatWhatsAppPhone(phone);
 
   const itemList = items
-    .map((item, idx) => `${idx + 1}. *${item.productName}* - Qty: ${item.quantity} ${item.unit}${item.notes ? ` (_${item.notes}_)` : ''}`)
+    .map((item, idx) => `${idx + 1}. *${item.productName}* - Qty: ${item.quantity} ${item.unit}${item.notes ? ` (${item.notes})` : ''}`)
     .join('\n');
 
   const message = `New Purchase Order\n\n` +

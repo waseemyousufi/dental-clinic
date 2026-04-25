@@ -12,6 +12,11 @@ const router = createRouter({
       redirect: isAuthenticated() ? '/patients/?branchId=1' : '/login',
     },
     {
+      path: '/overview',
+      component: () => import('@views/OverviewView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/:pathMatch(.*)*',
       redirect: isAuthenticated() ? '/patients/?branchId=1' : '/login',
     },
