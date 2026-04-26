@@ -39,7 +39,7 @@ return new class extends Migration
             $table->string('slug')->unique(); // e.g., "caries"
             $table->enum('category', ['finding', 'procedure', 'restoration']);
             $table->string('ui_color');      // Hex or Tailwind class
-            $table->text('svg_icon_path')->nullable(); // For drawing logic
+            $table->text('svg_path')->nullable(); // For drawing logic
             $table->timestamps();
         });
 

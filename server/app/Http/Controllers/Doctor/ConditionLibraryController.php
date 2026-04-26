@@ -20,7 +20,7 @@ class ConditionLibraryController extends Controller
             'label',
             'slug',
             'ui_color',
-            // 'description'
+            'svg_path'
         ])->get();
 
         return response()->json([

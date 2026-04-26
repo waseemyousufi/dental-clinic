@@ -7,7 +7,7 @@ class ConditionLibrary extends Model
 {
     protected $table = 'condition_library';
 
-    protected $fillable = ['label', 'slug', 'category', 'ui_color', 'svg_icon_path'];
+    protected $fillable = ['label', 'slug', 'category', 'ui_color', 'svg_path'];
 
     public function toothConditions()
     {

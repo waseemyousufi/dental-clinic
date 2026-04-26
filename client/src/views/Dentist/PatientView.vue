@@ -1,16 +1,28 @@
 <script lang="ts" setup>
 import { useMessage } from 'naive-ui'
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import Odontogram from '@/components/Odontogram.vue'
 import PrimaryOdontogram from '@/components/PrimaryOdontogram.vue'
 import { predict } from '@/utils/voiceInference'
 import PatientService from '@api/patient'
 import OdontogramService from '@api/odontogram'
+import DOMpurify from 'dompurify'
 import type PatientData from '@api/interfaces/Patient'
-import type { OdontogramData, ConditionLibrary, SaveConditionPayload, Tooth } from '@api/interfaces/Odontogram'
+import type {
+  ConditionLibrary,
+  SaveConditionPayload,
+  Tooth,
+} from '@api/interfaces/Odontogram'
 
 type VoiceStep = 'tooth' | 'surface' | 'condition'
+
+type SlotCondition = {
+  color: string
+  id: string
+}
+
+type OdontogramState = Record<number, Record<string, SlotCondition>>
 
 const route = useRoute()
 const patientId = computed(() => Number(route.params.id))
@@ -19,12 +31,13 @@ const isRecording = ref(false)
 const currentStep = ref<VoiceStep>('tooth')
 const loading = ref(false)
 
-const patient = ref<PatientData & { f_name: string; l_name: string } | null>(null)
+const patient = ref<(PatientData & { f_name: string; l_name: string }) | null>(null)
 const conditionLibrary = ref<ConditionLibrary[]>([])
 const activeFinding = ref<ConditionLibrary | null>(null)
 
-// Matches your backend's wrapped response
-const odontogramData = ref<{ patient_id: number; teeth: Tooth[] } | null>(null)
+// Backend-friendly local state:
+// { 11: { buccal: { color: '#ff0000', id: 'uuid' } } }
+const odontogramData = ref<OdontogramState>({})
 const clinicalNotes = ref('')
 
 const selectedTooth = ref<number | null>(null)
@@ -42,183 +55,307 @@ let audioChunks: Blob[] = []
 const successAudio = new Audio('/success.mp3')
 const errorAudio = new Audio('/error.mp3')
 
-// --- Data Loading ---
+function safeSvg(svg: string) {
+  return DOMpurify.sanitize(svg, {
+    USE_PROFILES: { svg: true, svgFilters: true },
+  })
+}
+
+function buildOdontogramState(teethArray: any[]): OdontogramState {
+  const state: OdontogramState = {}
+
+  teethArray.forEach((tooth: any) => {
+    const fdi = Number(tooth.fdi_code)
+
+    state[fdi] = {
+      symbols: []
+    }
+
+      ; (tooth.active_conditions || []).forEach((cond: any) => {
+        const lib = cond.condition_library
+        if (!lib) return
+
+        const isSymbol = !!lib.svg_path
+
+        // 🟣 FORCE SYMBOL
+        if (isSymbol) {
+          state[fdi].symbols!.push({
+            id: cond.id,
+            condition_id: lib.id,
+            svg: lib.svg_path,
+            color: lib.ui_color
+          })
+
+          return // 🚨 DO NOT FALL THROUGH
+        }
+
+        // 🟡 SURFACE
+        cond.surfaces?.forEach((surface: string) => {
+          state[fdi][surface.toLowerCase()] = {
+            color: lib.ui_color,
+            id: cond.id
+          }
+        })
+      })
+  })
+
+  return state
+}
+
+function clearLocalSlot(toothFdi: number, surfaceKey: string) {
+  if (!odontogramData.value[toothFdi]) return
+
+  const nextToothState = { ...odontogramData.value[toothFdi] }
+  delete nextToothState[surfaceKey]
+
+  odontogramData.value = {
+    ...odontogramData.value,
+    [toothFdi]: nextToothState,
+  }
+}
+
+function setLocalSlot(toothFdi: number, key: string, value: any) {
+  odontogramData.value = {
+    ...odontogramData.value,
+    [toothFdi]: {
+      ...(odontogramData.value[toothFdi] || {}),
+      [key]: value,
+    },
+  }
+}
+
+async function refreshOdontogram() {
+  if (!patientId.value) return false
+
+  try {
+    const res = await OdontogramService.getPatientOdontogram(patientId.value)
+    const teethArray = res.data?.data ?? res.data ?? []
+
+    odontogramData.value = buildOdontogramState(teethArray)
+
+    // After refresh, default to no tool selected.
+    activeFinding.value = null
+
+    return true
+  } catch (err) {
+    console.error('Refresh failed:', err)
+    return false
+  }
+}
+
 async function loadPatientData() {
-  if (!patientId.value) return;
-  loading.value = true;
+  if (!patientId.value) return
+  loading.value = true
 
   try {
     const [patientRes, odontogramRes, libraryRes] = await Promise.all([
       PatientService.getPatient(patientId.value),
       OdontogramService.getPatientOdontogram(patientId.value),
-      OdontogramService.getConditionLibrary()
-    ]);
+      OdontogramService.getConditionLibrary(),
+    ])
 
-    // 1. Patient Info
     patient.value = {
       ...patientRes.data.data,
       f_name: patientRes.data.data.fName,
       l_name: patientRes.data.data.lName,
-    };
+    }
 
-    // 2. THE TRANSFORMATION (Backend Array -> Component Object)
-    // Drilling into axios.data and laravel.data
-    const teethArray = odontogramRes.data.data || [];
-    const transformedState: any = {};
+    const raw = odontogramRes.data
 
-    teethArray.forEach((tooth: any) => {
-      const fdi = tooth.fdi_code;
-      transformedState[fdi] = {};
+    const teethArray = Array.isArray(raw?.data)
+      ? raw.data
+      : Array.isArray(raw)
+        ? raw
+        : Array.isArray(raw?.teeth)
+          ? raw.teeth
+          : []
 
-      (tooth.active_conditions || []).forEach((cond: any) => {
-        const color = cond.condition_library?.ui_color || '#999999';
-        const dbId = cond.id; // 🔑 This is the UUID Laravel generated
+    if (!Array.isArray(teethArray)) {
+      console.warn('Invalid odontogram payload:', teethArray)
+      return
+    }
+    odontogramData.value = buildOdontogramState(teethArray)
 
-        if (Array.isArray(cond.surfaces)) {
-          cond.surfaces.forEach((surface: string) => {
-            // Store BOTH the color and the ID
-            transformedState[fdi][surface.toLowerCase()] = {
-              color: color,
-              id: dbId
-            };
-          });
-        }
-      });
-    });
-    odontogramData.value = transformedState;
 
-    // 3. Condition Library
-    const libArr = libraryRes.data.data || libraryRes.data || [];
+
+    const libArr = libraryRes.data?.data ?? libraryRes.data ?? []
     conditionLibrary.value = libArr.map((item: any) => ({
       id: item.id,
       label: item.label,
       slug: item.slug,
       ui_color: item.ui_color,
-      svg_icon_path: item.svg_icon_path // Keep this for symbols like 'X'
-    }));
+      svg_icon_path: item.svg_icon_path,
+    }))
 
-    if (conditionLibrary.value.length > 0) {
-      // Set activeFinding to the COLOR string, as your prop expects string
-      activeFinding.value = conditionLibrary.value[0].ui_color;
-    }
+    // Important: do NOT auto-select a tool on load.
+    activeFinding.value = null
 
-    message.success('Records synchronized');
-  } catch (error) {
-    console.error('Load error:', error);
-    message.error('Failed to load data');
-  } finally {
-    loading.value = false;
-  }
-}
-
-// --- 🔑 CRITICAL: Refresh with forced reactivity ---
-async function refreshOdontogram() {
-  if (!patientId.value) return false;
-
-  try {
-    const res = await OdontogramService.getPatientOdontogram(patientId.value);
-
-    const teethArray = odontogramRes.data.data || [];
-    const transformedState: any = {};
+    const state: any = {}
 
     teethArray.forEach((tooth: any) => {
-      const fdi = tooth.fdi_code;
-      transformedState[fdi] = {};
+      const fdi = Number(tooth?.fdi_code)
 
-      (tooth.active_conditions || []).forEach((cond: any) => {
-        const color = cond.condition_library?.ui_color || '#999999';
-        const dbId = cond.id; // 🔑 This is the UUID Laravel generated
+      if (!fdi) return
 
-        if (Array.isArray(cond.surfaces)) {
-          cond.surfaces.forEach((surface: string) => {
-            // Store BOTH the color and the ID
-            transformedState[fdi][surface.toLowerCase()] = {
-              color: color,
-              id: dbId
-            };
-          });
+      state[fdi] = {
+        symbols: [],
+        surfaces: {},
+      }
+
+      const conditions = Array.isArray(tooth?.active_conditions)
+        ? tooth.active_conditions
+        : []
+
+      conditions.forEach((cond: any) => {
+        const lib = cond?.condition_library
+
+        if (!lib) return
+
+        const svg = lib.svg_path ?? null
+
+        // SYMBOL
+        if (typeof svg === 'string' && svg.includes('<svg')) {
+          state[fdi].symbols.push({
+            id: cond.id, // DB UUID (for delete)
+            condition_id: cond.condition_library.id, // for matching tool
+            svg: cond.condition_library.svg_path,
+            color: cond.condition_library.ui_color
+          })
+          return
         }
-      });
-    });
-    odontogramData.value = transformedState;
 
-    return true;
-  } catch (err) {
-    console.error('Refresh failed:', err);
-    return false;
+        // SURFACE
+        const surfaces = Array.isArray(cond?.surfaces)
+          ? cond.surfaces
+          : []
+
+        surfaces.forEach((surface: string) => {
+          state[fdi].surfaces[surface.toLowerCase()] = {
+            color: lib.ui_color,
+            id: cond.id,
+          }
+        })
+      })
+    })
+
+
+    message.success('Records synchronized')
+  } catch (error) {
+    console.error('Load error:', error)
+    message.error('Failed to load data')
+  } finally {
+    loading.value = false
   }
 }
 
-// --- Select condition from legend ---
 function selectCondition(condition: ConditionLibrary) {
   if (!condition?.id) {
     message.error('Invalid condition')
     return
   }
+
+  // Optional but useful: clicking the same condition again deselects it.
+  if (activeFinding.value?.id === condition.id) {
+    activeFinding.value = null
+    message.info('Tool deselected')
+    return
+  }
+
   activeFinding.value = condition
   message.success(`Selected: ${condition.label}`)
 }
 
-// --- FDI-aware surface mapping ---
 function mapSurfaceToPart(surface: string, tooth: number): string {
   const quadrant = Math.floor(tooth / 10)
   const buccalIsRight = quadrant === 1 || quadrant === 4
+
   switch (surface) {
-    case 'buccal': return buccalIsRight ? 'right' : 'left'
+    case 'buccal':
+      return buccalIsRight ? 'right' : 'left'
     case 'lingual':
-    case 'palatal': return buccalIsRight ? 'left' : 'right'
-    case 'occlusal': return 'top'
-    case 'mesial': return 'left'
-    case 'distal': return 'right'
-    default: return 'center'
+    case 'palatal':
+      return buccalIsRight ? 'left' : 'right'
+    case 'occlusal':
+      return 'top'
+    case 'mesial':
+      return 'left'
+    case 'distal':
+      return 'right'
+    default:
+      return 'center'
   }
 }
 
-// --- Convert spoken tooth → number ---
 function normalizeTooth(label: string): number | null {
   const map: Record<string, number> = {
-    'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14,
-    'fifteen': 15, 'sixteen': 16, 'seventeen': 17, 'eighteen': 18,
-    'twenty one': 21, 'twenty two': 22, 'twenty three': 23,
-    'twenty four': 24, 'twenty five': 25, 'twenty six': 26,
-    'twenty seven': 27, 'twenty eight': 28,
-    'thirty one': 31, 'thirty two': 32, 'thirty three': 33,
-    'thirty four': 34, 'thirty five': 35, 'thirty six': 36,
-    'thirty seven': 37, 'thirty eight': 38,
-    'forty one': 41, 'forty two': 42, 'forty three': 43,
-    'forty four': 44, 'forty five': 45, 'forty six': 46,
-    'forty seven': 47, 'forty eight': 48,
+    eleven: 11,
+    twelve: 12,
+    thirteen: 13,
+    fourteen: 14,
+    fifteen: 15,
+    sixteen: 16,
+    seventeen: 17,
+    eighteen: 18,
+    'twenty one': 21,
+    'twenty two': 22,
+    'twenty three': 23,
+    'twenty four': 24,
+    'twenty five': 25,
+    'twenty six': 26,
+    'twenty seven': 27,
+    'twenty eight': 28,
+    'thirty one': 31,
+    'thirty two': 32,
+    'thirty three': 33,
+    'thirty four': 34,
+    'thirty five': 35,
+    'thirty six': 36,
+    'thirty seven': 37,
+    'thirty eight': 38,
+    'forty one': 41,
+    'forty two': 42,
+    'forty three': 43,
+    'forty four': 44,
+    'forty five': 45,
+    'forty six': 46,
+    'forty seven': 47,
+    'forty eight': 48,
   }
-  if (map[label]) return map[label]
-  const num = parseInt(label)
-  return isNaN(num) ? null : num
+
+  const normalized = label.trim().toLowerCase()
+  if (map[normalized]) return map[normalized]
+
+  const num = parseInt(normalized, 10)
+  return Number.isNaN(num) ? null : num
 }
 
-// --- Recording ---
 async function recordOnce(): Promise<Blob> {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+
   return new Promise((resolve) => {
     mediaRecorder = new MediaRecorder(stream)
     audioChunks = []
+
     mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data)
     mediaRecorder.onstop = () => {
       const blob = new Blob(audioChunks, { type: 'audio/webm' })
       stream.getTracks().forEach((t) => t.stop())
       resolve(blob)
     }
+
     mediaRecorder.start()
     setTimeout(() => mediaRecorder?.stop(), 2000)
   })
 }
 
-// --- Core step executor ---
 async function runStep(step: VoiceStep): Promise<boolean> {
   const msg = message.loading(`Listening for ${step}...`, { duration: 0 })
   const blob = await recordOnce()
   msg.destroy()
+
   const res = await predict(blob, step)
 
-  if (!res || res.probabilities.length === 0) {
+  if (!res || !res.probabilities || res.probabilities.length === 0) {
     errorAudio.play()
     message.error(`Could not detect ${step}`)
     return false
@@ -234,72 +371,157 @@ async function runStep(step: VoiceStep): Promise<boolean> {
   }
 
   successAudio.play()
+
   if (step === 'tooth') {
     const tooth = normalizeTooth(res.label)
     if (!tooth) return false
     selectedTooth.value = tooth
     message.success(`Tooth ${tooth}`)
   }
+
   if (step === 'surface') {
     selectedSurface.value = res.label
     message.success(`Surface ${res.label}`)
   }
+
   if (step === 'condition') {
     selectedCondition.value = res.label
     message.success(`Condition ${res.label}`)
   }
+
   return true
 }
 
-// --- 🔥 SAVE & SYNC ---
 async function handleToothClick(toothFdi: number, surface: string) {
-  if (!patientId.value) return;
+  if (!patientId.value) return
 
-  const surfKey = surface.toLowerCase();
-  const existing = odontogramData.value[toothFdi]?.[surfKey];
+  const surfKey = surface.toLowerCase()
+  const toothState = odontogramData.value[toothFdi] || {}
 
-  // 1. DELETE check (This part you said is working!)
-  if (existing && typeof existing === 'object' && existing.id) {
+  const existingSurface = toothState[surfKey]
+  const symbols = toothState.symbols || []
+
+  const isSymbolTool = !!activeFinding.value?.svg_path
+
+  // =========================
+  // 🔴 DELETE FIRST (ALWAYS PRIORITY)
+  // =========================
+
+  // 🟣 delete symbol (if symbol tool OR no tool)
+  if (symbols.length > 0 && (!activeFinding.value || isSymbolTool)) {
     try {
-      await OdontogramService.deleteToothCondition(existing.id);
-      message.success('Condition removed');
-      await refreshOdontogram();
-      return;
+      const symbolToDelete = symbols[0] // (or refine later if multiple)
+
+      odontogramData.value[toothFdi].symbols =
+        symbols.filter((s: any) => s.id !== symbolToDelete.id)
+
+      await OdontogramService.deleteToothCondition(symbolToDelete.id)
+
+      message.success('Condition removed')
+      await refreshOdontogram()
+      return
     } catch (err) {
-      console.error('Delete failed', err);
-      return;
+      console.error('Symbol delete failed', err)
+      message.error('Failed to remove condition')
+      await refreshOdontogram()
+      return
     }
   }
 
-  // 2. SAVE check
-  // The error says activeFinding is undefined. Let's be safe:
-  if (!activeFinding.value || !activeFinding.value.id) {
-    message.warning('Please select a condition from the legend first');
-    return;
+  // 🟡 delete surface
+  if (existingSurface?.id) {
+    try {
+      clearLocalSlot(toothFdi, surfKey)
+
+      await OdontogramService.deleteToothCondition(existingSurface.id)
+
+      message.success('Condition removed')
+      await refreshOdontogram()
+      return
+    } catch (err) {
+      console.error('Surface delete failed', err)
+      message.error('Failed to remove condition')
+      await refreshOdontogram()
+      return
+    }
   }
 
-  const payload = {
-    tooth_id: toothFdi, // FDI Code (e.g. 11)
-    condition_id: activeFinding.value.id,
-    surfaces: [surface.toUpperCase()], // "TOP"
-  };
+  // =========================
+  // ➕ ADD (ONLY IF TOOL SELECTED)
+  // =========================
 
+  if (!activeFinding.value?.id) {
+    message.warning('Select a condition first')
+    return
+  }
+
+  // 🟣 SYMBOL ADD
+  if (isSymbolTool) {
+    try {
+      const payload = {
+        tooth_id: toothFdi,
+        condition_id: activeFinding.value.id,
+        surfaces: ['CENTER'] // temp backend workaround
+      }
+
+      if (!odontogramData.value[toothFdi]) {
+        odontogramData.value[toothFdi] = { symbols: [] }
+      }
+
+      if (!odontogramData.value[toothFdi].symbols) {
+        odontogramData.value[toothFdi].symbols = []
+      }
+
+      odontogramData.value[toothFdi].symbols.push({
+        id: 'temp-' + Date.now(),
+        condition_id: activeFinding.value.id,
+        svg: activeFinding.value.svg_path,
+        color: activeFinding.value.ui_color
+      })
+
+      await OdontogramService.saveToothCondition(
+        Number(patientId.value),
+        payload
+      )
+
+      message.success('Condition saved')
+      await refreshOdontogram()
+    } catch (err) {
+      console.error('Symbol save failed', err)
+      message.error('Failed to save condition')
+      await refreshOdontogram()
+    }
+
+    return
+  }
+
+  // 🟡 SURFACE ADD
   try {
-    // Check your console to see if this even triggers now
-    console.log('Sending Save Payload:', payload);
+    const payload = {
+      tooth_id: toothFdi,
+      condition_id: activeFinding.value.id,
+      surfaces: [surface.toUpperCase()]
+    }
 
-    await OdontogramService.saveToothCondition(Number(patientId.value), payload);
-    message.success('Condition saved');
+    setLocalSlot(toothFdi, surfKey, {
+      color: activeFinding.value.ui_color || '#999',
+      id: 'pending'
+    })
 
-    // 🔑 IMPORTANT: Refresh to get the new ID from the DB
-    await refreshOdontogram();
-  } catch (err: any) {
-    console.error('Save failed:', err.response?.data || err);
-    message.error('Failed to save to database');
+    await OdontogramService.saveToothCondition(
+      Number(patientId.value),
+      payload
+    )
+
+    message.success('Condition saved')
+    await refreshOdontogram()
+  } catch (err) {
+    console.error('Surface save failed', err)
+    message.error('Failed to save condition')
+    await refreshOdontogram()
   }
 }
 
-// --- Full voice pipeline ---
 async function startVoiceWorkflow() {
   if (isRecording.value) return
   if (!patient.value || !odontogramData.value) {
@@ -317,10 +539,12 @@ async function startVoiceWorkflow() {
     while (!(await runStep('tooth'))) {
       if (++retryCount >= MAX_RETRIES) throw new Error('Tooth failed')
     }
+
     retryCount = 0
     while (!(await runStep('surface'))) {
       if (++retryCount >= MAX_RETRIES) throw new Error('Surface failed')
     }
+
     retryCount = 0
     while (!(await runStep('condition'))) {
       if (++retryCount >= MAX_RETRIES) throw new Error('Condition failed')
@@ -331,7 +555,7 @@ async function startVoiceWorkflow() {
     const conditionLabel = selectedCondition.value!
 
     const found = conditionLibrary.value?.find(
-      (c) => c.label.toLowerCase() === conditionLabel.toLowerCase()
+      (c) => c.label.toLowerCase() === conditionLabel.toLowerCase(),
     )
 
     if (found) {
@@ -370,6 +594,7 @@ onMounted(() => {
           <div v-if="conditionLibrary.length === 0" class="legend-hint">
             No conditions available
           </div>
+
           <div v-for="(f, idx) in conditionLibrary" :key="f.id || idx" class="legend-pill"
             :class="{ active: activeFinding?.id === f.id }" @click="selectCondition(f)">
             <span class="dot" :style="{ backgroundColor: f.ui_color }"></span>
@@ -386,7 +611,9 @@ onMounted(() => {
               <Odontogram v-model="odontogramData" :active-finding="activeFinding?.ui_color || '#ffffff'"
                 @tooth-click="handleToothClick" />
             </div>
+
             <div class="chart-divider"></div>
+
             <div class="chart-box primary-area">
               <span class="chart-label">Primary Teeth</span>
               <PrimaryOdontogram v-model="odontogramData" :active-finding="activeFinding?.ui_color || '#ffffff'"

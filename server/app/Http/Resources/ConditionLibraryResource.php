@@ -12,6 +12,7 @@ class ConditionLibraryResource extends JsonResource
             'label' => $this->label, // e.g., "Caries"
             'slug' => $this->slug,   // e.g., "diagnostic"
             'ui_color' => $this->ui_color, // e.g., "#ff4d4f"
+            'svg_path' => $this->svg_path, // e.g., "M10 10 H 90 V 90 H 10 Z"
         ];
     }
 }

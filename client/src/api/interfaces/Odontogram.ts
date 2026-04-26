@@ -4,7 +4,7 @@ export interface ConditionLibrary {
   slug: string;
   category: 'finding' | 'procedure' | 'restoration';
   ui_color: string;
-  svg_icon_path?: string;
+  svg_path?: string;
 }
 
 export interface ToothCondition {

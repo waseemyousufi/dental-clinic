@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Read(C:\\Users\\Mortaza\\Desktop\\clinic-project/**)"
-    ]
-  },
-  "$version": 3
-}

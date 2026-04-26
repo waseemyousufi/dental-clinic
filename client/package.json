@@ -34,6 +34,7 @@
     "axios": "^1.13.5",
     "comlink": "^4.4.2",
     "dicom-parser": "^1.8.21",
+    "dompurify": "^3.4.1",
     "pinia": "^3.0.4",
     "vue": "^3.5.27",
     "vue-i18n": "^11.3.2",
@@ -42,6 +43,7 @@
   },
   "devDependencies": {
     "@tsconfig/node24": "^24.0.4",
+    "@types/dompurify": "^3.2.0",
     "@types/jsdom": "^27.0.0",
     "@types/node": "^24.10.9",
     "@vitejs/plugin-vue": "^6.0.3",

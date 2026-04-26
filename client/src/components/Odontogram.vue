@@ -1,8 +1,28 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import DOMPurify from 'dompurify'
 
-export interface ToothState {
-  [partId: string]: string | null
+defineOptions({
+  name: 'OdontogramChart'
+})
+
+
+
+const safeSvg = (svg: string) => {
+  return DOMPurify.sanitize(svg)
+}
+
+export type ToothState = {
+  [partId: string]: string | { color: string; id: string }
+
+  symbols: [
+    {
+      id: string
+      svg: string
+      color: string
+      position?: 'center' | 'top' | 'root'
+    }
+  ]
 }
 
 export interface OdontogramState {
@@ -39,7 +59,6 @@ const state = computed({
   get: () => props.modelValue || {},
   set: (val) => emit('update:modelValue', val)
 })
-
 
 const getPartStyle = (toothNumber: number, partId: string) => {
   const data = state.value[toothNumber]?.[partId];
@@ -108,6 +127,9 @@ const toothConfigs: any = {
     ]
   }
 }
+const debugSymbols = (num: number) => {
+  console.log('TOOTH SYMBOLS', num, state.value[num])
+}
 </script>
 
 <template>
@@ -118,11 +140,18 @@ const toothConfigs: any = {
           <td v-for="num in upperRow" :key="num">{{ num }}</td>
         </tr>
         <tr>
-          <td v-for="num in upperRow" :key="num">
+          <td v-for="num in upperRow" :key="num" @mouseenter="debugSymbols(num)">
             <svg :width="toothConfigs[getToothType(num)].width" :height="toothConfigs[getToothType(num)].height">
               <g transform="translate(0, 50) scale(1, -1)">
                 <polygon v-for="p in toothConfigs[getToothType(num)].parts" :key="p.id" :points="p.points"
                   class="tooth-part" :style="getPartStyle(num, p.id)" @click="togglePart(num, p.id)" />
+              </g>
+
+              <g v-for="symbol in state[num]?.symbols || []" :key="symbol.id">
+                <svg viewBox="0 0 100 100" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+                  <path :d="symbol.svg" :stroke="symbol.color || '#000'" fill="none" stroke-width="6"
+                    vector-effect="non-scaling-stroke" />
+                </svg>
               </g>
             </svg>
           </td>
@@ -130,8 +159,20 @@ const toothConfigs: any = {
         <tr>
           <td v-for="num in lowerRow" :key="num">
             <svg :width="toothConfigs[getToothType(num)].width" :height="toothConfigs[getToothType(num)].height">
-              <polygon v-for="p in toothConfigs[getToothType(num)].parts" :key="p.id" :points="p.points"
-                class="tooth-part" :style="getPartStyle(num, p.id)" @click="togglePart(num, p.id)" />
+
+              <g transform="translate(0, 50) scale(1, -1)">
+                <polygon v-for="p in toothConfigs[getToothType(num)].parts" :key="p.id" :points="p.points"
+                  class="tooth-part" :style="getPartStyle(num, p.id)" @click="togglePart(num, p.id)" />
+              </g>
+
+              <!-- symbols too -->
+              <g>
+                <g v-for="symbol in state[num]?.symbols || []" :key="symbol.id" transform="scale(0.3, 0.5)">
+                  <path :d="symbol.svg" stroke="currentColor" fill="none" stroke-width="2"
+                    vector-effect="non-scaling-stroke" />
+                </g>
+              </g>
+
             </svg>
           </td>
         </tr>
@@ -176,5 +217,22 @@ const toothConfigs: any = {
   stroke: #40a9ff;
 }
 
+.symbol-layer {
+  pointer-events: none;
+}
 
+.symbol-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* IMPORTANT: make SVG inside scale properly */
+.symbol-wrapper svg {
+  width: 60%;
+  height: 60%;
+}
 </style>

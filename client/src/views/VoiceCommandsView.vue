@@ -1268,7 +1268,7 @@ const startGlobalRecording = async () => {
 
     const load = message.loading('Predicting...', { duration: 0 })
     try {
-      const res = await predictRecordedCommand({ blob, category: 'surface' })
+      const res = await predictRecordedCommand({ blob, category: 'condition' })
       console.log(res)
 
       if (res.confidence < LOW_CONFIDENCE_MARGIN) {
