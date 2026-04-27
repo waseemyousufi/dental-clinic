@@ -34,6 +34,18 @@ export default new (class Employee {
     return api.post('/employee-salary', data)
   }
 
+  async updateEmployeeProfilePicture(employeeId: number, file: File) {
+    const formData = new FormData()
+    formData.append('image', file)
+    // Note: Some Laravel setups require a _method: 'PUT' if you are using a POST route to update
+    // formData.append('_method', 'PUT')
+
+    return api.post(`/employee/${employeeId}/update-profile-pic`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+  }
+
+
   deleteEmployee(id: number) {
     return api.delete(`/employee/${id}`)
   }

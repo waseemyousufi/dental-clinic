@@ -49,6 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/employee/{id}', [Receptionist\EmployeeController::class, 'update']);
         Route::post('/employee-salary/{id}', [Receptionist\EmployeeController::class, 'employeeSalary']);
         Route::delete('/employee/{id}', [Receptionist\EmployeeController::class, 'delete']);
+        Route::post('/employee/{id}/update-profile-pic', [Receptionist\EmployeeController::class, 'updateProfliePic']);
 
         Route::post('/material', [Receptionist\ClinicMaterialController::class, 'store']);
         Route::get('/material', [Receptionist\ClinicMaterialController::class, 'index']);
@@ -134,6 +135,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/login', [AuthController::class, 'login']);
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/refresh', [AuthController::class, 'refresh']);
+        Route::post('/update-profile-pic', [AuthController::class, 'updateProfilePic']);
         Route::get('/me', [AuthController::class, 'me']);
     });
 });

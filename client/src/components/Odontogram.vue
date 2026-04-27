@@ -60,11 +60,18 @@ const state = computed({
   set: (val) => emit('update:modelValue', val)
 })
 
-const getPartStyle = (toothNumber: number, partId: string) => {
+const getPartStyle = (toothNumber: number, partId: string, isLower: boolean = false) => {
   const data = state.value[toothNumber]?.[partId];
 
   // Extract color whether data is an object or a legacy string
   const color = typeof data === 'object' ? data?.color : data;
+  if (isLower && partId === 'root-2' && getToothType(toothNumber) === 'molar')
+    return {
+      fill: color || '#ffffff',
+      transition: 'fill 0.2s ease',
+      // transform: 'translate(0, 2px)',
+      opacity: 0.3 // Shift root-2 down for lower teeth
+    };
 
   return {
     fill: color || '#ffffff',
@@ -127,6 +134,28 @@ const toothConfigs: any = {
     ]
   }
 }
+
+const getSymbolTransform = (
+  position: 'center' | 'top' | 'root' = 'center',
+  isLower: boolean
+) => {
+  // Base scale (because your SVG paths are 0–100)
+  const scale = 0.25
+
+  let x = 50
+  let y = 25
+
+  if (position === 'top') y = 10
+  if (position === 'root') y = 40
+
+  // Flip compensation for lower teeth
+  if (isLower) {
+    y = 50 - y
+  }
+
+  return `translate(${x}, ${y}) scale(${scale}) translate(-50,-50)`
+}
+
 const debugSymbols = (num: number) => {
   console.log('TOOTH SYMBOLS', num, state.value[num])
 }
@@ -136,46 +165,94 @@ const debugSymbols = (num: number) => {
   <div class="odontogram-wrapper">
     <table class="odontogram-table">
       <tbody>
+        <!-- UPPER NUMBERS -->
         <tr class="num-row">
           <td v-for="num in upperRow" :key="num">{{ num }}</td>
         </tr>
+
+        <!-- UPPER TEETH -->
         <tr>
-          <td v-for="num in upperRow" :key="num" @mouseenter="debugSymbols(num)">
-            <svg :width="toothConfigs[getToothType(num)].width" :height="toothConfigs[getToothType(num)].height">
-              <g transform="translate(0, 50) scale(1, -1)">
-                <polygon v-for="p in toothConfigs[getToothType(num)].parts" :key="p.id" :points="p.points"
-                  class="tooth-part" :style="getPartStyle(num, p.id)" @click="togglePart(num, p.id)" />
-              </g>
-
-              <g v-for="symbol in state[num]?.symbols || []" :key="symbol.id">
-                <svg viewBox="0 0 100 100" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-                  <path :d="symbol.svg" :stroke="symbol.color || '#000'" fill="none" stroke-width="6"
-                    vector-effect="non-scaling-stroke" />
-                </svg>
-              </g>
-            </svg>
-          </td>
-        </tr>
-        <tr>
-          <td v-for="num in lowerRow" :key="num">
-            <svg :width="toothConfigs[getToothType(num)].width" :height="toothConfigs[getToothType(num)].height">
-
-              <g transform="translate(0, 50) scale(1, -1)">
-                <polygon v-for="p in toothConfigs[getToothType(num)].parts" :key="p.id" :points="p.points"
-                  class="tooth-part" :style="getPartStyle(num, p.id)" @click="togglePart(num, p.id)" />
-              </g>
-
-              <!-- symbols too -->
+          <td v-for="num in upperRow" :key="num">
+            <svg
+              :width="toothConfigs[getToothType(num)].width"
+              :height="toothConfigs[getToothType(num)].height"
+            >
+              <!-- SINGLE COORDINATE SYSTEM -->
               <g>
-                <g v-for="symbol in state[num]?.symbols || []" :key="symbol.id" transform="scale(0.3, 0.5)">
-                  <path :d="symbol.svg" stroke="currentColor" fill="none" stroke-width="2"
-                    vector-effect="non-scaling-stroke" />
+                <!-- TOOTH -->
+                <polygon
+                  v-for="p in toothConfigs[getToothType(num)].parts"
+                  :key="p.id"
+                  :points="p.points"
+                  class="tooth-part"
+                  :style="getPartStyle(num, p.id)"
+                  @click="togglePart(num, p.id)"
+                />
+
+                <!-- SYMBOLS -->
+                <g class="symbol-layer">
+                  <g
+                    v-for="symbol in state[num]?.symbols || []"
+                    :key="symbol.id"
+                    :transform="getSymbolTransform(symbol.position, false)"
+                  >
+                    <path
+                      :d="symbol.svg"
+                      :stroke="symbol.color || '#000'"
+                      fill="none"
+                      stroke-width="2"
+                      vector-effect="non-scaling-stroke"
+                    />
+                  </g>
                 </g>
               </g>
-
             </svg>
           </td>
         </tr>
+
+        <!-- LOWER TEETH -->
+        <tr>
+          <td v-for="num in lowerRow" :key="num">
+            <svg
+              :width="toothConfigs[getToothType(num)].width"
+              :height="toothConfigs[getToothType(num)].height"
+            >
+              <!-- FLIP EVERYTHING TOGETHER -->
+              <g :transform="`translate(0, ${toothConfigs[getToothType(num)].height}) scale(1,-1)`">
+
+                <!-- TOOTH -->
+                <polygon
+                  v-for="p in toothConfigs[getToothType(num)].parts"
+                  :key="p.id"
+                  :points="p.points"
+                  class="tooth-part"
+                  :style="getPartStyle(num, p.id, true)"
+                  @click="togglePart(num, p.id)"
+                />
+
+                <!-- SYMBOLS (same transform space now!) -->
+                <g class="symbol-layer">
+                  <g
+                    v-for="symbol in state[num]?.symbols || []"
+                    :key="symbol.id"
+                    :transform="getSymbolTransform(symbol.position, true)"
+                  >
+                    <path
+                      :d="symbol.svg"
+                      :stroke="symbol.color || '#000'"
+                      fill="none"
+                      stroke-width="2"
+                      vector-effect="non-scaling-stroke"
+                    />
+                  </g>
+                </g>
+
+              </g>
+            </svg>
+          </td>
+        </tr>
+
+        <!-- LOWER NUMBERS -->
         <tr class="num-row">
           <td v-for="num in lowerRow" :key="num">{{ num }}</td>
         </tr>

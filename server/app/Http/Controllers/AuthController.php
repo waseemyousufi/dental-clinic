@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Models\Employee;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -91,6 +92,30 @@ class AuthController extends Controller
         ]);
     }
 
+    public function updateProfilePic(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|max:2048', // 2MB Max
+        ]);
+
+        $user = $request->user();
+
+        if ($request->hasFile('image')) {
+            // Delete the old one if it exists to save disk space
+            if ($user->profile_image_path) {
+                Storage::disk('public')->delete($user->profile_image_path);
+            }
+
+            // Store the new one (Laravel handles the unique naming)
+            $path = $request->file('image')->store('profile-images', 'public');
+
+            // Update the database with the relative path
+            $user->update(['profile_image_path' => $path]);
+        }
+
+        return response()->json(['message' => 'Profile updated!']);
+    }
+
     /**
      * Logout (current token)
      */
@@ -98,7 +123,7 @@ class AuthController extends Controller
     {
         $token = $request->user()->currentAccessToken();
 
-        if($token) {
+        if ($token) {
             $token->delete();
         }
         return response()->json([

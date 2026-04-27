@@ -288,7 +288,7 @@ async function handleSubmit() {
   submitting.value = true
   try {
     const payload: EmployeeData = {
-      name: '',
+      name: '', // Usually constructed from fName + lName in the backend or here
       fName: formModel.fName,
       lName: formModel.lName,
       email: formModel.email,
@@ -308,6 +308,7 @@ async function handleSubmit() {
     }
 
     let employeeId = editingId.value
+    let isNewCreation = false
 
     if (isEditing.value && employeeId != null) {
       await employeeApi.updateEmployee(employeeId, payload)
@@ -315,7 +316,9 @@ async function handleSubmit() {
     } else {
       const { data } = await employeeApi.postEmployee(payload)
       message.success('Employee created')
-      employeeId = (data as any).id
+      // Ensure we grab the ID from the newly created employee
+      employeeId = (data as any)?.employeeId
+      isNewCreation = true
 
       const created: any = data ?? {}
       if (created.token && created.email) {
@@ -327,9 +330,21 @@ async function handleSubmit() {
         showInvite.value = true
       }
     }
-
+    console.log(profileFile.value, employeeId)
+    // --- Profile Picture Logic ---
+    // If we have a file selected, upload it after the employee record exists
     if (profileFile.value && employeeId != null) {
-      await employeeApi.updateProfilePicture(employeeId, profileFile.value)
+        console.log('reached here !!!!!!!!11')
+      try {
+        // We pass the File object directly (it's a Blob subclass)
+        await employeeApi.updateEmployeeProfilePicture(employeeId, profileFile.value)
+
+        // Reset the file ref so we don't re-upload the same file if they save again
+        profileFile.value = null
+      } catch (imgError) {
+        console.error('Image upload failed:', imgError)
+        message.warning('Employee saved, but profile picture failed to upload')
+      }
     }
 
     showEditor.value = false
@@ -337,6 +352,8 @@ async function handleSubmit() {
   } catch (error) {
     console.error(error)
     message.error('Failed to save employee')
+    // console.log(employeeId, data)
+
   } finally {
     submitting.value = false
   }
@@ -489,7 +506,7 @@ onMounted(fetchEmployees)
 
         <div class="form-row">
           <n-form-item label="Experience Amount">
-            <n-input v-model:value="formModel.experience.totalAmount as any"
+            <n-input v-model.number="formModel.experience.totalAmount as any"
               placeholder="Total experience (e.g. months)" />
           </n-form-item>
         </div>

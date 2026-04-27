@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
-
+use Illuminate\Support\Facades\Storage;
 use function Laravel\Prompts\info;
 
 class EmployeeController extends Controller
@@ -22,9 +22,31 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         $branchId = $this->effectiveBranchId($request);
-        info('Effective Branch ID: ' . $branchId);
-        $employees = Employee::where('branch_id', $branchId)->get();
+
+        $employees = Employee::with('user')
+            ->where('branch_id', $branchId)
+            ->get();
+
         return EmployeeResource::collection($employees);
+    }
+
+    public function updateProfliePic(String $id, Request $request) {
+        $request->validate([
+            'image' => 'required|image|max:2048', // 2MB Max
+        ]);
+
+        $employee = Employee::findOrFail($id);
+        $user = $employee->user;
+
+        if ($user->profile_image_path) {
+            Storage::disk('public')->delete($user->profile_image_path);
+        }
+
+        $path = $request->file('image')->store('profile_images', 'public');
+        $user->profile_image_path = $path;
+        $user->save();
+
+        return response()->json(['message' => 'Profile picture updated successfully']);
     }
 
     /**
@@ -48,12 +70,12 @@ class EmployeeController extends Controller
             'positionId' => 'required',
             'experience.workplace' => 'string',
             'experience.position' => 'string',
-            'experience.totalAmount' => 'integer'
+            'experience.totalAmount' => 'nullable'
         ]);
 
         return DB::transaction(function () use ($data, $request, $branchId) {
             $user = User::create([
-                'name' => $data['fName'] . " ". $data['lName'],
+                'name' => $data['fName'] . " " . $data['lName'],
                 'password' => Hash::make('temp_pass'),
                 'email' => $data['email'],
             ]);
@@ -82,7 +104,7 @@ class EmployeeController extends Controller
             }
 
             $token = Password::createToken($user);
-            return response(['token' => $token, 'email' => $user->email], 201);
+            return response(['token' => $token, 'email' => $user->email, 'employeeId' => $employee->id], 201);
         });
     }
 

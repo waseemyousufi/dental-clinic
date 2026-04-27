@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class EmployeeResource extends JsonResource
 {
@@ -47,6 +48,9 @@ class EmployeeResource extends JsonResource
             'positionId' => $this->position_id,
             'branchId' => $isAdmin ? null : $this->branch_id,
             'experience' => new EmployeeExperienceResource($this->experience),
+            'profile_image_url' => ($this->user && $this->user->profile_image_path)
+                ? Storage::disk('public')->url($this->user->profile_image_path)
+                : "https://ui-avatars.com/api/?name=" . urlencode($this->fName . ' ' . $this->lName),
         ];
     }
 }
