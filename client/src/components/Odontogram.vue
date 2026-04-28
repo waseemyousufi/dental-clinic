@@ -6,23 +6,18 @@ defineOptions({
   name: 'OdontogramChart'
 })
 
-
-
-const safeSvg = (svg: string) => {
-  return DOMPurify.sanitize(svg)
-}
+const safeSvg = (svg: string) => DOMPurify.sanitize(svg)
 
 export type ToothState = {
   [partId: string]: string | { color: string; id: string }
 
-  symbols: [
-    {
-      id: string
-      svg: string
-      color: string
-      position?: 'center' | 'top' | 'root'
-    }
-  ]
+  symbols: {
+    id: string
+    svg: string
+    slug?: string
+    color: string
+    position?: 'crown' | 'root' | 'auto'
+  }[]
 }
 
 export interface OdontogramState {
@@ -31,64 +26,64 @@ export interface OdontogramState {
 
 const props = defineProps<{
   modelValue: OdontogramState
-  activeFinding: string
+  slug: string
   readonly?: boolean
 }>()
 
-// Add this to both Odontogram.vue and PrimaryOdontogram.vue inside <script setup>
+console.log(props)
+
 const emit = defineEmits<{
   (e: 'update:modelValue', value: OdontogramState): void
-  (e: 'tooth-click', tooth: number, part: string): void // Add this!
+  (e: 'tooth-click', tooth: number, part: string): void
 }>()
-
-const togglePart = (toothNumber: number, partId: string) => {
-  if (props.readonly) return
-
-  // 1. Emit the custom event for the API call
-  emit('tooth-click', toothNumber, partId)
-
-  // 2. Keep local color toggle for instant feedback
-  const newState = { ...state.value }
-  if (!newState[toothNumber]) newState[toothNumber] = {}
-  const current = newState[toothNumber][partId]
-  newState[toothNumber][partId] = (current === props.activeFinding) ? null : props.activeFinding
-  state.value = newState
-}
 
 const state = computed({
   get: () => props.modelValue || {},
   set: (val) => emit('update:modelValue', val)
 })
 
-const getPartStyle = (toothNumber: number, partId: string, isLower: boolean = false) => {
-  const data = state.value[toothNumber]?.[partId];
+/**
+ * 🧠 anatomical mapping (same for both jaws)
+ */
+const slugPositionMap: Record<string, 'crown' | 'root'> = {
+  abscess: 'root',
+  root_canal: 'root',
+  unerupted: 'root',
 
-  // Extract color whether data is an object or a legacy string
-  const color = typeof data === 'object' ? data?.color : data;
-  if (isLower && partId === 'root-2' && getToothType(toothNumber) === 'molar')
-    return {
-      fill: color || '#ffffff',
-      transition: 'fill 0.2s ease',
-      // transform: 'translate(0, 2px)',
-      opacity: 0.3 // Shift root-2 down for lower teeth
-    };
-
-  return {
-    fill: color || '#ffffff',
-    transition: 'fill 0.2s ease'
-  };
+  impacted_tooth: 'crown',
+  implant: 'crown',
+  extraction: 'crown',
+  missing: 'crown',
+  caries: 'crown',
+  recurrent_caries: 'crown',
+  sealant: 'crown',
+  amalgam_filling: 'crown',
+  full_crown: 'crown',
+  fracture: 'crown',
+  dental_bridge: 'crown',
+  orthodontic_brackets: 'crown',
+  gingival_recession: 'crown',
+  diastema: 'crown',
+  loose_tooth: 'crown'
 }
-// Tooth Rows (FDI Notation)
+
+const resolveSymbolPosition = (
+  slug: string,
+  explicit?: 'crown' | 'root' | 'auto'
+): 'crown' | 'root' => {
+  if (explicit && explicit !== 'auto') return explicit
+  return slugPositionMap[slug] || 'crown'
+}
+
 const upperRow = [
-  18, 17, 16, 15, 14, 13, 12, 11, // Quadrant 1 (Right to Mid)
-  21, 22, 23, 24, 25, 26, 27, 28  // Quadrant 2 (Mid to Left)
-];
+  18, 17, 16, 15, 14, 13, 12, 11,
+  21, 22, 23, 24, 25, 26, 27, 28
+]
 
 const lowerRow = [
-  48, 47, 46, 45, 44, 43, 42, 41, // Quadrant 4 (Right to Mid)
-  31, 32, 33, 34, 35, 36, 37, 38  // Quadrant 3 (Mid to Left)
-];
-
+  48, 47, 46, 45, 44, 43, 42, 41,
+  31, 32, 33, 34, 35, 36, 37, 38
+]
 
 const getToothType = (num: number) => {
   const d = num % 10
@@ -99,7 +94,8 @@ const getToothType = (num: number) => {
 
 const toothConfigs: any = {
   molar: {
-    width: 30, height: 50,
+    width: 30,
+    height: 50,
     parts: [
       { id: 'top', points: '0,0 30,0 20,10 10,10' },
       { id: 'left', points: '0,0 10,10 10,20 0,30' },
@@ -108,11 +104,12 @@ const toothConfigs: any = {
       { id: 'center', points: '10,10 20,10 20,20 10,20' },
       { id: 'root-1', points: '0,30 5,50 10,30' },
       { id: 'root-2', points: '10,30 15,50 20,30' },
-      { id: 'root-3', points: '20,30 25,50 30,30' },
+      { id: 'root-3', points: '20,30 25,50 30,30' }
     ]
   },
   premolar: {
-    width: 25, height: 50,
+    width: 25,
+    height: 50,
     parts: [
       { id: 'top', points: '0,0 25,0 20,10 5,10' },
       { id: 'left', points: '0,0 5,10 5,20 0,30' },
@@ -120,44 +117,87 @@ const toothConfigs: any = {
       { id: 'right', points: '25,0 20,10 20,20 25,30' },
       { id: 'center', points: '5,10 20,10 20,20 5,20' },
       { id: 'root-1', points: '0,30 7,50 13,30' },
-      { id: 'root-2', points: '13,30 18,50 25,30' },
+      { id: 'root-2', points: '13,30 18,50 25,30' }
     ]
   },
   incisor: {
-    width: 20, height: 50,
+    width: 20,
+    height: 50,
     parts: [
       { id: 'top', points: '0,0 20,0 15,15 5,15' },
       { id: 'left', points: '0,0 5,15 0,30' },
       { id: 'bottom', points: '0,30 5,15 15,15 20,30' },
       { id: 'right', points: '20,0 15,15 20,30' },
-      { id: 'root-1', points: '0,30 10,50 20,30' },
+      { id: 'root-1', points: '0,30 10,50 20,30' }
     ]
   }
 }
 
+/**
+ * 🎯 FIXED SYMBOL POSITIONING
+ * KEY CHANGE: no jaw-awareness here anymore
+ */
 const getSymbolTransform = (
-  position: 'center' | 'top' | 'root' = 'center',
-  isLower: boolean
+  toothNumber: number,
+  symbol: any,
+  isUpper: boolean
 ) => {
-  // Base scale (because your SVG paths are 0–100)
-  const scale = 0.25
+  const type = getToothType(toothNumber)
+  const config = toothConfigs[type]
+  const w = config.width
+  const h = config.height
+  let scale = w / 100
 
-  let x = 50
-  let y = 25
+  const pos = resolveSymbolPosition(symbol.slug, symbol.position)
 
-  if (position === 'top') y = 10
-  if (position === 'root') y = 40
+  const x = w / 2
+  let y = h / 2
 
-  // Flip compensation for lower teeth
-  if (isLower) {
-    y = 50 - y
+  if (isUpper) {
+    /**
+     * UPPER ROW (Flipped Group):
+     * 0 is visual BOTTOM, h is visual TOP.
+     */
+    // Root needs to be at the TOP (large Y in flipped space)
+    // Crown needs to be at the BOTTOM (small Y in flipped space)
+    y = pos === 'root' ? h * 0.85 : h * 0.25
+    scale *= -1 // Flip vertically for upper row
+  } else {
+    /**
+     * LOWER ROW (Standard Group):
+     * 0 is visual TOP, h is visual BOTTOM.
+     */
+    // Crown is at the TOP (small Y)
+    // Root is at the BOTTOM (large Y)
+    y = pos === 'crown' ? h * 0.25 : h * 0.85
   }
 
-  return `translate(${x}, ${y}) scale(${scale}) translate(-50,-50)`
-}
+  // This "scale(1, -1)" flips the icon back so it isn't upside down in the upper row
+  const iconFlip = isUpper ? 'scale(1, -1)' : ''
 
-const debugSymbols = (num: number) => {
-  console.log('TOOTH SYMBOLS', num, state.value[num])
+  return `
+    translate(${x}, ${y})
+    ${iconFlip}
+    scale(${scale * 0.9})
+    translate(-50,-50)
+  `
+}
+const getPartStyle = (toothNumber: number, partId: string, isLower = false) => {
+  const data = state.value[toothNumber]?.[partId]
+  const color = typeof data === 'object' ? data?.color : data
+
+  if (isLower && partId === 'root-2' && getToothType(toothNumber) === 'molar') {
+    return {
+      fill: color || '#ffffff',
+      transition: 'fill 0.2s ease',
+      opacity: 0.3
+    }
+  }
+
+  return {
+    fill: color || '#ffffff',
+    transition: 'fill 0.2s ease'
+  }
 }
 </script>
 
@@ -165,6 +205,7 @@ const debugSymbols = (num: number) => {
   <div class="odontogram-wrapper">
     <table class="odontogram-table">
       <tbody>
+
         <!-- UPPER NUMBERS -->
         <tr class="num-row">
           <td v-for="num in upperRow" :key="num">{{ num }}</td>
@@ -173,36 +214,18 @@ const debugSymbols = (num: number) => {
         <!-- UPPER TEETH -->
         <tr>
           <td v-for="num in upperRow" :key="num">
-            <svg
-              :width="toothConfigs[getToothType(num)].width"
-              :height="toothConfigs[getToothType(num)].height"
-            >
-              <!-- SINGLE COORDINATE SYSTEM -->
-              <g>
-                <!-- TOOTH -->
-                <polygon
-                  v-for="p in toothConfigs[getToothType(num)].parts"
-                  :key="p.id"
-                  :points="p.points"
-                  class="tooth-part"
-                  :style="getPartStyle(num, p.id)"
-                  @click="togglePart(num, p.id)"
-                />
+            <svg :width="toothConfigs[getToothType(num)].width" :height="toothConfigs[getToothType(num)].height">
 
-                <!-- SYMBOLS -->
+              <g :transform="`translate(0, ${toothConfigs[getToothType(num)].height}) scale(1,-1)`">
+
+                <polygon v-for="p in toothConfigs[getToothType(num)].parts" :key="p.id" :points="p.points"
+                  class="tooth-part" :style="getPartStyle(num, p.id)" @click="emit('tooth-click', num, p.id)" />
+
                 <g class="symbol-layer">
-                  <g
-                    v-for="symbol in state[num]?.symbols || []"
-                    :key="symbol.id"
-                    :transform="getSymbolTransform(symbol.position, false)"
-                  >
-                    <path
-                      :d="symbol.svg"
-                      :stroke="symbol.color || '#000'"
-                      fill="none"
-                      stroke-width="2"
-                      vector-effect="non-scaling-stroke"
-                    />
+                  <g v-for="symbol in state[num]?.symbols || []" :key="symbol.id"
+                    :transform="getSymbolTransform(num, symbol, true)">
+                    <path :d="safeSvg(symbol.svg)" :stroke="symbol.color" fill="none" stroke-width="2"
+                      vector-effect="non-scaling-stroke" />
                   </g>
                 </g>
               </g>
@@ -213,41 +236,21 @@ const debugSymbols = (num: number) => {
         <!-- LOWER TEETH -->
         <tr>
           <td v-for="num in lowerRow" :key="num">
-            <svg
-              :width="toothConfigs[getToothType(num)].width"
-              :height="toothConfigs[getToothType(num)].height"
-            >
-              <!-- FLIP EVERYTHING TOGETHER -->
-              <g :transform="`translate(0, ${toothConfigs[getToothType(num)].height}) scale(1,-1)`">
+            <svg :width="toothConfigs[getToothType(num)].width" :height="toothConfigs[getToothType(num)].height">
 
-                <!-- TOOTH -->
-                <polygon
-                  v-for="p in toothConfigs[getToothType(num)].parts"
-                  :key="p.id"
-                  :points="p.points"
-                  class="tooth-part"
-                  :style="getPartStyle(num, p.id, true)"
-                  @click="togglePart(num, p.id)"
-                />
-
-                <!-- SYMBOLS (same transform space now!) -->
-                <g class="symbol-layer">
-                  <g
-                    v-for="symbol in state[num]?.symbols || []"
-                    :key="symbol.id"
-                    :transform="getSymbolTransform(symbol.position, true)"
-                  >
-                    <path
-                      :d="symbol.svg"
-                      :stroke="symbol.color || '#000'"
-                      fill="none"
-                      stroke-width="2"
-                      vector-effect="non-scaling-stroke"
-                    />
-                  </g>
-                </g>
-
+              <g>
+                <polygon v-for="p in toothConfigs[getToothType(num)].parts" :key="p.id" :points="p.points"
+                  class="tooth-part" :style="getPartStyle(num, p.id, true)" @click="emit('tooth-click', num, p.id)" />
               </g>
+
+              <g class="symbol-layer">
+                <g v-for="symbol in state[num]?.symbols || []" :key="symbol.id"
+                  :transform="getSymbolTransform(num, symbol, false)">
+                  <path :d="safeSvg(symbol.svg)" :stroke="symbol.color" fill="none" stroke-width="2"
+                    vector-effect="non-scaling-stroke" />
+                </g>
+              </g>
+
             </svg>
           </td>
         </tr>
@@ -256,6 +259,7 @@ const debugSymbols = (num: number) => {
         <tr class="num-row">
           <td v-for="num in lowerRow" :key="num">{{ num }}</td>
         </tr>
+
       </tbody>
     </table>
   </div>
@@ -296,20 +300,5 @@ const debugSymbols = (num: number) => {
 
 .symbol-layer {
   pointer-events: none;
-}
-
-.symbol-wrapper {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-/* IMPORTANT: make SVG inside scale properly */
-.symbol-wrapper svg {
-  width: 60%;
-  height: 60%;
 }
 </style>

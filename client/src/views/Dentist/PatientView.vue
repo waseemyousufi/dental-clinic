@@ -55,12 +55,6 @@ let audioChunks: Blob[] = []
 const successAudio = new Audio('/success.mp3')
 const errorAudio = new Audio('/error.mp3')
 
-function safeSvg(svg: string) {
-  return DOMpurify.sanitize(svg, {
-    USE_PROFILES: { svg: true, svgFilters: true },
-  })
-}
-
 function buildOdontogramState(teethArray: any[]): OdontogramState {
   const state: OdontogramState = {}
 
@@ -82,6 +76,7 @@ function buildOdontogramState(teethArray: any[]): OdontogramState {
           state[fdi].symbols!.push({
             id: cond.id,
             condition_id: lib.id,
+            slug: lib.slug,
             svg: lib.svg_path,
             color: lib.ui_color
           })
@@ -219,6 +214,7 @@ async function loadPatientData() {
             id: cond.id, // DB UUID (for delete)
             condition_id: cond.condition_library.id, // for matching tool
             svg: cond.condition_library.svg_path,
+            slug: cond.condition_library.slug,
             color: cond.condition_library.ui_color
           })
           return
@@ -476,7 +472,8 @@ async function handleToothClick(toothFdi: number, surface: string) {
         id: 'temp-' + Date.now(),
         condition_id: activeFinding.value.id,
         svg: activeFinding.value.svg_path,
-        color: activeFinding.value.ui_color
+        color: activeFinding.value.ui_color,
+        slug: activeFinding.value.slug
       })
 
       await OdontogramService.saveToothCondition(
@@ -608,7 +605,7 @@ onMounted(() => {
           <div class="odontogram-card">
             <div class="chart-box">
               <span class="chart-label">Permanent Teeth</span>
-              <Odontogram v-model="odontogramData" :active-finding="activeFinding?.ui_color || '#ffffff'"
+              <Odontogram v-model="odontogramData" :slug="activeFinding?.slug || ''" :active-finding="activeFinding?.ui_color || '#ffffff'"
                 @tooth-click="handleToothClick" />
             </div>
 

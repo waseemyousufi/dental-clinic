@@ -11,6 +11,7 @@ import {
   NFormItem,
   NSelect,
   NDatePicker,
+  NTimePicker,
   useMessage,
   dateArDZ,
   type DataTableColumn,
@@ -492,22 +493,6 @@ onMounted(fetchEmployees)
             <!-- <n-input v-model:value="(formModel.positionId as any)" placeholder="Position ID" /> -->
             <n-select :options="positionOptions" @update:value="handlePositionChange"
               :value="positionOptions[(formModel.positionId as number) - 1]?.label as string" />
-          </n-form-item>
-        </div>
-
-        <div class="form-row">
-          <n-form-item label="Experience workplace">
-            <n-input v-model:value="formModel.experience.workplace as string" placeholder="Previous workplace" />
-          </n-form-item>
-          <n-form-item label="Experience position">
-            <n-input v-model:value="formModel.experience.position as string" placeholder="Previous position" />
-          </n-form-item>
-        </div>
-
-        <div class="form-row">
-          <n-form-item label="Experience Amount">
-            <n-input v-model.number="formModel.experience.totalAmount as any"
-              placeholder="Total experience (e.g. months)" />
           </n-form-item>
         </div>
 
