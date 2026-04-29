@@ -50,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/employee-salary/{id}', [Receptionist\EmployeeController::class, 'employeeSalary']);
         Route::delete('/employee/{id}', [Receptionist\EmployeeController::class, 'delete']);
         Route::post('/employee/{id}/update-profile-pic', [Receptionist\EmployeeController::class, 'updateProfliePic']);
+        Route::get('/salaries', [Receptionist\EmployeeController::class, 'getSalaries']);
 
         Route::post('/material', [Receptionist\ClinicMaterialController::class, 'store']);
         Route::get('/material', [Receptionist\ClinicMaterialController::class, 'index']);

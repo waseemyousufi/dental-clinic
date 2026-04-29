@@ -86,9 +86,9 @@ class Employee extends Model
         return $this->hasOne(EmployeeExperience::class);
     }
 
-    public function EmployeeSalary(): HasOne
+    public function salaries(): HasMany
     {
-        return $this->hasOne(EmployeeSalary::class);
+        return $this->hasMany(EmployeeSalary::class);
     }
 
     public function PatientFile(): HasMany

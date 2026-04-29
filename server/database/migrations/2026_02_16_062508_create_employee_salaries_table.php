@@ -12,13 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('employee_salaries', function (Blueprint $table) {
-            $table->foreignId('employee_id')->primary();
-            $table->string('salary_month', 15);
+            $table->id();
+            $table->string('salary_month');
             $table->integer('amount', false, true);
             $table->smallInteger('bonus', false, true);
             $table->integer('total_amount', false, true);
-            $table->string('remark', 30); // ['Paid']
+            $table->string('remark'); // ['Paid']
             $table->foreignId('paidByAccountTransaction_id')->unique()->constrained('account_transactions')->cascadeOnDelete();
+            $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();
+            $table->timestamps();
         });
     }
 

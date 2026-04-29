@@ -10,14 +10,14 @@ class EmployeeSalary extends Model
 
     public $primaryKey = 'employee_id';
     public $incrementing = false;
-    public $timestamps = false;
-protected $fillable = [
+    protected $fillable = [
         'salary_month',
         'amount',
         'bonus',
         'total_amount',
         'remark',
-        'paidByAccountTransaction_id'
+        'paidByAccountTransaction_id',
+        'employee_id'
     ];
 
     public function Employee(): BelongsTo
@@ -27,6 +27,6 @@ protected $fillable = [
 
     public function AccountTransaction(): BelongsTo
     {
-        return $this->belongsTo(AccountTransaction::class);
+        return $this->belongsTo(AccountTransaction::class, 'paidByAccountTransaction_id');
     }
 }

@@ -50,7 +50,7 @@ class EmployeeResource extends JsonResource
             'experience' => new EmployeeExperienceResource($this->experience),
             'profile_image_url' => ($this->user && $this->user->profile_image_path)
                 ? Storage::disk('public')->url($this->user->profile_image_path)
-                : "https://ui-avatars.com/api/?name=" . urlencode($this->fName . ' ' . $this->lName),
+                : "https://ui-avatars.com/api/?name=" . urlencode($this->f_name . ' ' . $this->l_name),
         ];
     }
 }
