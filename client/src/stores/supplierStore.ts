@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, toRaw } from 'vue';
 import type { Supplier, Product, PurchaseOrder, PurchaseOrderItem } from '@/types/supplier';
 import supplierApi from '@/api/supplier';
 import orderApi from '@/api/order';
@@ -24,8 +24,8 @@ export const useSupplierStore = defineStore('supplier', () => {
   // ✅ Fixed: Accept string | number, search by ID or name
   const getSupplierById = (id: string | number) => {
     const idStr = String(id);
-    return suppliers.value.find(s => 
-      s.id === idStr || 
+    return suppliers.value.find(s =>
+      s.id === idStr ||
       Number(s.id) === Number(id) ||
       s.name.toLowerCase() === idStr.toLowerCase()
     );
@@ -38,18 +38,19 @@ export const useSupplierStore = defineStore('supplier', () => {
   };
 
   // --- Mapping helpers ---
-  const mapApiSupplierToUi = (api: SupplierData & { id?: number; items?: ItemData[] }): Supplier => ({
+  const mapApiSupplierToUi = (api: SupplierData & { id?: number; items?: ItemData[] }): SupplierData => ({
     id: String(api.id ?? Date.now()),
     name: api.organizationName,
     contactPerson: api.contactPersonName,
     phone: api.phone,
     email: api.email,
-    businessId: api.businessId,
-    notes: '',
+    businessId: String(api.businessId),
+    notes: api.notes,
     itemIds: (api.items ?? []).map(i => Number(i.id)),
     isActive: api.status === 'active',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    address: api.address
   });
 
   const mapUiSupplierToApi = (ui: Partial<Supplier> & { contactPersonName?: string; organizationName?: string; itemIds?: number[] }): SupplierData & { itemIds?: number[] } => ({
@@ -58,17 +59,19 @@ export const useSupplierStore = defineStore('supplier', () => {
     phone: ui.phone ?? '',
     email: ui.email,
     status: ui.isActive !== false ? 'active' : 'inactive',
-    businessId: ui.businessId,
-    itemIds: ui.itemIds ?? [],
+    businessId: String(ui.businessId),
+    itemIds: toRaw(ui.itemIds) ?? [],
+    address: ui.address,
+    notes: ui.notes
   });
 
   // ✅ Fixed: Store both supplierId (numeric) and supplierName for flexibility
   const mapApiOrderToUi = (api: OrderData): PurchaseOrder => {
     // Try to resolve numeric supplier ID from name
-    const supplier = suppliers.value.find(s => 
+    const supplier = suppliers.value.find(s =>
       s.name.toLowerCase() === (api.supplierName || '').toLowerCase()
     );
-    
+
     return {
       id: String(api.id ?? Date.now()),
       supplierId: supplier ? supplier.id : (api.supplierName || String(Date.now())),
@@ -99,7 +102,6 @@ export const useSupplierStore = defineStore('supplier', () => {
     })),
   });
 
-  // ✅ Helper: Format date to YYYY-MM-DD
   const formatDateForApi = (date: string | Date): string => {
     return new Date(date).toISOString().split('T')[0];
   };
@@ -110,7 +112,7 @@ export const useSupplierStore = defineStore('supplier', () => {
     try {
       const { data: suppliersData } = await supplierApi.getBranchSuppliers();
       suppliers.value = (suppliersData.data ?? []).map(mapApiSupplierToUi);
-      
+
       const { data: itemsData } = await itemApi.getItems();
       products.value = (itemsData.data ?? []).map((item: ItemData) => ({
         id: String(item.id),
@@ -131,11 +133,11 @@ export const useSupplierStore = defineStore('supplier', () => {
   };
 
   const addSupplier = async (supplier: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const apiData = mapUiSupplierToApi({ 
-      ...supplier, 
-      contactPersonName: supplier.contactPerson, 
-      organizationName: supplier.name, 
-      itemIds: supplier.itemIds 
+    const apiData = mapUiSupplierToApi({
+      ...supplier,
+      contactPersonName: supplier.contactPerson,
+      organizationName: supplier.name,
+      itemIds: supplier.itemIds
     });
     try {
       const { data } = await supplierApi.postSupplier(apiData);
@@ -144,6 +146,7 @@ export const useSupplierStore = defineStore('supplier', () => {
       return newSupplier;
     } catch (err) {
       console.error('Failed to create supplier:', err);
+      console.log("Api Data: ", apiData, err)
       throw err;
     }
   };
@@ -152,12 +155,12 @@ export const useSupplierStore = defineStore('supplier', () => {
     const existing = suppliers.value.find(s => s.id === id);
     if (!existing) return false;
 
-    const apiData = mapUiSupplierToApi({ 
-      ...existing, 
-      ...updates, 
-      contactPersonName: updates.contactPerson ?? existing.contactPerson, 
-      organizationName: updates.name ?? existing.name, 
-      itemIds: updates.itemIds ?? existing.itemIds 
+    const apiData = mapUiSupplierToApi({
+      ...existing,
+      ...updates,
+      contactPersonName: updates.contactPerson ?? existing.contactPerson,
+      organizationName: updates.name ?? existing.name,
+      itemIds: updates.itemIds ?? existing.itemIds
     });
     try {
       const { data } = await supplierApi.updateSupplier(Number(id), apiData);
@@ -195,7 +198,7 @@ export const useSupplierStore = defineStore('supplier', () => {
         totalPrice: 0,
       })),
     };
-    
+
     try {
       const { data } = await orderApi.postOrder(apiData);
       const newOrder = mapApiOrderToUi(data.data);
@@ -213,7 +216,7 @@ export const useSupplierStore = defineStore('supplier', () => {
 
     const order = purchaseOrders.value[idx];
     const supplier = getSupplierById(order.supplierId);
-    
+
     const apiData: OrderData = {
       supplierName: supplier?.name || order._supplierName || order.supplierId, // ✅ Use name
       date: formatDateForApi(order.createdAt), // ✅ YYYY-MM-DD
@@ -225,7 +228,7 @@ export const useSupplierStore = defineStore('supplier', () => {
         totalPrice: 0,
       })),
     };
-    
+
     try {
       await orderApi.updateOrder(Number(orderId), apiData);
       purchaseOrders.value[idx].status = 'pending';
@@ -243,7 +246,7 @@ export const useSupplierStore = defineStore('supplier', () => {
 
     const order = purchaseOrders.value[idx];
     const supplier = getSupplierById(order.supplierId);
-    
+
     const apiData: Partial<OrderData> = {
       supplierName: supplier?.name || order._supplierName || order.supplierId, // ✅ Use name
       date: formatDateForApi(order.createdAt),
@@ -267,7 +270,7 @@ export const useSupplierStore = defineStore('supplier', () => {
 
     const order = purchaseOrders.value[idx];
     const supplier = getSupplierById(order.supplierId);
-    
+
     const apiData: OrderData = {
       supplierName: supplier?.name || order._supplierName || order.supplierId, // ✅ Critical: use name
       date: formatDateForApi(order.createdAt), // ✅ YYYY-MM-DD format
@@ -302,7 +305,7 @@ export const useSupplierStore = defineStore('supplier', () => {
 
     const order = purchaseOrders.value[idx];
     const supplier = getSupplierById(order.supplierId);
-    
+
     const apiData: OrderData = {
       supplierName: supplier?.name || order._supplierName || order.supplierId, // ✅ Use name
       date: formatDateForApi(order.createdAt),

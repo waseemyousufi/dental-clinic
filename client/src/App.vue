@@ -8,13 +8,6 @@ import {
   NIcon,
   NDropdown,
 } from 'naive-ui'
-import {
-  People20Filled,
-  Wallet20Filled,
-  Receipt20Filled,
-  CalendarLtr20Filled,
-  Image20Filled,
-} from '@vicons/fluent'
 import SidebarDropdown from './components/SidebarDropdown.vue'
 import { Icon } from '@iconify/vue'
 import userApi from './api/user';
@@ -117,14 +110,17 @@ const toggleUserMenu = () => {
 }
 
 const toggleBranchExpansion = (branchId: number) => {
-  const index = expandedBranchIds.value.indexOf(branchId)
-  if (index > -1) {
-    // Remove if already open
-    expandedBranchIds.value.splice(index, 1)
-  } else {
-    // Add if closed
-    expandedBranchIds.value.push(branchId)
-  }
+  expandedBranchIds.value = []
+  expandedBranchIds.value.push(branchId)
+  selectBranch(branchId)
+  // const index = expandedBranchIds.value.indexOf(branchId)
+  // if (index > -1) {
+  //   // Remove if already open
+  //   expandedBranchIds.value.splice(index, 1)
+  // } else {
+  //   // Add if closed
+  //   expandedBranchIds.value.push(branchId)
+  // }
 }
 
 const isBranchExpanded = (branchId: number) => {
@@ -226,6 +222,9 @@ provide('selectedBranchId', computed(() =>
   <n-dialog-provider>
     <n-message-provider>
       <div id="app" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
+        <n-button v-if="isSidebarCollapsed" circle class="floating-menu-btn" @click="toggleSidebar">
+          <Icon icon="mdi:menu" style="font-size: 1.8em;" />
+        </n-button>
         <div class="sidebar" v-if="authStore.isLoggedIn">
           <div class="sidebar-header">
             <n-button text @click="toggleSidebar" class="sidebar-toggle-button">
@@ -233,12 +232,12 @@ provide('selectedBranchId', computed(() =>
             </n-button>
           </div>
 
-          <div class="sidebar-content">
+          <div class="sidebar-content" v-if="!isSidebarCollapsed">
             <!-- ✅ Branches dropdown: ONLY for admins -->
             <sidebar-dropdown v-if="isAdmin" icon="proicons:branch" title="Branches" :default-open="true">
               <div v-if="branchStore.loading" class="branches-loading">Loading branches...</div>
               <div v-else-if="branchStore.branches.length === 0" class="branches-empty">
-                branches not found wtf
+                branches not found
               </div>
               <!-- Inside your Admin Sidebar Dropdown -->
               <div v-else class="branches-list">
@@ -502,10 +501,10 @@ provide('selectedBranchId', computed(() =>
 
   .sidebar-content a.router-link-active {
     background-color: #007bff;
-    color: white;
 
     &:hover {
       background-color: #0060cd;
+      color: white !important;
     }
   }
 
@@ -639,4 +638,145 @@ provide('selectedBranchId', computed(() =>
   background-color: #0060cd !important;
 }
 
+<style scoped>
+
+/* Color Variables for easy customization */
+:root {
+  --sidebar-bg: #ffffff;
+  --sidebar-width: 260px;
+  --active-bg: #0959a9;
+  /* Light slate */
+  --active-text: #0f172a;
+  /* Dark slate */
+  --hover-bg: #f8fafc;
+  --border-color: #e2e8f0;
+}
+
+#app {
+  display: flex;
+  min-height: 100vh;
+  background-color: #fcfcfc;
+}
+
+/* Floating Button (Only shows when menu is hidden on small screens) */
+.floating-menu-btn {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: none;
+  /* Hidden by default on desktop */
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  border-right: 1px solid var(--border-color);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 200;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s ease;
+}
+
+.content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.3s ease;
+  width: 100%;
+}
+
+/* --- RESPONSIVE LOGIC (< 1000px) --- */
+@media (max-width: 1000px) {
+  .floating-menu-btn {
+    display: flex;
+    /* Show floating button */
+  }
+
+  .sidebar {
+    width: 280px;
+    /* Fixed width for the overlay */
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
+  }
+
+  /* When collapsed on mobile, slide it completely off-screen */
+  #app.sidebar-collapsed .sidebar {
+    transform: translateX(-100%);
+  }
+
+  /* Content takes full width, no margin */
+  .content {
+    margin-left: 0 !important;
+  }
+}
+
+/* --- DESKTOP COLLAPSE LOGIC (> 1000px) --- */
+@media (min-width: 1001px) {
+  #app.sidebar-collapsed .sidebar {
+    width: 60px;
+  }
+
+  #app.sidebar-collapsed .content {
+    margin-left: 60px;
+  }
+}
+
+/* --- NEUTRAL STYLING (No Green/Blue) --- */
+.sidebar-content a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin: 2px 8px;
+  border-radius: 6px;
+  color: #475569;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+/* Professional Gray Hover */
+.sidebar-content a:hover {
+  background-color: var(--hover-bg);
+  color: var(--active-text);
+}
+
+/* Active State: Neutral Bold */
+.sidebar-content a.router-link-active,
+.branch-link-item.is-active-branch-link.router-link-active {
+  background-color: #2563EB !important;
+  color: white !important;
+  font-weight: 600;
+}
+
+.branch-item__header {
+  margin: 2px 8px;
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.branch-item__header--active {
+  background: var(--active-bg);
+  border-color: var(--border-color);
+}
+
+.sidebar-footer {
+  border-top: 1px solid var(--border-color);
+  background: #fff;
+  padding: 12px;
+}
+
+/* Update your CSS to this */
+:deep(.sidebar-collapsed .sidebar-content span),
+:deep(.sidebar-collapsed .details),
+:deep(.sidebar-collapsed .branch-item__name),
+:deep(.sidebar-collapsed .branch-item__chevron) {
+  display: none !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  pointer-events: none;
+}
 </style>

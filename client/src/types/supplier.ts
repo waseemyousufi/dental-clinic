@@ -21,13 +21,12 @@ export interface Supplier {
   createdAt: string;
   updatedAt: string;
   branchId: number;
-  
 }
 
 // In PurchaseOrder interface:
 export interface PurchaseOrder {
   id: string;
-  supplierId: string;          
+  supplierId: string;
   _supplierName?: string;
   items: PurchaseOrderItem[];
   totalItems: number;

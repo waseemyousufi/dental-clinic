@@ -19,6 +19,8 @@ class Supplier extends Model
         'status',
         'business_id',
         'branch_id',
+        'address',
+        'notes'
     ];
 
     /**

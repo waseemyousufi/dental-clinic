@@ -36,14 +36,16 @@ public function index()
     {
         $data = $request->validate([
             'contactPersonName' => 'required|string|max:255',
-            'organizationName' => 'required|string|max:255|unique:suppliers,organization_name',
+            'organizationName' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'email' => 'nullable|email|max:255',
             'itemIds' => 'nullable|array',
             'itemIds.*' => 'integer|exists:items,id',
             'status' => 'required|string|in:active,inactive',
             'businessId' => 'nullable|string|max:255',
-            'supplierId' => 'integer',
+            'address' => 'string',
+            'notes' => 'string'
+            // 'supplierId' => 'integer',
         ]);
 
         $supplier = Supplier::create([
@@ -53,6 +55,8 @@ public function index()
             'email' => $data['email'] ?? null,
             'status' => $data['status'],
             'business_id' => $data['businessId'] ?? null,
+            'address' => $data['address'],
+            'notes' => $data['notes'],
             'branch_id' => $this->effectiveBranchId($request),
         ]);
 
@@ -75,15 +79,17 @@ public function index()
         $supplier = Supplier::findOrFail($id);
 
         $data = $request->validate([
-            'contactPersonName' => 'sometimes|string|max:255',
-            'organizationName' => 'sometimes|string|max:255|unique:suppliers,organization_name,' . $id,
-            'phone' => 'sometimes|string|max:20',
+            'contactPersonName' => 'required|string|max:255',
+            'organizationName' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
             'email' => 'nullable|email|max:255',
             'itemIds' => 'nullable|array',
             'itemIds.*' => 'integer|exists:items,id',
-            'status' => 'sometimes|string|in:active,inactive',
+            'status' => 'required|string|in:active,inactive',
             'businessId' => 'nullable|string|max:255',
-            'supplierId' => 'nullable|integer|exists:suppliers,id', // Optional parent supplier
+            'address' => 'nullable|string',
+            'notes' => 'nullable|string'
+            // 'supplierId' => 'integer',
         ]);
 
         $supplier->update([
@@ -94,7 +100,9 @@ public function index()
             'status' => $data['status'] ?? $supplier->status,
             'business_id' => $data['businessId'] ?? $supplier->business_id,
             'branch_id' => $this->effectiveBranchId($request),
-            'supplier_id' => $data['supplierId'] ?? $supplier->supplier_id, // Optional parent supplier
+            // 'supplier_id' => $data['supplierId'] ?? $supplier->supplier_id, // Optional parent supplier
+            'notes' => $data['notes'],
+            'address' => $data['address']
         ]);
 
         // Sync items if provided

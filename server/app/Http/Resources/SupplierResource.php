@@ -25,6 +25,8 @@ class SupplierResource extends JsonResource
             'ordersCount' => $this->whenCounted('orders'),
             'items' => ItemResource::collection($this->whenLoaded('items')),
             'itemsCount' => $this->whenCounted('items'),
+            'address' => $this->address,
+            'notes' => $this->notes,
         ];
     }
 }

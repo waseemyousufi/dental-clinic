@@ -30,8 +30,12 @@ export default new (class Employee {
     return fileManager.putFile(`/employee/${id}/profile-picture`, file as unknown as Blob)
   }
 
-  payEmployee(data: EmployeeSalaryData) {
-    return api.post('/employee-salary', data)
+  paySalary(id: number|string, data: EmployeeSalaryData) {
+    return api.post(`/employee-salary/${id}`, data)
+  }
+
+  getBranchSalaries() {
+    return api.get('/salaries')
   }
 
   async updateEmployeeProfilePicture(employeeId: number, file: File) {

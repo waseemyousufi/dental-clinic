@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('status')->default('active'); // e.g., active, inactive
             $table->string('address')->nullable();
+            $table->string('notes')->nullable();
             $table->unsignedBigInteger('business_id')->nullable();
             $table->foreignId('branch_id')->constrained()->onDelete('cascade');
             $table->timestamps();

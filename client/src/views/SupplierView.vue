@@ -1,3 +1,4 @@
+
 <template>
   <n-space vertical :size="24" class="supplier-view">
     <!-- Header -->
@@ -66,14 +67,14 @@
 
     <!-- Supplier List -->
     <n-card size="small" title="Suppliers" class="table-card">
-      <n-data-table 
-        :columns="columns" 
-        :data="filteredSuppliers" 
-        :pagination="pagination" 
-        :bordered="false" 
+      <n-data-table
+        :columns="columns"
+        :data="filteredSuppliers"
+        :pagination="pagination"
+        :bordered="false"
         size="small"
-        :row-key="(row) => row.id" 
-        :scroll-x="960" 
+        :row-key="(row) => row.id"
+        :scroll-x="960"
       />
     </n-card>
 
@@ -92,34 +93,34 @@
         <n-badge :value="purchaseOrders.length" :max="99" type="warning" />
       </template>
 
-      <n-data-table 
-        v-if="purchaseOrders.length > 0" 
-        :pagination="orderPagination" 
+      <n-data-table
+        v-if="purchaseOrders.length > 0"
+        :pagination="orderPagination"
         :columns="orderColumns"
-        :data="purchaseOrders" 
-        :bordered="false" 
-        size="small" 
-        :row-key="(row) => row.id" 
-        :scroll-x="980" 
+        :data="purchaseOrders"
+        :bordered="false"
+        size="small"
+        :row-key="(row) => row.id"
+        :scroll-x="980"
       />
       <n-empty v-else description="No pending orders right now" style="padding: 24px" />
     </n-card>
 
     <!-- Modals -->
-    <SupplierForm 
-      v-if="showFormModal" 
-      :initial-data="editingSupplier" 
+    <SupplierForm
+      v-if="showFormModal"
+      :initial-data="editingSupplier"
       @submit="handleSupplierSubmit"
-      @cancel="closeFormModal" 
+      @cancel="closeFormModal"
     />
 
-    <PurchaseOrderModal 
-      v-if="showOrderModal" 
+    <PurchaseOrderModal
+      v-if="showOrderModal"
       :supplier="selectedSupplier"
-      :available-products="selectedSupplierProducts" 
-      :branch-id="selectedBranchId" 
+      :available-products="selectedSupplierProducts"
+      :branch-id="selectedBranchId"
       @submit="handleOrderSubmit"
-      @cancel="showOrderModal = false" 
+      @cancel="showOrderModal = false"
     />
   </n-space>
 </template>
@@ -141,6 +142,8 @@ import type { Supplier, PurchaseOrderItem, PurchaseOrder } from '@/types/supplie
 import SupplierForm from '@/components/suppliers/SupplierForm.vue';
 import PurchaseOrderModal from '@/components/suppliers/PurchaseOrderModal.vue';
 import { useBranchStore } from '@/stores/branchStore';
+
+// BUG When ordering stock the existing stock not show the real inventoryStock we need to wire it to backend so it does
 
 const message = useMessage();
 const dialog = useDialog();
@@ -650,6 +653,7 @@ const closeFormModal = () => {
 const handleSupplierSubmit = async (
   data: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>
 ) => {
+
   try {
     if (editingSupplier.value?.id) {
       const success = await store.updateSupplier(editingSupplier.value.id, data);

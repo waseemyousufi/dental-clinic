@@ -35,4 +35,6 @@ export interface EmployeeSalaryData {
   totalAmount: number,
   remark: string,
   transactionId: number,
+  employee?: string,
+  employeeId?: number,
 }

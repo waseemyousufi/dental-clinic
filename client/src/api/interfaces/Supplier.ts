@@ -6,4 +6,6 @@ export default interface SupplierData {
   products?: string[]
   status: string
   businessId?: string
+  address?: string
+  notes?: string
 }

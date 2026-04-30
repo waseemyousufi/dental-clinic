@@ -6,6 +6,6 @@ export default new (class Supplier {
 
   getBranchSuppliers() { return api.get('/suppliers') }
   postSupplier(data: SupplierData) { return api.post('/suppliers', data) }
-  updateSupplier(id: number, data: SupplierData) { return api.put(`/suppliers/${id}`, data) }
+  updateSupplier(id: number, data: SupplierData) {console.log('Api Sent Data: ', data); return api.put(`/suppliers/${id}`, data) }
   deleteSupplier(id: number) { return api.delete(`/suppliers/${id}`) }
 })()
