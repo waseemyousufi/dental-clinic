@@ -11,16 +11,21 @@ class Appointment extends Model
 {
 
     public $timestamps = false;
-protected $fillable = ['appointment_timestamp', 'status', 'description', 'branch_id'];
+    protected $fillable = ['appointment_timestamp', 'status', 'description', 'branch_id'];
 
-    public function Branch() : BelongsTo
+    public function Branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
     }
 
-    public function patients(): BelongsToMany
+    public function patients()
     {
-        return $this->belongsToMany(Patient::class, 'appointment_patient', 'appointment_id', 'patient_id')->withTimestamps();
+        return $this->belongsToMany(
+            Patient::class,
+            'appointment_patient',
+            'appointment_id',
+            'patient_id'
+        )->withTimestamps();
     }
 
     public function employees(): BelongsToMany
@@ -28,7 +33,7 @@ protected $fillable = ['appointment_timestamp', 'status', 'description', 'branch
         return $this->belongsToMany(Employee::class, 'appointment_employee', 'appointment_id', 'employee_id')->withTimestamps();
     }
 
-    public function PatientFile() : HasOne
+    public function PatientFile(): HasOne
     {
         return $this->hasOne(PatientFile::class);
     }

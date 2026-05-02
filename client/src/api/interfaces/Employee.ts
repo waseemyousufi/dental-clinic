@@ -14,6 +14,7 @@ export default interface EmployeeData {
   position: string,
   experience: EmployeeExperience
   id?: number,
+  profile_image_url?: string,
 }
 
 export interface AbbrEmployees {

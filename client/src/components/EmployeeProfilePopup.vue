@@ -44,9 +44,11 @@ const getExperienceTotalAmountDisplay = computed(() => {
     <n-card :bordered="false" class="profile-card">
       <div v-if="employeeData" style="text-transform: capitalize;">
         <div class="profile-header">
-          <n-avatar :size="96" round src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg">
-            <Icon icon="mdi:account" width="48" height="48" />
-          </n-avatar>
+          <!-- {{ employeeData.profile_image_url }} -->
+          <img :src="employeeData.profile_image_url"
+            style="width: 96px; height: 96px; border-radius: 50%; object-fit: cover;"
+            @error="(e) => console.log('Image failed to load:', e)"
+            @load="() => console.log('Image loaded successfully!')" />
           <div class="header-details">
             <h2>{{ employeeData.fName }} {{ employeeData.lName }}</h2>
             <n-space size="small">
@@ -141,7 +143,7 @@ const getExperienceTotalAmountDisplay = computed(() => {
               {{ employeeData.workStartTime || 'N/A' }} - {{ employeeData.workEndTime || 'N/A' }}
             </p>
           </n-descriptions-item>
-          <n-descriptions-item>
+          <!-- <n-descriptions-item>
             <template #label>
               <n-space>
                 <div class="icon-aligner">
@@ -153,8 +155,8 @@ const getExperienceTotalAmountDisplay = computed(() => {
             <p class="indented">
               {{ employeeData.experience?.workplace || 'N/A' }}
             </p>
-          </n-descriptions-item>
-          <n-descriptions-item>
+          </n-descriptions-item> -->
+          <!-- <n-descriptions-item>
             <template #label>
               <n-space>
                 <div class="icon-aligner">
@@ -166,8 +168,8 @@ const getExperienceTotalAmountDisplay = computed(() => {
             <p class="indented">
               {{ employeeData.experience?.position || 'N/A' }}
             </p>
-          </n-descriptions-item>
-          <n-descriptions-item>
+          </n-descriptions-item> -->
+          <!-- <n-descriptions-item>
             <template #label>
               <n-space>
                 <div class="icon-aligner">
@@ -179,7 +181,7 @@ const getExperienceTotalAmountDisplay = computed(() => {
             <p class="indented">
               {{ getExperienceTotalAmountDisplay }}
             </p>
-          </n-descriptions-item>
+          </n-descriptions-item> -->
         </n-descriptions>
       </div>
       <div v-else>
@@ -256,6 +258,15 @@ const getExperienceTotalAmountDisplay = computed(() => {
 .profile-details :deep(.n-descriptions-item__content) {
   font-size: 1em;
   color: #333;
+}
+
+.avatar-mimic {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive adjustments */

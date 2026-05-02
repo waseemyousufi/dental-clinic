@@ -15,10 +15,10 @@ export default new (class Employee {
         ...(resolvedBranchId != null ? { branchId: resolvedBranchId } : {}),
       },
     })
-
   }
 
   postEmployee(data: EmployeeData) {
+    console.log(data)
     return api.post('/employee', data)
   }
 

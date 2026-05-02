@@ -779,4 +779,8 @@ provide('selectedBranchId', computed(() =>
   width: 0 !important;
   pointer-events: none;
 }
+
+.n-button.n-button--default-type.n-button--medium-type.floating-menu-btn {
+  backdrop-filter: blur(8px);
+}
 </style>

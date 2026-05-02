@@ -22,6 +22,8 @@ import { Icon } from '@iconify/vue';
 import ItemViewPopup from '../components/ItemViewPopup.vue';
 import { useI18n } from 'vue-i18n'; // Import useI18n
 
+// BUG implement the profile picture backend
+
 const { t } = useI18n(); // Get the t function
 
 type PatientRow = PatientData & { id?: number }
@@ -157,7 +159,7 @@ const columns = computed(() => [
             height: 20,
             color: '#4f46e5',
             style: { cursor: 'pointer' },
-            onClick: () => { 
+            onClick: () => {
               if (row.id) router.push(`/dentist/patient/${row.id}`)
             },
           },

@@ -270,7 +270,7 @@ const searchLookupResults = computed(() => {
   matched.sort(
     (a, b) =>
       lookupMatchScore(a.name, a.shelfName, a.category, q) -
-        lookupMatchScore(b.name, b.shelfName, b.category, q) ||
+      lookupMatchScore(b.name, b.shelfName, b.category, q) ||
       a.name.localeCompare(b.name),
   )
 
@@ -294,7 +294,7 @@ const onSearchWrapFocusOut = (e: FocusEvent) => {
 
 const onLookupSelect = (row: InventoryRow) => {
   ui.searchFocused = false
-  ;(document.getElementById('shelf-inventory-search') as HTMLInputElement | null)?.blur()
+    ; (document.getElementById('shelf-inventory-search') as HTMLInputElement | null)?.blur()
 
   if (row.status === 'placed' && row.shelfId) {
     document.getElementById(`shelf-${row.shelfId}`)?.scrollIntoView({
@@ -480,7 +480,7 @@ const saveShelf = async () => {
 </script>
 
 <template>
-  <div class="cms-inventory">
+  <div class="cms-inventory" style="margin-top: 2.5em;">
     <header class="top-bar">
       <div class="brand">
         <h1>Inventory pool</h1>
@@ -488,63 +488,27 @@ const saveShelf = async () => {
       </div>
 
       <div class="actions">
-        <div
-          ref="searchWrapRef"
-          class="search-field-wrap"
-          @focusin="onSearchWrapFocusIn"
-          @focusout="onSearchWrapFocusOut"
-        >
+        <div ref="searchWrapRef" class="search-field-wrap" @focusin="onSearchWrapFocusIn"
+          @focusout="onSearchWrapFocusOut">
           <div class="search-input">
             <Icon icon="mdi:magnify" class="search-input__iconify" aria-hidden="true" />
-            <input
-              id="shelf-inventory-search"
-              v-model="search"
-              type="search"
-              name="shelf-inventory-filter"
-              class="search-input__field"
-              placeholder="Search materials, shelves, locations…"
-              autocomplete="off"
-              autocorrect="off"
-              autocapitalize="off"
-              spellcheck="false"
-              data-lpignore="true"
-              data-1p-ignore="true"
-              data-form-type="other"
-              role="combobox"
-              aria-autocomplete="list"
-              :aria-expanded="showSearchLookup"
-              aria-controls="shelf-search-lookup-panel"
-            />
+            <input id="shelf-inventory-search" v-model="search" type="search" name="shelf-inventory-filter"
+              class="search-input__field" placeholder="Search materials, shelves, locations…" autocomplete="off"
+              autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true"
+              data-form-type="other" role="combobox" aria-autocomplete="list" :aria-expanded="showSearchLookup"
+              aria-controls="shelf-search-lookup-panel" />
           </div>
 
-          <div
-            v-show="showSearchLookup"
-            id="shelf-search-lookup-panel"
-            class="search-lookup"
-            role="listbox"
-            aria-label="Search results"
-            @mousedown.prevent
-          >
+          <div v-show="showSearchLookup" id="shelf-search-lookup-panel" class="search-lookup" role="listbox"
+            aria-label="Search results" @mousedown.prevent>
             <template v-if="searchLookupResults.length">
-              <button
-                v-for="row in searchLookupResults"
-                :key="row.id + '-' + row.status"
-                type="button"
-                class="search-lookup__row"
-                role="option"
-                @click="onLookupSelect(row)"
-              >
+              <button v-for="row in searchLookupResults" :key="row.id + '-' + row.status" type="button"
+                class="search-lookup__row" role="option" @click="onLookupSelect(row)">
                 <span class="search-lookup__icon" aria-hidden="true">
-                  <Icon
-                    v-if="row.status === 'placed' && row.shelfType"
-                    :icon="SHELF_TYPE_ICONIFY[row.shelfType]"
-                    class="search-lookup__iconify"
-                  />
-                  <Icon
-                    v-else
-                    icon="mdi:tray-arrow-up"
-                    class="search-lookup__iconify search-lookup__iconify--pending"
-                  />
+                  <Icon v-if="row.status === 'placed' && row.shelfType" :icon="SHELF_TYPE_ICONIFY[row.shelfType]"
+                    class="search-lookup__iconify" />
+                  <Icon v-else icon="mdi:tray-arrow-up"
+                    class="search-lookup__iconify search-lookup__iconify--pending" />
                 </span>
 
                 <span class="search-lookup__main">
@@ -555,12 +519,8 @@ const saveShelf = async () => {
                     </span>
                     <template v-else>
                       <span class="location-pill location-pill--shelf">
-                        <Icon
-                          v-if="row.shelfType"
-                          :icon="SHELF_TYPE_ICONIFY[row.shelfType]"
-                          class="location-pill__icon"
-                          aria-hidden="true"
-                        />
+                        <Icon v-if="row.shelfType" :icon="SHELF_TYPE_ICONIFY[row.shelfType]" class="location-pill__icon"
+                          aria-hidden="true" />
                         {{ row.shelfName }}
                       </span>
                     </template>
@@ -607,40 +567,27 @@ const saveShelf = async () => {
           </p>
 
           <transition-group v-else name="stagger" tag="div" class="pool-list__inner">
-            <article
-              v-for="item in filteredInventory"
-              :id="'pool-' + item.id"
-              :key="item.id"
-              class="inventory-row inventory-row--pending"
-            >
+            <article v-for="item in filteredInventory" :id="'pool-' + item.id" :key="item.id"
+              class="inventory-row inventory-row--pending">
               <div class="item-details">
                 <div class="item-details__tags">
                   <span class="category-tag">{{ item.category || 'Uncategorized' }}</span>
                   <span class="pending-badge">Pending</span>
                 </div>
-                <h3>{{ item.name }}</h3>
-                <small>Expiry {{ formatDate(item.expiry) }}</small>
+                <h3 style="margin-top: 1em;">{{ item.name }}</h3>
+                <!-- <small>Expiry {{ formatDate(item.expiry) }}</small> -->
               </div>
 
               <div class="item-placement">
                 <div class="qty-pill" aria-label="Quantity">×{{ item.quantity }}</div>
                 <select v-model="selectedShelf[item.id]" class="shelf-select" aria-label="Assign shelf">
                   <option value="" disabled>Assign shelf…</option>
-                  <option
-                    v-for="s in shelves"
-                    :key="s.id"
-                    :value="s.id"
-                    :disabled="getShelfLoad(s) + 1 > s.capacity"
-                  >
+                  <option v-for="s in shelves" :key="s.id" :value="s.id" :disabled="getShelfLoad(s) + 1 > s.capacity">
                     {{ s.locked ? '🔒 ' : '' }}{{ s.name }} ({{ Math.max(0, s.capacity - getShelfLoad(s)) }} free)
                   </option>
                 </select>
-                <button
-                  type="button"
-                  class="btn btn--action"
-                  :disabled="!selectedShelf[item.id]"
-                  @click="transfer(item)"
-                >
+                <button type="button" class="btn btn--action" :disabled="!selectedShelf[item.id]"
+                  @click="transfer(item)">
                   Place
                 </button>
               </div>
@@ -655,13 +602,8 @@ const saveShelf = async () => {
         </div>
 
         <div class="shelf-scroll">
-          <div
-            v-for="shelf in shelves"
-            :id="'shelf-' + shelf.id"
-            :key="shelf.id"
-            class="shelf-box"
-            :class="{ 'shelf-box--locked': shelf.locked }"
-          >
+          <div v-for="shelf in shelves" :id="'shelf-' + shelf.id" :key="shelf.id" class="shelf-box"
+            :class="{ 'shelf-box--locked': shelf.locked }">
             <div class="shelf-top">
               <div class="shelf-meta">
                 <span class="type-icon" aria-hidden="true">{{ SHELF_TYPES[shelf.type].icon }}</span>
@@ -672,7 +614,7 @@ const saveShelf = async () => {
               </button>
             </div>
 
-            <div class="shelf-progress">
+            <!-- <div class="shelf-progress">
               <div
                 class="progress-bar"
                 role="progressbar"
@@ -687,7 +629,7 @@ const saveShelf = async () => {
                 />
               </div>
               <span class="shelf-progress__label">{{ getShelfLoad(shelf) }} / {{ shelf.capacity }} cm³</span>
-            </div>
+            </div> -->
 
             <ul v-if="shelf.items.length" class="shelf-items">
               <li v-for="entry in shelf.items" :key="entry.name + entry.qty">
@@ -704,15 +646,8 @@ const saveShelf = async () => {
     <teleport to="body">
       <transition name="shelf-modal-fade">
         <div v-if="ui.pinModal" class="shelf-overlay" role="presentation" @click.self="cancelPin">
-          <form
-            class="shelf-dialog shelf-dialog--security"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="pin-title"
-            autocomplete="off"
-            @submit.prevent="confirmPin"
-            @click.stop
-          >
+          <form class="shelf-dialog shelf-dialog--security" role="dialog" aria-modal="true" aria-labelledby="pin-title"
+            autocomplete="off" @submit.prevent="confirmPin" @click.stop>
             <div class="shelf-dialog__header shelf-dialog__header--security">
               <div class="shelf-dialog__icon-wrap" aria-hidden="true">
                 <span class="shelf-dialog__icon">🔒</span>
@@ -722,20 +657,9 @@ const saveShelf = async () => {
             <div class="shelf-dialog__body">
               <p class="shelf-dialog__hint">{{ ui.pinMsg }}</p>
               <label class="visually-hidden" for="shelf-pin-verify">Shelf PIN</label>
-              <input
-                id="shelf-pin-verify"
-                :value="ui.pinInput"
-                type="text"
-                inputmode="numeric"
-                maxlength="4"
-                class="shelf-dialog__pin shelf-pin-masked"
-                placeholder="····"
-                autocomplete="one-time-code"
-                name="shelf-pin-verify"
-                autofocus
-                @input="onVerifyPinInput"
-                @keyup.enter="confirmPin"
-              />
+              <input id="shelf-pin-verify" :value="ui.pinInput" type="text" inputmode="numeric" maxlength="4"
+                class="shelf-dialog__pin shelf-pin-masked" placeholder="····" autocomplete="one-time-code"
+                name="shelf-pin-verify" autofocus @input="onVerifyPinInput" @keyup.enter="confirmPin" />
             </div>
             <div class="shelf-dialog__footer">
               <button type="button" class="shelf-btn shelf-btn--ghost" @click="cancelPin">Cancel</button>
@@ -747,15 +671,8 @@ const saveShelf = async () => {
 
       <transition name="shelf-modal-fade">
         <div v-if="ui.shelfModal" class="shelf-overlay" role="presentation" @click.self="ui.shelfModal = false">
-          <form
-            class="shelf-dialog shelf-dialog--form"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="shelf-form-title"
-            autocomplete="off"
-            @submit.prevent="saveShelf"
-            @click.stop
-          >
+          <form class="shelf-dialog shelf-dialog--form" role="dialog" aria-modal="true"
+            aria-labelledby="shelf-form-title" autocomplete="off" @submit.prevent="saveShelf" @click.stop>
             <div class="shelf-dialog__header">
               <h3 id="shelf-form-title" class="shelf-dialog__title">Register new shelf</h3>
               <p class="shelf-dialog__subtitle">Add a shelf to the clinical inventory map.</p>
@@ -764,40 +681,21 @@ const saveShelf = async () => {
               <div class="shelf-form-grid">
                 <div class="shelf-field shelf-field--full">
                   <label class="shelf-field__label" for="shelf-name">Shelf name</label>
-                  <input
-                    id="shelf-name"
-                    v-model="form.name"
-                    class="shelf-field__input"
-                    type="text"
-                    name="shelf-display-name"
-                    placeholder="e.g. Surgery cabinet A"
-                    autocomplete="off"
-                    autocorrect="off"
-                  />
+                  <input id="shelf-name" v-model="form.name" class="shelf-field__input" type="text"
+                    name="shelf-display-name" placeholder="e.g. Surgery cabinet A" autocomplete="off"
+                    autocorrect="off" />
                 </div>
 
                 <div class="shelf-field">
                   <label class="shelf-field__label" for="shelf-cap">Capacity (cm³)</label>
-                  <input
-                    id="shelf-cap"
-                    v-model.number="form.capacity"
-                    class="shelf-field__input"
-                    type="number"
-                    name="shelf-capacity"
-                    min="1"
-                    autocomplete="off"
-                  />
+                  <input id="shelf-cap" v-model.number="form.capacity" class="shelf-field__input" type="number"
+                    name="shelf-capacity" min="1" autocomplete="off" />
                 </div>
 
                 <div class="shelf-field">
                   <label class="shelf-field__label" for="shelf-type">Storage type</label>
-                  <select
-                    id="shelf-type"
-                    v-model="form.type"
-                    class="shelf-field__input shelf-field__select"
-                    name="shelf-storage-type"
-                    autocomplete="off"
-                  >
+                  <select id="shelf-type" v-model="form.type" class="shelf-field__input shelf-field__select"
+                    name="shelf-storage-type" autocomplete="off">
                     <option v-for="(v, k) in SHELF_TYPES" :key="k" :value="k">
                       {{ v.label }}
                     </option>
@@ -806,19 +704,9 @@ const saveShelf = async () => {
 
                 <div class="shelf-field shelf-field--full">
                   <label class="shelf-field__label" for="shelf-pin">Access PIN (4 digits)</label>
-                  <input
-                    id="shelf-pin"
-                    :value="form.pin"
-                    class="shelf-field__input shelf-pin-masked"
-                    type="text"
-                    name="shelf-access-code"
-                    maxlength="4"
-                    inputmode="numeric"
-                    autocomplete="one-time-code"
-                    autocorrect="off"
-                    spellcheck="false"
-                    @input="onFormPinInput"
-                  />
+                  <input id="shelf-pin" :value="form.pin" class="shelf-field__input shelf-pin-masked" type="text"
+                    name="shelf-access-code" maxlength="4" inputmode="numeric" autocomplete="one-time-code"
+                    autocorrect="off" spellcheck="false" @input="onFormPinInput" />
                 </div>
               </div>
             </div>
@@ -930,6 +818,7 @@ const saveShelf = async () => {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
+  justify-content: space-between;
   gap: 0.65rem;
   width: 100%;
   max-width: 100%;
@@ -2024,6 +1913,42 @@ const saveShelf = async () => {
   .btn--primary {
     font-size: 0.8rem;
     padding: 0.4rem 0.8rem;
+  }
+
+
+  :deep(.top-bar) {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    /* Stack title and actions too */
+  }
+
+  :deep(.actions) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    /* Make input and button full width */
+    justify-content: flex-start !important;
+    gap: 0 !important;
+    /* This controls the actual space between them */
+    width: 100% !important;
+    // margin-top: 0.5rem;
+    /* Optional: space between title and search */
+  }
+
+  /* Ensure the search wrapper doesn't have its own height issues */
+  .search-field-wrap {
+    width: 100vw !important;
+    height: auto !important;
+    margin: auto;
+    align-self: center;
+    justify-self: center;
+    margin-bottom: -150px;
+  }
+
+  .actions button {
+    // display: none;
+    align-self: flex-end;
+    justify-self: flex-end;
   }
 }
 </style>

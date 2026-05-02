@@ -17,6 +17,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/branch', [Admin\BranchController::class, 'store']);
         Route::put('/branch/{id}', [Admin\BranchController::class, 'update']);
         Route::delete('/branch/{id}', [Admin\BranchController::class, 'delete']);
+
+        Route::get('/dashboard', [Admin\BranchController::class, 'index']);
     });
 
     Route::middleware('role:doctor,assistant,admin')->group(function () {

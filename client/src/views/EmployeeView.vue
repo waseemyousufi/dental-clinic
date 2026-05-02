@@ -97,7 +97,7 @@ const formModel = reactive<EmployeeRow>({
   fName: '',
   lName: '',
   gender: '',
-  hireDate: '',
+  hireDate: null as null | string,
   speciality: '',
   qualification: '',
   midLicenseNum: '',
@@ -371,13 +371,13 @@ async function loadAccounts() {
     message.error('Failed to load accounts')
   }
 }
+
 function resetForm() {
-  formModel.name = ''
   formModel.fName = ''
   formModel.lName = ''
   formModel.email = ''
   formModel.gender = ''
-  formModel.hireDate = ''
+  formModel.hireDate = null // Changed to null
   formModel.speciality = ''
   formModel.qualification = ''
   formModel.midLicenseNum = ''
@@ -418,7 +418,7 @@ function handleEdit(row: EmployeeRow) {
   formModel.lName = String(row.lName || '')
   formModel.email = String(row.email || '')
   formModel.gender = String(row.gender || '')
-  formModel.hireDate = String(row.hireDate || '')
+  formModel.hireDate = String(row.hireDate || null)
   formModel.speciality = String(row.speciality || '')
   formModel.qualification = String(row.qualification || '')
   formModel.midLicenseNum = String(row.midLicenseNum || '')
@@ -478,6 +478,8 @@ async function handleSubmit() {
       experience: { ...formModel.experience },
     }
 
+    console.log(payload)
+
     let employeeId = editingId.value
     if (isEditing.value && employeeId != null) {
       await employeeApi.updateEmployee(employeeId, payload)
@@ -512,8 +514,18 @@ async function handleSubmit() {
   }
 }
 
-function handleHireDateChange(value: number | null) {
-  formModel.hireDate = value ? new Date(value).toISOString().slice(0, 10) : ''
+function handleHireDateChange(value) {
+  console.log("hire date value: ", value)
+  if (!value) {
+    formModel.hireDate = null;
+    return;
+  }
+  const date = new Date(value);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDay())
+  formModel.hireDate = `${y}-${m}-${d}`;
+  console.log(formModel.hireDate)
 }
 
 function handlePositionChange(value: number) {
@@ -564,7 +576,7 @@ onMounted(() => {
             <Icon icon="mdi:account-group" width="28" />
           </div>
           <div>
-            <div class="employees-hero__eyebrow">Clinic management</div>
+            <!-- <div class="employees-hero__eyebrow">Clinic management</div> -->
             <h2 class="employees-hero__title">Employees</h2>
             <p class="employees-hero__subtitle">
               Manage staff records, payroll, and branch assignments.
@@ -592,38 +604,37 @@ onMounted(() => {
 
           <div class="employees-hero__actions">
             <n-input v-model:value="keyword" clearable placeholder="Search..." class="employees-hero__search">
-              <template #prefix><Icon icon="mdi:magnify" width="18" /></template>
+              <template #prefix>
+                <Icon icon="mdi:magnify" width="18" />
+              </template>
             </n-input>
             <div class="button-row">
-                <n-button quaternary class="employees-hero__ghost-btn" @click="fetchEmployees">
-                  <Icon icon="mdi:refresh" width="18" />
-                </n-button>
-                <n-button type="primary" class="employees-hero__primary-btn" @click="openCreate">
-                  <template #icon><Icon icon="mdi:account-plus" width="18" /></template>
-                  <span class="btn-text">New Employee</span>
-                </n-button>
+              <n-button quaternary class="employees-hero__ghost-btn" @click="fetchEmployees">
+                <Icon icon="mdi:refresh" width="18" />
+              </n-button>
+              <n-button type="primary" class="employees-hero__primary-btn" @click="openCreate">
+                <template #icon>
+                  <Icon icon="mdi:account-plus" width="18" />
+                </template>
+                <span class="btn-text">New Employee</span>
+              </n-button>
             </div>
           </div>
         </div>
       </div>
 
       <div class="table-wrapper">
-        <n-data-table
-          :columns="columns"
-          :data="filteredEmployees"
-          :loading="loading"
-          :pagination="{ pageSize: 10, simple: true }"
-          :scroll-x="1200"
-          size="small"
-          bordered
-        />
+        <n-data-table :columns="columns" :data="filteredEmployees" :loading="loading"
+          :pagination="{ pageSize: 10, simple: true }" :scroll-x="1200" size="small" bordered />
       </div>
     </n-card>
 
     <n-card size="huge" class="salary-panel">
       <div class="section-head">
         <div class="section-title">
-          <div class="section-icon-wrap"><Icon icon="solar:money-bag-broken" width="22" /></div>
+          <div class="section-icon-wrap">
+            <Icon icon="solar:money-bag-broken" width="22" />
+          </div>
           <div>
             <h3>Employee Salaries</h3>
             <p>Payroll history for the current branch</p>
@@ -637,46 +648,48 @@ onMounted(() => {
       <n-grid cols="1 s:2 m:3" responsive="screen" x-gap="12" y-gap="12" class="salary-stats">
         <n-gi>
           <div class="stat-card stat-card-primary">
-            <div class="stat-top"><Icon icon="mdi:cash-multiple" width="20" /><span>Records</span></div>
+            <div class="stat-top">
+              <Icon icon="mdi:cash-multiple" width="20" /><span>Records</span>
+            </div>
             <div class="stat-value">{{ salarySummary.count }}</div>
           </div>
         </n-gi>
         <n-gi>
           <div class="stat-card">
-            <div class="stat-top"><Icon icon="mdi:wallet-outline" width="20" /><span>Base Pay</span></div>
+            <div class="stat-top">
+              <Icon icon="mdi:wallet-outline" width="20" /><span>Base Pay</span>
+            </div>
             <div class="stat-value">{{ formatMoney(salarySummary.totalBase) }}</div>
           </div>
         </n-gi>
         <n-gi>
           <div class="stat-card stat-card-accent">
-            <div class="stat-top"><Icon icon="mdi:gift-outline" width="20" /><span>Total Bonus</span></div>
+            <div class="stat-top">
+              <Icon icon="mdi:gift-outline" width="20" /><span>Total Bonus</span>
+            </div>
             <div class="stat-value">{{ formatMoney(salarySummary.totalBonus) }}</div>
           </div>
         </n-gi>
       </n-grid>
 
       <div class="salary-table-wrap">
-        <n-data-table
-          :columns="salaryColumns"
-          :data="salaries"
-          :loading="salariesLoading"
-          :pagination="{ pageSize: 8, simple: true }"
-          size="small"
-          bordered
-          striped
-          :scroll-x="900"
-        />
+        <n-data-table :columns="salaryColumns" :data="salaries" :loading="salariesLoading"
+          :pagination="{ pageSize: 8, simple: true }" size="small" bordered striped :scroll-x="900" />
       </div>
 
       <div class="salary-footer">
-        <div class="salary-footer-item"><Icon icon="mdi:cash-check" width="18" /><span>Total Paid: {{ formatMoney(salarySummary.totalPaid) }}</span></div>
-        <div class="salary-footer-item"><Icon icon="mdi:calendar-month-outline" width="18" /><span>{{ salarySummary.count }} payments</span></div>
+        <div class="salary-footer-item">
+          <Icon icon="mdi:cash-check" width="18" /><span>Total Paid: {{ formatMoney(salarySummary.totalPaid) }}</span>
+        </div>
+        <div class="salary-footer-item">
+          <Icon icon="mdi:calendar-month-outline" width="18" /><span>{{ salarySummary.count }} payments</span>
+        </div>
       </div>
     </n-card>
 
-    <EmployeeProfilePopup :show="showViewPopup" @update:show="showViewPopup = $event" :employee-data="viewPopupData" />
-
-    <n-modal v-model:show="showEditor" preset="card" :title="isEditing ? 'Edit Employee' : 'New Employee'" class="responsive-modal">
+    <EmployeeProfilePopup v-if="showViewPopup" v-model:show="showViewPopup" :employee-data="viewPopupData" />
+    <n-modal content-scrollable style="max-width: 600px; max-height: 90vh;" v-model:show="showEditor" preset="card"
+      :title="isEditing ? 'Edit Employee' : 'New Employee'" class="responsive-modal">
       <n-form label-placement="top">
         <div class="profile-upload-row">
           <div class="profile-image-container" @click="triggerFileInput">
@@ -686,22 +699,45 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="form-row">
-            <n-form-item label="Email"><n-input v-model:value="formModel.email" /></n-form-item>
+        <div class="form-row dual">
+          <n-form-item label="Email"><n-input v-model:value="formModel.email" /></n-form-item>
+          <n-form-item label="Hire date">
+
+            <n-date-picker type="date" size="small" style="width: 100%"
+              :value="formModel.hireDate ? Date.parse(formModel.hireDate as string) : null"
+              @update:value="handleHireDateChange" />
+
+          </n-form-item>
         </div>
+
         <div class="form-row dual">
           <n-form-item label="First name"><n-input v-model:value="formModel.fName" /></n-form-item>
           <n-form-item label="Last name"><n-input v-model:value="formModel.lName" /></n-form-item>
         </div>
+
         <div class="form-row dual">
-          <n-form-item label="Gender"><n-select v-model:value="formModel.gender" :options="genderOptions" /></n-form-item>
+          <n-form-item label="Qualification"><n-input v-model:value="formModel.qualification" /></n-form-item>
+          <n-form-item label="Speciality"><n-input v-model:value="formModel.speciality" /></n-form-item>
+        </div>
+
+        <div class="form-row">
+          <n-form-item label="License Number"><n-input v-model:value="formModel.midLicenseNum" /></n-form-item>
+        </div>
+
+        <div class="form-row dual">
+          <n-form-item label="Gender"><n-select v-model:value="formModel.gender"
+              :options="genderOptions" /></n-form-item>
           <n-form-item label="Position">
-            <n-select :options="positionOptions" @update:value="handlePositionChange" :value="positionOptions[(formModel.positionId as number) - 1]?.value" />
+            <n-select :options="positionOptions" @update:value="handlePositionChange"
+              :value="positionOptions[(formModel.positionId as number) - 1]?.value" />
           </n-form-item>
         </div>
+
         <div class="form-row dual">
-          <n-form-item label="Work Start"><n-time-picker v-model:value="formModel.workStartTime" format="HH:mm" /></n-form-item>
-          <n-form-item label="Work End"><n-time-picker v-model:value="formModel.workEndTime" format="HH:mm" /></n-form-item>
+          <n-form-item label="Work Start"><n-time-picker v-model:value="formModel.workStartTime"
+              format="HH:mm" /></n-form-item>
+          <n-form-item label="Work End"><n-time-picker v-model:value="formModel.workEndTime"
+              format="HH:mm" /></n-form-item>
         </div>
 
         <div class="form-actions">
@@ -713,13 +749,17 @@ onMounted(() => {
 
     <n-modal v-model:show="showPayModal" preset="card" title="Pay Salary" class="responsive-modal small">
       <div class="payroll-container">
-        <div class="payroll-header"><Icon icon="mdi:account-cash" width="22" /><strong>{{ payingEmployee?.name }}</strong></div>
-        <n-form-item label="Salary Month"><n-date-picker type="month" v-model:value="salaryForm.salaryMonth" style="width: 100%" /></n-form-item>
+        <div class="payroll-header">
+          <Icon icon="mdi:account-cash" width="22" /><strong>{{ payingEmployee?.name }}</strong>
+        </div>
+        <n-form-item label="Salary Month"><n-date-picker type="month" v-model:value="salaryForm.salaryMonth"
+            style="width: 100%" /></n-form-item>
         <div class="form-row dual">
           <n-form-item label="Amount"><n-input-number v-model:value="salaryForm.amount" :min="0" /></n-form-item>
           <n-form-item label="Bonus"><n-input-number v-model:value="salaryForm.bonus" :min="0" /></n-form-item>
         </div>
-        <n-form-item label="Pay From Account"><n-select v-model:value="salaryForm.accountId" :options="accounts" /></n-form-item>
+        <n-form-item label="Pay From Account"><n-select v-model:value="salaryForm.accountId"
+            :options="accounts" /></n-form-item>
         <n-form-item label="Remarks"><n-input v-model:value="salaryForm.remark" type="textarea" /></n-form-item>
         <div class="form-actions">
           <n-button @click="showPayModal = false">Cancel</n-button>
@@ -740,7 +780,8 @@ onMounted(() => {
   margin: 0 auto;
 }
 
-.employee-panel, .salary-panel {
+.employee-panel,
+.salary-panel {
   border-radius: 18px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
@@ -771,8 +812,17 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-.employees-hero__title { margin: 0; font-size: 1.5rem; font-weight: 800; }
-.employees-hero__subtitle { margin: 0.25rem 0 0; color: #64748b; font-size: 0.875rem; }
+.employees-hero__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.employees-hero__subtitle {
+  margin: 0.25rem 0 0;
+  color: #64748b;
+  font-size: 0.875rem;
+}
 
 .employees-hero__right {
   display: flex;
@@ -799,8 +849,16 @@ onMounted(() => {
   min-width: 110px;
 }
 
-.hero-stat__label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; }
-.hero-stat__value { font-weight: 700; display: block; }
+.hero-stat__label {
+  font-size: 0.7rem;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.hero-stat__value {
+  font-weight: 700;
+  display: block;
+}
 
 .employees-hero__actions {
   display: flex;
@@ -808,13 +866,38 @@ onMounted(() => {
   width: 100%;
 }
 
-.button-row { display: flex; gap: 0.5rem; }
-.employees-hero__search { flex: 1; }
+.button-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.employees-hero__search {
+  flex: 1;
+}
 
 /* Salary Section */
-.section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-.section-title { display: flex; gap: 0.75rem; align-items: center; }
-.section-icon-wrap { width: 40px; height: 40px; border-radius: 10px; background: #1e293b; color: white; display: grid; place-items: center; }
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.section-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #1e293b;
+  color: white;
+  display: grid;
+  place-items: center;
+}
 
 .stat-card {
   padding: 1rem;
@@ -822,21 +905,63 @@ onMounted(() => {
   background: #f8fafc;
   border: 1px solid #f1f5f9;
 }
-.stat-card-primary { background: #eff6ff; color: #1d4ed8; }
-.stat-card-accent { background: #fdf2f8; color: #be185d; }
-.stat-top { font-size: 0.75rem; font-weight: 600; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.25rem; }
-.stat-value { font-size: 1.25rem; font-weight: 800; }
+
+.stat-card-primary {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.stat-card-accent {
+  background: #fdf2f8;
+  color: #be185d;
+}
+
+.stat-top {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+}
 
 /* Modal & Forms */
-.form-row.dual { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.profile-upload-row { display: flex; justify-content: center; margin-bottom: 1rem; }
-.profile-image-container { cursor: pointer; border: 2px dashed #cbd5e1; border-radius: 50%; padding: 4px; }
-.form-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.5rem; }
+.form-row.dual {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.profile-upload-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.profile-image-container {
+  cursor: pointer;
+  border: 2px dashed #cbd5e1;
+  border-radius: 50%;
+  padding: 4px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
 
 :deep(.salary-month-cell),
 :deep(.account-cell) {
   display: flex;
-  align-items: center;   /* 🔥 vertical alignment fix */
+  align-items: center;
+  /* 🔥 vertical alignment fix */
   gap: 8px;
 }
 
@@ -849,7 +974,8 @@ onMounted(() => {
 
 /* salary month text */
 :deep(.salary-month-text) {
-  font-weight: 600;   /* 🔥 bold fix */
+  font-weight: 600;
+  /* 🔥 bold fix */
   color: #0f172a;
 }
 
@@ -866,21 +992,62 @@ div.salary-footer-item {
 
 /* Tablet & Mobile Breakpoints */
 @media (max-width: 900px) {
-  .employees-hero { flex-direction: column; align-items: stretch; }
-  .employees-hero__stats { justify-content: flex-start; }
-  .employees-hero__right { min-width: 100%; }
+  .employees-hero {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .employees-hero__stats {
+    justify-content: flex-start;
+  }
+
+  .employees-hero__right {
+    min-width: 100%;
+  }
 }
 
 @media (max-width: 600px) {
-  .employees-hero__actions { flex-direction: column; }
-  .employees-hero__stats { flex-wrap: wrap; }
-  .hero-stat { flex: 1; }
-  .form-row.dual { grid-template-columns: 1fr; gap: 0; }
-  .btn-text { display: none; }
-  .responsive-modal { width: 95% !important; }
+  .employees-hero__actions {
+    flex-direction: column;
+  }
+
+  .employees-hero__stats {
+    flex-wrap: wrap;
+  }
+
+  .hero-stat {
+    flex: 1;
+  }
+
+  .form-row.dual {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .btn-text {
+    display: none;
+  }
+
+  .responsive-modal {
+    width: 95% !important;
+  }
 }
 
-.table-wrapper { overflow-x: auto; width: 100%; border-radius: 12px; }
-.salary-footer { display: flex; justify-content: space-between; margin-top: 1rem; color: #64748b; font-size: 0.8rem; }
-:deep(.n-data-table-wrapper) { margin-top: 1em !important}
+.table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+  border-radius: 12px;
+}
+
+.salary-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+:deep(.n-data-table-wrapper) {
+  margin-top: 1em !important
+}
 </style>

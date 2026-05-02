@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('hire_date');
             $table->string('qualification', 50);
             $table->string('speciality', 25);
-            $table->string('medical_license_number', 13);
+            $table->string('medical_license_number', 13)->nullable();
             $table->time('work_start_time')->nullable();
             $table->time('work_end_time')->nullable();
             $table->foreignId('position_id')->constrained()->cascadeOnDelete();
