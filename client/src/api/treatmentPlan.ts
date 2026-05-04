@@ -1,0 +1,33 @@
+import api from './api';
+import type TreatmentPlanData from './interfaces/TreatmentPlan';
+import { resolveBranchId } from './utils/branchParams';
+
+export default new class TreatmentPlan {
+  constructor(){}
+
+  getBranchTreatmentPlans(id : number, abbreviate: boolean = false, branchId?: number) {
+    const resolvedBranchId = resolveBranchId(branchId)
+    return api.get(`/treatment-plan/${id}`, {
+      params: {
+        ...(abbreviate ? { abr: true } : {}),
+        ...(resolvedBranchId != null ? { branchId: resolvedBranchId } : {}),
+      },
+    })
+  }
+
+  postTreatmentPlan(data: TreatmentPlanData) {
+    return api.post('/treatment-plan', data);
+  }
+
+  putTreatmentPlan(id: number,data: TreatmentPlanData) {
+    return api.put(`/treatment-plan/${id}`, data)
+  }
+
+  deleteTreatmentPlan(id:number) {
+    return api.delete(`/treatment-plan/${id}`)
+  }
+
+  updateStatus(id: number, data: TreatmentPlanData) {
+    return api.put(`treatment-plan/update-status/${id}`, data)
+  }
+}

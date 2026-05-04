@@ -46,7 +46,7 @@ const showUserMenu = ref(false)
 // ✅ Nav links defined HERE in the same script block (DRY)
 const navLinks = [
   {
-    path: '/overview',
+    path: '/dashboard',
     label: 'Overview',
     icon: () => h(Icon, { icon: 'mdi:view-dashboard-variant', style: 'font-size: 1.45em;' })
   },

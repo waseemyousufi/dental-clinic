@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\ProcedureInventory;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -16,6 +17,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(ProcedureSeeder::class);
         $this->call(PositionSeeder::class);
         $this->call(BranchSeeder::class);
         $this->call(UserSeeder::class);
@@ -33,6 +35,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ClinicExpenseSeeder::class);
         $this->call(DentalXraySeeder::class);
         $this->call(AppointmentSeeder::class);
+        $this->call(TreatmentPlanSeeder::class);
         $this->call(TreatmentSeeder::class);
         $this->call(AllergySeeder::class);
         $this->call(PatientFileSeeder::class);
@@ -43,5 +46,6 @@ class DatabaseSeeder extends Seeder
         $this->call(InventoryStockSeeder::class);
         $this->call(TeethReferenceSeeder::class);
         $this->call(ConditionLibrarySeeder::class);
+        $this->call(ProcedureInventorySeeder::class);
     }
 }

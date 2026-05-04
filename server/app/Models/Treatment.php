@@ -19,7 +19,8 @@ protected $fillable = [
         'cost',
         'description',
         'patient_id',
-        'xray_id',
+        // 'xray_id',
+        'treatment_plan_id'
     ];
 
     public function Branch() : BelongsTo

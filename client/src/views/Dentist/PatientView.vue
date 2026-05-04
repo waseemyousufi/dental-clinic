@@ -7,15 +7,29 @@ import PrimaryOdontogram from '@/components/PrimaryOdontogram.vue'
 import { predict } from '@/utils/voiceInference'
 import PatientService from '@api/patient'
 import OdontogramService from '@api/odontogram'
-import DOMpurify from 'dompurify'
 import type PatientData from '@api/interfaces/Patient'
 import type {
   ConditionLibrary,
-  SaveConditionPayload,
-  Tooth,
 } from '@api/interfaces/Odontogram'
+import TreatmentPlanApi from '@api/treatmentPlan';
+import type TreatmentData from '@api/interfaces/Treatment'
+import AddTreatmentPlanModal from '@/components/AddTreatmentPlanModal.vue'
+import {
+  NCard,
+  NButton,
+  NList,
+  NListItem,
+  NThing,
+  NIcon,
+  NSpace,
+  NSelect,
+  NPopconfirm,
+  NEmpty
+} from 'naive-ui'
+import { Icon } from '@iconify/vue'
 
 type VoiceStep = 'tooth' | 'surface' | 'condition'
+
 
 type SlotCondition = {
   color: string
@@ -54,6 +68,76 @@ let audioChunks: Blob[] = []
 
 const successAudio = new Audio('/success.mp3')
 const errorAudio = new Audio('/error.mp3')
+
+import procedureApi from '@api/procedure'; // Import the procedure API
+
+// --- New Reactive State for Treatment Plans ---
+const treatmentPlans = ref<any[]>([]);
+const procedures = ref<any[]>([]);
+const isPlanModalVisible = ref(false);
+const planLoading = ref(false);
+
+// --- Fetch Treatment Plans and Procedures ---
+async function fetchTreatmentData() {
+  if (!patientId.value) return;
+  planLoading.value = true;
+  try {
+    console.log('Patient Id: ', patientId.value)
+    const [plansRes, procRes] = await Promise.all([
+      TreatmentPlanApi.getBranchTreatmentPlans(patientId.value),
+      procedureApi.getProcedures()
+    ]);
+    treatmentPlans.value = plansRes.data?.data ?? plansRes.data;
+    procedures.value = procRes.data?.data ?? procRes.data;
+  } catch (err) {
+    message.error('Failed to load treatment plans');
+  } finally {
+    planLoading.value = false;
+  }
+}
+
+// --- Action: Propose a New Plan ---
+async function proposePlan(procedureId: number, cost: number) {
+  try {
+    const payload = {
+      patient_id: patientId.value,
+      appointment_id: 1, // Defaulting to current, ideally dynamic
+      procedure_id: procedureId,
+      total_estimated_cost: cost,
+      status: 'proposed'
+    };
+    await TreatmentPlanApi.postTreatmentPlan(payload);
+    message.success('New plan proposed');
+    await fetchTreatmentData();
+  } catch (err) {
+    message.error('Failed to propose plan');
+  }
+}
+
+// --- Action: Update Plan Status (Acceptance) ---
+async function updatePlanStatus(planId: number, newStatus: string) {
+  try {
+    await TreatmentPlanApi.updateStatus(planId, { status: newStatus });
+    message.success(`Plan marked as ${newStatus}`);
+    await fetchTreatmentData();
+  } catch (err) {
+    message.error('Update failed');
+  }
+}
+
+// --- Action: Remove a Plan ---
+async function deletePlan(planId: number) {
+  try {
+    await TreatmentPlanApi.deleteTreatmentPlan(planId);
+    message.success('Plan deleted');
+    await fetchTreatmentData();
+  } catch (err) {
+    message.error('Delete failed');
+  }
+}
+
+
+
 
 function buildOdontogramState(teethArray: any[]): OdontogramState {
   const state: OdontogramState = {}
@@ -180,8 +264,9 @@ async function loadPatientData() {
       slug: item.slug,
       ui_color: item.ui_color,
       svg_icon_path: item.svg_icon_path,
+      svg_path: item.svg_path
     }))
-
+    console.log("Fresh Loaded Condition Library: ", conditionLibrary.value)
     // Important: do NOT auto-select a tool on load.
     activeFinding.value = null
 
@@ -571,9 +656,11 @@ async function startVoiceWorkflow() {
   }
 }
 
-onMounted(() => {
-  loadPatientData()
-})
+onMounted(async () => {
+  await loadPatientData();
+  await fetchTreatmentData();
+});
+
 </script>
 
 <template>
@@ -594,7 +681,9 @@ onMounted(() => {
 
           <div v-for="(f, idx) in conditionLibrary" :key="f.id || idx" class="legend-pill"
             :class="{ active: activeFinding?.id === f.id }" @click="selectCondition(f)">
-            <span class="dot" :style="{ backgroundColor: f.ui_color }"></span>
+            <!-- {{ console.log(f) }} -->
+            <span class="dot"
+              :style="{ backgroundColor: f.svg_icon_path || f.svg_path ? '#ffffff' : f.ui_color }"></span>
             {{ f.label }}
           </div>
         </div>
@@ -605,8 +694,8 @@ onMounted(() => {
           <div class="odontogram-card">
             <div class="chart-box">
               <span class="chart-label">Permanent Teeth</span>
-              <Odontogram v-model="odontogramData" :slug="activeFinding?.slug || ''" :active-finding="activeFinding?.ui_color || '#ffffff'"
-                @tooth-click="handleToothClick" />
+              <Odontogram v-model="odontogramData" :slug="activeFinding?.slug || ''"
+                :active-finding="activeFinding?.ui_color || '#ffffff'" @tooth-click="handleToothClick" />
             </div>
 
             <div class="chart-divider"></div>
@@ -617,6 +706,61 @@ onMounted(() => {
                 @tooth-click="handleToothClick" />
             </div>
           </div>
+          <section class="treatment-plans">
+            <n-card title="Clinical Treatment Plans" :segmented="{ content: true }">
+              <template #header-extra>
+                <n-button type="primary" size="small" @click="isPlanModalVisible = true">
+                  <template #icon>
+                    <Icon icon="material-symbols:add-notes-outline" />
+                  </template>
+                  Propose New Plan
+                </n-button>
+              </template>
+
+              <n-list hoverable clickable>
+                <n-list-item v-for="plan in treatmentPlans" :key="plan.id">
+                  <template #prefix>
+                    <n-icon size="24" :color="plan.status === 'accepted' ? '#18a058' : '#f0a020'">
+                      <Icon
+                        :icon="plan.status === 'accepted' ? 'fluent:checkmark-circle-24-filled' : 'fluent:clock-24-regular'" />
+                    </n-icon>
+                  </template>
+
+                  <n-thing :title="plan.procedure?.name" :description="`${plan.total_estimated_cost} AFN`" />
+
+                  <template #suffix>
+                    <n-space>
+                      <!-- Status Toggle -->
+                      <n-select v-model:value="plan.status" size="small" style="width: 120px" :options="[
+                        { label: 'Proposed', value: 'proposed' },
+                        { label: 'Accepted', value: 'accepted' },
+                        { label: 'Rejected', value: 'rejected' }
+                      ]" @update:value="(val) => updatePlanStatus(plan.id, val)" />
+
+                      <!-- Delete -->
+                      <n-popconfirm @positive-click="deletePlan(plan.id)">
+                        <template #trigger>
+                          <n-button type="error" ghost size="small">
+                            <template #icon>
+                              <Icon icon="tabler:trash" />
+                            </template>
+                          </n-button>
+                        </template>
+                        Delete this proposal?
+                      </n-popconfirm>
+                    </n-space>
+                  </template>
+                </n-list-item>
+              </n-list>
+
+              <div v-if="treatmentPlans.length === 0" class="empty-state-mini">
+                <n-empty description="No plans proposed yet" />
+              </div>
+            </n-card>
+          </section>
+
+
+
         </section>
 
         <section class="notes-section">
@@ -625,6 +769,9 @@ onMounted(() => {
             <textarea v-model="clinicalNotes" placeholder="Enter patient notes..."></textarea>
           </div>
         </section>
+
+        <AddTreatmentPlanModal v-model:show="isPlanModalVisible" :patient-id="patientId" :appointment-id="1"
+          @success="fetchTreatmentData" />
       </main>
     </template>
 
@@ -836,5 +983,80 @@ textarea {
   justify-content: center;
   z-index: 999;
   backdrop-filter: blur(2px);
+}
+
+.treatment-plans {
+  margin-top: 20px;
+}
+
+
+.plan-card {
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+}
+
+.plan-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #fafafa;
+  }
+
+  .plan-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .plan-name {
+      font-weight: 600;
+      color: #262626;
+    }
+
+    .plan-cost {
+      font-size: 13px;
+      color: #595959;
+    }
+  }
+
+  .plan-actions {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+.empty-plans {
+  text-align: center;
+  padding: 20px;
+  color: #bfbfbf;
+  font-style: italic;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 30px;
+  align-items: start;
+  /* Prevents children from stretching to match heights */
+}
+
+.chart-section {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  /* Space between Odontogram and Treatment Plans */
+}
+
+/* Ensure the card itself has a minimum height if empty */
+.treatment-plans {
+  min-height: 100px;
 }
 </style>

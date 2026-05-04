@@ -53,6 +53,9 @@ importers:
       axios:
         specifier: ^1.13.5
         version: 1.14.0(debug@4.4.3)
+      chart.js:
+        specifier: ^4.5.1
+        version: 4.5.1
       comlink:
         specifier: ^4.4.2
         version: 4.4.2
@@ -1113,6 +1116,9 @@ packages:
       autoprefixer: ^10.4.7
       wslink: '>=1.1.0 || ^2.0.0'
 
+  '@kurkle/color@0.3.4':
+    resolution: {integrity: sha512-M5UknZPHRu3DEDWoipU6sE8PdkZ6Z/S+v4dD+Ke8IaNlpdSQah50lz1KtcFBa2vsdOnwbbnxJwVM4wty6udA5w==}
+
   '@msgpack/msgpack@2.8.0':
     resolution: {integrity: sha512-h9u4u/jiIRKbq25PM+zymTyW6bhTzELvOoUd+AvYriWOAKpLGnIamaET3pnHYoI5iYphAHBI4ayx0MehR+VVPQ==}
     engines: {node: '>= 10'}
@@ -2082,6 +2088,10 @@ packages:
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
+
+  chart.js@4.5.1:
+    resolution: {integrity: sha512-GIjfiT9dbmHRiYi6Nl2yFCq7kkwdkp1W/lp2J99rX0yo9tgJGn3lKQATztIjb5tVtevcBtIdICNWqlq5+E8/Pw==}
+    engines: {pnpm: '>=8'}
 
   check-more-types@2.24.0:
     resolution: {integrity: sha512-Pj779qHxV2tuapviy1bSZNEL1maXr13bPYpsvSDB68HlYcYuhlDrmGd63i0JHMCLKzc7rUSNIrpdJlhVlNwrxA==}
@@ -5085,6 +5095,8 @@ snapshots:
     transitivePeerDependencies:
       - webpack
 
+  '@kurkle/color@0.3.4': {}
+
   '@msgpack/msgpack@2.8.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
@@ -6091,6 +6103,10 @@ snapshots:
     dependencies:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
+
+  chart.js@4.5.1:
+    dependencies:
+      '@kurkle/color': 0.3.4
 
   check-more-types@2.24.0: {}
 

@@ -28,6 +28,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/condition-library/', [Doctor\ConditionLibraryController::class, 'index']);
         Route::post('/patients/{patient}/odontogram/condition', [Doctor\ToothConditionController::class, 'store']);
         Route::delete('/tooth-conditions/{id}', [Doctor\ToothConditionController::class, 'destroy']);
+        Route::apiResource('/treatment', Doctor\TreatmentController::class);
+
+        Route::post('/treatment-plan', [Doctor\TreatmentPlanController::class, 'store']);
+        Route::get('/treatment-plan/{id}', [Doctor\TreatmentPlanController::class, 'index']);
+        Route::put('/treatment-plan/{id}', [Doctor\TreatmentPlanController::class, 'update']);
+        Route::delete('/treatment-plan/{id}', [Doctor\TreatmentPlanController::class, 'delete']);
+        Route::put('treatment-plan/update-status/{id}', [Doctor\TreatmentPlanController::class, 'updateStatus']);
+
+        Route::apiResource('/procedure', Doctor\ProcedureController::class);
     });
 
     Route::middleware('role:receptionist,admin')->group(function () {
@@ -62,10 +71,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/reception', [Receptionist\ReceptionController::class, 'store']);
 
-        Route::post('/treatment', [Receptionist\TreatmentController::class, 'store']);
-        Route::get('/treatment', [Receptionist\TreatmentController::class, 'index']);
-        Route::put('/treatment/{id}', [Receptionist\TreatmentController::class, 'update']);
-        Route::delete('/treatment/{id}', [Receptionist\TreatmentController::class, 'delete']);
 
         Route::post('/patient-files', [Receptionist\PatientFileController::class, 'store']);
         Route::get('/patient-files', [Receptionist\PatientFileController::class, 'index']);

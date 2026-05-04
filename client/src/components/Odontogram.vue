@@ -30,7 +30,7 @@ const props = defineProps<{
   readonly?: boolean
 }>()
 
-console.log(props)
+console.log("Fresh Odontogram Props: ", props)
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: OdontogramState): void
@@ -163,12 +163,6 @@ const getSymbolTransform = (
     y = pos === 'root' ? h * 0.85 : h * 0.25
     scale *= -1 // Flip vertically for upper row
   } else {
-    /**
-     * LOWER ROW (Standard Group):
-     * 0 is visual TOP, h is visual BOTTOM.
-     */
-    // Crown is at the TOP (small Y)
-    // Root is at the BOTTOM (large Y)
     y = pos === 'crown' ? h * 0.25 : h * 0.85
   }
 
@@ -224,7 +218,7 @@ const getPartStyle = (toothNumber: number, partId: string, isLower = false) => {
                 <g class="symbol-layer">
                   <g v-for="symbol in state[num]?.symbols || []" :key="symbol.id"
                     :transform="getSymbolTransform(num, symbol, true)">
-                    <path :d="safeSvg(symbol.svg)" :stroke="symbol.color" fill="none" stroke-width="2"
+                    <path :d="safeSvg(symbol.svg)" stroke="#ff0000" fill="none" stroke-width="2"
                       vector-effect="non-scaling-stroke" />
                   </g>
                 </g>
@@ -246,7 +240,7 @@ const getPartStyle = (toothNumber: number, partId: string, isLower = false) => {
               <g class="symbol-layer">
                 <g v-for="symbol in state[num]?.symbols || []" :key="symbol.id"
                   :transform="getSymbolTransform(num, symbol, false)">
-                  <path :d="safeSvg(symbol.svg)" :stroke="symbol.color" fill="none" stroke-width="2"
+                  <path :d="safeSvg(symbol.svg)" stroke="#ff0000" fill="none" stroke-width="2"
                     vector-effect="non-scaling-stroke" />
                 </g>
               </g>

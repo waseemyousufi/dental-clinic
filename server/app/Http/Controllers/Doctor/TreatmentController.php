@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Receptionist;
+namespace App\Http\Controllers\Doctor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Treatment;
@@ -30,7 +30,8 @@ class TreatmentController extends Controller
             'cost' => 'required|integer',
             'description' => 'required|string',
             'patientId' => 'required|integer',
-            'xrayId' => 'required|integer',
+            'treatmentPlan_id' => 'required',
+            // 'xrayId' => 'required|integer',
         ]);
 
         Treatment::create([
@@ -41,7 +42,8 @@ class TreatmentController extends Controller
             'cost' => $data['cost'],
             'description' => $data['description'],
             'patient_id' => $data['patientId'],
-            'xray_id' => $data['xrayId'],
+            'treatment_plan_id' => $data['treatmentPlan_id'],
+            // 'xray_id' => $data['xrayId'],
             'branch_id' => $branchId
         ]);
 
@@ -60,7 +62,8 @@ class TreatmentController extends Controller
             'cost' => 'required|integer',
             'description' => 'required|string',
             'patientId' => 'required|integer',
-            'xrayId' => 'required|integer',
+            'treatmentPlan_id' => 'required',
+            // 'xrayId' => 'required|integer',
         ]);
 
         Treatment::find($id)->update([
@@ -71,7 +74,8 @@ class TreatmentController extends Controller
             'cost' => $data['cost'],
             'description' => $data['description'],
             'patient_id' => $data['patientId'],
-            'xray_id' => $data['xrayId'],
+            'treatment_plan_id' => $data['treatmentPlan_id'],
+            // 'xray_id' => $data['xrayId'],
             'branch_id' => $branchId
         ]);
 

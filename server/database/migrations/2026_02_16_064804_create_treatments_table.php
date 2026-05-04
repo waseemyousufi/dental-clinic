@@ -20,7 +20,8 @@ return new class extends Migration
             $table->integer('cost', false, true);
             $table->string('description', 250);
             $table->foreignId('patient_id')->unique()->constrained()->cascadeOnDelete();
-            $table->foreignId('xray_id')->constrained('dental_xrays')->cascadeOnDelete();
+            $table->foreignId('treatment_plan_id')->unique()->constrained('treatment_plans', 'id');
+            // $table->foreignId('xray_id')->constrained('dental_xrays')->cascadeOnDelete();
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
         });
     }

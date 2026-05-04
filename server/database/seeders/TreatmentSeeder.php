@@ -22,8 +22,9 @@ class TreatmentSeeder extends Seeder
                 'cost' => 1500,
                 'description' => 'Treatment done successfully',
                 'patient_id' => 1,
-                'xray_id' => 1,
-                'branch_id' => 1
+                // 'xray_id' => 1,
+                'branch_id' => 1,
+                'treatment_plan_id' => 1,
             ]
         ]);
     }

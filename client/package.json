@@ -32,6 +32,7 @@
     "@vicons/fluent": "^0.13.0",
     "@vicons/utils": "^0.1.4",
     "axios": "^1.13.5",
+    "chart.js": "^4.5.1",
     "comlink": "^4.4.2",
     "dicom-parser": "^1.8.21",
     "dompurify": "^3.4.1",
