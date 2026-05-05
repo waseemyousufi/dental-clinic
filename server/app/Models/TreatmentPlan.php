@@ -17,6 +17,9 @@ class TreatmentPlan extends Model
         'procedure_id',
         'total_estimated_cost',
         'status',
+        'duration',
+        'total_amount_paid',
+        'start_data'
     ];
 
     /**

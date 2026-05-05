@@ -25,6 +25,9 @@ class TreatmentPlanSeeder extends Seeder
                 'appointment_id' => $appointmentId,
                 'procedure_id' => $filling?->id ?? 1,
                 'total_estimated_cost' => $filling?->base_price ?? 1500,
+                'total_amount_paid' => 100,
+                'duration' => 30,
+                'start_date' => '2026/07/07',
                 'status' => 'proposed',
             ],
             // [

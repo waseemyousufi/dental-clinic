@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('l_name', 15);
             $table->string('gender', 15); // ['Male', 'Female']
             $table->string('phone', 10);
-            $table->string('blood_type', 5); // ['O-', 'O+']
+            $table->string('blood_type', 5)->nullable(); // ['O-', 'O+']
             $table->string('emergency_contact', 10);
             $table->date('registeration_date');
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();

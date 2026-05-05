@@ -33,6 +33,9 @@ class TreatmentPlanController extends Controller
             'procedure_id' => 'required|exists:procedures,id',
             'total_estimated_cost' => 'required|integer',
             'status' => 'required|in:proposed,accepted,rejected',
+            'total_amount_paid' => 'nullable',
+            'duration' => 'integer',
+            'start_date' => 'required'
         ]);
 
         // Logic for unique patient_id constraint in your schema

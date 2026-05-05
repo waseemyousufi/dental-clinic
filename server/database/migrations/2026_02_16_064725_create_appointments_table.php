@@ -16,6 +16,7 @@ return new class extends Migration
             $table->dateTime('appointment_timestamp');
             $table->string('status', 40); // ['Completed', 'Pending']
             $table->string('description', 300);
+            $table->integer('appointment_cost');
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
         });
     }

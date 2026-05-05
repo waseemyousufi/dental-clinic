@@ -17,6 +17,9 @@ return new class extends Migration
             $table->foreignId('appointment_id')->constrained()->cascadeOnDelete();
             $table->foreignId('procedure_id')->constrained()->cascadeOnDelete();
             $table->integer('total_estimated_cost', false, true);
+            $table->integer('total_amount_paid', false, true)->nullable();
+            $table->integer('duration')->nullable();
+            $table->date('start_date');
             $table->string('status'); // proposed, accepted, partially_accepted, rejected
             $table->timestamps();
         });
