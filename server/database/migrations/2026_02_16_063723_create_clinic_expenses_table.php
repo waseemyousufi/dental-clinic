@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('unit', 15);
             $table->smallInteger('amount', false, true);
             $table->date('expense_date');
-            $table->string('description', 300);
-            $table->foreignId('paidByEmployee_id')->unique()->constrained('employees')->cascadeOnDelete();
+            $table->string('description', 300)->nullable();
+            $table->foreignId('paidByEmployee_id')->constrained('employees')->cascadeOnDelete();
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
         });
     }

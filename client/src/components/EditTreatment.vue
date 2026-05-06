@@ -72,7 +72,7 @@
             <n-input-number v-model:value="form.total_amount_paid" :min="0" clearable class="full" />
           </n-form-item>
 
-          <n-form-item label="Duration">
+          <n-form-item label="Duration (Weeks)">
             <n-input-number v-model:value="form.duration" :min="0" clearable class="full" />
           </n-form-item>
 

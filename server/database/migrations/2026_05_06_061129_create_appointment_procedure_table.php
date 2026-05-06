@@ -11,16 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('treatment_plans', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
+        Schema::create('appointment_procedure', function (Blueprint $table) {
             $table->foreignId('appointment_id')->constrained()->cascadeOnDelete();
             $table->foreignId('procedure_id')->constrained()->cascadeOnDelete();
-            $table->integer('total_estimated_cost', false, true);
-            $table->integer('total_amount_paid', false, true)->nullable();
-            $table->integer('duration')->nullable();
-            $table->date('start_date');
-            $table->string('status'); // proposed, accepted, partially_accepted, rejected
             $table->timestamps();
         });
     }
@@ -30,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('treatment_plan');
+        Schema::dropIfExists('appointment_procedure');
     }
 };

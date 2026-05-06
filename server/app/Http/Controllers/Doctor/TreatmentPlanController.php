@@ -8,17 +8,29 @@ use App\Models\InventoryStock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\TreatmentPlanResource;
 
 class TreatmentPlanController extends Controller
 {
     /**
      * Display a list of plans for a specific patient.
      */
-    public function index($patientId)
+    public function index(Request $request)
     {
-        return TreatmentPlan::with('procedure')
+        $branchId = $this->effectiveBranchId($request);
+
+        return TreatmentPlanResource::collection(
+            TreatmentPlan::with(['procedure','appointments'])
+            ->where('branch_id', $branchId)
+            ->get());
+    }
+
+    public function show($patientId)
+    {
+        return new TreatmentPlanResource(
+            TreatmentPlan::with(['procedure','appointments'])
             ->where('patient_id', $patientId)
-            ->get();
+            ->get());
     }
 
     /**
@@ -29,7 +41,6 @@ class TreatmentPlanController extends Controller
     {
         $validated = $request->validate([
             'patient_id' => 'required|exists:patients,id',
-            'appointment_id' => 'required|exists:appointments,id',
             'procedure_id' => 'required|exists:procedures,id',
             'total_estimated_cost' => 'required|integer',
             'status' => 'required|in:proposed,accepted,rejected',
@@ -38,8 +49,13 @@ class TreatmentPlanController extends Controller
             'start_date' => 'required'
         ]);
 
+        $branchId = $this->effectiveBranchId($request);
+
         // Logic for unique patient_id constraint in your schema
-        $plan = TreatmentPlan::create($validated);
+        $plan = TreatmentPlan::create([
+            $validated,
+            'branch_id' => $branchId
+        ]);
 
         return response()->json([
             'message' => 'Treatment plan updated successfully',
@@ -106,7 +122,8 @@ class TreatmentPlanController extends Controller
         return response()->json(['message' => 'Plan status updated to ' . $request->status]);
     }
 
-    public function delete(String $id) {
+    public function delete(String $id)
+    {
         return TreatmentPlan::find($id)->delete();
     }
 }

@@ -21,6 +21,7 @@ import type PatientData from '@api/interfaces/Patient'
 import { Icon } from '@iconify/vue';
 import ItemViewPopup from '../components/ItemViewPopup.vue';
 import { useI18n } from 'vue-i18n'; // Import useI18n
+import { useBranchStore } from '@/stores/branchStore'
 
 // BUG implement the profile picture backend
 
@@ -97,6 +98,8 @@ const filteredPatients = computed(() => {
   )
 })
 
+
+
 const columns = computed(() => [
   {
     title: t('patientView.columns.firstName'),
@@ -160,7 +163,7 @@ const columns = computed(() => [
             color: '#4f46e5',
             style: { cursor: 'pointer' },
             onClick: () => {
-              if (row.id) router.push(`/dentist/patient/${row.id}`)
+              if (row.id) router.push(`/dentist/patient/${row.id}/?branchId=${getEffectiveBranchId()}`)
             },
           },
         ),

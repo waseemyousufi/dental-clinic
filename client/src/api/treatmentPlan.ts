@@ -7,7 +7,7 @@ export default new class TreatmentPlan {
 
   getBranchTreatmentPlans(id : number, abbreviate: boolean = false, branchId?: number) {
     const resolvedBranchId = resolveBranchId(branchId)
-    return api.get(`/treatment-plan/${id}`, {
+    return api.get(`/treatment-plan`, {
       params: {
         ...(abbreviate ? { abr: true } : {}),
         ...(resolvedBranchId != null ? { branchId: resolvedBranchId } : {}),

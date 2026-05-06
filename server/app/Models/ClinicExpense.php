@@ -21,7 +21,7 @@ protected $fillable = [
 
     public function Employee(): BelongsTo
     {
-        return $this->belongsTo(Employee::class);
+        return $this->belongsTo(Employee::class, 'paidByEmployee_id');
     }
 
     public function Branch(): BelongsTo

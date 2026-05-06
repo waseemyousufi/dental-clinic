@@ -11,7 +11,7 @@ class Appointment extends Model
 {
 
     public $timestamps = false;
-    protected $fillable = ['appointment_timestamp', 'status', 'description', 'branch_id'];
+    protected $fillable = ['appointment_timestamp', 'treatment_plan_id', 'status', 'description', 'branch_id'];
 
     public function Branch(): BelongsTo
     {
@@ -36,5 +36,13 @@ class Appointment extends Model
     public function PatientFile(): HasOne
     {
         return $this->hasOne(PatientFile::class);
+    }
+
+    public function TreatmentPlan() {
+        return $this->belongsTo(TreatmentPlan::class);
+    }
+
+    public function procedures() {
+        return $this->hasMany(Procedure::class);
     }
 }

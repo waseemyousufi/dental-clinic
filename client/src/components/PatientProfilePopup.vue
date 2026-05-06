@@ -44,15 +44,11 @@ const showModal = computed({
     <n-card :bordered="false" class="profile-card">
       <div v-if="patientData">
         <div class="profile-header">
-          <n-avatar :size="96" round src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg">
+          <!-- <n-avatar :size="96" round src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg">
             <Icon icon="mdi:account" width="48" height="48" />
-          </n-avatar>
+          </n-avatar> -->
           <div class="header-details">
             <h2>{{ patientData.fName }} {{ patientData.lName }}</h2>
-            <n-space size="small" align="center" v-if="patientData.id">
-              <!-- <Icon style="font-size: 1.3em;" icon="mdi:id-card-outline" /> -->
-              <span># {{ patientData.id }}</span>
-            </n-space>
           </div>
         </div>
 
@@ -80,7 +76,7 @@ const showModal = computed({
               }}
             </p>
           </n-descriptions-item>
-          <n-descriptions-item>
+          <!-- <n-descriptions-item>
             <template #label>
               <n-space align="center">
                 <Icon :size="16" icon="mdi:cake-variant-outline" />
@@ -90,8 +86,8 @@ const showModal = computed({
             <p class="indented">
               {{ patientData?.age || 'N/A' }}
             </p>
-          </n-descriptions-item>
-          <n-descriptions-item>
+          </n-descriptions-item> -->
+          <!-- <n-descriptions-item>
             <template #label>
               <n-space align="center">
                 <Icon :size="16" icon="mdi:map-marker-outline" />
@@ -101,7 +97,7 @@ const showModal = computed({
             <p class="indented">
               {{ patientData.address || 'N/A' }}
             </p>
-          </n-descriptions-item>
+          </n-descriptions-item> -->
           <n-descriptions-item>
             <template #label>
               <n-space align="center">
@@ -125,7 +121,7 @@ const showModal = computed({
               }}
             </p>
           </n-descriptions-item>
-          <n-descriptions-item>
+          <!-- <n-descriptions-item>
             <template #label>
               <n-space align="center">
                 <Icon :size="16" icon="streamline-ultimate:insurance-hand-bold" />
@@ -135,7 +131,7 @@ const showModal = computed({
             <p class="indented">
               {{ patientData.insuranceProvider || 'N/A' }}
             </p>
-          </n-descriptions-item>
+          </n-descriptions-item> -->
         </n-descriptions>
       </div>
       <div v-else>

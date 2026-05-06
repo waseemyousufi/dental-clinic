@@ -22,8 +22,8 @@ class TreatmentPlanSeeder extends Seeder
         $plans = [
             [
                 'patient_id' => $patientId,
-                'appointment_id' => $appointmentId,
                 'procedure_id' => $filling?->id ?? 1,
+                'branch_id' => 1,
                 'total_estimated_cost' => $filling?->base_price ?? 1500,
                 'total_amount_paid' => 100,
                 'duration' => 30,

@@ -1,8 +1,10 @@
 export default interface ExpenseData {
-  expenseCategory: String
-  unit: String
-  amount: String
-  expenseDate: String
-  description: String
-  paidByEmployeeId: Number
+  expenseCategory: string
+  unit: string
+  amount: string
+  expenseDate: string
+  description: string
+  paidByEmployeeId: number
+  paidByEmployeeName: string
+  accountId: number
 }

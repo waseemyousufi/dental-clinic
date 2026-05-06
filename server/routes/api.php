@@ -31,7 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('/treatment', Doctor\TreatmentController::class);
 
         Route::post('/treatment-plan', [Doctor\TreatmentPlanController::class, 'store']);
-        Route::get('/treatment-plan/{id}', [Doctor\TreatmentPlanController::class, 'index']);
+        Route::get('/treatment-plan/', [Doctor\TreatmentPlanController::class, 'index']);
         Route::put('/treatment-plan/{id}', [Doctor\TreatmentPlanController::class, 'update']);
         Route::delete('/treatment-plan/{id}', [Doctor\TreatmentPlanController::class, 'delete']);
         Route::put('treatment-plan/update-status/{id}', [Doctor\TreatmentPlanController::class, 'updateStatus']);

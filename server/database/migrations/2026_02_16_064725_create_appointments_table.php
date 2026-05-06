@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('status', 40); // ['Completed', 'Pending']
             $table->string('description', 300);
             $table->integer('appointment_cost');
+            $table->string('clinical_notes')->nullable();
+            $table->foreignId('treatment_plan_id')->nullable()->constrained('treatment_plans')->cascadeOnDelete();
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
         });
     }

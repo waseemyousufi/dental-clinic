@@ -15,10 +15,11 @@ export default new (class Expense {
   }
 
   postExpense(data: ExpenseData) {
+    console.log(data)
     return api.post('/expense', data)
   }
 
-  updateExpense(id: Number, data: ExpenseData) {
+  updateExpense(id: number, data: ExpenseData) {
     return api.put(`/expense/${id}`, data)
   }
 

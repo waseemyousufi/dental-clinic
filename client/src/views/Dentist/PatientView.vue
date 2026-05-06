@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useMessage } from 'naive-ui'
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Odontogram from '@/components/Odontogram.vue'
 import PrimaryOdontogram from '@/components/PrimaryOdontogram.vue'
 import { predict } from '@/utils/voiceInference'
@@ -12,6 +12,7 @@ import type { ConditionLibrary } from '@api/interfaces/Odontogram'
 import TreatmentPlanApi from '@api/treatmentPlan'
 import type TreatmentData from '@api/interfaces/Treatment'
 import AddTreatmentPlanModal from '@/components/AddTreatmentPlanModal.vue'
+
 import EditTreatment from '@/components/EditTreatment.vue'
 import procedureApi from '@api/procedure'
 import {
@@ -24,7 +25,8 @@ import {
   NSpace,
   NSelect,
   NPopconfirm,
-  NEmpty
+  NEmpty,
+  NTag
 } from 'naive-ui'
 import { Icon } from '@iconify/vue'
 
@@ -74,8 +76,64 @@ const isEditTreatmentVisible = ref(false)
 const editingPlan = ref<any | null>(null)
 const editPlanLoading = ref(false)
 
-const odontogramRef = ref()
-const primaryOdontogramRef = ref()
+
+const router = useRouter()
+
+const treatmentPlanStats = computed(() => {
+  const total = treatmentPlans.value.length
+  const accepted = treatmentPlans.value.filter((p) => p.status === 'accepted').length
+  const proposed = treatmentPlans.value.filter((p) => p.status === 'proposed').length
+  const completed = treatmentPlans.value.filter((p) => p.status === 'completed').length
+
+  const outstanding = treatmentPlans.value.reduce((sum, plan) => {
+    const estimated = Number(plan.total_estimated_cost || 0)
+    const paid = Number(plan.total_amount_paid || 0)
+    return sum + Math.max(0, estimated - paid)
+  }, 0)
+
+  return { total, accepted, proposed, completed, outstanding }
+})
+
+function getStatusMeta(status: string) {
+  switch (status) {
+    case 'accepted':
+      return { type: 'success' as const, label: 'Accepted' }
+    case 'proposed':
+      return { type: 'warning' as const, label: 'Proposed' }
+    case 'completed':
+      return { type: 'info' as const, label: 'Completed' }
+    case 'cancelled':
+    case 'rejected':
+      return { type: 'error' as const, label: 'Cancelled' }
+    default:
+      return { type: 'default' as const, label: status || 'Unknown' }
+  }
+}
+
+function remainingBalance(plan: any) {
+  const estimated = Number(plan.total_estimated_cost || 0)
+  const paid = Number(plan.total_amount_paid || 0)
+  return Math.max(0, estimated - paid)
+}
+
+function formatMoney(value: any) {
+  if (value === null || value === undefined || value === '') return '—'
+  const num = Number(value)
+  if (Number.isNaN(num)) return '—'
+  return `${num.toLocaleString()} AFN`
+}
+
+function createAppointment(plan: any) {
+  router.push({
+    path: '/appointments/create',
+    query: {
+      patient_id: String(patientId.value),
+      treatment_plan_id: String(plan.id),
+      procedure_id: String(plan.procedure_id),
+      branch_id: String(plan.branch_id),
+    },
+  })
+}
 
 function formatDate(dateValue: string | number | null | undefined) {
   if (!dateValue) return '—'
@@ -84,10 +142,10 @@ function formatDate(dateValue: string | number | null | undefined) {
   return d.toLocaleDateString()
 }
 
-function formatMoney(value: any) {
-  if (value === null || value === undefined || value === '') return '—'
-  return `${value} AFN`
-}
+// function formatMoney(value: any) {
+//   if (value === null || value === undefined || value === '') return '—'
+//   return `${value} AFN`
+// }
 
 async function fetchTreatmentData() {
   if (!patientId.value) return
@@ -909,82 +967,129 @@ onMounted(async () => {
           </div>
 
           <section class="treatment-plans">
-            <n-card class="treatment-card" title="Clinical Treatment Plans" :segmented="{ content: true }">
-              <template #header-extra>
-                <n-space align="center" :wrap="false">
-                  <n-button type="primary" size="small" @click="isPlanModalVisible = true">
-                    <template #icon>
-                      <Icon icon="material-symbols:add-notes-outline" />
-                    </template>
-                    Propose New Plan
-                  </n-button>
-                </n-space>
+            <n-card class="treatment-board" :segmented="{ content: true }">
+              <template #header>
+                <div class="treatment-board__header">
+                  <div class="treatment-board__title-block">
+                    <p class="section-kicker">Clinical planning</p>
+                    <h3>Treatment Plans</h3>
+                    <p class="section-subtitle">
+                      Review the patient’s active and historical plans, then create a new appointment directly from the
+                      plan you want to continue.
+                    </p>
+                  </div>
+
+                  <n-space align="center" :wrap="false">
+                    <n-button type="primary" size="small" @click="isPlanModalVisible = true">
+                      <template #icon>
+                        <Icon icon="material-symbols:add-notes-outline" />
+                      </template>
+                      Propose New Plan
+                    </n-button>
+                  </n-space>
+                </div>
               </template>
 
-              <n-list hoverable clickable>
-                <n-list-item v-for="plan in treatmentPlans" :key="plan.id" class="treatment-list-item">
-                  <template #prefix>
-                    <n-icon size="24"
-                      :color="plan.status === 'accepted' ? '#18a058' : plan.status === 'rejected' ? '#d03050' : '#f0a020'">
-                      <Icon :icon="plan.status === 'accepted'
-                        ? 'fluent:checkmark-circle-24-filled'
-                        : plan.status === 'rejected'
-                          ? 'fluent:dismiss-circle-24-filled'
-                          : 'fluent:clock-24-regular'
-                        " />
-                    </n-icon>
+              <div class="treatment-stats">
+                <div class="stat-card">
+                  <span class="stat-label">Plans</span>
+                  <strong>{{ treatmentPlanStats.total }}</strong>
+                </div>
+
+                <div class="stat-card">
+                  <span class="stat-label">Accepted</span>
+                  <strong>{{ treatmentPlanStats.accepted }}</strong>
+                </div>
+
+                <div class="stat-card">
+                  <span class="stat-label">Proposed</span>
+                  <strong>{{ treatmentPlanStats.proposed }}</strong>
+                </div>
+
+                <div class="stat-card">
+                  <span class="stat-label">Outstanding</span>
+                  <strong>{{ formatMoney(treatmentPlanStats.outstanding) }}</strong>
+                </div>
+              </div>
+
+              <n-divider />
+
+              <div v-if="planLoading" class="plan-loading">
+                Loading treatment plans...
+              </div>
+
+              <div v-else-if="treatmentPlans.length === 0" class="empty-state-mini">
+                <n-empty description="No treatment plans yet" />
+              </div>
+
+              <div v-else class="plan-grid">
+                <n-card v-for="plan in treatmentPlans" :key="plan.id" style="min-width: 100% !important;" class="plan-card" size="small" :bordered="true">
+                  <template #header>
+                    <div class="plan-card__header">
+                      <div class="plan-card__heading">
+                        <h4>{{ plan.procedure?.name || `Procedure #${plan.procedure_id}` }}</h4>
+                        <p>{{ plan.procedure?.category || 'Uncategorized' }}</p>
+                      </div>
+
+                      <n-tag round size="small" :type="getStatusMeta(plan.status).type">
+                        {{ getStatusMeta(plan.status).label }}
+                      </n-tag>
+                    </div>
                   </template>
 
-                  <div class="plan-body">
-                    <n-thing :title="plan.procedure?.name || plan.procedure_name || `Procedure #${plan.procedure_id}`"
-                      :description="formatMoney(plan.total_estimated_cost)" />
-
-                    <div class="plan-meta-grid">
-                      <div class="plan-meta">
-                        <span>Patient ID</span>
-                        <strong>{{ plan.patient_id ?? '—' }}</strong>
+                  <div class="plan-card__body">
+                    <div class="plan-pill-row">
+                      <div class="plan-pill">
+                        <span class="plan-pill__label">Start date</span>
+                        <span class="plan-pill__value">{{ formatDate(plan.start_date) }}</span>
                       </div>
 
-                      <div class="plan-meta">
-                        <span>Appointment ID</span>
-                        <strong>{{ plan.appointment_id ?? '—' }}</strong>
+                      <div class="plan-pill">
+                        <span class="plan-pill__label">Duration</span>
+                        <span class="plan-pill__value">{{ plan.duration ?? '—' }} min</span>
                       </div>
 
-                      <div class="plan-meta">
-                        <span>Procedure ID</span>
-                        <strong>{{ plan.procedure_id ?? '—' }}</strong>
+                      <div class="plan-pill">
+                        <span class="plan-pill__label">Accepted</span>
+                        <span class="plan-pill__value">
+                          {{ plan.is_accepted ? 'Yes' : 'No' }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="billing-grid">
+                      <div class="billing-box">
+                        <span class="billing-box__label">Estimated cost</span>
+                        <strong class="billing-box__value">
+                          {{ formatMoney(plan.total_estimated_cost) }}
+                        </strong>
                       </div>
 
-                      <div class="plan-meta">
-                        <span>Status</span>
-                        <strong>{{ plan.status ?? '—' }}</strong>
+                      <div class="billing-box">
+                        <span class="billing-box__label">Paid</span>
+                        <strong class="billing-box__value">
+                          {{ formatMoney(plan.total_amount_paid) }}
+                        </strong>
                       </div>
 
-                      <div class="plan-meta">
-                        <span>Total Paid</span>
-                        <strong>{{ formatMoney(plan.total_amount_paid) }}</strong>
+                      <div class="billing-box billing-box--accent">
+                        <span class="billing-box__label">Remaining</span>
+                        <strong class="billing-box__value">
+                          {{ formatMoney(remainingBalance(plan)) }}
+                        </strong>
                       </div>
+                    </div>
 
-                      <div class="plan-meta">
-                        <span>Duration</span>
-                        <strong>{{ plan.duration ?? '—' }}</strong>
-                      </div>
-
-                      <div class="plan-meta plan-meta-wide">
-                        <span>Start Date</span>
-                        <strong>{{ formatDate(plan.start_date) }}</strong>
-                      </div>
+                    <div class="plan-note">
+                      <Icon icon="ph:stethoscope-light" />
+                      <span>
+                        {{ plan.is_accepted ? 'Ready for scheduling and execution.' : 'Pending approval or clinical review.' }}
+                      </span>
                     </div>
                   </div>
 
-                  <template #suffix>
+                  <template #footer>
                     <div class="plan-actions">
-                      <n-select v-model:value="plan.status" size="small" class="plan-status-select" :options="[
-                        { label: 'Proposed', value: 'proposed' },
-                        { label: 'Accepted', value: 'accepted' },
-                        { label: 'Rejected', value: 'rejected' }
-                      ]" @update:value="(val) => updatePlanStatus(plan.id, val)" />
-
                       <n-button size="small" tertiary @click.stop="openEditTreatment(plan)">
                         <template #icon>
                           <Icon icon="tabler:pencil" />
@@ -992,27 +1097,29 @@ onMounted(async () => {
                         Edit
                       </n-button>
 
+                      <n-button size="small" type="primary" @click.stop="createAppointment(plan)">
+                        <template #icon>
+                          <Icon icon="mdi:calendar-plus" />
+                        </template>
+                        Add Appointment
+                      </n-button>
+
                       <n-popconfirm @positive-click="deletePlan(plan.id)">
                         <template #trigger>
-                          <n-button type="error" ghost size="small">
+                          <n-button type="error" ghost size="small" @click.stop>
                             <template #icon>
                               <Icon icon="tabler:trash" />
                             </template>
                           </n-button>
                         </template>
-                        Delete this proposal?
+                        Delete this plan?
                       </n-popconfirm>
                     </div>
                   </template>
-                </n-list-item>
-              </n-list>
-
-              <div v-if="treatmentPlans.length === 0" class="empty-state-mini">
-                <n-empty description="No plans proposed yet" />
+                </n-card>
               </div>
             </n-card>
           </section>
-
         </section>
 
         <EditTreatment v-model:show="isEditTreatmentVisible" :plan="editingPlan" :procedures="procedures"
@@ -1675,88 +1782,268 @@ textarea:focus {
     flex: 1 1 100%;
   }
 }
-
 .treatment-plans {
   min-width: 0;
 }
 
-.treatment-card {
+.treatment-board {
   width: 100%;
-  border-radius: 1em;
-  box-shadow: 0 0.125em 0.75em rgba(0, 0, 0, 0.04);
+  border-radius: 1.15rem;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+  box-shadow: 0 0.125rem 0.9rem rgba(15, 23, 42, 0.06);
+  border: 1px solid #eef2f7;
 }
 
-.treatment-card :deep(.n-card-header) {
-  padding-bottom: 0.75rem;
+.treatment-board :deep(.n-card-header) {
+  padding-bottom: 0.9rem;
 }
 
-.treatment-card :deep(.n-card-header__main) {
-  font-size: 1.1rem;
+.treatment-board :deep(.n-card__content) {
+  padding-top: 1rem;
+}
+
+.treatment-board__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.treatment-board__title-block {
+  min-width: 0;
+}
+
+.section-kicker {
+  margin: 0 0 0.2rem;
+  font-size: 0.76rem;
   font-weight: 700;
-  color: #1f2937;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #64748b;
 }
 
-.treatment-card :deep(.n-card__content) {
+.treatment-board__title-block h3 {
+  margin: 0;
+  font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.35rem);
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.section-subtitle {
+  margin: 0.35rem 0 0;
+  max-width: 52rem;
+  color: #64748b;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.treatment-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.stat-card {
+  background: #f8fafc;
+  border: 1px solid #e8eef5;
+  border-radius: 1rem;
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.stat-label {
+  font-size: 0.76rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.stat-card strong {
+  font-size: 1.2rem;
+  color: #0f172a;
+  line-height: 1.15;
+}
+
+.plan-loading,
+.empty-state-mini {
+  padding: 1rem 0;
+}
+
+.plan-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.plan-card {
+  border-radius: 1rem;
+  border: 1px solid #edf1f6;
+  box-shadow: 0 0.125rem 0.75rem rgba(15, 23, 42, 0.04);
+  background: #fff;
+}
+
+.plan-card :deep(.n-card-header) {
+  padding-bottom: 0.8rem;
+}
+
+.plan-card :deep(.n-card__content) {
   padding-top: 0.9rem;
 }
 
-.treatment-list-item {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+.plan-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
-.plan-body {
+.plan-card__heading {
   min-width: 0;
+}
+
+.plan-card__heading h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.25;
+}
+
+.plan-card__heading p {
+  margin: 0.25rem 0 0;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.plan-card__body {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
-  width: 100%;
+  gap: 0.9rem;
 }
 
-.plan-meta-grid {
+.plan-pill-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.65rem;
 }
 
-.plan-meta {
+.plan-pill {
+  border: 1px solid #e7edf4;
   background: #f8fafc;
-  border: 0.0625em solid #e9eef5;
-  border-radius: 0.85em;
-  padding: 0.65rem 0.8rem;
+  border-radius: 0.95rem;
+  padding: 0.75rem 0.85rem;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  min-width: 0;
 }
 
-.plan-meta span {
+.plan-pill__label {
   font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
   color: #64748b;
-  line-height: 1;
 }
 
-.plan-meta strong {
+.plan-pill__value {
   font-size: 0.92rem;
+  font-weight: 700;
   color: #0f172a;
-  line-height: 1.2;
   word-break: break-word;
 }
 
-.plan-meta-wide {
-  grid-column: 1 / -1;
+.billing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.billing-box {
+  border: 1px solid #e7edf4;
+  background: #ffffff;
+  border-radius: 0.95rem;
+  padding: 0.8rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.billing-box--accent {
+  background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+  border-color: #bfdbfe;
+}
+
+.billing-box__label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #64748b;
+}
+
+.billing-box__value {
+  font-size: 1rem;
+  color: #0f172a;
+  word-break: break-word;
+}
+
+.plan-note {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.95rem;
+  background: #f8fafc;
+  border: 1px solid #e7edf4;
+  color: #475569;
+  font-size: 0.9rem;
 }
 
 .plan-actions {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   justify-content: flex-end;
-  gap: 0.5rem;
-  min-width: 16rem;
+  gap: 0.55rem;
+  flex-wrap: wrap;
 }
 
-.plan-status-select {
-  width: 7.5rem;
+@media (max-width: 75rem) {
+  .treatment-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .plan-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 48rem) {
+  .treatment-board__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .treatment-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-pill-row,
+  .billing-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-actions {
+    justify-content: stretch;
+  }
+
+  .plan-actions :deep(.n-button) {
+    flex: 1 1 auto;
+  }
 }
 
 @media (max-width: 75rem) {

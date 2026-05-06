@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TreatmentPlan extends Model
 {
@@ -11,10 +12,10 @@ class TreatmentPlan extends Model
      *
      * @var array<int, string>
      */
+    
     protected $fillable = [
         'patient_id',
-        'appointment_id',
-        'procedure_id',
+        'branch_id',
         'total_estimated_cost',
         'status',
         'duration',
@@ -34,9 +35,9 @@ class TreatmentPlan extends Model
     /**
      * Relationship to the Appointment where this plan was proposed.
      */
-    public function appointment(): BelongsTo
+    public function appointments(): HasMany
     {
-        return $this->belongsTo(Appointment::class);
+        return $this->hasMany(Appointment::class);
     }
 
     /**
@@ -53,5 +54,9 @@ class TreatmentPlan extends Model
     public function isAccepted(): bool
     {
         return $this->status === 'accepted';
+    }
+
+    public function procedures() {
+        return $this->hasMany(Procedure::class);
     }
 }

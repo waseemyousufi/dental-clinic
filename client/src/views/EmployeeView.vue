@@ -571,7 +571,7 @@ onMounted(() => {
   <div class="employee-view">
     <n-card size="huge" class="employee-panel">
       <div class="employees-hero">
-        <div class="employees-hero__left">
+        <div class="employees-hero__left" style="margin-top: -3em;">
           <div class="employees-hero__icon">
             <Icon icon="mdi:account-group" width="28" />
           </div>
@@ -593,13 +593,13 @@ onMounted(() => {
                 <strong class="hero-stat__value">{{ employees.length }}</strong>
               </div>
             </div>
-            <div class="hero-stat">
+            <!-- <div class="hero-stat">
               <Icon icon="mdi:cash-multiple" width="18" />
               <div>
                 <span class="hero-stat__label">Payroll</span>
                 <strong class="hero-stat__value">Active</strong>
               </div>
-            </div>
+            </div> -->
           </div>
 
           <div class="employees-hero__actions">
@@ -747,7 +747,7 @@ onMounted(() => {
       </n-form>
     </n-modal>
 
-    <n-modal v-model:show="showPayModal" preset="card" title="Pay Salary" class="responsive-modal small">
+    <n-modal v-model:show="showPayModal" style="max-width: 600px;" preset="card" title="Pay Salary" class="responsive-modal small">
       <div class="payroll-container">
         <div class="payroll-header">
           <Icon icon="mdi:account-cash" width="22" /><strong>{{ payingEmployee?.name }}</strong>

@@ -95,6 +95,11 @@ const navLinks = [
     label: 'Suppliers',
     icon: () => h(Icon, { icon: 'mdi:truck-delivery', style: 'font-size: 1.45em;' })
   },
+    {
+    path: '/expenses',
+    label: 'Expenses',
+    icon: () => h(Icon, { icon: 'arcticons:expense-register', style: 'font-size: 1.45em;' })
+  },
 ]
 
 const selectBranch = (branchId: number) => {
