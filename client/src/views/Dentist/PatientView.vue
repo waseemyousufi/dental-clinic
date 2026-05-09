@@ -1,83 +1,61 @@
 <script lang="ts" setup>
 import { useMessage } from 'naive-ui'
 import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import Odontogram from '@/components/Odontogram.vue'
 import PrimaryOdontogram from '@/components/PrimaryOdontogram.vue'
-import { predict } from '@/utils/voiceInference'
 import PatientService from '@api/patient'
 import OdontogramService from '@api/odontogram'
-import type PatientData from '@api/interfaces/Patient'
+import type PatientData from '@api/interfaces/patient'
 import type { ConditionLibrary } from '@api/interfaces/Odontogram'
 import TreatmentPlanApi from '@api/treatmentPlan'
-import type TreatmentData from '@api/interfaces/Treatment'
-import AddTreatmentPlanModal from '@/components/AddTreatmentPlanModal.vue'
-
+import appointmentApi from '@api/appointment'
+import type AppointmentData from '@api/interfaces/Appointment'
 import EditTreatment from '@/components/EditTreatment.vue'
+import AppointmentFormModal from '@/components/AppointmentFormModal.vue'
 import procedureApi from '@api/procedure'
 import {
   NCard,
   NButton,
-  NList,
-  NListItem,
-  NThing,
-  NIcon,
   NSpace,
   NSelect,
   NPopconfirm,
   NEmpty,
-  NTag
+  NTag,
+  NDivider
 } from 'naive-ui'
 import { Icon } from '@iconify/vue'
-
-type VoiceStep = 'tooth' | 'surface' | 'condition'
-type SlotCondition = {
-  color: string
-  id: string
-}
+import useUserStore from '@/stores/user'
 type OdontogramState = Record<number, Record<string, any>>
 
 const route = useRoute()
 const patientId = computed(() => Number(route.params.id))
 
-const isRecording = ref(false)
-const currentStep = ref<VoiceStep>('tooth')
 const loading = ref(false)
 
 const patient = ref<(PatientData & { f_name: string; l_name: string }) | null>(null)
 const conditionLibrary = ref<ConditionLibrary[]>([])
 const activeFinding = ref<ConditionLibrary | null>(null)
+const userStore = useUserStore()
 
 const odontogramData = ref<OdontogramState>({})
-const clinicalNotes = ref('')
-
-const selectedTooth = ref<number | null>(null)
-const selectedSurface = ref<string | null>(null)
-const selectedCondition = ref<string | null>(null)
 
 const message = useMessage()
-const MAX_RETRIES = 3
-const CONF_THRESHOLD = 0.3
-
-let retryCount = 0
-let mediaRecorder: MediaRecorder | null = null
-let audioChunks: Blob[] = []
-
-const successAudio = new Audio('/success.mp3')
-const errorAudio = new Audio('/error.mp3')
 
 // treatment plan state
 const treatmentPlans = ref<any[]>([])
 const procedures = ref<any[]>([])
-const isPlanModalVisible = ref(false)
+const appointments = ref<any[]>([])
+const selectedAppointmentByPlan = ref<Record<number, number | null>>({})
+const linkingPlanId = ref<number | null>(null)
+const isTreatmentModalVisible = ref(false)
 const planLoading = ref(false)
 
-const isEditTreatmentVisible = ref(false)
 const editingPlan = ref<any | null>(null)
 const editPlanLoading = ref(false)
-
-
-const router = useRouter()
+const isAppointmentModalVisible = ref(false)
+const editingAppointment = ref<Partial<AppointmentData> | null>(null)
+const appointmentSaving = ref(false)
 
 const treatmentPlanStats = computed(() => {
   const total = treatmentPlans.value.length
@@ -124,15 +102,14 @@ function formatMoney(value: any) {
 }
 
 function createAppointment(plan: any) {
-  router.push({
-    path: '/appointments/create',
-    query: {
-      patient_id: String(patientId.value),
-      treatment_plan_id: String(plan.id),
-      procedure_id: String(plan.procedure_id),
-      branch_id: String(plan.branch_id),
-    },
-  })
+  editingAppointment.value = {
+    description: plan.procedure?.name ? `Follow-up: ${plan.procedure.name}` : 'Treatment plan appointment',
+    appointment_timestamp: new Date().toISOString(),
+    status: 'pending',
+    patientId: patientId.value,
+    treatment_plan_id: Number(plan.id),
+  }
+  isAppointmentModalVisible.value = true
 }
 
 function formatDate(dateValue: string | number | null | undefined) {
@@ -142,22 +119,20 @@ function formatDate(dateValue: string | number | null | undefined) {
   return d.toLocaleDateString()
 }
 
-// function formatMoney(value: any) {
-//   if (value === null || value === undefined || value === '') return '—'
-//   return `${value} AFN`
-// }
-
 async function fetchTreatmentData() {
   if (!patientId.value) return
   planLoading.value = true
   try {
-    const [plansRes, procRes] = await Promise.all([
+    const [plansRes, procRes, appointmentsRes] = await Promise.all([
       TreatmentPlanApi.getBranchTreatmentPlans(patientId.value),
-      procedureApi.getProcedures()
+      procedureApi.getProcedures(),
+      appointmentApi.getBranchAppointments()
     ])
 
     treatmentPlans.value = plansRes.data?.data ?? plansRes.data ?? []
     procedures.value = procRes.data?.data ?? procRes.data ?? []
+    const allAppointments = appointmentsRes.data?.data ?? appointmentsRes.data ?? []
+    appointments.value = allAppointments.filter((a: any) => Number(a.patientId) === patientId.value)
   } catch (err) {
     message.error('Failed to load treatment plans')
   } finally {
@@ -165,23 +140,35 @@ async function fetchTreatmentData() {
   }
 }
 
-async function proposePlan(procedureId: number, cost: number) {
+function appointmentOptionsForPlan(plan: any) {
+  return appointments.value
+    .filter((appointment: any) => {
+      const linkedPlanId = appointment.treatment_plan_id
+      return !linkedPlanId || Number(linkedPlanId) === Number(plan.id)
+    })
+    .map((appointment: any) => ({
+      label: `${formatDate(appointment.appointment_timestamp)} - ${appointment.status || 'Pending'}`,
+      value: Number(appointment.id),
+    }))
+}
+
+async function addAppointmentToPlan(planId: number) {
+  const appointmentId = selectedAppointmentByPlan.value[planId]
+  if (!appointmentId) {
+    message.warning('Select an appointment first')
+    return
+  }
+
+  linkingPlanId.value = planId
   try {
-    const payload = {
-      patient_id: patientId.value,
-      appointment_id: 1,
-      procedure_id: procedureId,
-      total_estimated_cost: cost,
-      status: 'proposed',
-      total_amount_paid: null,
-      duration: null,
-      start_date: new Date().toISOString().slice(0, 10)
-    }
-    await TreatmentPlanApi.postTreatmentPlan(payload)
-    message.success('New plan proposed')
+    await TreatmentPlanApi.addAppointment(planId, appointmentId)
+    message.success('Appointment linked to treatment plan')
+    selectedAppointmentByPlan.value[planId] = null
     await fetchTreatmentData()
-  } catch (err) {
-    message.error('Failed to propose plan')
+  } catch (error) {
+    message.error('Failed to link appointment')
+  } finally {
+    linkingPlanId.value = null
   }
 }
 
@@ -207,87 +194,55 @@ async function deletePlan(planId: number) {
 
 function openEditTreatment(plan: any) {
   editingPlan.value = { ...plan }
-  isEditTreatmentVisible.value = true
+  isTreatmentModalVisible.value = true
 }
 
-async function saveEditedTreatment(payload: any) {
-  if (!editingPlan.value?.id) return
+function openNewTreatmentPlan() {
+  editingPlan.value = null
+  isTreatmentModalVisible.value = true
+}
+
+async function saveTreatmentPlan(payload: any) {
   editPlanLoading.value = true
 
   try {
-    // Adjust this one line only if your API file uses a different method name.
-    await TreatmentPlanApi.updateTreatmentPlan(editingPlan.value.id, payload)
-    message.success('Treatment updated')
-    isEditTreatmentVisible.value = false
+    const body = {
+      ...payload,
+      patient_id: patientId.value,
+    }
+
+    if (editingPlan.value?.id) {
+      await TreatmentPlanApi.updateTreatmentPlan(editingPlan.value.id, body)
+      message.success('Treatment updated')
+    } else {
+      await TreatmentPlanApi.postTreatmentPlan(body)
+      message.success('Treatment plan created')
+    }
+
+    isTreatmentModalVisible.value = false
     editingPlan.value = null
     await fetchTreatmentData()
   } catch (err) {
-    message.error('Failed to update treatment')
+    message.error('Failed to save treatment')
   } finally {
     editPlanLoading.value = false
   }
 }
-// --- Fetch Treatment Plans and Procedures ---
-// async function fetchTreatmentData() {
-//   if (!patientId.value) return;
-//   planLoading.value = true;
-//   try {
-//     console.log('Patient Id: ', patientId.value)
-//     const [plansRes, procRes] = await Promise.all([
-//       TreatmentPlanApi.getBranchTreatmentPlans(patientId.value),
-//       procedureApi.getProcedures()
-//     ]);
-//     treatmentPlans.value = plansRes.data?.data ?? plansRes.data;
-//     procedures.value = procRes.data?.data ?? procRes.data;
-//   } catch (err) {
-//     message.error('Failed to load treatment plans');
-//   } finally {
-//     planLoading.value = false;
-//   }
-// }
 
-// // --- Action: Propose a New Plan ---
-// async function proposePlan(procedureId: number, cost: number) {
-//   try {
-//     const payload = {
-//       patient_id: patientId.value,
-//       appointment_id: 1, // Defaulting to current, ideally dynamic
-//       procedure_id: procedureId,
-//       total_estimated_cost: cost,
-//       status: 'proposed'
-//     };
-//     await TreatmentPlanApi.postTreatmentPlan(payload);
-//     message.success('New plan proposed');
-//     await fetchTreatmentData();
-//   } catch (err) {
-//     message.error('Failed to propose plan');
-//   }
-// }
-
-// // --- Action: Update Plan Status (Acceptance) ---
-// async function updatePlanStatus(planId: number, newStatus: string) {
-//   try {
-//     await TreatmentPlanApi.updateStatus(planId, { status: newStatus });
-//     message.success(`Plan marked as ${newStatus}`);
-//     await fetchTreatmentData();
-//   } catch (err) {
-//     message.error('Update failed');
-//   }
-// }
-
-// // --- Action: Remove a Plan ---
-// async function deletePlan(planId: number) {
-//   try {
-//     await TreatmentPlanApi.deleteTreatmentPlan(planId);
-//     message.success('Plan deleted');
-//     await fetchTreatmentData();
-//   } catch (err) {
-//     message.error('Delete failed');
-//   }
-// }
-
-
-
+async function handleAppointmentSave(payload: AppointmentData) {
+  appointmentSaving.value = true
+  try {
+    await appointmentApi.postAppointment(payload)
+    message.success('Appointment created successfully')
+    isAppointmentModalVisible.value = false
+    editingAppointment.value = null
+    await fetchTreatmentData()
+  } catch (error) {
+    message.error('Failed to create appointment')
+  } finally {
+    appointmentSaving.value = false
+  }
+}
 
 function buildOdontogramState(teethArray: any[]): OdontogramState {
   const state: OdontogramState = {}
@@ -305,7 +260,6 @@ function buildOdontogramState(teethArray: any[]): OdontogramState {
 
         const isSymbol = !!lib.svg_path
 
-        // 🟣 FORCE SYMBOL
         if (isSymbol) {
           state[fdi].symbols!.push({
             id: cond.id,
@@ -315,10 +269,9 @@ function buildOdontogramState(teethArray: any[]): OdontogramState {
             color: lib.ui_color
           })
 
-          return // 🚨 DO NOT FALL THROUGH
+          return
         }
 
-        // 🟡 SURFACE
         cond.surfaces?.forEach((surface: string) => {
           state[fdi][surface.toLowerCase()] = {
             color: lib.ui_color,
@@ -362,7 +315,6 @@ async function refreshOdontogram() {
 
     odontogramData.value = buildOdontogramState(teethArray)
 
-    // After refresh, default to no tool selected.
     activeFinding.value = null
 
     return true
@@ -405,8 +357,6 @@ async function loadPatientData() {
     }
     odontogramData.value = buildOdontogramState(teethArray)
 
-
-
     const libArr = libraryRes.data?.data ?? libraryRes.data ?? []
     conditionLibrary.value = libArr.map((item: any) => ({
       id: item.id,
@@ -417,7 +367,7 @@ async function loadPatientData() {
       svg_path: item.svg_path
     }))
     console.log("Fresh Loaded Condition Library: ", conditionLibrary.value)
-    // Important: do NOT auto-select a tool on load.
+
     activeFinding.value = null
 
     const state: any = {}
@@ -443,11 +393,10 @@ async function loadPatientData() {
 
         const svg = lib.svg_path ?? null
 
-        // SYMBOL
         if (typeof svg === 'string' && svg.includes('<svg')) {
           state[fdi].symbols.push({
-            id: cond.id, // DB UUID (for delete)
-            condition_id: cond.condition_library.id, // for matching tool
+            id: cond.id,
+            condition_id: cond.condition_library.id,
             svg: cond.condition_library.svg_path,
             slug: cond.condition_library.slug,
             color: cond.condition_library.ui_color
@@ -455,7 +404,6 @@ async function loadPatientData() {
           return
         }
 
-        // SURFACE
         const surfaces = Array.isArray(cond?.surfaces)
           ? cond.surfaces
           : []
@@ -468,7 +416,6 @@ async function loadPatientData() {
         })
       })
     })
-
 
     message.success('Records synchronized')
   } catch (error) {
@@ -485,7 +432,6 @@ function selectCondition(condition: ConditionLibrary) {
     return
   }
 
-  // Optional but useful: clicking the same condition again deselects it.
   if (activeFinding.value?.id === condition.id) {
     activeFinding.value = null
     message.info('Tool deselected')
@@ -494,133 +440,6 @@ function selectCondition(condition: ConditionLibrary) {
 
   activeFinding.value = condition
   message.success(`Selected: ${condition.label}`)
-}
-
-function mapSurfaceToPart(surface: string, tooth: number): string {
-  const quadrant = Math.floor(tooth / 10)
-  const buccalIsRight = quadrant === 1 || quadrant === 4
-
-  switch (surface) {
-    case 'buccal':
-      return buccalIsRight ? 'right' : 'left'
-    case 'lingual':
-    case 'palatal':
-      return buccalIsRight ? 'left' : 'right'
-    case 'occlusal':
-      return 'top'
-    case 'mesial':
-      return 'left'
-    case 'distal':
-      return 'right'
-    default:
-      return 'center'
-  }
-}
-
-function normalizeTooth(label: string): number | null {
-  const map: Record<string, number> = {
-    eleven: 11,
-    twelve: 12,
-    thirteen: 13,
-    fourteen: 14,
-    fifteen: 15,
-    sixteen: 16,
-    seventeen: 17,
-    eighteen: 18,
-    'twenty one': 21,
-    'twenty two': 22,
-    'twenty three': 23,
-    'twenty four': 24,
-    'twenty five': 25,
-    'twenty six': 26,
-    'twenty seven': 27,
-    'twenty eight': 28,
-    'thirty one': 31,
-    'thirty two': 32,
-    'thirty three': 33,
-    'thirty four': 34,
-    'thirty five': 35,
-    'thirty six': 36,
-    'thirty seven': 37,
-    'thirty eight': 38,
-    'forty one': 41,
-    'forty two': 42,
-    'forty three': 43,
-    'forty four': 44,
-    'forty five': 45,
-    'forty six': 46,
-    'forty seven': 47,
-    'forty eight': 48,
-  }
-
-  const normalized = label.trim().toLowerCase()
-  if (map[normalized]) return map[normalized]
-
-  const num = parseInt(normalized, 10)
-  return Number.isNaN(num) ? null : num
-}
-
-async function recordOnce(): Promise<Blob> {
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-
-  return new Promise((resolve) => {
-    mediaRecorder = new MediaRecorder(stream)
-    audioChunks = []
-
-    mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data)
-    mediaRecorder.onstop = () => {
-      const blob = new Blob(audioChunks, { type: 'audio/webm' })
-      stream.getTracks().forEach((t) => t.stop())
-      resolve(blob)
-    }
-
-    mediaRecorder.start()
-    setTimeout(() => mediaRecorder?.stop(), 2000)
-  })
-}
-
-async function runStep(step: VoiceStep): Promise<boolean> {
-  const msg = message.loading(`Listening for ${step}...`, { duration: 0 })
-  const blob = await recordOnce()
-  msg.destroy()
-
-  const res = await predict(blob, step)
-
-  if (!res || !res.probabilities || res.probabilities.length === 0) {
-    errorAudio.play()
-    message.error(`Could not detect ${step}`)
-    return false
-  }
-
-  const sorted = [...res.probabilities].sort((a, b) => b - a)
-  const confidence = sorted[0] - (sorted[1] ?? 0)
-
-  if (confidence < CONF_THRESHOLD) {
-    errorAudio.play()
-    message.warning(`Unclear ${step}, try again`)
-    return false
-  }
-
-  successAudio.play()
-
-  if (step === 'tooth') {
-    const tooth = normalizeTooth(res.label)
-    if (!tooth) return false
-    selectedTooth.value = tooth
-    message.success(`Tooth ${tooth}`)
-  }
-
-  if (step === 'surface') {
-    selectedSurface.value = res.label
-    message.success(`Surface ${res.label}`)
-  }
-
-  if (step === 'condition') {
-    selectedCondition.value = res.label
-    message.success(`Condition ${res.label}`)
-  }
-
-  return true
 }
 
 async function handleToothClick(toothFdi: number, surface: string) {
@@ -635,14 +454,9 @@ async function handleToothClick(toothFdi: number, surface: string) {
 
   const isSymbolTool = !!activeFinding.value?.svg_path
 
-  // =========================
-  // 🔴 DELETE FIRST (ALWAYS PRIORITY)
-  // =========================
-
-  // 🟣 delete symbol (if symbol tool OR no tool)
   if (symbols.length > 0 && (!activeFinding.value || isSymbolTool)) {
     try {
-      const symbolToDelete = symbols[0] // (or refine later if multiple)
+      const symbolToDelete = symbols[0]
 
       odontogramData.value[toothFdi].symbols =
         symbols.filter((s: any) => s.id !== symbolToDelete.id)
@@ -660,7 +474,6 @@ async function handleToothClick(toothFdi: number, surface: string) {
     }
   }
 
-  // 🟡 delete surface
   if (existingSurface?.id) {
     try {
       clearLocalSlot(toothFdi, surfKey)
@@ -678,22 +491,17 @@ async function handleToothClick(toothFdi: number, surface: string) {
     }
   }
 
-  // =========================
-  // ➕ ADD (ONLY IF TOOL SELECTED)
-  // =========================
-
   if (!activeFinding.value?.id) {
     message.warning('Select a condition first')
     return
   }
 
-  // 🟣 SYMBOL ADD
   if (isSymbolTool) {
     try {
       const payload = {
         tooth_id: toothFdi,
         condition_id: activeFinding.value.id,
-        surfaces: ['CENTER'] // temp backend workaround
+        surfaces: ['CENTER']
       }
 
       if (!odontogramData.value[toothFdi]) {
@@ -728,7 +536,6 @@ async function handleToothClick(toothFdi: number, surface: string) {
     return
   }
 
-  // 🟡 SURFACE ADD
   try {
     const payload = {
       tooth_id: toothFdi,
@@ -755,64 +562,10 @@ async function handleToothClick(toothFdi: number, surface: string) {
   }
 }
 
-
-async function startVoiceWorkflow() {
-  if (isRecording.value) return
-  if (!patient.value || !odontogramData.value) {
-    message.warning('Please wait for patient data to load')
-    return
-  }
-
-  isRecording.value = true
-  retryCount = 0
-  selectedTooth.value = null
-  selectedSurface.value = null
-  selectedCondition.value = null
-
-  try {
-    while (!(await runStep('tooth'))) {
-      if (++retryCount >= MAX_RETRIES) throw new Error('Tooth failed')
-    }
-
-    retryCount = 0
-    while (!(await runStep('surface'))) {
-      if (++retryCount >= MAX_RETRIES) throw new Error('Surface failed')
-    }
-
-    retryCount = 0
-    while (!(await runStep('condition'))) {
-      if (++retryCount >= MAX_RETRIES) throw new Error('Condition failed')
-    }
-
-    const tooth = selectedTooth.value!
-    const surface = mapSurfaceToPart(selectedSurface.value!, tooth)
-    const conditionLabel = selectedCondition.value!
-
-    const found = conditionLibrary.value?.find(
-      (c) => c.label.toLowerCase() === conditionLabel.toLowerCase(),
-    )
-
-    if (found) {
-      activeFinding.value = found
-    } else {
-      message.warning('Condition not found in library')
-      return
-    }
-
-    await handleToothClick(tooth, surface)
-    message.success('Applied successfully')
-  } catch (e) {
-    message.error('Voice workflow cancelled')
-  } finally {
-    isRecording.value = false
-  }
-}
-
 onMounted(async () => {
-  await loadPatientData();
-  await fetchTreatmentData();
-});
-
+  await loadPatientData()
+  await fetchTreatmentData()
+})
 </script>
 
 <template>
@@ -952,18 +705,6 @@ onMounted(async () => {
             </div>
 
             <div class="chart-divider"></div>
-
-            <!--
-            <div class="chart-box primary-area">
-              <span class="chart-label">Primary Teeth</span>
-              <PrimaryOdontogram
-                v-model="odontogramData"
-                ref="primaryOdontogramRef"
-                :active-finding="activeFinding?.ui_color || '#ffffff'"
-                @tooth-click="handleToothClick"
-              />
-            </div>
-            -->
           </div>
 
           <section class="treatment-plans">
@@ -980,7 +721,7 @@ onMounted(async () => {
                   </div>
 
                   <n-space align="center" :wrap="false">
-                    <n-button type="primary" size="small" @click="isPlanModalVisible = true">
+                    <n-button type="primary" size="small" @click="openNewTreatmentPlan">
                       <template #icon>
                         <Icon icon="material-symbols:add-notes-outline" />
                       </template>
@@ -1023,7 +764,7 @@ onMounted(async () => {
               </div>
 
               <div v-else class="plan-grid">
-                <n-card v-for="plan in treatmentPlans" :key="plan.id" style="min-width: 100% !important;" class="plan-card" size="small" :bordered="true">
+                <n-card v-for="plan in treatmentPlans" :key="plan.id" class="plan-card" size="small" :bordered="true">
                   <template #header>
                     <div class="plan-card__header">
                       <div class="plan-card__heading">
@@ -1086,10 +827,54 @@ onMounted(async () => {
                         {{ plan.is_accepted ? 'Ready for scheduling and execution.' : 'Pending approval or clinical review.' }}
                       </span>
                     </div>
+
+                    <div class="plan-note">
+                      <Icon icon="mdi:calendar-check-outline" />
+                      <span>
+                        Linked appointments: {{ Array.isArray(plan.appointments) ? plan.appointments.length : 0 }}
+                      </span>
+                    </div>
+
+                    <div v-if="Array.isArray(plan.appointments) && plan.appointments.length"
+                      class="linked-appointments">
+                      <div v-for="appointment in plan.appointments" :key="appointment.id"
+                        class="linked-appointment-row">
+                        <div class="appp">
+                          <span>{{ formatDate(appointment.appointment_timestamp) }}</span>
+                          <div>
+                            <span>{{ appointment.status || 'pending' }}</span>
+                            <span> / </span>
+                            <span>{{ appointment.employee || 'Unassigned' }}</span>
+                          </div>
+                        </div>
+
+                        <div v-if="userStore.isDoctor || userStore.isAdmin" class="clinical-notes">
+                          <span>{{ appointment.clinical_notes }}</span>
+                        </div>
+
+                        <div class="app-actions" v-if="userStore.isReceptionist">
+                          <n-button>Paid</n-button>
+                        </div>
+
+                        <div class="cost" style="font-weight: bold;">
+                          Cost: {{ appointment.appointment_cost.toLocaleString() }}AFN
+                        </div>
+
+                      </div>
+                    </div>
                   </div>
 
                   <template #footer>
                     <div class="plan-actions">
+                      <n-select v-model:value="selectedAppointmentByPlan[plan.id]" size="small" clearable filterable
+                        placeholder="Link existing appointment" :options="appointmentOptionsForPlan(plan)"
+                        style="min-width: 220px" />
+
+                      <n-button size="small" secondary :loading="linkingPlanId === plan.id"
+                        @click.stop="addAppointmentToPlan(plan.id)">
+                        Link Appointment
+                      </n-button>
+
                       <n-button size="small" tertiary @click.stop="openEditTreatment(plan)">
                         <template #icon>
                           <Icon icon="tabler:pencil" />
@@ -1122,18 +907,12 @@ onMounted(async () => {
           </section>
         </section>
 
-        <EditTreatment v-model:show="isEditTreatmentVisible" :plan="editingPlan" :procedures="procedures"
-          :loading="editPlanLoading" @save="saveEditedTreatment" />
+        <EditTreatment v-model:show="isTreatmentModalVisible" :plan="editingPlan" :procedures="procedures"
+          :loading="editPlanLoading" @save="saveTreatmentPlan" />
 
-        <aside class="notes-section">
-          <div class="card notes-card">
-            <h3>Clinical Notes</h3>
-            <textarea v-model="clinicalNotes" placeholder="Enter patient notes..."></textarea>
-          </div>
-        </aside>
-
-        <AddTreatmentPlanModal v-model:show="isPlanModalVisible" :patient-id="patientId" :appointment-id="1"
-          @success="fetchTreatmentData" />
+        <AppointmentFormModal :is-doctor-using="true" v-model:show="isAppointmentModalVisible"
+          :appointment="editingAppointment" :patient-id="patientId" :lock-patient="true" :loading="appointmentSaving"
+          @save="handleAppointmentSave" />
       </main>
     </template>
 
@@ -1141,9 +920,6 @@ onMounted(async () => {
       <p>No patient data available</p>
     </div>
   </div>
-
-  <div v-if="isRecording" class="voice-overlay"></div>
-  <button v-if="patient && !isRecording" class="voice-fab" @click="startVoiceWorkflow">🎤</button>
 </template>
 
 <style scoped>
@@ -1348,7 +1124,7 @@ onMounted(async () => {
 
 .content-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.85fr) minmax(18rem, 24rem);
+  grid-template-columns: 1fr;
   gap: clamp(1rem, 1.8vw, 1.5rem);
   align-items: start;
   width: 100%;
@@ -1567,113 +1343,20 @@ onMounted(async () => {
   padding: 1rem 0 0;
 }
 
-.notes-section {
-  min-width: 0;
-  align-self: start;
-  position: sticky;
-  top: 1rem;
-}
-
-.notes-card {
-  background: #ffffff;
-  border-radius: 1em;
-  border: 0.0625em solid #f0f0f0;
-  box-shadow: 0 0.125em 0.75em rgba(0, 0, 0, 0.04);
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  min-height: calc(100vh - 8rem);
-}
-
-.notes-card h3 {
-  margin: 0;
-  font-size: 1.05rem;
-  color: #262626;
-}
-
-textarea {
-  width: 100%;
-  flex: 1;
-  min-height: 24rem;
-  border: 0.0625em solid #d9d9d9;
-  border-radius: 0.75em;
-  padding: 1em;
-  resize: vertical;
-  line-height: 1.6;
-  font-family: inherit;
-  box-sizing: border-box;
-  background: #ffffff;
-}
-
-textarea:focus {
-  outline: none;
-  border-color: #40a9ff;
-  box-shadow: 0 0 0 0.125em rgba(24, 144, 255, 0.2);
-}
-
-.voice-fab {
-  position: fixed;
-  bottom: 1.75rem;
-  right: 1.75rem;
-  width: 4rem;
-  height: 4rem;
-  border-radius: 50%;
-  background: #22c55e;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.6rem;
-  color: white;
-  cursor: pointer;
-  box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease;
-  z-index: 1000;
-}
-
-.voice-fab:hover {
-  transform: scale(1.08);
-}
-
-.voice-fab:active {
-  transform: scale(0.96);
-}
-
+.voice-fab,
 .voice-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-  backdrop-filter: blur(0.125rem);
+  display: none;
 }
 
 @media (min-width: 75rem) {
   .odontogram-shell {
     justify-content: center;
   }
-
-  .notes-card {
-    position: sticky;
-    top: 1rem;
-  }
 }
 
 @media (max-width: 75rem) {
   .content-grid {
     grid-template-columns: 1fr;
-  }
-
-  .notes-section {
-    position: static;
-    top: auto;
-  }
-
-  .notes-card {
-    min-height: 20rem;
   }
 
   .patient-header {
@@ -1693,7 +1376,6 @@ textarea:focus {
   .patient-info,
   .patient-profile-card,
   .odontogram-card,
-  .notes-card,
   .treatment-card {
     border-radius: 0.85em;
   }
@@ -1752,20 +1434,8 @@ textarea:focus {
     flex: 1 1 10rem;
   }
 
-  .notes-card {
-    min-height: auto;
-    padding: 1rem;
-  }
-
-  textarea {
-    min-height: 18rem;
-  }
-
-  .voice-fab {
-    width: 3.5rem;
-    height: 3.5rem;
-    bottom: 1rem;
-    right: 1rem;
+  .treatment-plans {
+    min-width: 0;
   }
 }
 
@@ -1781,9 +1451,6 @@ textarea:focus {
   .print-controls button {
     flex: 1 1 100%;
   }
-}
-.treatment-plans {
-  min-width: 0;
 }
 
 .treatment-board {
@@ -1876,7 +1543,7 @@ textarea:focus {
 
 .plan-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 0.9rem;
 }
 
@@ -2004,6 +1671,41 @@ textarea:focus {
   font-size: 0.9rem;
 }
 
+.linked-appointments {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  /* margin-bottom: .4em; */
+  /* min-width: 100vw; */
+}
+
+.linked-appointment-row {
+  border: 1px solid #e7edf4;
+  border-radius: 0.7rem;
+  padding: 0.55rem 0.7rem;
+  background: #ffffff;
+  font-size: 0.82rem;
+  color: #334155;
+}
+
+.linked-appointment-row .appp {
+  display: flex;
+  justify-content: space-between;
+}
+
+.linked-appointment-row .clinical-notes {
+  margin: .4em 0;
+  margin-top: .6em;
+  color: #000;
+  max-width: 700px;
+}
+
+.linked-appointment-row .cost {
+  margin-top: .2em;
+}
+
+/* .linked-appointment-row */
+
 .plan-actions {
   display: flex;
   align-items: center;
@@ -2085,7 +1787,6 @@ textarea:focus {
     padding: 0 !important;
   }
 
-  /* Hide everything by default */
   #app>* {
     visibility: hidden !important;
   }

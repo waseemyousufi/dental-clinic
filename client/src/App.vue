@@ -13,17 +13,30 @@ import { Icon } from '@iconify/vue'
 import userApi from './api/user';
 import { useAuthStore } from './stores/authStore';
 import { useBranchStore } from './stores/branchStore'
+import useUserStore from './stores/user'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 const branchStore = useBranchStore()
-
+const userStore = useUserStore()
 // Parse user from localStorage
 const storedUser = localStorage.getItem('user')
 const parsedUser = storedUser ? JSON.parse(storedUser) : null
 const user = parsedUser?.user || null
 const expandedBranchIds = ref<number[]>([])
+
+const canGoBack = ref(false)
+
+const goBack = () => {
+  if (typeof window !== 'undefined' && window.history.length > 1) {
+    router.back()
+  } else {
+    router.push('/patients') // fallback if there is no page to go back to
+  }
+}
+
+
 
 // ✅ Get branchId from localStorage->user->employee->branchId
 const userBranchId = computed(() => {
@@ -33,10 +46,6 @@ const userBranchId = computed(() => {
 
 // ✅ Check if user is admin (ADJUST THIS to match your auth system)
 const isAdmin = computed(() => {
-  // Examples - pick what matches your backend:
-  // return user?.role === 'admin'
-  // return user?.employee?.isAdmin === true
-  // return user?.permissions?.includes('manage_branches')
   return user?.employee?.position === 'admin'
 })
 
@@ -46,29 +55,9 @@ const showUserMenu = ref(false)
 // ✅ Nav links defined HERE in the same script block (DRY)
 const navLinks = [
   {
-    path: '/dashboard',
-    label: 'Overview',
-    icon: () => h(Icon, { icon: 'mdi:view-dashboard-variant', style: 'font-size: 1.45em;' })
-  },
-  {
     path: '/patients',
     label: 'Patients',
     icon: () => h(Icon, { icon: 'mdi:account-multiple', style: 'font-size: 1.45em;' })
-  },
-  {
-    path: '/employees',
-    label: 'Employees',
-    icon: () => h(Icon, { icon: 'mdi:badge-account-outline', style: 'font-size: 1.45em;' })
-  },
-  {
-    path: '/accounts',
-    label: 'Accounts',
-    icon: () => h(Icon, { icon: 'mdi:wallet-outline', style: 'font-size: 1.45em;' })
-  },
-  {
-    path: '/transactions',
-    label: 'Transactions',
-    icon: () => h(Icon, { icon: 'mdi:receipt-text-outline', style: 'font-size: 1.45em;' })
   },
   {
     path: '/appointments',
@@ -80,27 +69,60 @@ const navLinks = [
   //   label: 'Dental Xrays',
   //   icon: () => h(Icon, { icon: 'mdi:image-filter-hdr', style: 'font-size: 1.45em;' })
   // },
+  // {
+  //   path: '/prescriptions',
+  //   label: 'Prescriptions',
+  //   icon: () => h(Icon, { icon: 'mdi:script-text-outline', style: 'font-size: 1.45em;' })
+  // },
+  // {
+  //   path: '/inventory',
+  //   label: 'Inventory',
+  //   icon: () => h(Icon, { icon: 'mdi:package-variant-closed', style: 'font-size: 1.45em;' })
+  // },
+  // {
+  //   path: '/suppliers',
+  //   label: 'Suppliers',
+  //   icon: () => h(Icon, { icon: 'mdi:truck-delivery', style: 'font-size: 1.45em;' })
+  // },
   {
-    path: '/prescriptions',
-    label: 'Prescriptions',
-    icon: () => h(Icon, { icon: 'mdi:script-text-outline', style: 'font-size: 1.45em;' })
+    path: '/treatments',
+    label: 'Treatments',
+    icon: () => h(Icon, { icon: 'fluent:patient-24-filled', style: 'font-size: 1.45em;' })
   },
-  {
-    path: '/inventory',
-    label: 'Inventory',
-    icon: () => h(Icon, { icon: 'mdi:package-variant-closed', style: 'font-size: 1.45em;' })
-  },
-  {
-    path: '/suppliers',
-    label: 'Suppliers',
-    icon: () => h(Icon, { icon: 'mdi:truck-delivery', style: 'font-size: 1.45em;' })
-  },
-    {
+]
+
+
+
+if (userStore.isReceptionist || userStore.isAdmin) {
+  navLinks.push({
     path: '/expenses',
     label: 'Expenses',
     icon: () => h(Icon, { icon: 'arcticons:expense-register', style: 'font-size: 1.45em;' })
   },
-]
+    {
+      path: '/accounts',
+      label: 'Accounts',
+      icon: () => h(Icon, { icon: 'mdi:wallet-outline', style: 'font-size: 1.45em;' })
+    },)
+}
+
+if (userStore.isAdmin) {
+  navLinks.push({
+    path: '/dashboard',
+    label: 'Overview',
+    icon: () => h(Icon, { icon: 'mdi:view-dashboard-variant', style: 'font-size: 1.45em;' })
+  },
+    {
+      path: '/employees',
+      label: 'Employees',
+      icon: () => h(Icon, { icon: 'mdi:badge-account-outline', style: 'font-size: 1.45em;' })
+    },
+    {
+      path: '/transactions',
+      label: 'Transactions',
+      icon: () => h(Icon, { icon: 'mdi:receipt-text-outline', style: 'font-size: 1.45em;' })
+    },)
+}
 
 const selectBranch = (branchId: number) => {
   branchStore.setSelectedBranchId(branchId)
@@ -215,12 +237,32 @@ watch(
   },
 )
 
+onMounted(async () => {
+  canGoBack.value = typeof window !== 'undefined' && window.history.length > 1
+
+  if (!authStore.isLoggedIn) return
+
+  if (isAdmin.value) {
+    await branchStore.fetchBranches()
+    const raw = route.query.branchId
+    const asNumber = typeof raw === 'string' ? Number(raw) : NaN
+    if (Number.isFinite(asNumber)) branchStore.setSelectedBranchId(asNumber)
+  } else if (userBranchId.value != null) {
+    const current = route.query.branchId
+    if (String(current) !== String(userBranchId.value)) {
+      router.replace({ query: { ...route.query, branchId: String(userBranchId.value) } })
+    }
+  }
+})
+
 // ✅ Provide selectedBranchId from correct source
 provide('isSidebarCollapsed', isSidebarCollapsed)
 provide('toggleSidebar', toggleSidebar)
 provide('selectedBranchId', computed(() =>
   isAdmin.value ? branchStore.selectedBranchId : userBranchId.value
 ))
+
+
 </script>
 
 <template>
@@ -286,21 +328,21 @@ provide('selectedBranchId', computed(() =>
 
             <hr style="opacity: .3; margin: .3em 1.45em;" />
 
-            <sidebar-dropdown icon="ph:gear-six" title="Settings">
+            <sidebar-dropdown v-if="userStore.isAdmin" icon="ph:gear-six" title="Settings">
               <RouterLink to="/profile">Profile</RouterLink>
               <RouterLink to="/settings">Settings</RouterLink>
             </sidebar-dropdown>
 
-            <hr style="opacity: .3; margin: .3em 1.45em;" />
+            <hr v-if="userStore.isAdmin" style="opacity: .3; margin: .3em 1.45em;" />
 
-            <sidebar-dropdown icon="" title="Reports">
+            <sidebar-dropdown v-if="userStore.isAdmin" icon="" title="Reports">
               <RouterLink to="/employee-activity-log">Employee Activity Log</RouterLink>
               <RouterLink to="/finance-reports">Finance</RouterLink>
             </sidebar-dropdown>
 
-            <hr style="opacity: .3; margin: .3em 1.45em;" />
+            <hr v-if="userStore.isAdmin" style="opacity: .3; margin: .3em 1.45em;" />
 
-            <sidebar-dropdown icon="ph:question" title="Support">
+            <sidebar-dropdown v-if="userStore.isAdmin" icon="ph:question" title="Support">
               <RouterLink to="/help">Help center</RouterLink>
               <RouterLink to="/contact">Contact support</RouterLink>
             </sidebar-dropdown>
@@ -323,6 +365,11 @@ provide('selectedBranchId', computed(() =>
         <div class="content">
           <RouterView :key="$route.fullPath" />
         </div>
+
+        <n-button v-if="authStore.isLoggedIn" circle size="large" class="floating-back-btn" :disabled="!canGoBack"
+          @click="goBack">
+          <Icon icon="mdi:arrow-left" style="font-size: 1.5em;" />
+        </n-button>
       </div>
     </n-message-provider>
   </n-dialog-provider>
@@ -787,5 +834,38 @@ provide('selectedBranchId', computed(() =>
 
 .n-button.n-button--default-type.n-button--medium-type.floating-menu-btn {
   backdrop-filter: blur(8px);
+}
+
+.floating-back-btn {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 9999;
+  width: 54px;
+  height: 54px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(7px);
+  opacity: .9;
+  background-color: #fff5;
+}
+
+.floating-back-btn:hover {
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .floating-back-btn {
+    right: 12px;
+    bottom: 12px;
+    width: 48px;
+    height: 48px;
+  }
+}
+
+@media (min-width: 769px) {
+  .floating-back-btn {
+    right: 20px;
+    bottom: 20px;
+  }
 }
 </style>

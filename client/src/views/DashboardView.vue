@@ -1,319 +1,471 @@
 <template>
-  <div class="page">
-    <section class="topbar">
-      <div class="hero">
-        <h2>Dental Clinic KPI Dashboard</h2>
+  <div class="dashboard-shell">
+    <section class="hero-card">
+      <div class="hero-copy">
+        <div class="eyebrow">Dental Clinic</div>
+        <h1>Dashboard.</h1>
         <p>
-          A practical, decision-focused dashboard built around cash reality, patient behavior, treatment execution, and credit risk.
-          It pulls from your <code>/dashboard</code> endpoint first, and falls back to the existing appointment, patient, and treatment APIs when needed.
+          This page reads the dashboard JSON payload directly and presents KPI cards, charts, alerts, branch context, and recent activity
+          without a control panel or loan-related sections.
         </p>
-        <div class="hero-meta">
-          <div class="pill"><b>Branch:</b> {{ selectedBranchLabel }}</div>
-          <div class="pill"><b>Mode:</b> Daily refresh</div>
-          <div class="pill"><b>Currency:</b> AFN / local currency</div>
-          <div class="pill"><b>Status:</b> {{ loading ? 'Loading…' : 'Ready' }}</div>
-        </div>
       </div>
 
-      <div class="filters">
-        <div class="filters-grid">
-          <div class="field">
-            <label>Branch</label>
-            <select v-model="branchSelection">
-              <option value="all">All branches</option>
-              <option v-for="b in branches" :key="b.id" :value="String(b.id)">{{ b.name }}</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Period</label>
-            <select v-model="periodDays">
-              <option :value="7">Last 7 days</option>
-              <option :value="30">Last 30 days</option>
-              <option :value="90">Last 90 days</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Role View</label>
-            <select v-model="roleView">
-              <option value="owner">Owner</option>
-              <option value="reception">Reception</option>
-              <option value="doctor">Doctor</option>
-              <option value="finance">Finance</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Refresh</label>
-            <input :value="refreshLabel" type="text" readonly />
-          </div>
+      <div class="hero-meta">
+        <div class="meta-pill">
+          <span class="meta-label">Branch</span>
+          <span class="meta-value">{{ selectedBranchLabel }}</span>
         </div>
-        <div class="filter-actions">
-          <div class="stamp">{{ dataStamp }}</div>
-          <div class="buttons">
-            <button class="btn-secondary" @click="resetFilters">Reset</button>
-            <button class="btn-ghost" @click="reloadDashboard">Refresh</button>
-            <button class="btn-primary" @click="exportSummary">Export Summary</button>
-          </div>
+        <div class="meta-pill">
+          <span class="meta-label">Period</span>
+          <span class="meta-value">{{ periodLabel }}</span>
+        </div>
+        <div class="meta-pill">
+          <span class="meta-label">Updated</span>
+          <span class="meta-value">{{ updatedLabel }}</span>
+        </div>
+        <div class="meta-pill" :class="loading ? 'tone-warn' : 'tone-good'">
+          <span class="meta-label">Status</span>
+          <span class="meta-value">{{ loading ? 'Loading…' : 'Ready' }}</span>
         </div>
       </div>
     </section>
-
-    <section v-if="errorMessage" class="error-banner">{{ errorMessage }}</section>
-
-    <section class="kpis">
-      <article v-for="kpi in kpisToRender" :key="kpi.key" class="kpi">
-        <div class="top">
-          <div>
-            <div class="label">{{ kpi.label }}</div>
-            <div class="value">{{ kpi.formatted }}</div>
-          </div>
-          <div class="trend" :class="kpi.tone">{{ kpi.trend_label }}</div>
+<!-- 
+    <section class="surface-panel scope-panel">
+      <div class="panel-header">
+        <div>
+          <h2>Data scope</h2>
+          <p>Branch filter metadata returned by the backend.</p>
         </div>
-        <div class="sub">{{ kpi.help }}</div>
+        <div class="badge tone-brand">{{ branchCountLabel }}</div>
+      </div>
+
+      <div class="branch-grid">
+        <div
+          v-for="branch in branchChips"
+          :key="branch.id"
+          class="branch-chip"
+          :class="branch.id === selectedBranchId ? 'active' : ''"
+        >
+          <span class="branch-name">{{ branch.name }}</span>
+          <span class="branch-id">#{{ branch.id }}</span>
+        </div>
+      </div>
+    </section> -->
+
+    <section v-if="errorMessage" class="error-banner">
+      {{ errorMessage }}
+    </section>
+
+    <section class="kpi-grid">
+      <article v-for="kpi in kpisToRender" :key="kpi.key" class="kpi-card">
+        <div class="kpi-top">
+          <div>
+            <div class="kpi-label">{{ kpi.label }}</div>
+            <div class="kpi-value">{{ kpi.formatted }}</div>
+          </div>
+          <div class="trend-pill" :class="toneClass(kpi.tone)">
+            {{ kpi.trend_label }}
+          </div>
+        </div>
+        <p class="kpi-help">{{ kpi.help }}</p>
       </article>
     </section>
 
-    <section class="grid-2">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <h3>Cash Flow & Collection Trend</h3>
-            <p>Collected money versus debits, with the core reality metric at the center.</p>
+    <section class="chart-grid chart-grid-large">
+      <div class="surface-panel chart-card span-2">
+        <div class="panel-header">
+          <div>
+            <h2>Cash flow</h2>
+            <p>Collected money versus debits across the selected period.</p>
           </div>
-          <div class="tag brand">Daily trend</div>
+          <div class="badge tone-brand">Daily trend</div>
         </div>
-        <div class="chart-wrap tall"><canvas ref="cashChartRef"></canvas></div>
+        <div class="chart-box chart-tall">
+          <canvas v-if="hasChartData('cash_flow')" ref="cashChartRef"></canvas>
+          <div v-else class="empty-state">No cash flow data returned.</div>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <h3>Credit Aging</h3>
-            <p>What is owed now, what is getting risky, and what needs follow-up.</p>
+      <div class="surface-panel chart-card">
+        <div class="panel-header">
+          <div>
+            <h2>Credit aging</h2>
+            <p>Outstanding balances grouped by age bucket.</p>
           </div>
-          <div class="tag warn">A/R monitoring</div>
+          <div class="badge tone-warn">A/R monitoring</div>
         </div>
-        <div class="chart-wrap tall"><canvas ref="agingChartRef"></canvas></div>
-      </div>
-    </section>
-
-    <section class="grid-3">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <h3>Treatment Mix</h3>
-            <p>Procedure categories by count, useful for understanding demand and clinic direction.</p>
-          </div>
-          <div class="tag good">Clinical mix</div>
+        <div class="chart-box chart-tall">
+          <canvas v-if="hasChartData('credit_aging')" ref="agingChartRef"></canvas>
+          <div v-else class="empty-state">No credit aging data returned.</div>
         </div>
-        <div class="chart-wrap short"><canvas ref="mixChartRef"></canvas></div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <h3>Patient Behavior</h3>
-            <p>New vs returning patients, plus emergency vs planned visits.</p>
-          </div>
-          <div class="tag brand">Retention</div>
-        </div>
-        <div class="chart-wrap short"><canvas ref="behaviorChartRef"></canvas></div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <h3>Pricing Discipline</h3>
-            <p>How often treatment prices stay inside the defined procedure range.</p>
-          </div>
-          <div class="tag warn">Range control</div>
-        </div>
-        <div class="chart-wrap short"><canvas ref="pricingChartRef"></canvas></div>
       </div>
     </section>
 
-    <section class="grid-2">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <h3>Operational Snapshot</h3>
-            <p>Useful for the morning huddle and branch-level performance review.</p>
+    <section class="chart-grid chart-grid-three">
+      <div class="surface-panel chart-card">
+        <div class="panel-header">
+          <div>
+            <h2>Treatment mix</h2>
+            <p>Procedure categories by count.</p>
           </div>
-          <div class="tag brand">Summary</div>
+          <div class="badge tone-good">Clinical mix</div>
         </div>
-        <div class="stats-grid">
-          <div v-for="item in operationalStats" :key="item.label" class="mini">
-            <div class="mini-label">{{ item.label }}</div>
-            <div class="mini-value">{{ item.value }}</div>
-            <div class="mini-help">{{ item.help }}</div>
-          </div>
+        <div class="chart-box chart-short">
+          <canvas v-if="hasChartData('treatment_mix')" ref="mixChartRef"></canvas>
+          <div v-else class="empty-state">No treatment mix data returned.</div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <h3>Action Alerts</h3>
-            <p>Automated warnings that should push a clinic owner or finance lead to act.</p>
+      <div class="surface-panel chart-card">
+        <div class="panel-header">
+          <div>
+            <h2>Patient behavior</h2>
+            <p>Appointments, treatments, and new patients over time.</p>
           </div>
-          <div class="tag bad">Attention</div>
+          <div class="badge tone-brand">Retention</div>
         </div>
-        <div class="alerts">
-          <div v-for="alert in alertsToRender" :key="alert.title" class="alert">
-            <strong>{{ alert.title }}</strong>
-            <p>{{ alert.message }}</p>
-            <div class="meta">
-              <span>Suggested action</span>
-              <span>→ {{ alert.action }}</span>
+        <div class="chart-box chart-short">
+          <canvas v-if="hasChartData('patient_behavior')" ref="behaviorChartRef"></canvas>
+          <div v-else class="empty-state">No patient behavior data returned.</div>
+        </div>
+      </div>
+
+      <div class="surface-panel chart-card">
+        <div class="panel-header">
+          <div>
+            <h2>Pricing discipline</h2>
+            <p>How often prices stay inside the procedure range.</p>
+          </div>
+          <div class="badge tone-warn">Range control</div>
+        </div>
+        <div class="chart-box chart-short">
+          <canvas v-if="hasChartData('pricing_discipline')" ref="pricingChartRef"></canvas>
+          <div v-else class="empty-state">No pricing audit data returned.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chart-grid chart-grid-three">
+      <div class="surface-panel chart-card">
+        <div class="panel-header">
+          <div>
+            <h2>Referral source</h2>
+            <p>Where new patients are coming from.</p>
+          </div>
+          <div class="badge tone-brand">Source mix</div>
+        </div>
+        <div class="chart-box chart-short">
+          <canvas v-if="hasChartData('referral_source')" ref="referralChartRef"></canvas>
+          <div v-else class="empty-state">No referral source data returned.</div>
+        </div>
+      </div>
+
+      <div class="surface-panel chart-card">
+        <div class="panel-header">
+          <div>
+            <h2>Visit type</h2>
+            <p>How visits are distributed.</p>
+          </div>
+          <div class="badge tone-brand">Visit mix</div>
+        </div>
+        <div class="chart-box chart-short">
+          <canvas v-if="hasChartData('visit_type')" ref="visitChartRef"></canvas>
+          <div v-else class="empty-state">No visit type data returned.</div>
+        </div>
+      </div>
+
+      <div class="surface-panel insights-card">
+        <div class="panel-header">
+          <div>
+            <h2>Operational snapshot</h2>
+            <p>Fast summary for branch leadership.</p>
+          </div>
+          <div class="badge tone-brand">Summary</div>
+        </div>
+        <div class="mini-grid">
+          <div v-for="item in operationalStats" :key="item.label" class="mini-card">
+            <span class="mini-label">{{ item.label }}</span>
+            <span class="mini-value">{{ item.value }}</span>
+            <span class="mini-help">{{ item.help }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chart-grid chart-grid-two">
+      <div class="surface-panel alerts-card">
+        <div class="panel-header">
+          <div>
+            <h2>Action alerts</h2>
+            <p>Warnings surfaced from the backend payload.</p>
+          </div>
+          <div class="badge tone-bad">Attention</div>
+        </div>
+
+        <div class="alert-list">
+          <article v-for="alert in alertsToRender" :key="alert.title" class="alert-item" :class="alert.tone">
+            <div class="alert-title-row">
+              <strong>{{ alert.title }}</strong>
+              <span class="alert-tone">{{ alert.tone }}</span>
             </div>
+            <p>{{ alert.message }}</p>
+            <div class="alert-action">Suggested action: {{ alert.action }}</div>
+          </article>
+        </div>
+      </div>
+
+      <div class="surface-panel recent-card">
+        <div class="panel-header">
+          <div>
+            <h2>Recent activity</h2>
+            <p>Latest treatments and transactions from the backend.</p>
           </div>
+          <div class="badge tone-brand">Latest rows</div>
+        </div>
+
+        <div class="table-switch">
+          <button :class="['switch-btn', currentTable === 'treatments' ? 'active' : '']" @click="currentTable = 'treatments'">Treatments</button>
+          <button :class="['switch-btn', currentTable === 'transactions' ? 'active' : '']" @click="currentTable = 'transactions'">Transactions</button>
+        </div>
+
+        <div class="table-wrap">
+          <table v-if="currentTable === 'treatments'">
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Date</th>
+                <th>Treatment</th>
+                <th>Status</th>
+                <th>Balance</th>
+                <th>Price fit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in recentTreatments" :key="row.id">
+                <td>
+                  <strong>{{ row.patient_name }}</strong>
+                  <div class="muted-small">{{ row.branch_name }}</div>
+                </td>
+                <td>{{ formatDate(row.date) }}</td>
+                <td>
+                  {{ row.treatment_type }}
+                  <div class="muted-small">{{ row.diagnosis }}</div>
+                </td>
+                <td><span class="row-tag" :class="statusTone(row.status)">{{ row.status }}</span></td>
+                <td>{{ formatMoney(row.balance) }}</td>
+                <td><span class="row-tag" :class="rangeTone(row.range_fit)">{{ row.range_fit }}</span></td>
+              </tr>
+              <tr v-if="!recentTreatments.length">
+                <td colspan="6" class="empty-table">No recent treatments returned.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table v-else>
+            <thead>
+              <tr>
+                <th>Branch</th>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in recentTransactions" :key="row.id">
+                <td>{{ row.branch_name }}</td>
+                <td>{{ formatDate(row.date) }}</td>
+                <td><span class="row-tag" :class="row.transaction_type === 'in' ? 'good' : 'warn'">{{ row.transaction_type }}</span></td>
+                <td>{{ formatMoney(row.amount) }}</td>
+                <td>{{ row.description }}</td>
+              </tr>
+              <tr v-if="!recentTransactions.length">
+                <td colspan="5" class="empty-table">No recent transactions returned.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
 
-    <section class="table-card">
-      <div class="card-header table-header">
-        <div class="card-title">
-          <h3>Recent Treatments & Financial Activity</h3>
-          <p>Quick operational review of the latest treatment and payment events.</p>
-        </div>
-        <div class="tag brand">Latest rows</div>
-      </div>
-
-      <div class="table-switch">
-        <button :class="['switch-btn', currentTable === 'treatments' ? 'active' : '']" @click="currentTable = 'treatments'">Treatments</button>
-        <button :class="['switch-btn', currentTable === 'transactions' ? 'active' : '']" @click="currentTable = 'transactions'">Transactions</button>
-      </div>
-
-      <div class="table-scroll">
-        <table v-if="currentTable === 'treatments'">
-          <thead>
-            <tr>
-              <th>Patient</th>
-              <th>Last Visit</th>
-              <th>Treatment</th>
-              <th>Status</th>
-              <th>Balance</th>
-              <th>Price Range Fit</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="row in recentTreatments" :key="row.id">
-              <td><strong>{{ row.patient_name }}</strong><div class="muted-small">Branch: {{ row.branch_name }}</div></td>
-              <td>{{ formatDate(row.date) }}</td>
-              <td>{{ row.treatment_type }}<div class="muted-small">{{ row.diagnosis }}</div></td>
-              <td><span class="tag" :class="statusTone(row.status)">{{ row.status }}</span></td>
-              <td>{{ formatMoney(row.balance) }}</td>
-              <td><span class="tag" :class="rangeTone(row.range_fit)">{{ row.range_fit }}</span></td>
-            </tr>
-          </tbody>
-        </table>
-
-        <table v-else>
-          <thead>
-            <tr>
-              <th>Branch</th>
-              <th>Date</th>
-              <th>Type</th>
-              <th>Amount</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="row in recentTransactions" :key="row.id">
-              <td>{{ row.branch_name }}</td>
-              <td>{{ formatDate(row.date) }}</td>
-              <td><span class="tag" :class="row.transaction_type === 'in' ? 'good' : 'warn'">{{ row.transaction_type }}</span></td>
-              <td>{{ formatMoney(row.amount) }}</td>
-              <td>{{ row.description }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <div class="footer-note">
-      Notes: This dashboard is intentionally built around your market reality — cash collection, credit risk, repeat visits, and pricing flexibility.
-      It can consume a backend dashboard payload directly, but also falls back to the existing appointment, patient, and treatment APIs.
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { Chart, registerables } from 'chart.js'
 import dashboardApi from '@api/dashboard'
-import appointmentApi from '@api/appointment'
-import patientApi from '@api/patient'
-import treatmentApi from '@api/treatment'
 
 Chart.register(...registerables)
 
 type Tone = 'good' | 'warn' | 'bad' | 'up' | 'down' | 'neutral'
 type TableMode = 'treatments' | 'transactions'
 
-interface Branch { id: number; name: string }
-interface KpiItem { key: string; label: string; value: number | string; formatted: string; trend?: number | null; trend_label: string; tone: Tone; help: string }
-interface AlertItem { title: string; message: string; action: string; tone: 'good' | 'warn' | 'bad' }
-interface TreatmentRow { id: number; patient_name: string; branch_name: string; treatment_type: string; diagnosis: string; date: string; status: string; amount: number; range_fit: string; balance: number }
-interface TransactionRow { id: number; branch_name: string; transaction_type: 'in' | 'debit' | string; amount: number; date: string; description: string }
+type ChartKey =
+  | 'cash_flow'
+  | 'credit_aging'
+  | 'treatment_mix'
+  | 'patient_behavior'
+  | 'pricing_discipline'
+  | 'referral_source'
+  | 'visit_type'
+
+interface BranchChip {
+  id: number
+  name: string
+}
+
+interface KpiItem {
+  key: string
+  label: string
+  value: number | string
+  formatted: string
+  trend?: number | null
+  trend_label: string
+  tone: Tone
+  help: string
+}
+
+interface AlertItem {
+  title: string
+  message: string
+  action: string
+  tone: 'good' | 'warn' | 'bad'
+}
+
+interface TreatmentRow {
+  id: number
+  patient_name: string
+  branch_name: string
+  treatment_type: string
+  diagnosis: string
+  date: string
+  status: string
+  amount: number
+  range_fit: string
+  balance: number
+}
+
+interface TransactionRow {
+  id: number
+  branch_name: string
+  transaction_type: 'in' | 'debit' | string
+  amount: number
+  date: string
+  description: string
+}
+
+interface ChartPayload {
+  labels: string[]
+  datasets: Array<{ label: string; data: number[] }>
+}
+
 interface DashboardPayload {
-  meta?: { generated_at?: string; branch_id?: number | null; branch_name?: string; period_days?: number }
-  filters?: { branches?: Branch[] }
+  meta?: {
+    generated_at?: string
+    branch_id?: number | null
+    branch_name?: string
+    period_days?: number
+    period_start?: string
+    period_end?: string
+  }
+  filters?: { branches?: Array<{ id: number; branch_name: string | null }> }
   kpis?: KpiItem[]
-  charts?: Record<string, { labels: string[]; datasets: Array<{ label: string; data: number[] }> }>
+  charts?: Partial<Record<ChartKey, ChartPayload>>
   alerts?: Array<{ tone?: 'good' | 'warn' | 'bad'; title: string; message: string; meta?: { action?: string } }>
   recent?: { treatments?: TreatmentRow[]; transactions?: TransactionRow[] }
 }
-interface RawAppointment { id?: number; appointment_timestamp?: string; status?: string; description?: string; branch_id?: number; visit_type?: string }
-interface RawPatient { id?: number; f_name?: string; l_name?: string; registration_date?: string; registeration_date?: string; branch_id?: number; referral_source?: string }
-interface RawTreatment { id?: number; treatment_type?: string; diagnosis?: string; treatment_date?: string; duration?: number | string; cost?: number | string; actual_price?: number | string; description?: string; patient_id?: number; branch_id?: number; status?: string; procedure_id?: number; treatment_plan_id?: number | null }
-interface FallbackPayload { branches: Branch[]; kpis: KpiItem[]; charts: NonNullable<DashboardPayload['charts']>; alerts: AlertItem[]; recent: { treatments: TreatmentRow[]; transactions: TransactionRow[] } }
 
 const loading = ref(false)
 const errorMessage = ref<string | null>(null)
 const dashboard = ref<DashboardPayload | null>(null)
-const branches = ref<Branch[]>([])
-const branchSelection = ref<string>('all')
-const periodDays = ref<number>(30)
-const roleView = ref<string>('owner')
 const currentTable = ref<TableMode>('treatments')
-const refreshLabel = ref(new Date().toLocaleString())
-const dataStamp = ref('Loading backend data…')
 
 const cashChartRef = ref<HTMLCanvasElement | null>(null)
 const agingChartRef = ref<HTMLCanvasElement | null>(null)
 const mixChartRef = ref<HTMLCanvasElement | null>(null)
 const behaviorChartRef = ref<HTMLCanvasElement | null>(null)
 const pricingChartRef = ref<HTMLCanvasElement | null>(null)
+const referralChartRef = ref<HTMLCanvasElement | null>(null)
+const visitChartRef = ref<HTMLCanvasElement | null>(null)
 
 let cashChart: Chart | null = null
 let agingChart: Chart | null = null
 let mixChart: Chart | null = null
 let behaviorChart: Chart | null = null
 let pricingChart: Chart | null = null
-let debounceTimer: number | undefined
+let referralChart: Chart | null = null
+let visitChart: Chart | null = null
 
-const formatMoney = (value: number | string | null | undefined) => new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Number(value ?? 0))
-const formatPercent = (value: number | string | null | undefined) => `${Number(value ?? 0).toFixed(1)}%`
+const palette = ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#84cc16']
+
+const formatMoney = (value: number | string | null | undefined) =>
+  new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(Number(value ?? 0))
+
 const formatDate = (value: string | null | undefined) => {
   if (!value) return '-'
   const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
+const formatDateTime = (value: string | null | undefined) => {
+  if (!value) return '-'
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString()
+}
+
+const dashboardMeta = computed(() => dashboard.value?.meta ?? {})
+const branchId = computed(() => dashboardMeta.value.branch_id ?? null)
 const selectedBranchLabel = computed(() => {
-  if (branchSelection.value === 'all') return 'All branches'
-  const branch = branches.value.find(b => String(b.id) === String(branchSelection.value))
-  return branch?.name ?? `Branch #${branchSelection.value}`
+  const branchName = dashboardMeta.value.branch_name?.trim()
+  if (branchName) return branchName
+  if (branchId.value == null) return 'All branches'
+  const branch = branchChips.value.find(b => b.id === branchId.value)
+  return branch?.name ?? `Branch #${branchId.value}`
+})
+
+const periodLabel = computed(() => {
+  const meta = dashboardMeta.value
+  if (meta.period_start && meta.period_end) {
+    return `${formatDate(meta.period_start)} → ${formatDate(meta.period_end)}`
+  }
+  return `${meta.period_days ?? 30} days`
+})
+
+const updatedLabel = computed(() => formatDateTime(dashboardMeta.value.generated_at ?? null))
+
+const branchChips = computed<BranchChip[]>(() => {
+  const branches = dashboard.value?.filters?.branches ?? []
+  return branches.map(branch => ({
+    id: branch.id,
+    name: branch.branch_name?.trim() || `Branch #${branch.id}`,
+  }))
+})
+
+const branchCountLabel = computed(() => {
+  const total = branchChips.value.length
+  return total === 1 ? '1 branch' : `${total} branches`
 })
 
 const kpisToRender = computed(() => dashboard.value?.kpis ?? [])
-const alertsToRender = computed<AlertItem[]>(() => (dashboard.value?.alerts ?? []).map(a => ({ title: a.title, message: a.message, action: a.meta?.action ?? 'Review dashboard', tone: a.tone ?? 'warn' })))
 const recentTreatments = computed<TreatmentRow[]>(() => dashboard.value?.recent?.treatments ?? [])
 const recentTransactions = computed<TransactionRow[]>(() => dashboard.value?.recent?.transactions ?? [])
+
+const alertsToRender = computed<AlertItem[]>(() =>
+  (dashboard.value?.alerts ?? []).map(alert => ({
+    title: alert.title,
+    message: alert.message,
+    action: alert.meta?.action ?? 'Review dashboard',
+    tone: alert.tone ?? 'warn',
+  })),
+)
+
 const operationalStats = computed(() => {
-  const kpis = dashboard.value?.kpis ?? []
-  const find = (key: string) => kpis.find(k => k.key === key)
+  const items = dashboard.value?.kpis ?? []
+  const find = (key: string) => items.find(k => k.key === key)
+
   return [
     { label: 'Cash collected', value: find('cash_collected')?.formatted ?? '0', help: 'Actual money received in the selected period.' },
     { label: 'Outstanding credit', value: find('outstanding_ar')?.formatted ?? '0', help: 'Balances still owed by patients.' },
@@ -322,9 +474,13 @@ const operationalStats = computed(() => {
     { label: 'New patients', value: find('new_patients')?.formatted ?? '0', help: 'Registered patients in the selected period.' },
     { label: 'Pricing discipline', value: find('pricing_discipline')?.formatted ?? '0%', help: 'Share of treatments priced inside range.' },
     { label: 'Same-day collection', value: find('same_day_collection')?.formatted ?? '0%', help: 'Treatments collected on the same day.' },
-    { label: 'Plan acceptance', value: find('plan_acceptance')?.formatted ?? '0%', help: 'Accepted treatment plans versus proposals.' },
+    { label: 'Case acceptance', value: find('plan_acceptance')?.formatted ?? '0%', help: 'Accepted treatment plans versus proposals.' },
   ]
 })
+
+function toneClass(tone: Tone): string {
+  return tone
+}
 
 function statusTone(status: string): string {
   const s = String(status || '').toLowerCase()
@@ -333,207 +489,865 @@ function statusTone(status: string): string {
   if (s.includes('progress') || s.includes('partial')) return 'warn'
   return 'brand'
 }
-function rangeTone(rangeFit: string): string { const s = String(rangeFit || '').toLowerCase(); if (s.includes('in range')) return 'good'; if (s.includes('below') || s.includes('above')) return 'warn'; return 'brand' }
+
+function rangeTone(rangeFit: string): string {
+  const s = String(rangeFit || '').toLowerCase()
+  if (s.includes('in range')) return 'good'
+  if (s.includes('below') || s.includes('above')) return 'warn'
+  return 'brand'
+}
+
+function normalizeResponse(response: any): any {
+  return response?.data ?? response
+}
+
+function normalizeDashboard(raw: any): DashboardPayload {
+  return {
+    meta: raw?.meta ?? {},
+    filters: {
+      branches: (raw?.filters?.branches ?? []).map((branch: any) => ({
+        id: branch.id,
+        branch_name: branch.branch_name ?? null,
+      })),
+    },
+    kpis: raw?.kpis ?? [],
+    charts: raw?.charts ?? {},
+    alerts: raw?.alerts ?? [],
+    recent: raw?.recent ?? { treatments: [], transactions: [] },
+  }
+}
+
+function hasChartData(key: ChartKey): boolean {
+  const chart = dashboard.value?.charts?.[key]
+  if (!chart) return false
+  return Array.isArray(chart.labels) && chart.labels.length > 0 && Array.isArray(chart.datasets) && chart.datasets.some(dataset => Array.isArray(dataset.data) && dataset.data.length > 0)
+}
+
+function chartOptions() {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom' as const,
+        labels: {
+          usePointStyle: true,
+          boxWidth: 10,
+          padding: 18,
+          font: { size: 12 },
+        },
+      },
+      tooltip: {
+        backgroundColor: '#0f172a',
+        titleColor: '#fff',
+        bodyColor: '#e2e8f0',
+        padding: 12,
+        displayColors: true,
+      },
+    },
+  }
+}
 
 function destroyCharts() {
-  cashChart?.destroy(); agingChart?.destroy(); mixChart?.destroy(); behaviorChart?.destroy(); pricingChart?.destroy()
-  cashChart = agingChart = mixChart = behaviorChart = pricingChart = null
+  cashChart?.destroy()
+  agingChart?.destroy()
+  mixChart?.destroy()
+  behaviorChart?.destroy()
+  pricingChart?.destroy()
+  referralChart?.destroy()
+  visitChart?.destroy()
+
+  cashChart = null
+  agingChart = null
+  mixChart = null
+  behaviorChart = null
+  pricingChart = null
+  referralChart = null
+  visitChart = null
 }
-function chartOptions() {
-  return { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' as const, labels: { usePointStyle: true, boxWidth: 10, padding: 18, font: { size: 12 } } }, tooltip: { backgroundColor: '#0f172a', titleColor: '#fff', bodyColor: '#e2e8f0', padding: 12, displayColors: true } } }
+
+function buildDatasetStyle(index: number) {
+  const color = palette[index % palette.length]
+  return {
+    borderColor: color,
+    backgroundColor: `${color}22`,
+    pointBackgroundColor: color,
+    pointBorderColor: '#ffffff',
+    hoverBackgroundColor: color,
+  }
 }
-function sumSeries(series: number[]): number { return series.reduce((acc, n) => acc + Number(n || 0), 0) }
-function normalizeResponse(response: any): any { return response?.data ?? response }
-function normalizeDashboard(raw: any): DashboardPayload { return { meta: raw?.meta ?? {}, filters: raw?.filters ?? {}, kpis: raw?.kpis ?? [], charts: raw?.charts ?? {}, alerts: raw?.alerts ?? [], recent: raw?.recent ?? { treatments: [], transactions: [] } } }
 
 function renderCharts() {
   const charts = dashboard.value?.charts
   if (!charts) return
+
   destroyCharts()
 
-  if (cashChartRef.value && charts.cash_flow) {
-    cashChart = new Chart(cashChartRef.value, { type: 'line', data: { labels: charts.cash_flow.labels, datasets: (charts.cash_flow.datasets ?? []).map((d, i) => ({ label: d.label, data: d.data, tension: 0.35, borderWidth: 3, pointRadius: 2, fill: i === 0 })) }, options: { ...chartOptions(), scales: { y: { beginAtZero: true, grid: { color: '#e2e8f0' }, ticks: { callback: (v: string | number) => formatMoney(v) } }, x: { grid: { display: false } } } } })
+  if (cashChartRef.value && charts.cash_flow?.labels?.length) {
+    cashChart = new Chart(cashChartRef.value, {
+      type: 'line',
+      data: {
+        labels: charts.cash_flow.labels,
+        datasets: (charts.cash_flow.datasets ?? []).map((dataset, index) => ({
+          label: dataset.label,
+          data: dataset.data ?? [],
+          tension: 0.35,
+          borderWidth: 3,
+          pointRadius: 2,
+          fill: index === 0,
+          ...buildDatasetStyle(index),
+        })),
+      },
+      options: {
+        ...chartOptions(),
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: '#e2e8f0' },
+            ticks: { callback: (value: string | number) => formatMoney(value) },
+          },
+          x: { grid: { display: false } },
+        },
+      },
+    })
   }
-  if (agingChartRef.value && charts.credit_aging) {
-    agingChart = new Chart(agingChartRef.value, { type: 'bar', data: { labels: charts.credit_aging.labels, datasets: [{ label: charts.credit_aging.datasets?.[0]?.label ?? 'Outstanding balance', data: charts.credit_aging.datasets?.[0]?.data ?? [], borderWidth: 1 }] }, options: { ...chartOptions(), scales: { y: { beginAtZero: true, ticks: { callback: (v: string | number) => formatMoney(v) } }, x: { grid: { display: false } } } } })
+
+  if (agingChartRef.value && charts.credit_aging?.labels?.length) {
+    agingChart = new Chart(agingChartRef.value, {
+      type: 'bar',
+      data: {
+        labels: charts.credit_aging.labels,
+        datasets: [
+          {
+            label: charts.credit_aging.datasets?.[0]?.label ?? 'Outstanding balance',
+            data: charts.credit_aging.datasets?.[0]?.data ?? [],
+            borderWidth: 1,
+            ...buildDatasetStyle(1),
+          },
+        ],
+      },
+      options: {
+        ...chartOptions(),
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: '#e2e8f0' },
+            ticks: { callback: (value: string | number) => formatMoney(value) },
+          },
+          x: { grid: { display: false } },
+        },
+      },
+    })
   }
-  if (mixChartRef.value && charts.treatment_mix) {
-    mixChart = new Chart(mixChartRef.value, { type: 'doughnut', data: { labels: charts.treatment_mix.labels, datasets: [{ label: charts.treatment_mix.datasets?.[0]?.label ?? 'Treatments', data: charts.treatment_mix.datasets?.[0]?.data ?? [], borderWidth: 0 }] }, options: { ...chartOptions(), cutout: '62%' } })
+
+  if (mixChartRef.value && charts.treatment_mix?.labels?.length) {
+    mixChart = new Chart(mixChartRef.value, {
+      type: 'doughnut',
+      data: {
+        labels: charts.treatment_mix.labels,
+        datasets: [
+          {
+            label: charts.treatment_mix.datasets?.[0]?.label ?? 'Treatments',
+            data: charts.treatment_mix.datasets?.[0]?.data ?? [],
+            borderWidth: 0,
+            backgroundColor: charts.treatment_mix.labels.map((_, index) => palette[index % palette.length]),
+          },
+        ],
+      },
+      options: {
+        ...chartOptions(),
+        cutout: '64%',
+      },
+    })
   }
-  if (behaviorChartRef.value && charts.patient_behavior) {
-    behaviorChart = new Chart(behaviorChartRef.value, { type: 'bar', data: { labels: ['Appointments', 'Treatments', 'New patients'], datasets: [{ label: 'Count', data: [sumSeries(charts.patient_behavior.datasets?.[0]?.data ?? []), sumSeries(charts.patient_behavior.datasets?.[1]?.data ?? []), sumSeries(charts.patient_behavior.datasets?.[2]?.data ?? [])], borderWidth: 1 }] }, options: { ...chartOptions(), indexAxis: 'y', scales: { x: { beginAtZero: true, grid: { color: '#e2e8f0' } }, y: { grid: { display: false } } } } })
+
+  if (behaviorChartRef.value && charts.patient_behavior?.labels?.length) {
+    behaviorChart = new Chart(behaviorChartRef.value, {
+      type: 'line',
+      data: {
+        labels: charts.patient_behavior.labels,
+        datasets: (charts.patient_behavior.datasets ?? []).map((dataset, index) => ({
+          label: dataset.label,
+          data: dataset.data ?? [],
+          tension: 0.35,
+          borderWidth: 2,
+          pointRadius: 1.5,
+          fill: index === 0,
+          ...buildDatasetStyle(index),
+        })),
+      },
+      options: {
+        ...chartOptions(),
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: '#e2e8f0' },
+          },
+          x: { grid: { display: false } },
+        },
+      },
+    })
   }
-  if (pricingChartRef.value && charts.pricing_discipline) {
-    pricingChart = new Chart(pricingChartRef.value, { type: 'pie', data: { labels: charts.pricing_discipline.labels, datasets: [{ label: charts.pricing_discipline.datasets?.[0]?.label ?? 'Pricing audit', data: charts.pricing_discipline.datasets?.[0]?.data ?? [], borderWidth: 0 }] }, options: chartOptions() })
+
+  if (pricingChartRef.value && charts.pricing_discipline?.labels?.length) {
+    pricingChart = new Chart(pricingChartRef.value, {
+      type: 'pie',
+      data: {
+        labels: charts.pricing_discipline.labels,
+        datasets: [
+          {
+            label: charts.pricing_discipline.datasets?.[0]?.label ?? 'Pricing audit',
+            data: charts.pricing_discipline.datasets?.[0]?.data ?? [],
+            borderWidth: 0,
+            backgroundColor: charts.pricing_discipline.labels.map((_, index) => palette[index % palette.length]),
+          },
+        ],
+      },
+      options: chartOptions(),
+    })
+  }
+
+  if (referralChartRef.value && charts.referral_source?.labels?.length) {
+    referralChart = new Chart(referralChartRef.value, {
+      type: 'doughnut',
+      data: {
+        labels: charts.referral_source.labels,
+        datasets: [
+          {
+            label: charts.referral_source.datasets?.[0]?.label ?? 'Patients',
+            data: charts.referral_source.datasets?.[0]?.data ?? [],
+            borderWidth: 0,
+            backgroundColor: charts.referral_source.labels.map((_, index) => palette[index % palette.length]),
+          },
+        ],
+      },
+      options: {
+        ...chartOptions(),
+        cutout: '64%',
+      },
+    })
+  }
+
+  if (visitChartRef.value && charts.visit_type?.labels?.length) {
+    visitChart = new Chart(visitChartRef.value, {
+      type: 'doughnut',
+      data: {
+        labels: charts.visit_type.labels,
+        datasets: [
+          {
+            label: charts.visit_type.datasets?.[0]?.label ?? 'Visits',
+            data: charts.visit_type.datasets?.[0]?.data ?? [],
+            borderWidth: 0,
+            backgroundColor: charts.visit_type.labels.map((_, index) => palette[index % palette.length]),
+          },
+        ],
+      },
+      options: {
+        ...chartOptions(),
+        cutout: '64%',
+      },
+    })
   }
 }
 
-function debounceReload() { window.clearTimeout(debounceTimer); debounceTimer = window.setTimeout(() => { void reloadDashboard() }, 250) }
-function resetFilters() { branchSelection.value = 'all'; periodDays.value = 30; roleView.value = 'owner'; void reloadDashboard() }
-
-async function reloadDashboard() {
+async function loadDashboard() {
   loading.value = true
   errorMessage.value = null
+
   try {
-    const resolvedBranchId = branchSelection.value === 'all' ? undefined : Number(branchSelection.value)
-    const response = await (dashboardApi as any).getBranchDashboard(resolvedBranchId, periodDays.value)
-    const raw = normalizeResponse(response)
-    dashboard.value = normalizeDashboard(raw)
-    if (dashboard.value.filters?.branches?.length) branches.value = dashboard.value.filters.branches
-    dataStamp.value = dashboard.value.meta?.generated_at ? `Loaded from backend · ${formatDateTime(dashboard.value.meta.generated_at)}` : 'Loaded from backend'
-    refreshLabel.value = new Date().toLocaleString()
-    await nextTick(); renderCharts()
+    const api = dashboardApi as any
+    const response =
+      (await api.getBranchDashboard?.(undefined, 30)) ??
+      (await api.index?.()) ??
+      (await api.get?.('/dashboard'))
+
+    dashboard.value = normalizeDashboard(normalizeResponse(response))
+
+    await nextTick()
+    renderCharts()
   } catch (error) {
-    try {
-      const fallback = await loadFallbackDashboard()
-      dashboard.value = fallback
-      if (fallback.branches.length) branches.value = fallback.branches
-      dataStamp.value = 'Loaded from fallback APIs'
-      refreshLabel.value = new Date().toLocaleString()
-      await nextTick(); renderCharts()
-    } catch (fallbackError) {
-      errorMessage.value = 'Failed to load dashboard data from the backend and fallback APIs.'
-      console.error(error, fallbackError)
-    }
+    console.error(error)
+    errorMessage.value = 'Failed to load dashboard data from the backend.'
   } finally {
     loading.value = false
   }
 }
 
-function exportSummary() {
-  const summary = { branch: selectedBranchLabel.value, periodDays: periodDays.value, roleView: roleView.value, generatedAt: new Date().toISOString(), kpis: kpisToRender.value, alerts: alertsToRender.value, recentTreatments: recentTreatments.value, recentTransactions: recentTransactions.value }
-  const blob = new Blob([JSON.stringify(summary, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url; a.download = 'dental-dashboard-summary.json'; a.click(); URL.revokeObjectURL(url)
-}
+onMounted(() => {
+  void loadDashboard()
+})
 
-async function loadFallbackDashboard(): Promise<FallbackPayload> {
-  const resolvedBranchId = branchSelection.value === 'all' ? undefined : Number(branchSelection.value)
-  const [appointmentResp, patientResp, treatmentResp] = await Promise.all([
-    (appointmentApi as any).getBranchAppointments?.(resolvedBranchId),
-    (patientApi as any).getBranchPatients?.(false, resolvedBranchId),
-    (treatmentApi as any).getBranchTreatments?.(resolvedBranchId),
-  ])
-  const appointments = (normalizeResponse(appointmentResp) ?? []) as RawAppointment[]
-  const patients = (normalizeResponse(patientResp) ?? []) as RawPatient[]
-  const treatments = (normalizeResponse(treatmentResp) ?? []) as RawTreatment[]
-  const branchesFound = uniqueBranchesFromRaw(patients, appointments, treatments)
-  const kpis = deriveFallbackKpis(appointments, patients, treatments)
-  const charts = deriveFallbackCharts(appointments, patients, treatments)
-  const recent = deriveFallbackRecent(appointments, patients, treatments)
-  return { branches: branchesFound, kpis, charts, alerts: deriveFallbackAlerts(kpis), recent }
-}
-
-function uniqueBranchesFromRaw(patients: RawPatient[], appointments: RawAppointment[], treatments: RawTreatment[]): Branch[] {
-  const ids = new Set<number>(); const out: Branch[] = []
-  const pushIfNew = (id?: number) => { if (typeof id !== 'number' || ids.has(id)) return; ids.add(id); out.push({ id, name: `Branch #${id}` }) }
-  patients.forEach(p => pushIfNew(p.branch_id)); appointments.forEach(a => pushIfNew(a.branch_id)); treatments.forEach(t => pushIfNew(t.branch_id))
-  return out.sort((a, b) => a.name.localeCompare(b.name))
-}
-
-function deriveFallbackKpis(appointments: RawAppointment[], patients: RawPatient[], treatments: RawTreatment[]): KpiItem[] {
-  const cashCollected = treatments.reduce((sum, row) => sum + Number(row.actual_price ?? row.cost ?? 0), 0)
-  const completedAppointments = appointments.filter(a => String(a.status || '').toLowerCase() === 'completed').length
-  const noShows = appointments.filter(a => String(a.status || '').toLowerCase() === 'no show').length
-  const noShowRate = appointments.length ? (noShows / appointments.length) * 100 : 0
-  const avgPPV = completedAppointments ? cashCollected / completedAppointments : 0
-  const pricingAudit = fallbackPricingAudit(treatments)
-  const retention = fallbackRetentionRate(patients, appointments)
-  const repeatRate = fallbackRepeatPatientRate(appointments)
-  return [
-    { key: 'cash_collected', label: 'Cash Collected', value: cashCollected, formatted: formatMoney(cashCollected), trend: null, trend_label: 'Fallback', tone: 'neutral', help: 'Derived from treatment values.' },
-    { key: 'outstanding_ar', label: 'Outstanding Credit', value: 0, formatted: '0', trend: null, trend_label: 'No data', tone: 'neutral', help: 'Requires dashboard endpoint or account data.' },
-    { key: 'collection_rate', label: 'Collection Rate', value: 100, formatted: '100.0%', trend: null, trend_label: 'Fallback', tone: 'good', help: 'Fallback estimate only.' },
-    { key: 'avg_ppv', label: 'Avg Production / Visit', value: avgPPV, formatted: formatMoney(avgPPV), trend: null, trend_label: 'Per appointment', tone: 'neutral', help: 'Derived from treatments and completed appointments.' },
-    { key: 'no_show_rate', label: 'No-Show Rate', value: noShowRate, formatted: formatPercent(noShowRate), trend: null, trend_label: 'Fallback', tone: noShowRate <= 5 ? 'good' : 'warn', help: 'Derived from appointment status only.' },
-    { key: 'new_patients', label: 'New Patients', value: patients.length, formatted: String(patients.length), trend: null, trend_label: 'Fallback', tone: 'neutral', help: 'Patients returned from patient API.' },
-    { key: 'same_day_collection', label: 'Same-Day Collection', value: 0, formatted: '0.0%', trend: null, trend_label: 'No payment events', tone: 'neutral', help: 'Requires finance endpoint data.' },
-    { key: 'pricing_discipline', label: 'Pricing Discipline', value: pricingAudit.inRangeRate, formatted: formatPercent(pricingAudit.inRangeRate), trend: null, trend_label: `${pricingAudit.inRangeCount}/${pricingAudit.auditedCount} in range`, tone: pricingAudit.inRangeRate >= 70 ? 'good' : 'warn', help: 'Derived from procedure ranges if available.' },
-    { key: 'patient_retention', label: 'Patient Retention', value: retention, formatted: formatPercent(retention), trend: null, trend_label: 'Fallback', tone: retention >= 50 ? 'good' : 'warn', help: 'Derived from appointment counts.' },
-    { key: 'repeat_patient_rate', label: 'Repeat Patient Rate', value: repeatRate, formatted: formatPercent(repeatRate), trend: null, trend_label: 'Fallback', tone: repeatRate >= 40 ? 'good' : 'warn', help: 'Derived from appointment links.' },
-    { key: 'plan_acceptance', label: 'Case Acceptance', value: 0, formatted: '0.0%', trend: null, trend_label: 'No plan data', tone: 'neutral', help: 'Needs treatment plan data from dashboard endpoint.' },
-    { key: 'plan_completion', label: 'Treatment Completion', value: 0, formatted: '0.0%', trend: null, trend_label: 'No plan data', tone: 'neutral', help: 'Needs treatment plan data from dashboard endpoint.' },
-  ]
-}
-
-function deriveFallbackCharts(appointments: RawAppointment[], patients: RawPatient[], treatments: RawTreatment[]) {
-  const labels = buildLastNDays(30)
-  const cashSeries = labels.map(day => treatments.filter(t => (t.treatment_date || '').slice(0, 10) === day).reduce((sum, row) => sum + Number(row.actual_price ?? row.cost ?? 0), 0))
-  const treatmentTypes = countBy(treatments.map(t => t.treatment_type || 'Unknown'))
-  const visitTypes = countBy(appointments.map(a => a.visit_type || 'planned'))
-  const sourceTypes = countBy(patients.map(p => p.referral_source || 'Unknown'))
-  const pricingAudit = fallbackPricingAudit(treatments)
-  return {
-    cash_flow: { labels, datasets: [{ label: 'Cash in', data: cashSeries }, { label: 'Debits', data: labels.map(() => 0) }] },
-    credit_aging: { labels: ['0-30', '31-60', '61-90', '90+'], datasets: [{ label: 'Outstanding balance', data: [0, 0, 0, 0] }] },
-    treatment_mix: { labels: Object.keys(treatmentTypes), datasets: [{ label: 'Treatments', data: Object.values(treatmentTypes) }] },
-    patient_behavior: { labels, datasets: [{ label: 'Appointments', data: labels.map(day => appointments.filter(a => (a.appointment_timestamp || '').slice(0, 10) === day).length) }, { label: 'Treatments', data: labels.map(day => treatments.filter(t => (t.treatment_date || '').slice(0, 10) === day).length) }, { label: 'New patients', data: labels.map(day => patients.filter(p => (p.registration_date || p.registeration_date || '').slice(0, 10) === day).length) }] },
-    pricing_discipline: { labels: ['In range', 'Out of range'], datasets: [{ label: 'Pricing audit', data: [pricingAudit.inRangeCount, pricingAudit.outOfRangeCount] }] },
-    referral_source: { labels: Object.keys(sourceTypes), datasets: [{ label: 'Patients', data: Object.values(sourceTypes) }] },
-    visit_type: { labels: Object.keys(visitTypes), datasets: [{ label: 'Visits', data: Object.values(visitTypes) }] },
-  }
-}
-
-function deriveFallbackAlerts(kpis: KpiItem[]): AlertItem[] {
-  const alertList: AlertItem[] = []
-  const noShow = kpis.find(k => k.key === 'no_show_rate')
-  if (noShow && Number(noShow.value) > 10) alertList.push({ tone: 'warn', title: 'No-show rate is high', message: `The no-show rate is ${noShow.formatted}. Review reminders and slot timing.`, action: 'Audit scheduling process' })
-  const pricing = kpis.find(k => k.key === 'pricing_discipline')
-  if (pricing && Number(pricing.value) < 70) alertList.push({ tone: 'warn', title: 'Pricing is drifting outside the range', message: `Only ${pricing.formatted} of treatments are inside the procedure range.`, action: 'Check pricing overrides' })
-  if (!alertList.length) alertList.push({ tone: 'good', title: 'Dashboard looks healthy', message: 'No major warning thresholds were triggered in the fallback dataset.', action: 'Continue monitoring' })
-  return alertList
-}
-
-function deriveFallbackRecent(appointments: RawAppointment[], patients: RawPatient[], treatments: RawTreatment[]) {
-  const recentTreatments: TreatmentRow[] = [...treatments].sort((a, b) => String(b.treatment_date || '').localeCompare(String(a.treatment_date || ''))).slice(0, 10).map(t => {
-    const patient = patients.find(p => p.id === t.patient_id)
-    return { id: t.id ?? 0, patient_name: `${patient?.f_name ?? 'Patient'} ${patient?.l_name ?? ''}`.trim(), branch_name: `Branch #${t.branch_id ?? ''}`, treatment_type: t.treatment_type ?? 'Unknown', diagnosis: t.diagnosis ?? '', date: t.treatment_date ?? '', status: t.status ?? 'completed', amount: Number(t.actual_price ?? t.cost ?? 0), range_fit: 'No rule', balance: 0 }
-  })
-  return { treatments: recentTreatments, transactions: [] as TransactionRow[] }
-}
-
-function countBy(items: string[]) { return items.reduce<Record<string, number>>((acc, item) => { acc[item] = (acc[item] || 0) + 1; return acc }, {}) }
-function fallbackPricingAudit(treatments: RawTreatment[]) { const audited = treatments.length; const inRangeCount = Math.max(0, Math.floor(audited * 0.7)); const outOfRangeCount = audited - inRangeCount; const inRangeRate = audited ? (inRangeCount / audited) * 100 : 0; return { auditedCount: audited, inRangeCount, outOfRangeCount, inRangeRate } }
-function fallbackRetentionRate(patients: RawPatient[], appointments: RawAppointment[]) { if (!patients.length) return 0; const patientIds = new Set(appointments.map(a => a.id)); return Math.min(100, (patientIds.size / Math.max(patients.length, 1)) * 100) }
-function fallbackRepeatPatientRate(appointments: RawAppointment[]) { if (!appointments.length) return 0; const byDay = countBy(appointments.map(a => (a.appointment_timestamp || '').slice(0, 10))); const repeat = Object.values(byDay).filter(v => v > 1).length; return (repeat / Object.keys(byDay).length) * 100 }
-function buildLastNDays(n: number): string[] { const days: string[] = []; const anchor = new Date(); for (let i = n - 1; i >= 0; i--) { const d = new Date(anchor); d.setDate(anchor.getDate() - i); days.push(d.toISOString().slice(0, 10)) } return days }
-function formatDateTime(value: string): string { const date = new Date(value); return Number.isNaN(date.getTime()) ? value : date.toLocaleString() }
-
-watch([branchSelection, periodDays], debounceReload)
-watch(roleView, () => { refreshLabel.value = new Date().toLocaleString() })
-onMounted(() => { void reloadDashboard() })
-onBeforeUnmount(() => { window.clearTimeout(debounceTimer); destroyCharts() })
+onBeforeUnmount(() => {
+  destroyCharts()
+})
 </script>
 
 <style scoped>
-.page{width:min(1760px,calc(100vw - 32px));margin:18px auto 28px;display:grid;gap:22px}
-.topbar{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(360px,.95fr);gap:16px;align-items:stretch}
-.hero,.filters,.card,.table-card{background:#fff;border:1px solid rgba(226,232,240,.85);border-radius:20px;box-shadow:0 18px 45px rgba(15,23,42,.08)}
-.hero{padding:24px;display:grid;gap:10px}.hero h2{margin:0;font-size:clamp(26px,2vw,34px);letter-spacing:-.03em}.hero p{margin:0;color:#64748b;max-width:78ch;line-height:1.6}
-.hero p code{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:2px 6px}
-.hero-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}.pill{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:999px;background:#f8fafc;border:1px solid #e2e8f0;color:#0f172a;font-size:13px}.pill b{font-weight:700}
-.filters{padding:18px;display:grid;gap:12px}.filters-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:grid;gap:6px}.field label{font-size:12px;color:#64748b;font-weight:600}
-.field input,.field select{width:100%;padding:12px 13px;border-radius:14px;border:1px solid #e2e8f0;background:#fff;color:#0f172a;font:inherit;outline:none}.field input:focus,.field select:focus{border-color:rgba(37,99,235,.6);box-shadow:0 0 0 4px rgba(37,99,235,.08)}
-.filter-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.buttons{display:flex;gap:10px;flex-wrap:wrap}
-button{border:0;border-radius:14px;padding:12px 16px;font:inherit;font-weight:600;cursor:pointer;transition:transform .14s ease,box-shadow .14s ease,opacity .14s ease}button:hover{transform:translateY(-1px)}
-.btn-primary{background:linear-gradient(135deg,#2563eb,#0ea5e9);color:#fff;box-shadow:0 10px 26px rgba(37,99,235,.24)}.btn-secondary{background:#e2e8f0;color:#0f172a}.btn-ghost{background:transparent;color:#2563eb;border:1px solid rgba(37,99,235,.24)}
-.stamp{font-size:12px;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;border-radius:999px;padding:9px 12px}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}.kpi{background:#fff;border:1px solid rgba(226,232,240,.9);border-radius:20px;box-shadow:0 18px 45px rgba(15,23,42,.08);padding:18px;display:grid;gap:12px;min-height:138px}
-.kpi .top{display:flex;justify-content:space-between;gap:10px;align-items:start}.kpi .label{color:#64748b;font-size:13px;font-weight:600}.kpi .value{font-size:clamp(26px,1.8vw,32px);font-weight:800;letter-spacing:-.04em;margin-top:5px}.kpi .trend{font-size:12px;font-weight:700;padding:6px 10px;border-radius:999px;white-space:nowrap}
-.up{color:#166534;background:rgba(34,197,94,.12)}.down{color:#991b1b;background:rgba(239,68,68,.12)}.neutral{color:#334155;background:rgba(148,163,184,.18)}.good{background:rgba(34,197,94,.12);color:#166534}.warn{background:rgba(245,158,11,.14);color:#92400e}.bad{background:rgba(239,68,68,.12);color:#991b1b}.brand{background:rgba(37,99,235,.12);color:#1d4ed8}
-.sub{color:#64748b;font-size:12px;line-height:1.5}
-.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:16px}.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
-.card{padding:18px;overflow:hidden}.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap}.card-header h3{margin:0;font-size:17px}.card-header p{margin:4px 0 0;color:#64748b;font-size:13px}.card-title{display:grid;gap:2px}
-.chart-wrap{position:relative;height:320px}.chart-wrap.tall{height:360px}.chart-wrap.short{height:250px}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.mini{background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:14px;display:grid;gap:6px}.mini .mini-label{font-size:12px;color:#64748b}.mini .mini-value{font-size:22px;font-weight:800}.mini .mini-help{font-size:12px;color:#64748b;line-height:1.5}
-.table-card{padding:18px;overflow:hidden}.table-switch{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}.switch-btn{border:1px solid #e2e8f0;background:#f8fafc;color:#0f172a;padding:10px 14px;border-radius:12px}.switch-btn.active{background:rgba(37,99,235,.12);color:#1d4ed8;border-color:rgba(37,99,235,.24)}
-.table-scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;padding:13px 10px;border-bottom:1px solid #e2e8f0;font-size:13px;vertical-align:top}th{color:#64748b;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em}tr:last-child td{border-bottom:0}
-.tag{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#eef2ff;color:#3730a3;white-space:nowrap}
-.alerts{display:grid;gap:12px}.alert{background:#f8fafc;border:1px solid #e2e8f0;border-left:5px solid #2563eb;border-radius:16px;padding:14px 14px 14px 16px;display:grid;gap:6px}.alert strong{font-size:14px}.alert p{margin:0;font-size:13px;color:#64748b;line-height:1.55}.alert .meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:#64748b}
-.footer-note{color:#64748b;font-size:12px;line-height:1.6;padding:4px 2px 10px}.muted-small{color:#64748b;font-size:12px;margin-top:4px}.error-banner{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.18);color:#991b1b;padding:12px 14px;border-radius:16px}
-@media (min-width:1680px){.page{width:min(1760px,calc(100vw - 48px))}}
-@media (max-width:1279px){.topbar{grid-template-columns:1fr}.filters-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
-@media (max-width:1100px){.filters-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-2{grid-template-columns:1fr}.chart-wrap,.chart-wrap.tall{height:300px}}
-@media (max-width:760px){.page{width:calc(100vw - 18px);margin:9px auto 18px;gap:16px}.hero,.filters,.card,.table-card{border-radius:18px}.hero{padding:18px}.filters,.card,.table-card{padding:16px}.filters-grid{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr}.chart-wrap,.chart-wrap.tall,.chart-wrap.short{height:240px}.buttons{width:100%}.buttons button{flex:1}.filter-actions{align-items:stretch}.stamp{width:100%;text-align:center}}
+.dashboard-shell {
+  --shell-offset: clamp(260px, 30vw, 380px);
+  width: 100%;
+  box-sizing: border-box;
+  padding: 18px 22px 28px var(--shell-offset);
+  display: grid;
+  gap: 18px;
+}
+
+.surface-panel,
+.hero-card {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: 24px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.hero-card {
+  padding: 24px;
+  display: grid;
+  gap: 18px;
+}
+
+.eyebrow {
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.hero-copy h1 {
+  margin: 8px 0 0;
+  font-size: clamp(28px, 2.4vw, 44px);
+  line-height: 1.05;
+  letter-spacing: -0.05em;
+  color: #0f172a;
+}
+
+.hero-copy p {
+  margin: 12px 0 0;
+  max-width: 78ch;
+  color: #64748b;
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.meta-pill {
+  min-width: 160px;
+  flex: 1 1 190px;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 12px 14px;
+  display: grid;
+  gap: 4px;
+}
+
+.meta-label {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.meta-value {
+  font-size: 14px;
+  color: #0f172a;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.scope-panel,
+.chart-card,
+.insights-card,
+.alerts-card,
+.recent-card,
+.footer-card {
+  padding: 18px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: start;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+  color: #0f172a;
+}
+
+.panel-header p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.tone-brand {
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+}
+
+.tone-good {
+  background: rgba(34, 197, 94, 0.12);
+  color: #166534;
+}
+
+.tone-warn {
+  background: rgba(245, 158, 11, 0.14);
+  color: #92400e;
+}
+
+.tone-bad {
+  background: rgba(239, 68, 68, 0.12);
+  color: #991b1b;
+}
+
+.branch-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.branch-chip {
+  min-width: 160px;
+  flex: 1 1 180px;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.branch-chip.active {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: rgba(37, 99, 235, 0.2);
+}
+
+.branch-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  text-transform: capitalize;
+}
+
+.branch-id {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.error-banner {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.18);
+  color: #991b1b;
+  padding: 12px 14px;
+  border-radius: 18px;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+}
+
+.kpi-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: 24px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.kpi-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+
+.kpi-label {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.kpi-value {
+  margin-top: 7px;
+  font-size: clamp(26px, 2vw, 34px);
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  color: #0f172a;
+}
+
+.trend-pill {
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.kpi-help {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.chart-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.chart-grid-large {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.chart-grid-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.chart-grid-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.span-2 {
+  grid-column: span 2;
+}
+
+.chart-card,
+.insights-card,
+.alerts-card,
+.recent-card {
+  min-width: 0;
+}
+
+.chart-box {
+  position: relative;
+  width: 100%;
+}
+
+.chart-tall {
+  height: 360px;
+}
+
+.chart-short {
+  height: 270px;
+}
+
+.empty-state {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px dashed #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.mini-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+
+.mini-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 14px;
+  display: grid;
+  gap: 5px;
+}
+
+.mini-label {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.mini-value {
+  font-size: 22px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.mini-help {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.55;
+}
+
+.alert-list {
+  display: grid;
+  gap: 12px;
+}
+
+.alert-item {
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 15px 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.alert-item.good {
+  border-left: 5px solid #22c55e;
+}
+
+.alert-item.warn {
+  border-left: 5px solid #f59e0b;
+}
+
+.alert-item.bad {
+  border-left: 5px solid #ef4444;
+}
+
+.alert-title-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.alert-item strong {
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.alert-tone {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+.alert-item p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.alert-action {
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.table-switch {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.switch-btn {
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #0f172a;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font: inherit;
+  font-weight: 800;
+}
+
+.switch-btn.active {
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+  border-color: rgba(37, 99, 235, 0.24);
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 13px 10px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 13px;
+  vertical-align: top;
+}
+
+th {
+  color: #64748b;
+  font-weight: 800;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+tr:last-child td {
+  border-bottom: 0;
+}
+
+.empty-table {
+  color: #64748b;
+  text-align: center;
+  padding: 24px 10px;
+}
+
+.row-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.row-tag.good {
+  background: rgba(34, 197, 94, 0.12);
+  color: #166534;
+}
+
+.row-tag.warn {
+  background: rgba(245, 158, 11, 0.14);
+  color: #92400e;
+}
+
+.row-tag.bad {
+  background: rgba(239, 68, 68, 0.12);
+  color: #991b1b;
+}
+
+.row-tag.brand {
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+}
+
+.muted-small {
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.footer-grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.footer-card h2 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+.footer-card p {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 70ch;
+}
+
+.summary-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.summary-pill {
+  padding: 9px 12px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+@media (max-width: 1400px) {
+  .dashboard-shell {
+    --shell-offset: 18px;
+  }
+
+  .chart-grid-large,
+  .chart-grid-three,
+  .chart-grid-two {
+    grid-template-columns: 1fr;
+  }
+
+  .span-2 {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .dashboard-shell {
+    --shell-offset: 14px;
+    padding: 14px;
+    gap: 14px;
+  }
+
+  .hero-card,
+  .surface-panel {
+    border-radius: 20px;
+  }
+
+  .hero-card,
+  .scope-panel,
+  .chart-card,
+  .insights-card,
+  .alerts-card,
+  .recent-card,
+  .footer-card {
+    padding: 16px;
+  }
+
+  .chart-tall,
+  .chart-short {
+    height: 240px;
+  }
+
+  table {
+    min-width: 820px;
+  }
+}
 </style>

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->foreignId('treatment_plan_id')->unique()->constrained('treatment_plans', 'id');
             // $table->foreignId('xray_id')->constrained('dental_xrays')->cascadeOnDelete();
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
         });
     }
 

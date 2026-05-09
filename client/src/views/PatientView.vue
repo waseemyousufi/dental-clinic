@@ -368,7 +368,7 @@ onMounted(fetchPatients)
     <n-modal v-model:show="showEditor" preset="card" style="width: 600px"
       :title="isEditing ? $t('patientView.modal.editTitle') : $t('patientView.modal.newTitle')" class="patient-modal">
       <n-form label-width="110">
-        <div class="profile-upload-row">
+        <!-- <div class="profile-upload-row">
           <div class="profile-image-container" @click="triggerFileInput">
             <input type="file" ref="fileInputRef" style="display: none" accept="image/*" @change="handleFileChange" />
             <n-avatar v-if="profileImage" :size="100" round :src="profileImage" />
@@ -379,7 +379,7 @@ onMounted(fetchPatients)
               <Icon icon="mdi:camera" width="24" height="24" color="#fff" />
             </div>
           </div>
-        </div>
+        </div> -->
 
         <div class="form-row">
           <n-form-item :label="$t('patientView.form.firstNameLabel')">
@@ -417,6 +417,7 @@ onMounted(fetchPatients)
         </div>
 
         <div class="form-actions">
+          <p style="margin-right: auto;" class="reception-fee">Reception Fee: <span class="digit" style="font-weight: bold; color:green">200 AFN</span></p>
           <n-button size="small" @click="showEditor = false"> {{ $t('common.cancelButtonText') }} </n-button>
           <n-button type="primary" size="small" :loading="submitting" @click="handleSubmit">
             {{ $t('common.saveButtonText') }}

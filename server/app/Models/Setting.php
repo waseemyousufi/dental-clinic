@@ -13,7 +13,7 @@ class Setting extends Model
         'rec_can_edit_whatsapp', 'rec_can_view_phones', 'rec_show_kpi',
         'rec_show_suppliers', 'rec_log_actions', 'rec_can_void_transactions', 'rec_can_edit_devices',
         'doc_view_appointments', 'doc_save_xrays', 'doc_view_files',
-        'doc_view_contact', 'doc_edit_assets', 'doc_issue_prescriptions'
+        'doc_view_contact', 'doc_edit_assets', 'doc_issue_prescriptions', 'prescriptions', 'procedures'
     ];
 
     protected $casts = [

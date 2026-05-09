@@ -57,7 +57,7 @@ class PatientController extends Controller
             'lName' => 'required|string',
             'gender' => 'required|string',
             'bloodType' => 'required|string',
-            'emgContact' => 'required|string',
+            'emgContact' => 'nullable|string',
             'registerationDate' => 'required|string',
             'phone' => 'required|string',
         ]);
@@ -88,7 +88,7 @@ class PatientController extends Controller
             'lName' => 'required|string',
             'gender' => 'required|string',
             'bloodType' => 'required|string',
-            'emgContact' => 'required|string',
+            'emgContact' => 'nullable|string',
             'registerationDate' => 'required|string',
             'phone' => 'required|string',
         ]);

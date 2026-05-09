@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Account;
 use App\Models\AccountTransaction;
 use App\Models\Appointment;
@@ -21,9 +22,9 @@ class DashboardController extends Controller
     /**
      * Show the KPI dashboard data.
      *
-     * Returns JSON for API/AJAX requests and a view payload for server-rendered pages.
+     * Returns JSON payload for the Vue client.
      */
-    public function index(Request $request): JsonResponse|View
+    public function index(Request $request): JsonResponse
     {
         $branchId = $this->effectiveBranchId($request);
         $days = (int) $request->input('days', 30);
@@ -56,14 +57,10 @@ class DashboardController extends Controller
             'recent' => $this->buildRecentTables($branchId, $start, $end),
         ];
 
-        if ($request->wantsJson()) {
-            return response()->json($payload);
-        }
-
-        return view('dashboard.index', [
-            'dashboard' => $payload,
-        ]);
+        return response()->json($payload);
     }
+
+    // ... keep the rest of your class exactly as-is ...
 
     private function buildKpis(?int $branchId, Carbon $start, Carbon $end, Carbon $previousStart, Carbon $previousEnd): array
     {
@@ -762,15 +759,15 @@ class DashboardController extends Controller
 
     private function branchOptions(?int $branchId): array
     {
-        $query = Branch::query()->orderBy('name');
+        $query = Branch::query()->orderBy('branch_name');
 
         if (! is_null($branchId)) {
             $query->where('id', $branchId);
         }
 
-        return $query->get(['id', 'name'])->map(fn ($branch) => [
+        return $query->get(['id', 'branch_name'])->map(fn ($branch) => [
             'id' => $branch->id,
-            'name' => $branch->name,
+            'branch_name' => $branch->name,
         ])->values()->all();
     }
 
@@ -780,7 +777,7 @@ class DashboardController extends Controller
             return 'All branches';
         }
 
-        return Branch::query()->where('id', $branchId)->value('name') ?? 'Branch #'.$branchId;
+        return Branch::query()->where('id', $branchId)->value('branch_name') ?? 'Branch #'.$branchId;
     }
 
     private function resolvePatientName(?int $patientId): string

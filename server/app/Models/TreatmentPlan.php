@@ -15,12 +15,13 @@ class TreatmentPlan extends Model
     
     protected $fillable = [
         'patient_id',
+        'procedure_id',
         'branch_id',
         'total_estimated_cost',
         'status',
         'duration',
         'total_amount_paid',
-        'start_data'
+        'start_date'
     ];
 
     /**
@@ -56,7 +57,4 @@ class TreatmentPlan extends Model
         return $this->status === 'accepted';
     }
 
-    public function procedures() {
-        return $this->hasMany(Procedure::class);
-    }
 }

@@ -144,7 +144,7 @@ const columns = [
     width: 120,
     render(row: ExpenseRow) {
       const value = Number(row.amount) || 0
-      return `$${value.toLocaleString()}`
+      return `${value.toLocaleString()}`
     },
   },
   {
@@ -648,6 +648,11 @@ onMounted(() => {
 @media (max-width: 768px) {
   .form-row {
     grid-template-columns: 1fr;
+  }
+
+  :deep(.view-patient-container) {
+    padding-top: 11em !important;
+    display: none !important;
   }
 }
 

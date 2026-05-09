@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
             $table->dateTime('appointment_timestamp');
-            $table->string('status', 40); // ['Completed', 'Pending']
-            $table->string('description', 300);
+            $table->string('status', 50); // ['Completed', 'Pending']
+            $table->string('description')->nullable();
             $table->integer('appointment_cost');
             $table->string('clinical_notes')->nullable();
             $table->foreignId('treatment_plan_id')->nullable()->constrained('treatment_plans')->cascadeOnDelete();

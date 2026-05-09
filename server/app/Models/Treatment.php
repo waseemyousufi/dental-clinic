@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Treatment extends Model
 {
 
-    public $timestamps = false;
+    public $timestamps = true;
 protected $fillable = [
         'treatment_type',
         'diagnosis',

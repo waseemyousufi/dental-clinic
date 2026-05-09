@@ -34,7 +34,7 @@ class TreatmentPlanResource extends JsonResource
 
             // Relationships (only if loaded)
             'patient' => new PatientResource($this->whenLoaded('patient')),
-            'appointment' => new AppointmentResource($this->whenLoaded('appointment')),
+            'appointments' => AppointmentResource::collection($this->whenLoaded('appointments')),
             'procedure' => new ProcedureResource($this->whenLoaded('procedure')),
 
             // Timestamps

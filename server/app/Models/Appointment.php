@@ -11,7 +11,7 @@ class Appointment extends Model
 {
 
     public $timestamps = false;
-    protected $fillable = ['appointment_timestamp', 'treatment_plan_id', 'status', 'description', 'branch_id'];
+    protected $fillable = ['appointment_timestamp', 'treatment_plan_id', 'clinical_notes', 'appointment_cost', 'status', 'description', 'branch_id'];
 
     public function Branch(): BelongsTo
     {

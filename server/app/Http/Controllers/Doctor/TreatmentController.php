@@ -8,6 +8,11 @@ use Illuminate\Http\Client\ResponseSequence;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Test\Constraint\ResponseFormatSame;
 
+// BUG when treatment status becomes "Accepted" get the patient's total_amount_due and increase it by treatment's total_estimated_cost
+// save to remarks that what actually been the reason of charging the patient
+// otherwise the system would be infected with fraud or miss typed numbers
+// it becomes useless then !
+
 class TreatmentController extends Controller
 {
 

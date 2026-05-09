@@ -11,29 +11,29 @@ import employeeApi from '@api/employee'
 import patientApi from '@api/patient'
 import type AppointmentData from '@api/interfaces/Appointment'
 import type EmployeeData from '@api/interfaces/Employee'
-import type PatientData from '@api/interfaces/Patient'
+import type PatientData from '@api/interfaces/patient'
 import {
   useMessage,
   NInput,
   NButton,
-  NSelect,
-  NForm,
-  NFormItem,
   NSpace,
   NModal,
   NCard,
-  NDatePicker,
   NPopconfirm,
   NTag,
   NH3,
   NText,
   NDivider,
 } from 'naive-ui'
+import AppointmentFormModal from '@/components/AppointmentFormModal.vue'
+import AppointmentsList from '@/components/AppointmentsList.vue'
+import useUserStore from '@/stores/user'
 
 const message = useMessage()
 const calendarRef = ref<InstanceType<typeof FullCalendar> | null>(null)
 const isSidebarCollapsed = inject<Ref<boolean>>('isSidebarCollapsed', ref(false))
 const route = useRoute()
+const userStore = useUserStore();
 
 const getEffectiveBranchId = (): number | undefined => {
   const usr = JSON.parse(localStorage.getItem('user') || 'null')
@@ -78,14 +78,7 @@ const isEditMode = ref(false)
 const selectedAppointment = ref<AppointmentWithNames | null>(null)
 
 // Form State
-const formModel = ref({
-  id: undefined as number | undefined,
-  description: '',
-  appointment_timestamp: null as number | null,
-  status: 'pending',
-  employeeId: undefined as number | undefined,
-  patientId: undefined as number | undefined,
-})
+const formModel = ref<Partial<AppointmentData> | null>(null)
 
 const statusOptions = [
   { label: 'Pending', value: 'pending' },
@@ -254,12 +247,9 @@ const calendarOptions = computed(() => ({
 const handleDateClick = (info: DateClickArg) => {
   isEditMode.value = false
   formModel.value = {
-    id: undefined,
     description: '',
-    appointment_timestamp: info.date.getTime(),
+    appointment_timestamp: info.date.toISOString(),
     status: 'pending',
-    employeeId: undefined,
-    patientId: undefined,
   }
   showAddEditModal.value = true
 }
@@ -268,12 +258,9 @@ const handleDateClick = (info: DateClickArg) => {
 const openAddModal = () => {
   isEditMode.value = false
   formModel.value = {
-    id: undefined,
     description: '',
-    appointment_timestamp: Date.now(),
+    appointment_timestamp: new Date().toISOString(),
     status: 'pending',
-    employeeId: undefined,
-    patientId: undefined,
   }
   showAddEditModal.value = true
 }
@@ -284,7 +271,7 @@ const openEditModal = () => {
   formModel.value = {
     id: selectedAppointment.value.id,
     description: selectedAppointment.value.description,
-    appointment_timestamp: new Date(selectedAppointment.value.appointment_timestamp).getTime(),
+    appointment_timestamp: selectedAppointment.value.appointment_timestamp,
     status: selectedAppointment.value.status,
     employeeId: selectedAppointment.value.employeeId,
     patientId: selectedAppointment.value.patientId,
@@ -293,43 +280,10 @@ const openEditModal = () => {
   showAddEditModal.value = true
 }
 
-// a helper function to make the date sql compatible.
-function dateTime(dateStr: string) {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  if (isNaN(date.getTime())) return dateStr
-
-  const Y = date.getFullYear()
-  const M = String(date.getMonth() + 1).padStart(2, '0')
-  const D = String(date.getDate()).padStart(2, '0')
-  const h = String(date.getHours()).padStart(2, '0')
-  const m = String(date.getMinutes()).padStart(2, '0')
-
-  return `${Y}/${M}/${D} ${h}:${m}`
-}
-
-const handleSave = async () => {
-  if (!formModel.value.description || !formModel.value.appointment_timestamp || formModel.value.employeeId === undefined || formModel.value.patientId === undefined) {
-    message.warning('Please fill in all required fields')
-    return
-  }
-
-
-  const payload: AppointmentData = {
-    id: formModel.value.id || 0,
-    description: formModel.value.description,
-    appointment_timestamp: dateTime(formModel.value.appointment_timestamp),
-    status: formModel.value.status,
-    employeeId: Number(formModel.value.employeeId),
-    patientId: Number(formModel.value.patientId)
-  }
-  console.log(formModel.value.employeeId, formModel.value.patientId);
-
-  console.log(payload)
-
+const handleSave = async (payload: AppointmentData) => {
   try {
-    if (isEditMode.value && formModel.value.id) {
-      await appointmentApi.updateAppointment(formModel.value.id, payload)
+    if (isEditMode.value && payload.id) {
+      await appointmentApi.updateAppointment(payload.id, payload)
       message.success('Appointment updated successfully')
     } else {
       await appointmentApi.postAppointment(payload)
@@ -354,16 +308,6 @@ const handleDelete = async () => {
   }
 }
 
-function handleEmployeeChange(value: number) {
-  formModel.value.employeeId = value
-}
-
-function handlePatientChange(value: number) {
-  console.log(formModel.value.patientId, value)
-  formModel.value.patientId = value
-  console.log(formModel.value.patientId, value)
-}
-
 // Watch for sidebar collapse/expand to update calendar size
 watch(isSidebarCollapsed, () => {
   setTimeout(() => {
@@ -376,7 +320,7 @@ onMounted(loadData)
 
 <template>
   <div class="appointment-view">
-    <div class="header">
+    <div class="header" v-if="userStore.isReceptionist">
       <n-space justify="space-between" align="center">
         <n-space>
           <n-input v-model:value="searchQuery" placeholder="Search patient, employee or date..."
@@ -387,53 +331,11 @@ onMounted(loadData)
       </n-space>
     </div>
 
-    <n-card class="calendar-card">
+    <n-card v-if="userStore.isReceptionist" class="calendar-card">
       <FullCalendar ref="calendarRef" :options="calendarOptions" />
     </n-card>
 
-    <!-- Add/Edit Modal -->
-    <n-modal v-model:show="showAddEditModal" class="appointment-add-edit-modal" transform-origin="center"
-      :mask-closable="false">
-      <n-card :title="isEditMode ? 'Edit Appointment' : 'New Appointment'" class="appointment-form-card" bordered
-        size="medium" style="max-width: 600px;" role="dialog" aria-modal="true">
-        <n-form :model="formModel" class="appointment-form" size="small" :show-require-mark="false">
-          <div class="appointment-form__rows">
-            <div class="appointment-form__pair">
-              <n-form-item label="Patient" path="patientId" class="appointment-form__field">
-                <n-select @update:value="handlePatientChange"
-                  :value="patientOptions.filter(e => e.value === formModel.patientId)[0]?.label as string"
-                  :options="patientOptions" placeholder="Patient" filterable size="small" />
-              </n-form-item>
-              <n-form-item label="Employee" path="employeeId" class="appointment-form__field">
-                <n-select :options="employeeOptions" @update:value="handleEmployeeChange" :value="employeeOptions.filter(e => e.value === formModel.employeeId)[0]?.label as string
-                  " />
-              </n-form-item>
-            </div>
-            <div class="appointment-form__pair">
-              <n-form-item label="Date & time" path="appointment_timestamp" class="appointment-form__field">
-                <n-date-picker v-model:value="formModel.appointment_timestamp" type="datetime" clearable size="small"
-                  style="width: 100%" />
-              </n-form-item>
-              <n-form-item label="Status" path="status" class="appointment-form__field">
-                <n-select v-model:value="formModel.status" :options="statusOptions" size="small" />
-              </n-form-item>
-            </div>
-            <n-form-item label="Description" path="description"
-              class="appointment-form__field appointment-form__field--full">
-              <n-input v-model:value="formModel.description" type="textarea" placeholder="Details…" size="small"
-                :autosize="{ minRows: 2, maxRows: 6 }" />
-            </n-form-item>
-          </div>
-        </n-form>
-
-        <template #footer>
-          <n-space justify="end" size="small">
-            <n-button size="small" @click="showAddEditModal = false">Cancel</n-button>
-            <n-button size="small" type="primary" @click="handleSave">{{ isEditMode ? 'Update' : 'Save' }}</n-button>
-          </n-space>
-        </template>
-      </n-card>
-    </n-modal>
+    <AppointmentFormModal v-if="userStore.isReceptionist" v-model:show="showAddEditModal" :appointment="formModel" @save="handleSave" />
 
     <!-- View Modal -->
     <n-modal v-model:show="showViewModal" transform-origin="center">
@@ -487,6 +389,8 @@ onMounted(loadData)
         </template>
       </n-card>
     </n-modal>
+
+    <AppointmentsList :appointments="appointments" />
   </div>
 </template>
 

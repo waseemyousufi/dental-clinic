@@ -1,10 +1,14 @@
-import api from './api';
-import type DashboardData from './interfaces/Dashboard';
+import api from './api'
 
 export default new class Dashboard {
   constructor() {}
 
-  getBranchDashboard() {
-    return api.get('/dashboard') as DashboardData;
+  getBranchDashboard(branchId?: number, days?: number) {
+    return api.get('/dashboard', {
+      params: {
+        ...(branchId != null ? { branchId } : {}),
+        ...(days != null ? { days } : {}),
+      },
+    })
   }
 }

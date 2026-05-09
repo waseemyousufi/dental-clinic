@@ -5,11 +5,11 @@
     :closable="true"
     :mask-closable="false"
     class="edit-treatment-modal"
-    title="Edit Treatment Plan"
+    :title="isEditMode ? 'Edit Treatment Plan' : 'New Treatment Plan'"
     style="width: min(760px, calc(100vw - 2rem))"
   >
     <div class="modal-subtitle">
-      Update the treatment details below and save your changes.
+      {{ isEditMode ? 'Update the treatment details below and save your changes.' : 'Fill treatment details to create a new plan.' }}
     </div>
 
     <div class="modal-grid">
@@ -34,14 +34,6 @@
 
       <n-form :model="form" label-placement="top" class="edit-form">
         <div class="form-grid">
-          <n-form-item label="Patient ID">
-            <n-input-number v-model:value="form.patient_id" :min="1" class="full" />
-          </n-form-item>
-
-          <n-form-item label="Appointment ID">
-            <n-input-number v-model:value="form.appointment_id" :min="1" class="full" />
-          </n-form-item>
-
           <n-form-item label="Procedure">
             <n-select
               v-model:value="form.procedure_id"
@@ -58,7 +50,9 @@
               :options="[
                 { label: 'Proposed', value: 'proposed' },
                 { label: 'Accepted', value: 'accepted' },
-                { label: 'Rejected', value: 'rejected' }
+                { label: 'Partially Accepted', value: 'partially_accepted' },
+                { label: 'Rejected', value: 'rejected' },
+                { label: 'Completed', value: 'completed' }
               ]"
               class="full"
             />
@@ -92,7 +86,7 @@
       <div class="modal-actions">
         <n-button @click="close" tertiary>Cancel</n-button>
         <n-button type="primary" :loading="loading" @click="submit">
-          Save Changes
+          {{ isEditMode ? 'Save Changes' : 'Create Plan' }}
         </n-button>
       </div>
     </template>
@@ -113,8 +107,6 @@ import {
 
 type TreatmentPlanLike = {
   id?: number
-  patient_id?: number
-  appointment_id?: number
   procedure_id?: number
   total_estimated_cost?: number
   total_amount_paid?: number | null
@@ -133,8 +125,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:show', value: boolean): void
   (e: 'save', payload: {
-    patient_id: number
-    appointment_id: number
     procedure_id: number
     total_estimated_cost: number
     total_amount_paid: number | null
@@ -149,9 +139,9 @@ const visible = computed({
   set: (value: boolean) => emit('update:show', value)
 })
 
+const isEditMode = computed(() => !!props.plan?.id)
+
 const form = reactive({
-  patient_id: null as number | null,
-  appointment_id: null as number | null,
   procedure_id: null as number | null,
   total_estimated_cost: null as number | null,
   total_amount_paid: null as number | null,
@@ -174,9 +164,15 @@ function toDateString(value: number | null) {
 watch(
   () => props.plan,
   (plan) => {
-    if (!plan) return
-    form.patient_id = plan.patient_id ?? null
-    form.appointment_id = plan.appointment_id ?? null
+    if (!plan) {
+      form.procedure_id = null
+      form.total_estimated_cost = null
+      form.total_amount_paid = null
+      form.duration = null
+      form.start_date = toTimestamp(new Date().toISOString())
+      form.status = 'proposed'
+      return
+    }
     form.procedure_id = plan.procedure_id ?? null
     form.total_estimated_cost = plan.total_estimated_cost ?? null
     form.total_amount_paid = plan.total_amount_paid ?? null
@@ -190,16 +186,23 @@ watch(
 watch(
   () => props.show,
   (show) => {
-    if (show && props.plan) {
-      form.patient_id = props.plan.patient_id ?? null
-      form.appointment_id = props.plan.appointment_id ?? null
+    if (!show) return
+    if (props.plan) {
       form.procedure_id = props.plan.procedure_id ?? null
       form.total_estimated_cost = props.plan.total_estimated_cost ?? null
       form.total_amount_paid = props.plan.total_amount_paid ?? null
       form.duration = props.plan.duration ?? null
       form.start_date = toTimestamp(props.plan.start_date)
       form.status = props.plan.status || 'proposed'
+      return
     }
+
+    form.procedure_id = null
+    form.total_estimated_cost = null
+    form.total_amount_paid = null
+    form.duration = null
+    form.start_date = toTimestamp(new Date().toISOString())
+    form.status = 'proposed'
   }
 )
 
@@ -221,8 +224,6 @@ function close() {
 
 function submit() {
   if (
-    form.patient_id === null ||
-    form.appointment_id === null ||
     form.procedure_id === null ||
     form.total_estimated_cost === null ||
     !form.status ||
@@ -232,8 +233,6 @@ function submit() {
   }
 
   emit('save', {
-    patient_id: form.patient_id,
-    appointment_id: form.appointment_id,
     procedure_id: form.procedure_id,
     total_estimated_cost: form.total_estimated_cost,
     total_amount_paid: form.total_amount_paid,

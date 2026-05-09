@@ -17,16 +17,17 @@ class AppointmentController extends Controller
     {
         $user = Auth::user();
         $emp_appointments = $user->employee->appointments;
+
         return AppointmentResource::collection($emp_appointments);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        $user = Auth::user();
-        $emp_appointment = $user->employee->appointments->find($id);
-        return new AppointmentResource($emp_appointment);
-    }
+    // public function show(string $id)
+    // {
+    //     $user = Auth::user();
+    //     $emp_appointment = $user->employee->appointments->find($id);
+    //     return new AppointmentResource($emp_appointment);
+    // }
 }

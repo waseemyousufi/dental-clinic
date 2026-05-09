@@ -2,71 +2,111 @@
 
 namespace App\Http\Controllers\Doctor;
 
-use App\Models\TreatmentPlan;
-use App\Models\Treatment;
-use App\Models\InventoryStock;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TreatmentPlanResource;
+use App\Models\Appointment;
+use App\Models\InventoryStock;
+use App\Models\Treatment;
+use App\Models\TreatmentPlan;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TreatmentPlanController extends Controller
 {
-    /**
-     * Display a list of plans for a specific patient.
-     */
     public function index(Request $request)
     {
         $branchId = $this->effectiveBranchId($request);
+        $patientId = $request->query('patient_id');
 
-        return TreatmentPlanResource::collection(
-            TreatmentPlan::with(['procedure','appointments'])
-            ->where('branch_id', $branchId)
-            ->get());
+        $query = TreatmentPlan::with(['procedure', 'appointments', 'patient'])
+            ->where('branch_id', $branchId);
+
+        if (is_numeric($patientId)) {
+            $query->where('patient_id', (int) $patientId);
+        }
+
+        return TreatmentPlanResource::collection($query->latest()->get());
     }
 
-    public function show($patientId)
-    {
-        return new TreatmentPlanResource(
-            TreatmentPlan::with(['procedure','appointments'])
-            ->where('patient_id', $patientId)
-            ->get());
-    }
-
-    /**
-     * Store a new plan proposed from the Odontogram.
-     * Note: Handles the unique patient constraint via updateOrCreate.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'patient_id' => 'required|exists:patients,id',
             'procedure_id' => 'required|exists:procedures,id',
-            'total_estimated_cost' => 'required|integer',
-            'status' => 'required|in:proposed,accepted,rejected',
-            'total_amount_paid' => 'nullable',
-            'duration' => 'integer',
-            'start_date' => 'required'
+            'total_estimated_cost' => 'required|integer|min:0',
+            'status' => 'required|in:proposed,accepted,partially_accepted,rejected,completed',
+            'total_amount_paid' => 'nullable|integer|min:0',
+            'duration' => 'nullable|integer|min:0',
+            'start_date' => 'nullable|date',
         ]);
 
         $branchId = $this->effectiveBranchId($request);
 
-        // Logic for unique patient_id constraint in your schema
         $plan = TreatmentPlan::create([
-            $validated,
-            'branch_id' => $branchId
+            ...$validated,
+            'branch_id' => $branchId,
+            'start_date' => $validated['start_date'] ?? now()->toDateString(),
         ]);
+
+        return response()->json(
+            [
+                'message' => 'Treatment plan created successfully',
+                'data' => new TreatmentPlanResource($plan->load(['procedure', 'appointments'])),
+            ],
+            201
+        );
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $plan = TreatmentPlan::findOrFail($id);
+        $branchId = $this->effectiveBranchId($request);
+
+        if ((int) $plan->branch_id !== (int) $branchId) {
+            return response()->json(['message' => 'Treatment plan not found in this branch'], 404);
+        }
+
+        $validated = $request->validate([
+            'patient_id' => 'sometimes|exists:patients,id',
+            'procedure_id' => 'sometimes|exists:procedures,id',
+            'total_estimated_cost' => 'sometimes|integer|min:0',
+            'status' => 'sometimes|in:proposed,accepted,partially_accepted,rejected,completed',
+            'total_amount_paid' => 'nullable|integer|min:0',
+            'duration' => 'nullable|integer|min:0',
+            'start_date' => 'sometimes|date',
+        ]);
+
+        $plan->update($validated);
 
         return response()->json([
             'message' => 'Treatment plan updated successfully',
-            'data' => $plan
+            'data' => new TreatmentPlanResource($plan->fresh()->load(['procedure', 'appointments'])),
         ]);
     }
 
-    /**
-     * THE CRITICAL PHASE: Convert Plan to Treatment
-     * This triggers the "Silent Deduction" from InventoryStock.
-     */
+    public function addAppointment(Request $request, string $id)
+    {
+        $plan = TreatmentPlan::findOrFail($id);
+        $branchId = $this->effectiveBranchId($request);
+
+        if ((int) $plan->branch_id !== (int) $branchId) {
+            return response()->json(['message' => 'Treatment plan not found in this branch'], 404);
+        }
+
+        $validated = $request->validate([
+            'appointment_id' => 'required|exists:appointments,id',
+        ]);
+
+        $appointment = Appointment::findOrFail($validated['appointment_id']);
+        $appointment->treatment_plan_id = $plan->id;
+        $appointment->save();
+
+        return response()->json([
+            'message' => 'Appointment associated with treatment plan successfully',
+            'data' => new TreatmentPlanResource($plan->fresh()->load(['procedure', 'appointments'])),
+        ]);
+    }
+
     public function execute(Request $request, $id)
     {
         $plan = TreatmentPlan::with('procedure.inventoryRequirements')->findOrFail($id);
@@ -76,7 +116,6 @@ class TreatmentPlanController extends Controller
         }
 
         return DB::transaction(function () use ($plan, $request) {
-            // 1. Create the Treatment record (Clinical Fact)
             $treatment = Treatment::create([
                 'treatment_type' => $plan->procedure->category,
                 'diagnosis' => $request->diagnosis ?? 'Planned treatment executed',
@@ -89,7 +128,6 @@ class TreatmentPlanController extends Controller
                 'branch_id' => $request->branch_id ?? 1,
             ]);
 
-            // 2. Silent Inventory Deduction (Digital Twin Sync)
             foreach ($plan->procedure->inventoryRequirements as $requirement) {
                 $stock = InventoryStock::where('id', $requirement->inventory_stock_id)
                     ->where('quantity', '>=', $requirement->unit_count)
@@ -98,10 +136,8 @@ class TreatmentPlanController extends Controller
                 if ($stock) {
                     $stock->decrement('quantity', $requirement->unit_count);
                 }
-                // Optional: Trigger alert if stock is low after decrement
             }
 
-            // 3. Finalize Plan Status
             $plan->update(['status' => 'completed']);
 
             return response()->json([
@@ -111,19 +147,32 @@ class TreatmentPlanController extends Controller
         });
     }
 
-    /**
-     * Update status (e.g., patient rejects the plan).
-     */
-    public function updateStatus(Request $request, TreatmentPlan $plan)
+    public function updateStatus(Request $request, string $id)
     {
-        $request->validate(['status' => 'required|in:accepted,rejected']);
+        $plan = TreatmentPlan::findOrFail($id);
+        $branchId = $this->effectiveBranchId($request);
+
+        if ((int) $plan->branch_id !== (int) $branchId) {
+            return response()->json(['message' => 'Treatment plan not found in this branch'], 404);
+        }
+
+        $request->validate(['status' => 'required|in:accepted,rejected,proposed,completed,partially_accepted']);
         $plan->update(['status' => $request->status]);
 
         return response()->json(['message' => 'Plan status updated to ' . $request->status]);
     }
 
-    public function delete(String $id)
+    public function delete(Request $request, string $id)
     {
-        return TreatmentPlan::find($id)->delete();
+        $plan = TreatmentPlan::findOrFail($id);
+        $branchId = $this->effectiveBranchId($request);
+
+        if ((int) $plan->branch_id !== (int) $branchId) {
+            return response()->json(['message' => 'Treatment plan not found in this branch'], 404);
+        }
+
+        $plan->delete();
+
+        return response()->json(['message' => 'Treatment plan deleted successfully']);
     }
 }

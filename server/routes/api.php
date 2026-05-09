@@ -18,11 +18,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/branch/{id}', [Admin\BranchController::class, 'update']);
         Route::delete('/branch/{id}', [Admin\BranchController::class, 'delete']);
 
-        Route::get('/dashboard', [Admin\BranchController::class, 'index']);
+        // Dashboard endpoint is available to all authenticated roles below.
     });
 
     Route::middleware('role:doctor,assistant,admin')->group(function () {
-        Route::get('/appointments', [Doctor\AppointmentController::class, 'index']);
+        Route::get('/doc/appointment', [Doctor\AppointmentController::class, 'index']);
+        Route::post('/appointment', [Receptionist\AppointmentController::class, 'store']);
+
         Route::get('/patients/{id}/odontogram', [Doctor\OdontogramController::class, 'show']);
         Route::post('/patients/{id}/odontogram', [Doctor\OdontogramController::class, 'store']);
         Route::get('/condition-library/', [Doctor\ConditionLibraryController::class, 'index']);
@@ -30,17 +32,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/tooth-conditions/{id}', [Doctor\ToothConditionController::class, 'destroy']);
         Route::apiResource('/treatment', Doctor\TreatmentController::class);
 
-        Route::post('/treatment-plan', [Doctor\TreatmentPlanController::class, 'store']);
-        Route::get('/treatment-plan/', [Doctor\TreatmentPlanController::class, 'index']);
-        Route::put('/treatment-plan/{id}', [Doctor\TreatmentPlanController::class, 'update']);
-        Route::delete('/treatment-plan/{id}', [Doctor\TreatmentPlanController::class, 'delete']);
-        Route::put('treatment-plan/update-status/{id}', [Doctor\TreatmentPlanController::class, 'updateStatus']);
-
         Route::apiResource('/procedure', Doctor\ProcedureController::class);
     });
 
     Route::middleware('role:receptionist,admin')->group(function () {
-        Route::post('/appointment', [Receptionist\AppointmentController::class, 'store']);
         Route::get('/appointment', [Receptionist\AppointmentController::class, 'index']);
         Route::put('/appointment/{id}', [Receptionist\AppointmentController::class, 'update']);
         Route::delete('/appointment/{id}', [Receptionist\AppointmentController::class, 'delete']);
@@ -48,12 +43,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/expense', [Receptionist\ClinicExpenseController::class, 'store']);
         Route::get('/expense', [Receptionist\ClinicExpenseController::class, 'index']);
         Route::put('/expense/{id}', [Receptionist\ClinicExpenseController::class, 'update']);
-
-        Route::post('/patient', [Receptionist\PatientController::class, 'store']);
-        Route::get('/patient', [Receptionist\PatientController::class, 'index']);
-        Route::get('/patient/{id}', [Receptionist\PatientController::class, 'show']);
-        Route::put('/patient/{id}', [Receptionist\PatientController::class, 'update']);
-        Route::post('/patient-allergy', [Receptionist\PatientController::class, 'allergy']);
 
         Route::post('/employee', [Receptionist\EmployeeController::class, 'store']);
         Route::get('/employee', [Receptionist\EmployeeController::class, 'index']);
@@ -71,7 +60,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/reception', [Receptionist\ReceptionController::class, 'store']);
 
-
         Route::post('/patient-files', [Receptionist\PatientFileController::class, 'store']);
         Route::get('/patient-files', [Receptionist\PatientFileController::class, 'index']);
         Route::put('/patient-files/{id}', [Receptionist\PatientFileController::class, 'update']);
@@ -83,6 +71,26 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::middleware('role:receptionist,doctor,assisstant,admin')->group(function () {
+        Route::get('/dashboard', [Admin\DashboardController::class, 'index']);
+
+        Route::get('/employee', [Receptionist\EmployeeController::class, 'index']);
+        Route::post('/appointment', [Receptionist\AppointmentController::class, 'store']);
+
+        Route::post('/patient', [Receptionist\PatientController::class, 'store']);
+        Route::get('/patient', [Receptionist\PatientController::class, 'index']);
+        Route::get('/patient/{id}', [Receptionist\PatientController::class, 'show']);
+        Route::put('/patient/{id}', [Receptionist\PatientController::class, 'update']);
+        Route::post('/patient-allergy', [Receptionist\PatientController::class, 'allergy']);
+
+        Route::get('/treatment-plan/', [Doctor\TreatmentPlanController::class, 'index']);
+        Route::post('/treatment-plan', [Doctor\TreatmentPlanController::class, 'store']);
+        Route::put('/treatment-plan/{id}', [Doctor\TreatmentPlanController::class, 'update']);
+        Route::delete('/treatment-plan/{id}', [Doctor\TreatmentPlanController::class, 'delete']);
+        Route::put('treatment-plan/update-status/{id}', [Doctor\TreatmentPlanController::class, 'updateStatus']);
+        Route::post('/treatment-plan/{id}/appointments', [Doctor\TreatmentPlanController::class, 'addAppointment']);
+        Route::post('/treatment-plan/{id}/execute', [Doctor\TreatmentPlanController::class, 'execute']);
+        Route::get('/procedure', [Doctor\ProcedureController::class, 'index']);
+
         Route::post('/prescription', [Shared\PrescriptionController::class, 'store']);
         Route::get('/prescription', [Shared\PrescriptionController::class, 'index']);
         Route::put('/prescription/{id}', [Shared\PrescriptionController::class, 'update']);
