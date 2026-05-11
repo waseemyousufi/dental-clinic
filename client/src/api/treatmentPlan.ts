@@ -17,6 +17,7 @@ export default new class TreatmentPlan {
   }
 
   postTreatmentPlan(data: TreatmentPlanData) {
+    console.log(data)
     return api.post('/treatment-plan', data);
   }
 

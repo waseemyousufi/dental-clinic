@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Receptionist;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PatientResource;
+use App\Models\Account;
+use App\Models\AccountTransaction;
 use App\Models\Patient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PatientController extends Controller
 {
@@ -43,6 +46,46 @@ class PatientController extends Controller
             'description' => $data['description'],
             'branch_id' => $branchId,
         ]);
+    }
+
+    public function setDebit(Request $request, String $id)
+    {
+        $branchId = $this->effectiveBranchId($request);
+
+        $data = $request->validate([
+            'debit' => 'integer|required',
+        ]);
+
+        $patient = Patient::find($id);
+        $account = Account::where('branch_id', $branchId)->where('account_type', 'income')->first();
+
+        DB::transaction(function () use ($patient, $account, $data, $branchId, $request) {
+
+
+
+        $account->update([
+            'total_amount' => $account->total_amount + $data['debit'],
+            'branch_id' => $branchId
+        ]);
+
+        AccountTransaction::create([
+            'transaction_type' => 'in',
+            'amount' => $data['debit'],
+            'transaction_date' => now(),
+            'reference_type' => 'patient',
+            'description' => 'Collected from ' . $patient->f_name . ' ' . $patient->l_name,
+            'recorded_by_employee_id' => $request->user()->id,
+            'account_id' => 1,
+            'branch_id' => $branchId
+        ]);
+
+        $patient->total_amount_due = $patient->total_amount_due - $data['debit'];
+        $patient->save();
+
+        return [
+            'totalAmountDue' => $patient->total_amount_due
+        ];
+        });
     }
 
     /**

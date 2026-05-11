@@ -1,5 +1,5 @@
 export default interface ItemData {
-  id: number
+  id?: number
   name: string
   category: string
   materials?: string[]
@@ -8,6 +8,7 @@ export default interface ItemData {
   requiresBatch: boolean
   requiresExpiry: boolean
   isConsumable: boolean
+  price?: number
   totalQuantityInStock?: number
   activePrice?: {
     id: number

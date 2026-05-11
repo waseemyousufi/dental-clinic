@@ -14,6 +14,7 @@ class TreatmentPlanResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $procedure = $this->procedure()->first();
         return [
             'id' => $this->id,
 
@@ -26,7 +27,7 @@ class TreatmentPlanResource extends JsonResource
             'total_estimated_cost' => $this->total_estimated_cost,
             'total_amount_paid' => $this->total_amount_paid,
             'status' => $this->status,
-            'duration' => $this->duration,
+            'appointments_needed' => $this->appointments_needed,
             'start_date' => $this->start_date, // ⚠️ you likely meant start_date in DB
 
             // Computed
@@ -35,7 +36,7 @@ class TreatmentPlanResource extends JsonResource
             // Relationships (only if loaded)
             'patient' => new PatientResource($this->whenLoaded('patient')),
             'appointments' => AppointmentResource::collection($this->whenLoaded('appointments')),
-            'procedure' => new ProcedureResource($this->whenLoaded('procedure')),
+            'procedure' => new ProcedureResource($procedure),
 
             // Timestamps
             'created_at' => $this->created_at,

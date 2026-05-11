@@ -275,6 +275,10 @@ const openEditModal = () => {
     status: selectedAppointment.value.status,
     employeeId: selectedAppointment.value.employeeId,
     patientId: selectedAppointment.value.patientId,
+    appointmentCost: selectedAppointment.value.appointmentCost,
+    clinicalNotes: selectedAppointment.value.clinical_notes,
+    procedureId: selectedAppointment.value.procedureId,
+    treatmentPlanId: selectedAppointment.value.treatmentPlanId,
   }
   showViewModal.value = false
   showAddEditModal.value = true
@@ -320,7 +324,7 @@ onMounted(loadData)
 
 <template>
   <div class="appointment-view">
-    <div class="header" v-if="userStore.isReceptionist">
+    <div class="header" v-if="userStore.isReceptionist || userStore.isAdmin">
       <n-space justify="space-between" align="center">
         <n-space>
           <n-input v-model:value="searchQuery" placeholder="Search patient, employee or date..."
@@ -331,11 +335,11 @@ onMounted(loadData)
       </n-space>
     </div>
 
-    <n-card v-if="userStore.isReceptionist" class="calendar-card">
+    <n-card v-if="userStore.isReceptionist || userStore.isAdmin" class="calendar-card">
       <FullCalendar ref="calendarRef" :options="calendarOptions" />
     </n-card>
 
-    <AppointmentFormModal v-if="userStore.isReceptionist" v-model:show="showAddEditModal" :appointment="formModel" @save="handleSave" />
+    <AppointmentFormModal v-if="userStore.isReceptionist || userStore.isAdmin" v-model:show="showAddEditModal" :appointment="formModel" @save="handleSave" />
 
     <!-- View Modal -->
     <n-modal v-model:show="showViewModal" transform-origin="center">

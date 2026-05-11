@@ -19,7 +19,8 @@ class AppointmentSeeder extends Seeder
                 'status' => 'Completed',
                 'description' => 'cavity filling',
                 'branch_id' => 1,
-                'appointment_cost' => 100
+                'appointment_cost' => 100,
+                'procedure_id' => 1,
             ]
         ]);
     }

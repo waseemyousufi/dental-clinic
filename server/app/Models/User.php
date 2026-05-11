@@ -60,4 +60,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Employee::class);
     }
+
+    public function getBranchIdAttribute()
+    {
+        return $this->employee?->branch_id;
+    }
 }

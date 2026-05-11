@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Resources\SettingResource;
 use App\Http\Controllers\Controller;
 
-class SettingsController extends Controller
+class SettingController extends Controller
 {
     // Fetches settings for the current branch
     public function index(Request $request)

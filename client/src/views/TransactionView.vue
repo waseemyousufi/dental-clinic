@@ -437,4 +437,13 @@ onMounted(() => {
   justify-content: flex-end;
   gap: 8px;
 }
+
+.transaction-view {
+  margin-bottom: 2em;
+overflow: visible !important;
+}
+
+.transaction-panal {
+  overflow: visible;
+}
 </style>

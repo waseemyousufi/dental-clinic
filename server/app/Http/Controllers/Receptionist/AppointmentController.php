@@ -19,7 +19,6 @@ class AppointmentController extends Controller
     {
         $branchId = $this->effectiveBranchId($request);
         $employeeId = $request->user()?->employee?->id;
-        return 'hi';
 
         $query = Appointment::where('branch_id', $branchId);
 
@@ -30,97 +29,99 @@ class AppointmentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $branchId = $this->effectiveBranchId($request);
+public function store(Request $request)
+{
+    $branchId = $this->effectiveBranchId($request);
 
-        $data = $request->validate([
-            'appointment_timestamp' => 'required',
-            'description' => 'nullable|string',
-            'status' => 'string',
-            'employeeId' => 'required',
-            'patientId' => 'required',
-            'treatment_plan_id' => 'nullable|exists:treatment_plans,id',
-            'appointment_cost' => 'required|numeric',
-            'clinical_notes' => 'nullable|string',
-        ]);
+    $data = $request->validate([
+        'appointment_timestamp' => 'required',
+        'description' => 'nullable|string',
+        'status' => 'required|string',
+        'employeeId' => 'required|integer',
+        'patientId' => 'required|integer',
+        'treatment_plan_id' => 'nullable|exists:treatment_plans,id',
+        'appointment_cost' => 'required|numeric',
+        'clinical_notes' => 'nullable|string',
 
-        $account = Account::where('branch_id', $branchId)->where('account_type', 'income')->first();
+        // frontend still sends single value
+        'procedure_id' => 'required|exists:procedures,id',
+    ]);
 
-        DB::transaction(function () use ($branchId, $data, $request, $account) {
+    DB::transaction(function () use ($branchId, $data, $request) {
+
         $appointment = Appointment::create([
             'appointment_timestamp' => $data['appointment_timestamp'],
-            'description' => $data['description'],
+            'description' => $data['description'] ?? null,
             'status' => $data['status'],
             'treatment_plan_id' => $data['treatment_plan_id'] ?? null,
             'branch_id' => $branchId,
             'appointment_cost' => $data['appointment_cost'],
-            'clinical_notes' => $data['clinical_notes'],
+            'clinical_notes' => $data['clinical_notes'] ?? null,
+            'procedure_id' => $data['procedure_id'],
         ]);
 
-        if($data['appointment_cost'] > 0) {
-            AccountTransaction::create([
-                'transaction_type' => 'in',
-                'amount' => $data['appointment_cost'],
-                'transaction_date' => $data['appointment_timestamp'],
-                'reference_type' => 'appointment',
-                'description' => 'Appointment cost',
-                'recorded_by_employee_id' => $request->user()->id ?? null,
-                'account_id' => 1,
-                'branch_id' => $branchId,
-            ]);
+        // ✅ M:M compatibility layer (IMPORTANT PART)
+        $appointment->procedures()->sync([$data['procedure_id']]);
 
-            Account::where('branch_id', $branchId)->where('account_type', 'income')->first()->update([
-                'total_amount' => $account->total_amount + $data['appointment_cost'],
-            ]);
-        }
+        $patient = Patient::findOrFail($data['patientId']);
+        $patient->total_amount_due += $data['appointment_cost'];
+        $patient->save();
 
-        $patient = Patient::find($data['patientId']);
-        $appointment->patients()->syncWithoutDetaching([$patient->id]);
+        $appointment->patients()->sync([$patient->id]);
 
-        $employee = Employee::find($data['employeeId']);
-        $appointment->employees()->syncWithoutDetaching([$employee->id]);
+        $employee = Employee::findOrFail($data['employeeId']);
+        $appointment->employees()->sync([$employee->id]);
     });
-    }
+
+    return response()->json([
+        'message' => 'Appointment created successfully'
+    ]);
+}
 
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, String $id)
-    {
-        $branchId = $this->effectiveBranchId($request);
+public function update(Request $request, string $id)
+{
+    $branchId = $this->effectiveBranchId($request);
 
-        $data = $request->validate([
-            'appointment_timestamp' => 'required',
-            'description' => 'string',
-            'status' => 'string',
-            'employeeId' => 'integer|required',
-            'patientId' => 'integer|required',
-            'treatment_plan_id' => 'nullable|exists:treatment_plans,id',
-            'appointment_cost' => 'required|numeric',
-            'clinical_notes' => 'string',
-        ]);
+    $data = $request->validate([
+        'appointment_timestamp' => 'required',
+        'description' => 'nullable|string',
+        'status' => 'required|string',
+        'employeeId' => 'required|integer',
+        'patientId' => 'required|integer',
+        'treatment_plan_id' => 'nullable|exists:treatment_plans,id',
+        'appointment_cost' => 'required|numeric',
+        'clinical_notes' => 'nullable|string',
+        'procedure_id' => 'required|exists:procedures,id',
+    ]);
 
-        Appointment::where('id', $id)->update([
-            'appointment_timestamp' => $data['appointment_timestamp'],
-            'description' => $data['description'],
-            'status' => $data['status'],
-            'treatment_plan_id' => $data['treatment_plan_id'] ?? null,
-            'branch_id' => $branchId,
-            'appointment_cost' => $data['appointment_cost'],
-            'clinical_notes' => $data['clinical_notes'],
-        ]);
+    $appointment = Appointment::findOrFail($id);
 
-        $appointment = Appointment::find($id);
+    $appointment->update([
+        'appointment_timestamp' => $data['appointment_timestamp'],
+        'description' => $data['description'] ?? null,
+        'status' => $data['status'],
+        'treatment_plan_id' => $data['treatment_plan_id'] ?? null,
+        'branch_id' => $branchId,
+        'appointment_cost' => $data['appointment_cost'],
+        'clinical_notes' => $data['clinical_notes'] ?? null,
+        'procedure_id' => $data['procedure_id'],
+    ]);
 
-        $employee = Employee::find($data['employeeId']);
-        $appointment->employees()->sync([$employee->id]);
+    // ✅ overwrite procedure relation cleanly
+    $appointment->procedures()->sync([$data['procedure_id']]);
 
-        $patient = Patient::find($data['patientId']);
-        $appointment->patients()->sync([$patient->id]);
-    }
+    $appointment->employees()->sync([$data['employeeId']]);
+    $appointment->patients()->sync([$data['patientId']]);
 
+    return response()->json([
+        'message' => 'Appointment updated successfully',
+        'appointment' => $appointment->fresh()
+    ]);
+}
     /**
      * Remove the specified resource from storage.
      */

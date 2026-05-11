@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('blood_type', 5)->nullable(); // ['O-', 'O+']
             $table->string('emergency_contact', 10)->nullable();
             $table->date('registeration_date');
-            $table->integer('total_amount_due', true, false)->nullable();
+            $table->integer('total_amount_due', false, true)->nullable();
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
         });
 

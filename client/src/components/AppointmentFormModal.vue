@@ -1,5 +1,10 @@
 <template>
-  <n-modal v-model:show="visible" class="appointment-add-edit-modal" transform-origin="center" :mask-closable="false">
+  <n-modal
+    v-model:show="visible"
+    class="appointment-add-edit-modal"
+    transform-origin="center"
+    :mask-closable="false"
+  >
     <n-card
       :title="isEditMode ? 'Edit Appointment' : 'New Appointment'"
       class="appointment-form-card"
@@ -9,7 +14,12 @@
       role="dialog"
       aria-modal="true"
     >
-      <n-form :model="formModel" class="appointment-form" size="small" :show-require-mark="false">
+      <n-form
+        :model="formModel"
+        class="appointment-form"
+        size="small"
+        :show-require-mark="false"
+      >
         <div class="appointment-form__rows">
           <div class="appointment-form__pair">
             <n-form-item label="Patient" path="patientId" class="appointment-form__field">
@@ -22,6 +32,7 @@
                 size="small"
               />
             </n-form-item>
+
             <n-form-item label="Doctor" path="employeeId" class="appointment-form__field">
               <n-select
                 v-model:value="formModel.employeeId"
@@ -32,33 +43,111 @@
               />
             </n-form-item>
           </div>
+
           <div class="appointment-form__pair">
             <n-form-item label="Date & time" path="appointment_timestamp" class="appointment-form__field">
-              <n-date-picker v-model:value="formModel.appointment_timestamp" type="datetime" clearable size="small" style="width: 100%" />
-            </n-form-item>
-            <n-form-item label="Status" path="status" class="appointment-form__field">
-              <n-select v-model:value="formModel.status" :options="statusOptions" size="small" />
-            </n-form-item>
-          </div>
-          <div class="appointment-form__pair">
-            <n-form-item label="Appointment Cost" path="appointment_cost" class="appointment-form__field">
-              <n-input-number v-model:value="formModel.appointment_cost" :min="0" size="small" />
-            </n-form-item>
-            <n-form-item v-if="isDoctorUsing" label="Clinical Notes" path="clinical_notes" class="appointment-form__field">
-              <n-input v-model:value="formModel.clinical_notes" type="textarea" placeholder="Details..." size="small" :autosize="{ minRows: 2, maxRows: 6 }" />
+              <n-date-picker
+                v-model:value="formModel.appointment_timestamp"
+                type="datetime"
+                clearable
+                size="small"
+                style="width: 100%"
+              />
             </n-form-item>
 
+            <n-form-item label="Status" path="status" class="appointment-form__field">
+              <n-select
+                v-model:value="formModel.status"
+                :options="statusOptions"
+                size="small"
+              />
+            </n-form-item>
           </div>
-          <n-form-item v-if="!isDoctorUsing" label="Description" path="description" class="appointment-form__field appointment-form__field--full">
-            <n-input v-model:value="formModel.description" type="textarea" placeholder="Details..." size="small" :autosize="{ minRows: 2, maxRows: 6 }" />
+
+          <div class="appointment-form__pair">
+            <n-form-item label="Treatment Plan" path="treatment_plan_id" class="appointment-form__field">
+              <n-select
+                v-model:value="formModel.treatment_plan_id"
+                :options="treatmentPlanOptions"
+                placeholder="Select treatment plan"
+                filterable
+                clearable
+                size="small"
+              />
+            </n-form-item>
+
+            <n-form-item label="Procedure" path="procedure_id" class="appointment-form__field">
+              <n-select
+                v-model:value="formModel.procedure_id"
+                :options="procedureOptions"
+                placeholder="Select procedure"
+                filterable
+                clearable
+                :disabled="Boolean(props.appointment?.id)"
+
+                size="small"
+              />
+            </n-form-item>
+          </div>
+
+          <div class="appointment-form__pair">
+            <n-form-item label="Appointment Cost" path="appointment_cost" class="appointment-form__field">
+              <n-input-number
+                v-model:value="formModel.appointment_cost"
+                :min="0"
+                size="small"
+                :disabled="Boolean(props.appointment?.id)"
+                style="width: 100%"
+              />
+            </n-form-item>
+
+            <n-form-item
+              v-if="isDoctorUsing"
+              label="Clinical Notes"
+              path="clinical_notes"
+              class="appointment-form__field"
+            >
+              <n-input
+                v-model:value="formModel.clinical_notes"
+                type="textarea"
+                placeholder="Details..."
+                size="small"
+                :autosize="{ minRows: 2, maxRows: 6 }"
+              />
+            </n-form-item>
+          </div>
+
+          <n-form-item
+            v-if="!isDoctorUsing"
+            label="Description"
+            path="description"
+            class="appointment-form__field appointment-form__field--full"
+          >
+            <n-input
+              v-model:value="formModel.description"
+              type="textarea"
+              placeholder="Details..."
+              size="small"
+              :autosize="{ minRows: 2, maxRows: 6 }"
+            />
           </n-form-item>
         </div>
       </n-form>
 
       <template #footer>
         <n-space justify="end" size="small">
-          <n-button size="small" @click="visible = false">Cancel</n-button>
-          <n-button size="small" type="primary" :loading="loading" @click="submit">{{ isEditMode ? 'Update' : 'Save' }}</n-button>
+          <n-button size="small" @click="visible = false">
+            Cancel
+          </n-button>
+
+          <n-button
+            size="small"
+            type="primary"
+            :loading="loading"
+            @click="submit"
+          >
+            {{ isEditMode ? 'Update' : 'Save' }}
+          </n-button>
         </n-space>
       </template>
     </n-card>
@@ -67,12 +156,29 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { NModal, NCard, NForm, NFormItem, NSelect, NDatePicker, NInput, NButton, NSpace, useMessage, NInputNumber } from 'naive-ui'
+import {
+  NModal,
+  NCard,
+  NForm,
+  NFormItem,
+  NSelect,
+  NDatePicker,
+  NInput,
+  NButton,
+  NSpace,
+  useMessage,
+  NInputNumber,
+} from 'naive-ui'
+
 import employeeApi from '@api/employee'
 import patientApi from '@api/patient'
+import procedureApi from '@api/procedure'
+import treatmentPlanApi from '@api/treatmentPlan'
+
 import type AppointmentData from '@api/interfaces/Appointment'
 import type EmployeeData from '@api/interfaces/Employee'
 import type PatientData from '@api/interfaces/patient'
+import procedure from '@api/procedure'
 
 type EmployeeAbbr = {
   id: number
@@ -88,6 +194,27 @@ type PatientAbbr = {
   lName?: string
 }
 
+type SelectOption = {
+  label: string
+  value: number
+}
+
+type ProcedureRecord = {
+  id: number
+  name?: string
+  cost?: number | string | null
+  price?: number | string | null
+  appointment_cost?: number | string | null
+}
+
+type TreatmentPlanRecord = {
+  id: number
+  name?: string
+  cost?: number | string | null
+  price?: number | string | null
+  appointment_cost?: number | string | null
+}
+
 const props = withDefaults(defineProps<{
   show: boolean
   appointment?: Partial<AppointmentData> | null
@@ -96,13 +223,15 @@ const props = withDefaults(defineProps<{
   lockPatient?: boolean
   loading?: boolean
   isDoctorUsing: boolean
+  procedureId?: number | null
 }>(), {
   appointment: null,
   patientId: null,
   treatmentPlanId: null,
   lockPatient: false,
   loading: false,
-  isDoctorUsing: false
+  isDoctorUsing: false,
+  procedureId: null,
 })
 
 const emit = defineEmits<{
@@ -111,8 +240,14 @@ const emit = defineEmits<{
 }>()
 
 const message = useMessage()
-const employeeOptions = ref<{ label: string; value: number }[]>([])
-const patientOptions = ref<{ label: string; value: number }[]>([])
+
+const employeeOptions = ref<SelectOption[]>([])
+const patientOptions = ref<SelectOption[]>([])
+const treatmentPlanOptions = ref<SelectOption[]>([])
+const procedureOptions = ref<SelectOption[]>([])
+
+const procedureRecords = ref<ProcedureRecord[]>([])
+const treatmentPlanRecords = ref<TreatmentPlanRecord[]>([])
 
 const statusOptions = [
   { label: 'Pending', value: 'pending' },
@@ -136,6 +271,7 @@ const formModel = ref({
   employeeId: undefined as number | undefined,
   patientId: undefined as number | undefined,
   treatment_plan_id: null as number | null,
+  procedure_id: null as number | null,
   appointment_cost: 0,
   clinical_notes: '',
 })
@@ -145,62 +281,206 @@ const formatName = (obj: EmployeeAbbr | PatientAbbr) => {
   return `${obj.fName || ''} ${obj.lName || ''}`.trim() || 'Unknown'
 }
 
+function normalizeId(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null
+  const n = Number(value)
+  return Number.isNaN(n) ? null : n
+}
+
+function normalizeNumber(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null
+  const n = Number(value)
+  return Number.isNaN(n) ? null : n
+}
+
 function toTimestamp(value: string | number | null | undefined): number | null {
   if (!value) return null
+
   const d = new Date(value)
   return Number.isNaN(d.getTime()) ? null : d.getTime()
 }
 
 function toSqlDateTime(value: number): string {
   const date = new Date(value)
+
   const Y = date.getFullYear()
   const M = String(date.getMonth() + 1).padStart(2, '0')
   const D = String(date.getDate()).padStart(2, '0')
   const h = String(date.getHours()).padStart(2, '0')
   const m = String(date.getMinutes()).padStart(2, '0')
+
   return `${Y}/${M}/${D} ${h}:${m}`
 }
 
+function getRecordCost(
+  records: Array<{ id: number; cost?: number | string | null; price?: number | string | null; appointment_cost?: number | string | null }>,
+  id: number | null,
+): number | null {
+  if (id == null) return null
+
+  const record = records.find(item => item.id === id)
+  if (!record) return null
+
+  return (
+    normalizeNumber(record.appointment_cost) ??
+    normalizeNumber(record.cost) ??
+    normalizeNumber(record.price)
+  )
+}
+
 function resetForm() {
+  const appt = props.appointment
+
+  const existingProcedureId = normalizeId(appt?.procedureId ?? (appt as any)?.procedure_id)
+  const existingTreatmentPlanId = normalizeId(appt?.treatmentPlanId ?? (appt as any)?.treatment_plan_id)
+
+  const selectedProcedureId =
+    normalizeId(props.procedureId ?? existingProcedureId) ??
+    normalizeId(procedureOptions.value[0]?.value) ??
+    null
+
+  const selectedTreatmentPlanId =
+    normalizeId(props.treatmentPlanId ?? existingTreatmentPlanId) ??
+    normalizeId(treatmentPlanOptions.value[0]?.value) ??
+    null
+
+  const defaultCostFromAppointment =
+    normalizeNumber((appt as any)?.appointmentCost ?? (appt as any)?.appointment_cost)
+
+  const defaultCostFromProcedure =
+    getRecordCost(procedureRecords.value, selectedProcedureId)
+
+  const defaultCostFromTreatmentPlan =
+    getRecordCost(treatmentPlanRecords.value, selectedTreatmentPlanId)
+
   formModel.value = {
-    id: props.appointment?.id,
-    description: props.appointment?.description || '',
-    appointment_timestamp: toTimestamp(props.appointment?.appointment_timestamp) ?? Date.now(),
-    status: props.appointment?.status || 'pending',
-    employeeId: props.appointment?.employeeId,
-    patientId: props.patientId ?? props.appointment?.patientId,
-    treatment_plan_id: props.treatmentPlanId ?? props.appointment?.treatment_plan_id ?? null,
-    appointment_cost: props.appointment?.appointment_cost ?? 0,
-    clinical_notes: props.appointment?.clinical_notes ?? '',
+    id: appt?.id,
+
+    description: appt?.description || '',
+
+    appointment_timestamp:
+      toTimestamp(appt?.appointment_timestamp) ?? Date.now(),
+
+    status: appt?.status || 'pending',
+
+    employeeId: normalizeId(appt?.employeeId),
+
+    patientId: normalizeId(props.patientId ?? appt?.patientId),
+
+    treatment_plan_id: selectedTreatmentPlanId,
+
+    procedure_id: selectedProcedureId,
+
+    appointment_cost:
+      defaultCostFromAppointment ??
+      defaultCostFromProcedure ??
+      defaultCostFromTreatmentPlan ??
+      0,
+
+    clinical_notes:
+      (appt as any)?.clinicalNotes ??
+      (appt as any)?.clinical_notes ??
+      '',
   }
 }
 
 async function loadOptions() {
   try {
-    const [empRes, patRes] = await Promise.all([
+    const [
+      empRes,
+      patRes,
+      procedureRes,
+      treatmentPlanRes,
+    ] = await Promise.all([
       employeeApi.getBranchEmployees(true),
       patientApi.getBranchPatients(true),
+      procedureApi.getProcedures(),
+      treatmentPlanApi.getBranchTreatmentPlans(),
     ])
 
+    console.log('treatmentPlanRes', treatmentPlanRes)
+
     const rawEmps = empRes.data?.data || empRes.data
-    employeeOptions.value = (Array.isArray(rawEmps) ? rawEmps : rawEmps?.employees || []).map((emp: EmployeeData) => ({
+
+    employeeOptions.value = (
+      Array.isArray(rawEmps)
+        ? rawEmps
+        : rawEmps?.employees || []
+    ).map((emp: EmployeeData) => ({
       label: formatName(emp as EmployeeAbbr),
-      value: emp.id,
+      value: normalizeId(emp.id) ?? 0,
     }))
 
     const rawPats = patRes.data?.data || patRes.data
-    patientOptions.value = (Array.isArray(rawPats) ? rawPats : rawPats?.patients || []).map((pat: PatientData) => ({
+
+    patientOptions.value = (
+      Array.isArray(rawPats)
+        ? rawPats
+        : rawPats?.patients || []
+    ).map((pat: PatientData) => ({
       label: formatName(pat as PatientAbbr),
-      value: pat.id,
+      value: normalizeId(pat.id) ?? 0,
+    }))
+
+    const rawProcedures = procedureRes.data?.data || procedureRes.data
+    const procedureList = (
+      Array.isArray(rawProcedures)
+        ? rawProcedures
+        : rawProcedures?.procedures || []
+    ) as any[]
+
+    procedureRecords.value = procedureList
+      .map((procedure: any) => ({
+        id: normalizeId(procedure.id) ?? 0,
+        name: procedure.name,
+        cost: procedure.cost,
+        price: procedure.price,
+        appointment_cost: procedure.appointment_cost,
+      }))
+      .filter(item => item.id !== 0 || item.name)
+
+    procedureOptions.value = procedureRecords.value.map((procedure) => ({
+      label: procedure.name || 'Unknown',
+      value: procedure.id,
+    }))
+
+    const rawTreatmentPlans = treatmentPlanRes.data?.data || treatmentPlanRes.data
+    const treatmentPlanList = (
+      Array.isArray(rawTreatmentPlans)
+        ? rawTreatmentPlans
+        : rawTreatmentPlans?.treatmentPlans || []
+    ) as any[]
+
+    treatmentPlanRecords.value = treatmentPlanList
+      .map((plan: any) => ({
+        id: normalizeId(plan.id) ?? 0,
+        name: plan.name,
+        cost: plan.cost,
+        price: plan.price,
+        procedure_id: normalizeId(plan.procedure_id),
+        appointment_cost: plan.appointment_cost,
+      }))
+      .filter(item => item.id !== 0 || item.name)
+
+      console.log(procedureOptions.value)
+
+    treatmentPlanOptions.value = treatmentPlanRecords.value.map((plan) => ({
+      label: procedureOptions.value[plan.procedure_id -1]?.label || 'Unknown',
+      value: plan.id,
     }))
   } catch (error) {
+    console.log(error)
     message.error('Failed to load appointment options')
   }
 }
 
 function submit() {
+  const requiredText = props.isDoctorUsing
+    ? formModel.value.clinical_notes
+    : formModel.value.description
+
   if (
-    !formModel.value.description ||
+    !requiredText ||
     !formModel.value.appointment_timestamp ||
     formModel.value.employeeId == null ||
     formModel.value.patientId == null
@@ -211,19 +491,35 @@ function submit() {
 
   emit('save', {
     id: formModel.value.id,
+
     description: formModel.value.description,
+
     appointment_timestamp: toSqlDateTime(formModel.value.appointment_timestamp),
+
     status: formModel.value.status,
+
     employeeId: Number(formModel.value.employeeId),
+
     patientId: Number(formModel.value.patientId),
+
     treatment_plan_id: formModel.value.treatment_plan_id,
-    appointment_cost: formModel.value.appointment_cost,
+
+    procedure_id: formModel.value.procedure_id,
+
+    appointment_cost: Number(formModel.value.appointment_cost ?? 0),
+
     clinical_notes: formModel.value.clinical_notes,
-  })
+  } as AppointmentData)
 }
 
 watch(
-  () => [props.show, props.appointment, props.patientId, props.treatmentPlanId],
+  () => [
+    props.show,
+    props.appointment,
+    props.patientId,
+    props.treatmentPlanId,
+    props.procedureId,
+  ],
   () => {
     if (props.show) resetForm()
   },
@@ -232,7 +528,9 @@ watch(
 
 onMounted(async () => {
   await loadOptions()
-  resetForm()
+  if (props.show) {
+    resetForm()
+  }
 })
 </script>
 
@@ -265,11 +563,11 @@ onMounted(async () => {
   }
 
   :deep(.appointment-form-card .n-card-content) {
-    padding: 0 12px 10px;
+    padding: 0 12px 12px;
   }
 
   :deep(.appointment-form-card .n-card__footer) {
-    padding: 6px 12px 10px;
+    padding: 8px 12px 12px;
   }
 
   :deep(.appointment-form .n-form-item-feedback-wrapper) {
@@ -279,13 +577,13 @@ onMounted(async () => {
   .appointment-form__rows {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 12px;
   }
 
   .appointment-form__pair {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 6px 8px;
+    gap: 12px 12px;
     align-items: start;
   }
 
@@ -300,8 +598,12 @@ onMounted(async () => {
   }
 
   :deep(.appointment-form__field .n-form-item-label) {
-    padding-bottom: 2px;
+    padding-bottom: 6px;
     font-size: 12px;
+  }
+
+  .appointment-form__field--full {
+    width: 100%;
   }
 }
 </style>

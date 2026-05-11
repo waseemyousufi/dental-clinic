@@ -62,11 +62,11 @@
             <n-input-number v-model:value="form.total_estimated_cost" :min="0" class="full" />
           </n-form-item>
 
-          <n-form-item label="Total Amount Paid">
+          <!-- <n-form-item label="Total Amount Paid">
             <n-input-number v-model:value="form.total_amount_paid" :min="0" clearable class="full" />
-          </n-form-item>
+          </n-form-item> -->
 
-          <n-form-item label="Duration (Weeks)">
+          <n-form-item label="Appoinments Needed">
             <n-input-number v-model:value="form.duration" :min="0" clearable class="full" />
           </n-form-item>
 

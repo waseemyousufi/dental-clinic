@@ -6,7 +6,7 @@ export default new class {
   constructor () {}
 
   getProcedures() {
-    return api.get('/procedure') as ProcedureData
+    return api.get('/procedure')
   }
 
   postProcedure(data: ProcedureData) {

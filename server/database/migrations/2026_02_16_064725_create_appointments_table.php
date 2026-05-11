@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->integer('appointment_cost');
             $table->string('clinical_notes')->nullable();
+            $table->string('procedure_id');
             $table->foreignId('treatment_plan_id')->nullable()->constrained('treatment_plans')->cascadeOnDelete();
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
         });

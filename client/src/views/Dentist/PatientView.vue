@@ -14,6 +14,7 @@ import type AppointmentData from '@api/interfaces/Appointment'
 import EditTreatment from '@/components/EditTreatment.vue'
 import AppointmentFormModal from '@/components/AppointmentFormModal.vue'
 import procedureApi from '@api/procedure'
+
 import {
   NCard,
   NButton,
@@ -132,8 +133,10 @@ async function fetchTreatmentData() {
     treatmentPlans.value = plansRes.data?.data ?? plansRes.data ?? []
     procedures.value = procRes.data?.data ?? procRes.data ?? []
     const allAppointments = appointmentsRes.data?.data ?? appointmentsRes.data ?? []
+    console.log(allAppointments)
     appointments.value = allAppointments.filter((a: any) => Number(a.patientId) === patientId.value)
   } catch (err) {
+    console.log(err)
     message.error('Failed to load treatment plans')
   } finally {
     planLoading.value = false
@@ -747,10 +750,10 @@ onMounted(async () => {
                   <strong>{{ treatmentPlanStats.proposed }}</strong>
                 </div>
 
-                <div class="stat-card">
+                <!-- <div class="stat-card">
                   <span class="stat-label">Outstanding</span>
                   <strong>{{ formatMoney(treatmentPlanStats.outstanding) }}</strong>
-                </div>
+                </div> -->
               </div>
 
               <n-divider />
@@ -779,15 +782,15 @@ onMounted(async () => {
                   </template>
 
                   <div class="plan-card__body">
-                    <div class="plan-pill-row">
+                     <div class="plan-pill-row">
                       <div class="plan-pill">
                         <span class="plan-pill__label">Start date</span>
                         <span class="plan-pill__value">{{ formatDate(plan.start_date) }}</span>
                       </div>
 
                       <div class="plan-pill">
-                        <span class="plan-pill__label">Duration</span>
-                        <span class="plan-pill__value">{{ plan.duration ?? '—' }} min</span>
+                        <span class="plan-pill__label">Appointments</span>
+                        <span class="plan-pill__value">{{ plan.appointments.length }}/{{ plan.appointments_needed ?? '—' }}</span>
                       </div>
 
                       <div class="plan-pill">
@@ -799,7 +802,7 @@ onMounted(async () => {
                     </div>
 
                     <div class="billing-grid">
-                      <div class="billing-box">
+                      <!-- <div class="billing-box">
                         <span class="billing-box__label">Estimated cost</span>
                         <strong class="billing-box__value">
                           {{ formatMoney(plan.total_estimated_cost) }}
@@ -818,7 +821,7 @@ onMounted(async () => {
                         <strong class="billing-box__value">
                           {{ formatMoney(remainingBalance(plan)) }}
                         </strong>
-                      </div>
+                      </div> -->
                     </div>
 
                     <div class="plan-note">
@@ -856,24 +859,20 @@ onMounted(async () => {
                           <n-button>Paid</n-button>
                         </div>
 
-                        <div class="cost" style="font-weight: bold;">
-                          Cost: {{ appointment.appointment_cost.toLocaleString() }}AFN
-                        </div>
-
                       </div>
                     </div>
                   </div>
 
                   <template #footer>
                     <div class="plan-actions">
-                      <n-select v-model:value="selectedAppointmentByPlan[plan.id]" size="small" clearable filterable
+                      <!-- <n-select v-model:value="selectedAppointmentByPlan[plan.id]" size="small" clearable filterable
                         placeholder="Link existing appointment" :options="appointmentOptionsForPlan(plan)"
-                        style="min-width: 220px" />
-
+                        style="min-width: 220px" /> -->
+<!--
                       <n-button size="small" secondary :loading="linkingPlanId === plan.id"
                         @click.stop="addAppointmentToPlan(plan.id)">
                         Link Appointment
-                      </n-button>
+                      </n-button> -->
 
                       <n-button size="small" tertiary @click.stop="openEditTreatment(plan)">
                         <template #icon>
@@ -881,13 +880,13 @@ onMounted(async () => {
                         </template>
                         Edit
                       </n-button>
-
+<!--
                       <n-button size="small" type="primary" @click.stop="createAppointment(plan)">
                         <template #icon>
                           <Icon icon="mdi:calendar-plus" />
                         </template>
                         Add Appointment
-                      </n-button>
+                      </n-button> -->
 
                       <n-popconfirm @positive-click="deletePlan(plan.id)">
                         <template #trigger>

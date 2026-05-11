@@ -8,6 +8,7 @@ use App\Http\Controllers\Shared;
 use Illuminate\Support\Facades\Route;
 
 
+
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:admin')->group(function () {
@@ -18,7 +19,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/branch/{id}', [Admin\BranchController::class, 'update']);
         Route::delete('/branch/{id}', [Admin\BranchController::class, 'delete']);
 
-        // Dashboard endpoint is available to all authenticated roles below.
+        Route::get('/settings', [Admin\SettingsController::class, 'index']);
+        Route::put('/settings/{branch}', [Admin\SettingsController::class, 'update']);
+        Route::post('/settings/backup', [Admin\SettingsController::class, 'backupDatabase']);
+
+
     });
 
     Route::middleware('role:doctor,assistant,admin')->group(function () {
@@ -36,10 +41,6 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::middleware('role:receptionist,admin')->group(function () {
-        Route::get('/appointment', [Receptionist\AppointmentController::class, 'index']);
-        Route::put('/appointment/{id}', [Receptionist\AppointmentController::class, 'update']);
-        Route::delete('/appointment/{id}', [Receptionist\AppointmentController::class, 'delete']);
-
         Route::post('/expense', [Receptionist\ClinicExpenseController::class, 'store']);
         Route::get('/expense', [Receptionist\ClinicExpenseController::class, 'index']);
         Route::put('/expense/{id}', [Receptionist\ClinicExpenseController::class, 'update']);
@@ -72,6 +73,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:receptionist,doctor,assisstant,admin')->group(function () {
         Route::get('/dashboard', [Admin\DashboardController::class, 'index']);
+        Route::get('/appointment', [Receptionist\AppointmentController::class, 'index']);
+        Route::put('/appointment/{id}', [Receptionist\AppointmentController::class, 'update']);
+        Route::delete('/appointment/{id}', [Receptionist\AppointmentController::class, 'delete']);
+
 
         Route::get('/employee', [Receptionist\EmployeeController::class, 'index']);
         Route::post('/appointment', [Receptionist\AppointmentController::class, 'store']);
@@ -81,6 +86,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/patient/{id}', [Receptionist\PatientController::class, 'show']);
         Route::put('/patient/{id}', [Receptionist\PatientController::class, 'update']);
         Route::post('/patient-allergy', [Receptionist\PatientController::class, 'allergy']);
+        Route::post('/set-patient-debit/{id}', [Receptionist\PatientController::class, 'setDebit']);
 
         Route::get('/treatment-plan/', [Doctor\TreatmentPlanController::class, 'index']);
         Route::post('/treatment-plan', [Doctor\TreatmentPlanController::class, 'store']);

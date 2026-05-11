@@ -18,6 +18,7 @@ class ProcedureSeeder extends Seeder
                 'dentist_commission' => 20.00,
                 'min_price' => 100,
                 'assistant_commission' => 50, // Fixed AFN for Dastyar
+                'appointments_needed' => 1
             ],
             [
                 'name' => 'Simple Extraction',
@@ -27,6 +28,7 @@ class ProcedureSeeder extends Seeder
                 'dentist_commission' => 15.00,
                 'min_price' => 100,
                 'assistant_commission' => 30,
+                'appointments_needed' => 1
             ],
             [
                 'name' => 'Scaling & Polishing',
@@ -36,6 +38,7 @@ class ProcedureSeeder extends Seeder
                 'dentist_commission' => 25.00,
                 'min_price' => 100,
                 'assistant_commission' => 20,
+                'appointments_needed' => 1
             ]
         ];
 

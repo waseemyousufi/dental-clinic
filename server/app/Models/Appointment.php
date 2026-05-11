@@ -11,7 +11,7 @@ class Appointment extends Model
 {
 
     public $timestamps = false;
-    protected $fillable = ['appointment_timestamp', 'treatment_plan_id', 'clinical_notes', 'appointment_cost', 'status', 'description', 'branch_id'];
+    protected $fillable = ['appointment_timestamp', 'treatment_plan_id', 'procedure_id', 'clinical_notes', 'appointment_cost', 'status', 'description', 'branch_id'];
 
     public function Branch(): BelongsTo
     {
@@ -24,7 +24,8 @@ class Appointment extends Model
             Patient::class,
             'appointment_patient',
             'appointment_id',
-            'patient_id'
+            'patient_id',
+
         )->withTimestamps();
     }
 
@@ -38,11 +39,18 @@ class Appointment extends Model
         return $this->hasOne(PatientFile::class);
     }
 
-    public function TreatmentPlan() {
+    public function TreatmentPlan()
+    {
         return $this->belongsTo(TreatmentPlan::class);
     }
 
-    public function procedures() {
-        return $this->hasMany(Procedure::class);
+    public function procedures(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Procedure::class,
+            'appointment_procedure',
+            'appointment_id',
+            'procedure_id'
+        );
     }
 }

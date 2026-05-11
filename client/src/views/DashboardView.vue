@@ -5,8 +5,7 @@
         <div class="eyebrow">Dental Clinic</div>
         <h1>Dashboard.</h1>
         <p>
-          This page reads the dashboard JSON payload directly and presents KPI cards, charts, alerts, branch context, and recent activity
-          without a control panel or loan-related sections.
+          View overall Clinic performance
         </p>
       </div>
 
@@ -29,7 +28,7 @@
         </div>
       </div>
     </section>
-<!-- 
+<!--
     <section class="surface-panel scope-panel">
       <div class="panel-header">
         <div>

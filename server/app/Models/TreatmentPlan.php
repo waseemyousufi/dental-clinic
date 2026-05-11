@@ -12,16 +12,16 @@ class TreatmentPlan extends Model
      *
      * @var array<int, string>
      */
-    
+
     protected $fillable = [
         'patient_id',
         'procedure_id',
         'branch_id',
         'total_estimated_cost',
         'status',
-        'duration',
+        'appointemnts_needed',
         'total_amount_paid',
-        'start_date'
+        'start_date',
     ];
 
     /**

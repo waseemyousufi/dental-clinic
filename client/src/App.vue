@@ -121,7 +121,13 @@ if (userStore.isAdmin) {
       path: '/transactions',
       label: 'Transactions',
       icon: () => h(Icon, { icon: 'mdi:receipt-text-outline', style: 'font-size: 1.45em;' })
-    },)
+    },
+    {
+      path: '/settings',
+      label: 'Settings',
+      icon: () => h(Icon, { icon: 'mdi:gear', style: 'font-size: 1.45em;' })
+    })
+
 }
 
 const selectBranch = (branchId: number) => {
@@ -328,19 +334,18 @@ provide('selectedBranchId', computed(() =>
 
             <hr style="opacity: .3; margin: .3em 1.45em;" />
 
-            <sidebar-dropdown v-if="userStore.isAdmin" icon="ph:gear-six" title="Settings">
-              <RouterLink to="/profile">Profile</RouterLink>
-              <RouterLink to="/settings">Settings</RouterLink>
-            </sidebar-dropdown>
+            <!-- <sidebar-dropdown v-if="userStore.isAdmin" icon="ph:gear-six" title="Settings"> -->
+              <!-- <RouterLink to="/profile">Profile</RouterLink> -->
+            <!-- </sidebar-dropdown> -->
 
-            <hr v-if="userStore.isAdmin" style="opacity: .3; margin: .3em 1.45em;" />
+            <!-- <hr v-if="userStore.isAdmin" style="opacity: .3; margin: .3em 1.45em;" /> -->
 
             <sidebar-dropdown v-if="userStore.isAdmin" icon="" title="Reports">
               <RouterLink to="/employee-activity-log">Employee Activity Log</RouterLink>
               <RouterLink to="/finance-reports">Finance</RouterLink>
             </sidebar-dropdown>
 
-            <hr v-if="userStore.isAdmin" style="opacity: .3; margin: .3em 1.45em;" />
+            <!-- <hr v-if="userStore.isAdmin" style="opacity: .3; margin: .3em 1.45em;" /> -->
 
             <sidebar-dropdown v-if="userStore.isAdmin" icon="ph:question" title="Support">
               <RouterLink to="/help">Help center</RouterLink>

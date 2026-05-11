@@ -24,6 +24,8 @@ class ProcedureResource extends JsonResource
 
             // Pricing
             'base_price' => (float) $this->base_price,
+            'min_price' => (float) $this->min_price,
+            'appointments_needed' => (int) $this->appointments_needed,
             'dentist_commission' => (float) $this->dentist_commission,
             'assistant_commission' => (float) $this->assistant_commission,
 

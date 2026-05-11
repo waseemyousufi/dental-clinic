@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\TreatmentPlanResource;
 use App\Models\Appointment;
 use App\Models\InventoryStock;
+use App\Models\Patient;
 use App\Models\Treatment;
 use App\Models\TreatmentPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+
 
 class TreatmentPlanController extends Controller
 {
@@ -35,17 +37,22 @@ class TreatmentPlanController extends Controller
             'procedure_id' => 'required|exists:procedures,id',
             'total_estimated_cost' => 'required|integer|min:0',
             'status' => 'required|in:proposed,accepted,partially_accepted,rejected,completed',
-            'total_amount_paid' => 'nullable|integer|min:0',
-            'duration' => 'nullable|integer|min:0',
+            'appointments_needed' => 'nullable|integer|min:0',
             'start_date' => 'nullable|date',
         ]);
 
         $branchId = $this->effectiveBranchId($request);
 
+        DB::transaction(function () use ($branchId, $validated) {
         $plan = TreatmentPlan::create([
             ...$validated,
             'branch_id' => $branchId,
             'start_date' => $validated['start_date'] ?? now()->toDateString(),
+        ]);
+
+        $patient = Patient::find($validated['patient_id']);
+        $patient->update([
+            'total_amount_due' => $patient->total_amount_due + $validated['total_estimated_cost'] ?? 0,
         ]);
 
         return response()->json(
@@ -55,6 +62,7 @@ class TreatmentPlanController extends Controller
             ],
             201
         );
+        });
     }
 
     public function update(Request $request, string $id)
@@ -66,17 +74,25 @@ class TreatmentPlanController extends Controller
             return response()->json(['message' => 'Treatment plan not found in this branch'], 404);
         }
 
+        DB::transaction(function () use ($branchId, $request, $id) {
         $validated = $request->validate([
             'patient_id' => 'sometimes|exists:patients,id',
             'procedure_id' => 'sometimes|exists:procedures,id',
             'total_estimated_cost' => 'sometimes|integer|min:0',
             'status' => 'sometimes|in:proposed,accepted,partially_accepted,rejected,completed',
-            'total_amount_paid' => 'nullable|integer|min:0',
-            'duration' => 'nullable|integer|min:0',
+            'appointments' => 'nullable|integer|min:0',
             'start_date' => 'sometimes|date',
         ]);
 
+        $patient = Patient::find($validated['patient_id']);
+        $patient->update([
+            'total_amount_due' => $patient->total_amount_due + $validated['total_estimated_cost'] ?? 0,
+        ]);
+
+        $plan = TreatmentPlan::find($id);
+
         $plan->update($validated);
+        });
 
         return response()->json([
             'message' => 'Treatment plan updated successfully',

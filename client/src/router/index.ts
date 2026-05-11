@@ -101,8 +101,14 @@ const router = createRouter({
     },
     {
       path: '/treatments',
-      name: 'Treatmnets',
+      name: 'Treatments',
       component: () => import('@views/Dentist/TreatmentView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/settings',
+      name: 'Settings',
+      component: () => import('@views/SettingsView.vue'),
       meta: { requiresAuth: true }
     }
   ],

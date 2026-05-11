@@ -293,6 +293,14 @@ const getPartStyle = (num: number, partId: string) => {
   pointer-events: none;
 }
 
+@media(min-width: 600px) {
+  .odontogram-wrapper:hover {
+    transform: scale(1.5) !important;
+    transition: transform 1s ease !important;
+  }
+
+}
+
 @media print {
 
   /* 1. Reset everything to zero margins */

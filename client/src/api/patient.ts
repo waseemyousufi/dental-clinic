@@ -40,4 +40,11 @@ export default new (class Patient {
   setAllergy(data: PatientAllergyData) {
     return api.post('/patient-allergy', data)
   }
+
+  setDebit(id: number,digit: number) {
+    console.log(digit)
+    return api.post(`set-patient-debit/${id}`, {
+      debit: digit
+    })
+  }
 })()
