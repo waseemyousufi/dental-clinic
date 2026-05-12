@@ -29,7 +29,7 @@ class ProcedureController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
-            'slug' => 'nullable|string|unique:procedures,slug',
+            'slug' => 'nullable|string',
             'category' => 'required|string',
             'base_price' => 'required|numeric',
             'min_price' => 'required|numeric|lte:base_price',

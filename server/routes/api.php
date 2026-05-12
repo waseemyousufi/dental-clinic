@@ -20,7 +20,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/branch/{id}', [Admin\BranchController::class, 'delete']);
 
         Route::get('/settings', [Admin\SettingsController::class, 'index']);
-        Route::put('/settings/{branch}', [Admin\SettingsController::class, 'update']);
+        Route::match(['put', 'post'], '/settings/{branch?}', [Admin\SettingsController::class, 'update']);
         Route::post('/settings/backup', [Admin\SettingsController::class, 'backupDatabase']);
 
 

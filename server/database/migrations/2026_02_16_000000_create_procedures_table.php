@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('slug')->unique(); // e.g., "composite_filling"
             $table->string('category'); // e.g., "Endodontics"
             $table->decimal('base_price', 15, 2); // Standard fee in AFN
-            $table->decimal('min_price', 15, 2);
+            $table->decimal('min_price', 15, 2)->nullable();
             $table->integer('appointments_needed', false, true);
             $table->decimal('dentist_commission', 5, 2)->default(0); // Percentage for the doctor
             $table->decimal('assistant_commission', 15, 2)->default(0); // Fixed or % for Dastyar

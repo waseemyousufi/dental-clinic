@@ -84,6 +84,11 @@ const navLinks = [
   //   label: 'Suppliers',
   //   icon: () => h(Icon, { icon: 'mdi:truck-delivery', style: 'font-size: 1.45em;' })
   // },
+    {
+      path: '/clinic-assets',
+      label: 'Clinic Assets',
+      icon: () => h(Icon, { icon: 'mdi:package-variant-closed', style: 'font-size: 1.45em;' })
+    },
   {
     path: '/treatments',
     label: 'Treatments',

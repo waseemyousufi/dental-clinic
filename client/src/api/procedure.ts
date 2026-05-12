@@ -10,6 +10,7 @@ export default new class {
   }
 
   postProcedure(data: ProcedureData) {
+    console.log(data)
     return api.post('/procedure', data)
   }
 

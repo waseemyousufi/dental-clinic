@@ -88,6 +88,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/clinic-assets',
+      name: 'ClinicAssets',
+      component: () => import('@/views/ClinicAssetsView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/dashboard',
       name: 'Dashboard',
       component: () => import('@views/DashboardView.vue'),

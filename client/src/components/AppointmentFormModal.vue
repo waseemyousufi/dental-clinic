@@ -1,135 +1,62 @@
 <template>
-  <n-modal
-    v-model:show="visible"
-    class="appointment-add-edit-modal"
-    transform-origin="center"
-    :mask-closable="false"
-  >
-    <n-card
-      :title="isEditMode ? 'Edit Appointment' : 'New Appointment'"
-      class="appointment-form-card"
-      bordered
-      size="medium"
-      style="max-width: 600px;"
-      role="dialog"
-      aria-modal="true"
-    >
-      <n-form
-        :model="formModel"
-        class="appointment-form"
-        size="small"
-        :show-require-mark="false"
-      >
+  <n-modal v-model:show="visible" class="appointment-add-edit-modal" transform-origin="center" :mask-closable="true">
+    <n-card :title="isEditMode ? 'Edit Appointment' : 'New Appointment'" class="appointment-form-card" bordered
+      size="medium" style="max-width: 600px;" role="dialog" aria-modal="true" closable @close="visible = false">
+      <n-form :model="formModel" class="appointment-form" size="small" :show-require-mark="false">
         <div class="appointment-form__rows">
           <div class="appointment-form__pair">
             <n-form-item label="Patient" path="patientId" class="appointment-form__field">
-              <n-select
-                v-model:value="formModel.patientId"
-                :options="patientOptions"
-                :disabled="lockPatient"
-                placeholder="Patient"
-                filterable
-                size="small"
-              />
+              <n-select v-model:value="formModel.patientId" :options="patientOptions" :disabled="lockPatient"
+                placeholder="Patient" filterable size="small" />
             </n-form-item>
 
             <n-form-item label="Doctor" path="employeeId" class="appointment-form__field">
-              <n-select
-                v-model:value="formModel.employeeId"
-                :options="employeeOptions"
-                placeholder="Employee"
-                filterable
-                size="small"
-              />
+              <n-select v-model:value="formModel.employeeId" :options="employeeOptions" placeholder="Employee"
+                filterable size="small" />
             </n-form-item>
           </div>
 
           <div class="appointment-form__pair">
             <n-form-item label="Date & time" path="appointment_timestamp" class="appointment-form__field">
-              <n-date-picker
-                v-model:value="formModel.appointment_timestamp"
-                type="datetime"
-                clearable
-                size="small"
-                style="width: 100%"
-              />
+              <n-date-picker v-model:value="formModel.appointment_timestamp" type="datetime" clearable size="small"
+                style="width: 100%" />
             </n-form-item>
 
             <n-form-item label="Status" path="status" class="appointment-form__field">
-              <n-select
-                v-model:value="formModel.status"
-                :options="statusOptions"
-                size="small"
-              />
+              <n-select v-model:value="formModel.status" :options="statusOptions" size="small" />
             </n-form-item>
           </div>
 
           <div class="appointment-form__pair">
             <n-form-item label="Treatment Plan" path="treatment_plan_id" class="appointment-form__field">
-              <n-select
-                v-model:value="formModel.treatment_plan_id"
-                :options="treatmentPlanOptions"
-                placeholder="Select treatment plan"
-                filterable
-                clearable
-                size="small"
-              />
+              <n-select v-model:value="formModel.treatment_plan_id" :options="treatmentPlanOptions"
+                placeholder="Select treatment plan" filterable clearable size="small" />
             </n-form-item>
 
             <n-form-item label="Procedure" path="procedure_id" class="appointment-form__field">
-              <n-select
-                v-model:value="formModel.procedure_id"
-                :options="procedureOptions"
-                placeholder="Select procedure"
-                filterable
-                clearable
-                :disabled="Boolean(props.appointment?.id)"
-
-                size="small"
-              />
+              <n-select v-model:value="formModel.procedure_id" :options="procedureOptions"
+                placeholder="Select procedure" filterable clearable :disabled="Boolean(props.appointment?.id)"
+                size="small" />
             </n-form-item>
           </div>
 
           <div class="appointment-form__pair">
             <n-form-item label="Appointment Cost" path="appointment_cost" class="appointment-form__field">
-              <n-input-number
-                v-model:value="formModel.appointment_cost"
-                :min="0"
-                size="small"
-                :disabled="Boolean(props.appointment?.id)"
-                style="width: 100%"
-              />
+              <n-input-number v-model:value="formModel.appointment_cost" :min="0" size="small"
+                :disabled="Boolean(props.appointment?.id)" style="width: 100%" />
             </n-form-item>
 
-            <n-form-item
-              v-if="isDoctorUsing"
-              label="Clinical Notes"
-              path="clinical_notes"
-              class="appointment-form__field"
-            >
-              <n-input
-                v-model:value="formModel.clinical_notes"
-                type="textarea"
-                placeholder="Details..."
-                size="small"
-                :autosize="{ minRows: 2, maxRows: 6 }"
-              />
+            <n-form-item v-if="isDoctorUsing" label="Clinical Notes" path="clinical_notes"
+              class="appointment-form__field">
+              <n-input v-model:value="formModel.clinical_notes" type="textarea" placeholder="Details..." size="small"
+                :autosize="{ minRows: 2, maxRows: 6 }" />
             </n-form-item>
           </div>
 
-          <n-form-item
-            v-if="!isDoctorUsing"
-            label="Description"
-            path="description"
-            class="appointment-form__field appointment-form__field--full"
-          >
-            <n-input
-              v-model:value="formModel.description"
-              type="textarea"
-              placeholder="Details..."
-              size="small"
-              :autosize="{ minRows: 2, maxRows: 6 }"
-            />
+          <n-form-item v-if="!isDoctorUsing" label="Description" path="description"
+            class="appointment-form__field appointment-form__field--full">
+            <n-input v-model:value="formModel.description" type="textarea" placeholder="Details..." size="small"
+              :autosize="{ minRows: 2, maxRows: 6 }" />
           </n-form-item>
         </div>
       </n-form>
@@ -140,12 +67,7 @@
             Cancel
           </n-button>
 
-          <n-button
-            size="small"
-            type="primary"
-            :loading="loading"
-            @click="submit"
-          >
+          <n-button size="small" type="primary" :loading="loading" @click="submit">
             {{ isEditMode ? 'Update' : 'Save' }}
           </n-button>
         </n-space>
@@ -178,7 +100,6 @@ import treatmentPlanApi from '@api/treatmentPlan'
 import type AppointmentData from '@api/interfaces/Appointment'
 import type EmployeeData from '@api/interfaces/Employee'
 import type PatientData from '@api/interfaces/patient'
-import procedure from '@api/procedure'
 
 type EmployeeAbbr = {
   id: number
@@ -213,6 +134,7 @@ type TreatmentPlanRecord = {
   cost?: number | string | null
   price?: number | string | null
   appointment_cost?: number | string | null
+  procedure_id?: number | null
 }
 
 const props = withDefaults(defineProps<{
@@ -277,8 +199,8 @@ const formModel = ref({
 })
 
 const formatName = (obj: EmployeeAbbr | PatientAbbr) => {
-  if (obj.name) return obj.name
-  return `${obj.fName || ''} ${obj.lName || ''}`.trim() || 'Unknown'
+  if (obj.name) return `${obj.name}   ${obj.id ? `#${obj.id}` : ''}`
+  return `${obj.fName || ''} ${obj.lName || ''}   ${obj.id ? `#${obj.id}` : ''}`.trim() || 'Unknown'
 }
 
 function normalizeId(value: unknown): number | null {
@@ -340,9 +262,7 @@ function resetForm() {
     null
 
   const selectedTreatmentPlanId =
-    normalizeId(props.treatmentPlanId ?? existingTreatmentPlanId) ??
-    normalizeId(treatmentPlanOptions.value[0]?.value) ??
-    null
+    normalizeId(props.treatmentPlanId ?? existingTreatmentPlanId) ?? null
 
   const defaultCostFromAppointment =
     normalizeNumber((appt as any)?.appointmentCost ?? (appt as any)?.appointment_cost)
@@ -390,15 +310,11 @@ async function loadOptions() {
       empRes,
       patRes,
       procedureRes,
-      treatmentPlanRes,
     ] = await Promise.all([
       employeeApi.getBranchEmployees(true),
       patientApi.getBranchPatients(true),
       procedureApi.getProcedures(),
-      treatmentPlanApi.getBranchTreatmentPlans(),
     ])
-
-    console.log('treatmentPlanRes', treatmentPlanRes)
 
     const rawEmps = empRes.data?.data || empRes.data
 
@@ -444,6 +360,19 @@ async function loadOptions() {
       value: procedure.id,
     }))
 
+  } catch (error) {
+    console.log(error)
+    message.error('Failed to load appointment options')
+  }
+}
+
+async function loadTreatmentPlans(patientId?: number | null) {
+  try {
+    const normalizedPatientId = normalizeId(patientId)
+    const treatmentPlanRes = await treatmentPlanApi.getBranchTreatmentPlans(
+      normalizedPatientId ?? undefined,
+    )
+
     const rawTreatmentPlans = treatmentPlanRes.data?.data || treatmentPlanRes.data
     const treatmentPlanList = (
       Array.isArray(rawTreatmentPlans)
@@ -462,15 +391,28 @@ async function loadOptions() {
       }))
       .filter(item => item.id !== 0 || item.name)
 
-      console.log(procedureOptions.value)
+    treatmentPlanOptions.value = treatmentPlanRecords.value.map((plan) => {
+      const procedureLabel = procedureOptions.value.find(
+        procedure => procedure.value === plan.procedure_id,
+      )?.label
 
-    treatmentPlanOptions.value = treatmentPlanRecords.value.map((plan) => ({
-      label: procedureOptions.value[plan.procedure_id -1]?.label || 'Unknown',
-      value: plan.id,
-    }))
+      return {
+        label: plan.name || procedureLabel || 'Unknown',
+        value: plan.id,
+      }
+    })
+
+    if (
+      formModel.value.treatment_plan_id != null &&
+      !treatmentPlanOptions.value.some(
+        option => option.value === formModel.value.treatment_plan_id,
+      )
+    ) {
+      formModel.value.treatment_plan_id = null
+    }
   } catch (error) {
     console.log(error)
-    message.error('Failed to load appointment options')
+    message.error('Failed to load treatment plans')
   }
 }
 
@@ -526,8 +468,17 @@ watch(
   { immediate: true },
 )
 
+watch(
+  () => formModel.value.patientId,
+  async patientId => {
+    if (!props.show) return
+    await loadTreatmentPlans(patientId)
+  },
+)
+
 onMounted(async () => {
   await loadOptions()
+  await loadTreatmentPlans(props.patientId)
   if (props.show) {
     resetForm()
   }

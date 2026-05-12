@@ -5,7 +5,7 @@
         <div class="header-bar">
           <div>
             <h2 class="page-title">Branch Settings</h2>
-            <p class="page-subtitle">Manage clinic details, templates, permissions, items, and procedures.</p>
+            <p class="page-subtitle">Manage clinic details, templates, permissions, and procedures.</p>
           </div>
           <n-space class="header-actions" wrap>
             <n-button @click="resetForm" secondary>Reset</n-button>
@@ -14,16 +14,17 @@
         </div>
       </template>
 
+      <n-form ref="formRef" :model="formData" :rules="rules" label-placement="top" @submit.prevent>
       <n-tabs v-model:value="activeTab" type="line" animated placement="top" class="settings-tabs">
         <n-tab-pane name="branch" tab="Branch">
-          <n-form ref="formRef" :model="formData" :rules="rules" label-placement="top" class="section-stack">
+          <div class="section-stack">
             <div class="responsive-grid">
               <n-form-item label="Clinic Name" path="clinic_name">
                 <n-input v-model:value="formData.clinic_name" placeholder="e.g., SmileCare Dental" />
               </n-form-item>
-              <n-form-item label="Currency" path="currency">
+              <!-- <n-form-item label="Currency" path="currency">
                 <n-select v-model:value="formData.currency" :options="currencyOptions" />
-              </n-form-item>
+              </n-form-item> -->
               <n-form-item class="full-span" label="Address" path="address">
                 <n-input v-model:value="formData.address" type="textarea" placeholder="Full clinic address" :autosize="{ minRows: 3, maxRows: 5 }" />
               </n-form-item>
@@ -32,7 +33,7 @@
               </n-form-item>
             </div>
 
-            <n-divider title-placement="left">Working Hours</n-divider>
+            <!-- <n-divider title-placement="left">Working Hours</n-divider>
             <div class="hours-grid">
               <n-card v-for="(day, key) in formData.working_hours" :key="key" size="small" class="day-card">
                 <div class="day-header">
@@ -53,8 +54,8 @@
                   </n-input-group>
                 </div>
               </n-card>
-            </div>
-          </n-form>
+            </div> -->
+          </div>
         </n-tab-pane>
 
         <n-tab-pane name="whatsapp" tab="WhatsApp">
@@ -68,134 +69,99 @@
               <n-tag size="small" type="info">clinic_name</n-tag>
             </n-alert>
 
-            <n-form :model="formData" label-placement="top">
-              <div class="responsive-grid">
-                <n-form-item label="Patient Reminder">
-                  <n-input v-model:value="formData.wa_patient_reminder" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
-                </n-form-item>
-                <n-form-item label="Patient Cancellation">
-                  <n-input v-model:value="formData.wa_patient_cancel" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
-                </n-form-item>
-                <n-form-item label="Patient Completion">
-                  <n-input v-model:value="formData.wa_patient_complete" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
-                </n-form-item>
-                <n-form-item label="Supplier Order">
-                  <n-input v-model:value="formData.wa_supplier_order" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
-                </n-form-item>
-                <n-form-item class="full-span" label="Supplier Cancel">
-                  <n-input v-model:value="formData.wa_supplier_cancel" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
-                </n-form-item>
-              </div>
-            </n-form>
+            <div class="responsive-grid">
+              <n-form-item label="Patient Reminder">
+                <n-input v-model:value="formData.wa_patient_reminder" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
+              </n-form-item>
+              <n-form-item label="Patient Cancellation">
+                <n-input v-model:value="formData.wa_patient_cancel" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
+              </n-form-item>
+              <n-form-item label="Patient Completion">
+                <n-input v-model:value="formData.wa_patient_complete" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
+              </n-form-item>
+              <n-form-item label="Supplier Order">
+                <n-input v-model:value="formData.wa_supplier_order" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
+              </n-form-item>
+              <n-form-item class="full-span" label="Supplier Cancel">
+                <n-input v-model:value="formData.wa_supplier_cancel" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
+              </n-form-item>
+            </div>
           </div>
         </n-tab-pane>
 
-        <n-tab-pane name="services" tab="Items & Procedures">
-          <n-tabs type="segment" animated>
-            <n-tab-pane name="items" tab="Clinic Items">
-              <div class="service-section">
-                <n-card size="small" title="Add Item">
-                  <div class="service-form-grid">
-                    <n-input v-model:value="newItem.name" placeholder="Item name" />
-                    <n-select v-model:value="newItem.category" :options="itemCategoryOptions" placeholder="Category" />
-                    <n-input-number v-model:value="newItem.price" :min="0" :precision="2" placeholder="Price" />
-                    <n-switch v-model:value="newItem.trackStock">
-                      <template #checked>Track stock</template>
-                      <template #unchecked>No stock tracking</template>
-                    </n-switch>
-                    <n-switch v-model:value="newItem.requiresBatch">
-                      <template #checked>Batch required</template>
-                      <template #unchecked>No batch</template>
-                    </n-switch>
-                    <n-switch v-model:value="newItem.requiresExpiry">
-                      <template #checked>Expiry required</template>
-                      <template #unchecked>No expiry</template>
-                    </n-switch>
-                    <n-switch v-model:value="newItem.isConsumable">
-                      <template #checked>Consumable</template>
-                      <template #unchecked>Reusable</template>
-                    </n-switch>
-                    <n-input v-model:value="newItem.description" class="full-span" type="textarea" placeholder="Description" :autosize="{ minRows: 2, maxRows: 4 }" />
-                  </div>
-                  <n-button class="section-action" type="primary" @click="createItem" :loading="itemSubmitting">Add Item</n-button>
-                </n-card>
-
-                <div class="service-list">
-                  <n-card v-for="item in items" :key="item.id" size="small" class="service-card">
-                    <div class="service-form-grid">
-                      <n-input v-model:value="item.name" placeholder="Item name" />
-                      <n-select v-model:value="item.category" :options="itemCategoryOptions" />
-                      <n-input-number v-model:value="item.price" :min="0" :precision="2" placeholder="Price" />
-                      <n-switch v-model:value="item.trackStock">
-                        <template #checked>Track stock</template>
-                        <template #unchecked>No stock tracking</template>
-                      </n-switch>
-                      <n-switch v-model:value="item.requiresBatch">
-                        <template #checked>Batch required</template>
-                        <template #unchecked>No batch</template>
-                      </n-switch>
-                      <n-switch v-model:value="item.requiresExpiry">
-                        <template #checked>Expiry required</template>
-                        <template #unchecked>No expiry</template>
-                      </n-switch>
-                      <n-switch v-model:value="item.isConsumable">
-                        <template #checked>Consumable</template>
-                        <template #unchecked>Reusable</template>
-                      </n-switch>
-                      <n-input v-model:value="item.description" class="full-span" type="textarea" placeholder="Description" :autosize="{ minRows: 2, maxRows: 4 }" />
-                    </div>
-                    <div class="service-actions">
-                      <n-button secondary @click="updateItem(item)" :loading="pendingItemId === item.id">Save</n-button>
-                      <n-button type="error" quaternary @click="removeItem(item)" :loading="pendingDeleteItemId === item.id">Delete</n-button>
-                    </div>
-                  </n-card>
-                </div>
+        <n-tab-pane name="procedures" tab="Procedures">
+          <div class="service-section">
+            <n-card size="small" title="Add Procedure">
+              <div class="service-form-grid">
+                <n-form-item label="Procedure Name">
+                  <n-input v-model:value="newProcedure.name" placeholder="Procedure name" />
+                </n-form-item>
+                <n-form-item label="Category">
+                  <n-input v-model:value="newProcedure.category" placeholder="Category" />
+                </n-form-item>
+                <n-form-item label="Base Price">
+                  <n-input-number v-model:value="newProcedure.base_price" :min="0" :precision="2" placeholder="Base price" />
+                </n-form-item>
+                <n-form-item label="Minimum Price">
+                  <n-input-number v-model:value="newProcedure.min_price" :min="0" :precision="2" placeholder="Min price" />
+                </n-form-item>
+                <n-form-item label="Appointments Needed">
+                  <n-input-number v-model:value="newProcedure.appointments_needed" :min="0" placeholder="Appointments needed" />
+                </n-form-item>
+                <n-form-item label="Dentist Commission">
+                  <n-input-number v-model:value="newProcedure.dentist_commission" :min="0" :precision="2" placeholder="Dentist commission" />
+                </n-form-item>
+                <n-form-item label="Assistant Commission">
+                  <n-input-number v-model:value="newProcedure.assistant_commission" :min="0" :precision="2" placeholder="Assistant commission" />
+                </n-form-item>
+                <n-form-item label="Active Status">
+                  <n-switch v-model:value="newProcedure.is_active">
+                    <template #checked>Active</template>
+                    <template #unchecked>Inactive</template>
+                  </n-switch>
+                </n-form-item>
               </div>
-            </n-tab-pane>
+              <n-button class="section-action" attr-type="button" type="primary" @click="createProcedure" :loading="procedureSubmitting">Add Procedure</n-button>
+            </n-card>
 
-            <n-tab-pane name="procedures" tab="Procedures">
-              <div class="service-section">
-                <n-card size="small" title="Add Procedure">
-                  <div class="service-form-grid">
-                    <n-input v-model:value="newProcedure.name" placeholder="Procedure name" />
-                    <n-input v-model:value="newProcedure.category" placeholder="Category" />
-                    <n-input-number v-model:value="newProcedure.base_price" :min="0" :precision="2" placeholder="Base price" />
-                    <n-input-number v-model:value="newProcedure.min_price" :min="0" :precision="2" placeholder="Min price" />
-                    <n-input-number v-model:value="newProcedure.appointments_needed" :min="0" placeholder="Appointments needed" />
-                    <n-input-number v-model:value="newProcedure.dentist_commission" :min="0" :precision="2" placeholder="Dentist commission" />
-                    <n-input-number v-model:value="newProcedure.assistant_commission" :min="0" :precision="2" placeholder="Assistant commission" />
-                    <n-switch v-model:value="newProcedure.is_active">
+            <div class="service-list">
+              <n-card v-for="procedure in procedures" :key="procedure.id" size="small" class="service-card">
+                <div class="service-form-grid">
+                  <n-form-item label="Procedure Name">
+                    <n-input v-model:value="procedure.name" placeholder="Procedure name" />
+                  </n-form-item>
+                  <n-form-item label="Category">
+                    <n-input v-model:value="procedure.category" placeholder="Category" />
+                  </n-form-item>
+                  <n-form-item label="Base Price">
+                    <n-input-number v-model:value="procedure.base_price" :min="0" :precision="2" placeholder="Base price" />
+                  </n-form-item>
+                  <n-form-item label="Minimum Price">
+                    <n-input-number v-model:value="procedure.min_price" :min="0" :precision="2" placeholder="Min price" />
+                  </n-form-item>
+                  <n-form-item label="Appointments Needed">
+                    <n-input-number v-model:value="procedure.appointments_needed" :min="0" placeholder="Appointments needed" />
+                  </n-form-item>
+                  <n-form-item label="Dentist Commission">
+                    <n-input-number v-model:value="procedure.dentist_commission" :min="0" :precision="2" placeholder="Dentist commission" />
+                  </n-form-item>
+                  <n-form-item label="Assistant Commission">
+                    <n-input-number v-model:value="procedure.assistant_commission" :min="0" :precision="2" placeholder="Assistant commission" />
+                  </n-form-item>
+                  <n-form-item label="Active Status">
+                    <n-switch v-model:value="procedure.is_active">
                       <template #checked>Active</template>
                       <template #unchecked>Inactive</template>
                     </n-switch>
-                  </div>
-                  <n-button class="section-action" type="primary" @click="createProcedure" :loading="procedureSubmitting">Add Procedure</n-button>
-                </n-card>
-
-                <div class="service-list">
-                  <n-card v-for="procedure in procedures" :key="procedure.id" size="small" class="service-card">
-                    <div class="service-form-grid">
-                      <n-input v-model:value="procedure.name" placeholder="Procedure name" />
-                      <n-input v-model:value="procedure.category" placeholder="Category" />
-                      <n-input-number v-model:value="procedure.base_price" :min="0" :precision="2" placeholder="Base price" />
-                      <n-input-number v-model:value="procedure.min_price" :min="0" :precision="2" placeholder="Min price" />
-                      <n-input-number v-model:value="procedure.appointments_needed" :min="0" placeholder="Appointments needed" />
-                      <n-input-number v-model:value="procedure.dentist_commission" :min="0" :precision="2" placeholder="Dentist commission" />
-                      <n-input-number v-model:value="procedure.assistant_commission" :min="0" :precision="2" placeholder="Assistant commission" />
-                      <n-switch v-model:value="procedure.is_active">
-                        <template #checked>Active</template>
-                        <template #unchecked>Inactive</template>
-                      </n-switch>
-                    </div>
-                    <div class="service-actions">
-                      <n-button secondary @click="updateProcedure(procedure)" :loading="pendingProcedureId === procedure.id">Save</n-button>
-                      <n-button type="error" quaternary @click="removeProcedure(procedure)" :loading="pendingDeleteProcedureId === procedure.id">Delete</n-button>
-                    </div>
-                  </n-card>
+                  </n-form-item>
                 </div>
-              </div>
-            </n-tab-pane>
-          </n-tabs>
+                <div class="service-actions">
+                  <n-button attr-type="button" secondary @click="updateProcedure(procedure)" :loading="pendingProcedureId === procedure.id">Save</n-button>
+                  <n-button attr-type="button" type="error" quaternary @click="removeProcedure(procedure)" :loading="pendingDeleteProcedureId === procedure.id">Delete</n-button>
+                </div>
+              </n-card>
+            </div>
+          </div>
         </n-tab-pane>
 
         <n-tab-pane name="permissions" tab="Permissions">
@@ -217,31 +183,32 @@
           </div>
         </n-tab-pane>
 
-        <n-tab-pane name="prescriptions" tab="Prescriptions & Backup">
-          <n-form :model="formData" label-placement="top" class="section-stack">
-            <n-form-item label="Header Template">
+        <n-tab-pane name="prescriptions" tab="Backup">
+          <div class="section-stack">
+            <!-- <n-form-item label="Header Template">
               <n-input v-model:value="formData.prescription_template.header" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
             </n-form-item>
             <n-form-item label="Footer Template">
               <n-input v-model:value="formData.prescription_template.footer" type="textarea" :autosize="{ minRows: 2, maxRows: 5 }" />
-            </n-form-item>
+            </n-form-item> -->
 
             <n-card title="Database Backup" size="small">
               <p class="backup-copy">Create a full database snapshot or export a monthly archive.</p>
               <n-space wrap>
-                <n-button @click="triggerBackup('full')" :loading="backupLoading === 'full'">Full Backup</n-button>
-                <n-button @click="triggerBackup('monthly')" :loading="backupLoading === 'monthly'">Monthly Data</n-button>
+                <n-button attr-type="button" @click="triggerBackup('full')" :loading="backupLoading === 'full'">Full Backup</n-button>
+                <n-button attr-type="button" @click="triggerBackup('monthly')" :loading="backupLoading === 'monthly'">Monthly Data</n-button>
               </n-space>
             </n-card>
-          </n-form>
+          </div>
         </n-tab-pane>
       </n-tabs>
+      </n-form>
     </n-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, toRaw } from 'vue'
 import {
   NAlert,
   NButton,
@@ -264,21 +231,17 @@ import {
 } from 'naive-ui'
 import type { FormInst, SelectOption } from 'naive-ui'
 import settingsApi from '@/api/settings'
-import itemApi from '@/api/item'
 import procedureApi from '@/api/procedure'
-import type ItemData from '@/api/interfaces/Item'
 import type ProcedureData from '@/api/interfaces/Procedure'
 import type { SettingsData } from '@/api/interfaces/Settings'
+import { resolveBranchId } from '@/api/utils/branchParams'
 
 const message = useMessage()
 const dialog = useDialog()
 const formRef = ref<FormInst | null>(null)
 const loading = ref(false)
 const backupLoading = ref<'full' | 'monthly' | null>(null)
-const itemSubmitting = ref(false)
 const procedureSubmitting = ref(false)
-const pendingItemId = ref<number | null>(null)
-const pendingDeleteItemId = ref<number | null>(null)
 const pendingProcedureId = ref<number | null>(null)
 const pendingDeleteProcedureId = ref<number | null>(null)
 const activeTab = ref('branch')
@@ -327,19 +290,10 @@ const createDefaultSettings = (): SettingsData => ({
 
 const formData = reactive<SettingsData>(createDefaultSettings())
 const initialSettings = ref<SettingsData | null>(null)
-const items = ref<ItemData[]>([])
+
 const procedures = ref<ProcedureData[]>([])
 
-const newItem = reactive<ItemData>({
-  name: '',
-  category: 'consumables',
-  description: '',
-  trackStock: false,
-  requiresBatch: false,
-  requiresExpiry: false,
-  isConsumable: true,
-  price: 0,
-})
+
 
 const newProcedure = reactive<ProcedureData>({
   name: '',
@@ -367,14 +321,7 @@ const currencyOptions: SelectOption[] = [
   { label: 'AED (د.إ)', value: 'AED' },
 ]
 
-const itemCategoryOptions: SelectOption[] = [
-  { label: 'Consumables', value: 'consumables' },
-  { label: 'Medications', value: 'medications' },
-  { label: 'Instruments', value: 'instruments' },
-  { label: 'Devices', value: 'devices' },
-  { label: 'Furniture', value: 'furniture' },
-  { label: 'Prosthetics', value: 'prosthetics' },
-]
+
 
 const receptionistPerms = computed(() => ({
   rec_can_edit_whatsapp: formData.rec_can_edit_whatsapp,
@@ -389,8 +336,8 @@ const receptionistPerms = computed(() => ({
 
 const doctorPerms = computed(() => ({
   doc_view_appointments: formData.doc_view_appointments,
-  doc_save_xrays: formData.doc_save_xrays,
-  doc_view_files: formData.doc_view_files,
+  // doc_save_xrays: formData.doc_save_xrays,
+  // doc_view_files: formData.doc_view_files,
   doc_view_contact: formData.doc_view_contact,
   doc_edit_assets: formData.doc_edit_assets,
   doc_issue_prescriptions: formData.doc_issue_prescriptions,
@@ -409,8 +356,8 @@ const permLabels = {
   } as Record<string, string>,
   doc: {
     doc_view_appointments: 'View Appointments',
-    doc_save_xrays: 'Save X-Rays',
-    doc_view_files: 'View Patient Files',
+    // doc_save_xrays: 'Save X-Rays',
+    // doc_view_files: 'View Patient Files',
     doc_view_contact: 'View Contact Details',
     doc_edit_assets: 'Edit Clinic Assets',
     doc_issue_prescriptions: 'Issue Prescriptions',
@@ -421,35 +368,41 @@ function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
+function asBoolean(value: unknown, fallback = false) {
+  return typeof value === 'boolean' ? value : fallback
+}
+
 function applySettings(data: SettingsData) {
+  const defaults = createDefaultSettings()
+
   Object.assign(formData, createDefaultSettings(), data, {
     working_hours: {
       ...JSON.parse(JSON.stringify(defaultHours)),
       ...(data.working_hours || {}),
     },
     prescription_template: {
-      header: data.prescription_template?.header || createDefaultSettings().prescription_template.header,
-      footer: data.prescription_template?.footer || createDefaultSettings().prescription_template.footer,
+      header: data.prescription_template?.header || defaults.prescription_template.header,
+      footer: data.prescription_template?.footer || defaults.prescription_template.footer,
     },
+    rec_can_edit_whatsapp: asBoolean(data.rec_can_edit_whatsapp, defaults.rec_can_edit_whatsapp),
+    rec_can_view_phones: asBoolean(data.rec_can_view_phones, defaults.rec_can_view_phones),
+    rec_show_kpi: asBoolean(data.rec_show_kpi, defaults.rec_show_kpi),
+    rec_show_suppliers: asBoolean(data.rec_show_suppliers, defaults.rec_show_suppliers),
+    rec_log_actions: asBoolean(data.rec_log_actions, defaults.rec_log_actions),
+    rec_can_void_transactions: asBoolean(data.rec_can_void_transactions, defaults.rec_can_void_transactions),
+    rec_can_edit_devices: asBoolean(data.rec_can_edit_devices, defaults.rec_can_edit_devices),
+    rec_can_contact_support: asBoolean(data.rec_can_contact_support, defaults.rec_can_contact_support),
+    doc_view_appointments: asBoolean(data.doc_view_appointments, defaults.doc_view_appointments),
+    doc_save_xrays: asBoolean(data.doc_save_xrays, defaults.doc_save_xrays),
+    doc_view_files: asBoolean(data.doc_view_files, defaults.doc_view_files),
+    doc_view_contact: asBoolean(data.doc_view_contact, defaults.doc_view_contact),
+    doc_edit_assets: asBoolean(data.doc_edit_assets, defaults.doc_edit_assets),
+    doc_issue_prescriptions: asBoolean(data.doc_issue_prescriptions, defaults.doc_issue_prescriptions),
   })
 }
 
-function normalizeItem(item: any): ItemData {
-  return {
-    id: item.id,
-    name: item.name || '',
-    category: item.category || 'consumables',
-    materials: item.materials || [],
-    description: item.description || '',
-    trackStock: Boolean(item.trackStock),
-    requiresBatch: Boolean(item.requiresBatch),
-    requiresExpiry: Boolean(item.requiresExpiry),
-    isConsumable: Boolean(item.isConsumable),
-    price: Number(item.activePrice?.price ?? item.price ?? 0),
-    totalQuantityInStock: item.totalQuantityInStock,
-    activePrice: item.activePrice,
-    suppliers: item.suppliers,
-  }
+function unwrapSettingsResponse(payload: SettingsData | { data: SettingsData }): SettingsData {
+  return 'data' in payload ? payload.data : payload
 }
 
 function normalizeProcedure(procedure: any): ProcedureData {
@@ -481,33 +434,33 @@ function buildSettingsPayload(): Partial<SettingsData> {
     wa_supplier_order: formData.wa_supplier_order,
     wa_supplier_cancel: formData.wa_supplier_cancel,
     prescription_template: formData.prescription_template,
-    rec_can_edit_whatsapp: formData.rec_can_edit_whatsapp,
-    rec_can_view_phones: formData.rec_can_view_phones,
-    rec_show_kpi: formData.rec_show_kpi,
-    rec_show_suppliers: formData.rec_show_suppliers,
-    rec_log_actions: formData.rec_log_actions,
-    rec_can_void_transactions: formData.rec_can_void_transactions,
-    rec_can_edit_devices: formData.rec_can_edit_devices,
-    rec_can_contact_support: formData.rec_can_contact_support,
-    doc_view_appointments: formData.doc_view_appointments,
-    doc_save_xrays: formData.doc_save_xrays,
-    doc_view_files: formData.doc_view_files,
-    doc_view_contact: formData.doc_view_contact,
-    doc_edit_assets: formData.doc_edit_assets,
-    doc_issue_prescriptions: formData.doc_issue_prescriptions,
+    rec_can_edit_whatsapp: Boolean(formData.rec_can_edit_whatsapp),
+    rec_can_view_phones: Boolean(formData.rec_can_view_phones),
+    rec_show_kpi: Boolean(formData.rec_show_kpi),
+    rec_show_suppliers: Boolean(formData.rec_show_suppliers),
+    rec_log_actions: Boolean(formData.rec_log_actions),
+    rec_can_void_transactions: Boolean(formData.rec_can_void_transactions),
+    rec_can_edit_devices: Boolean(formData.rec_can_edit_devices),
+    rec_can_contact_support: Boolean(formData.rec_can_contact_support),
+    doc_view_appointments: Boolean(formData.doc_view_appointments),
+    doc_save_xrays: Boolean(formData.doc_save_xrays),
+    doc_view_files: Boolean(formData.doc_view_files),
+    doc_view_contact: Boolean(formData.doc_view_contact),
+    doc_edit_assets: Boolean(formData.doc_edit_assets),
+    doc_issue_prescriptions: Boolean(formData.doc_issue_prescriptions),
   }
 }
 
 async function loadData() {
-  const [settingsResponse, itemsResponse, proceduresResponse] = await Promise.all([
-    settingsApi.getSettings(),
-    itemApi.getItems(),
+  const [settingsResponse, proceduresResponse] = await Promise.all([
+    settingsApi.getSettings(resolveBranchId()),
     procedureApi.getProcedures(),
   ])
 
-  applySettings(settingsResponse.data)
-  initialSettings.value = JSON.parse(JSON.stringify(settingsResponse.data))
-  items.value = Array.isArray(itemsResponse.data) ? itemsResponse.data.map(normalizeItem) : []
+  const settings = unwrapSettingsResponse(settingsResponse.data)
+  applySettings(settings)
+  initialSettings.value = JSON.parse(JSON.stringify(settings))
+
   procedures.value = Array.isArray(proceduresResponse.data?.data)
     ? proceduresResponse.data.data.map(normalizeProcedure)
     : Array.isArray(proceduresResponse.data)
@@ -516,35 +469,27 @@ async function loadData() {
 }
 
 async function submitForm() {
-  await formRef.value?.validate(async (errors) => {
-    if (errors) return
+  try {
+    await formRef.value?.validate()
+  } catch {
+    return
+  }
 
-    loading.value = true
-    try {
-      const response = await settingsApi.updateSettings(formData.branch_id, buildSettingsPayload())
-      applySettings(response.data)
-      initialSettings.value = JSON.parse(JSON.stringify(response.data))
-      message.success('Settings saved successfully')
-    } catch {
-      message.error('Failed to save settings')
-    } finally {
-      loading.value = false
-    }
-  })
+  loading.value = true
+  try {
+    const response = await settingsApi.updateSettings(formData.branch_id, buildSettingsPayload())
+    const settings = unwrapSettingsResponse(response.data)
+    applySettings(settings)
+    initialSettings.value = JSON.parse(JSON.stringify(settings))
+    message.success('Settings saved successfully')
+  } catch {
+    message.error('Failed to save settings')
+  } finally {
+    loading.value = false
+  }
 }
 
-function resetNewItem() {
-  Object.assign(newItem, {
-    name: '',
-    category: 'consumables',
-    description: '',
-    trackStock: false,
-    requiresBatch: false,
-    requiresExpiry: false,
-    isConsumable: true,
-    price: 0,
-  })
-}
+
 
 function resetNewProcedure() {
   Object.assign(newProcedure, {
@@ -560,61 +505,10 @@ function resetNewProcedure() {
   })
 }
 
-async function createItem() {
-  itemSubmitting.value = true
-  try {
-    const response = await itemApi.postItem(newItem)
-    items.value.unshift(normalizeItem(response.data.data ?? response.data))
-    resetNewItem()
-    message.success('Item created')
-  } catch {
-    message.error('Failed to create item')
-  } finally {
-    itemSubmitting.value = false
-  }
-}
-
-async function updateItem(item: ItemData) {
-  if (!item.id) return
-  pendingItemId.value = item.id
-  try {
-    const response = await itemApi.updateItem(item.id, item)
-    const index = items.value.findIndex((entry) => entry.id === item.id)
-    if (index !== -1) items.value[index] = normalizeItem(response.data.data ?? response.data)
-    message.success('Item updated')
-  } catch {
-    message.error('Failed to update item')
-  } finally {
-    pendingItemId.value = null
-  }
-}
-
-function removeItem(item: ItemData) {
-  if (!item.id) return
-  dialog.warning({
-    title: 'Delete item?',
-    content: `Delete ${item.name || 'this item'} from inventory setup?`,
-    positiveText: 'Delete',
-    negativeText: 'Cancel',
-    async onPositiveClick() {
-      pendingDeleteItemId.value = item.id || null
-      try {
-        await itemApi.deleteItem(item.id!)
-        items.value = items.value.filter((entry) => entry.id !== item.id)
-        message.success('Item deleted')
-      } catch {
-        message.error('Failed to delete item')
-      } finally {
-        pendingDeleteItemId.value = null
-      }
-    },
-  })
-}
-
 async function createProcedure() {
   procedureSubmitting.value = true
   try {
-    const response = await procedureApi.postProcedure(newProcedure)
+    const response = await procedureApi.postProcedure(toRaw(newProcedure))
     procedures.value.unshift(normalizeProcedure(response.data.data ?? response.data))
     resetNewProcedure()
     message.success('Procedure created')

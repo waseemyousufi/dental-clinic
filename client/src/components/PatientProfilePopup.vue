@@ -16,6 +16,8 @@ import {
 import { Icon } from '@iconify/vue';
 import type PatientData from '@api/interfaces/patient';
 import patientApi from '@api/patient';
+import appointmentApi from '@api/appointment';
+import type AppointmentData from '@api/interfaces/Appointment';
 import AppointmentFormModal from './AppointmentFormModal.vue';
 
 const props = defineProps<{
@@ -38,6 +40,8 @@ const chargeAmount = ref<number | null>(null);
 const canCharge = ref(false);
 const isCharging = ref(false);
 const amountDue = ref(0);
+const showAppointmentModal = ref(false);
+const appointmentSaving = ref(false);
 
 
 const patientFullName = computed(() => {
@@ -90,9 +94,23 @@ function handleChargeInput(value: number | null) {
 
 function handleAddAppointment() {
   if (!props.patientData) return;
+  showAppointmentModal.value = true;
+}
 
-  // TODO: backend logic
-  console.log('Add appointment:', props.patientData);
+async function handleAppointmentSave(payload: AppointmentData) {
+  try {
+    appointmentSaving.value = true;
+    await appointmentApi.postAppointment(payload);
+    message.success('Appointment created successfully.');
+    showAppointmentModal.value = false;
+  }
+  catch (error) {
+    console.error('Error creating appointment:', error);
+    message.error('Failed to create appointment.');
+  }
+  finally {
+    appointmentSaving.value = false;
+  }
 }
 
 async function handleChargePatient() {
@@ -118,7 +136,7 @@ async function handleChargePatient() {
 
     chargeAmount.value = null;
     canCharge.value = false;
-  } 
+  }
   catch (error) {
     console.error('Error charging patient:', error);
     message.error('Failed to charge patient. Amount is uncapable of being charged.');
@@ -129,7 +147,7 @@ async function handleChargePatient() {
 </script>
 
 <template>
-  <n-modal v-model:show="showModal" :mask-closable="false" class="patient-profile-modal" content-scrollable>
+  <n-modal v-model:show="showModal" closable :mask-closable="false" class="patient-profile-modal" content-scrollable>
     <n-card class="profile-card" title="Patient Profile" :bordered="false" size="huge" style="
         width: min(760px, calc(100vw - 20px));
         max-height: 90vh;
@@ -278,7 +296,13 @@ async function handleChargePatient() {
     </n-card>
   </n-modal>
 
-  <AppointmentFormModal />
+  <AppointmentFormModal
+    v-model:show="showAppointmentModal"
+    :patient-id="patientData?.id ?? null"
+    :lock-patient="true"
+    :loading="appointmentSaving"
+    @save="handleAppointmentSave"
+  />
 </template>
 
 <style scoped>

@@ -10,6 +10,13 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Branch extends Model
 {
 
+        protected $fillable = [
+            'branch_name',
+            'region',
+            'phone',
+        ];
+
+        public $timestamps = false;
 
     public function Account() : HasMany
     {

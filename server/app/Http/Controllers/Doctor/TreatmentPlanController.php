@@ -84,10 +84,10 @@ class TreatmentPlanController extends Controller
             'start_date' => 'sometimes|date',
         ]);
 
-        $patient = Patient::find($validated['patient_id']);
-        $patient->update([
-            'total_amount_due' => $patient->total_amount_due + $validated['total_estimated_cost'] ?? 0,
-        ]);
+        // $patient = Patient::find($validated['patient_id']);
+        // $patient->update([
+        //     'total_amount_due' => $patient->total_amount_due + $validated['total_estimated_cost'] ?? 0,
+        // ]);
 
         $plan = TreatmentPlan::find($id);
 

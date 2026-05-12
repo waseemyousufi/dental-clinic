@@ -14,7 +14,9 @@ export default new (class ClinicAsset {
     })
   }
   getClinicAsset(id: number) { return api.get(`/assets/${id}`) }
-  postClinicAsset(data: ClinicAssetData) { return api.post('/assets', data) }
+  postClinicAsset(data: ClinicAssetData) {
+    console.log(data);
+    return api.post('/assets', data) }
   updateClinicAsset(id: number, data: ClinicAssetData) { return api.put(`/assets/${id}`, data) }
   deleteClinicAsset(id: number) { return api.delete(`/assets/${id}`) }
 })()
