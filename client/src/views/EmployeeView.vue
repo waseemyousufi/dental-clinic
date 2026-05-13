@@ -547,7 +547,7 @@ async function copyInviteLink() {
   }
 }
 
-async function sendInviteEmail() {
+async function sendInviteWhatsapp() {
   if (!inviteEmail.value || !inviteToken.value) return
   try {
     await userApi.sendTokenViaEmail({ email: inviteEmail.value, token: inviteToken.value })

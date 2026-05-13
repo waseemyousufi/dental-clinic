@@ -102,18 +102,18 @@
                 <n-form-item label="Base Price">
                   <n-input-number v-model:value="newProcedure.base_price" :min="0" :precision="2" placeholder="Base price" />
                 </n-form-item>
-                <n-form-item label="Minimum Price">
+                <!-- <n-form-item label="Minimum Price">
                   <n-input-number v-model:value="newProcedure.min_price" :min="0" :precision="2" placeholder="Min price" />
-                </n-form-item>
+                </n-form-item> -->
                 <n-form-item label="Appointments Needed">
                   <n-input-number v-model:value="newProcedure.appointments_needed" :min="0" placeholder="Appointments needed" />
                 </n-form-item>
-                <n-form-item label="Dentist Commission">
+                <!-- <n-form-item label="Dentist Commission">
                   <n-input-number v-model:value="newProcedure.dentist_commission" :min="0" :precision="2" placeholder="Dentist commission" />
                 </n-form-item>
                 <n-form-item label="Assistant Commission">
                   <n-input-number v-model:value="newProcedure.assistant_commission" :min="0" :precision="2" placeholder="Assistant commission" />
-                </n-form-item>
+                </n-form-item> -->
                 <n-form-item label="Active Status">
                   <n-switch v-model:value="newProcedure.is_active">
                     <template #checked>Active</template>
@@ -136,18 +136,18 @@
                   <n-form-item label="Base Price">
                     <n-input-number v-model:value="procedure.base_price" :min="0" :precision="2" placeholder="Base price" />
                   </n-form-item>
-                  <n-form-item label="Minimum Price">
+                  <!-- <n-form-item label="Minimum Price">
                     <n-input-number v-model:value="procedure.min_price" :min="0" :precision="2" placeholder="Min price" />
-                  </n-form-item>
+                  </n-form-item> -->
                   <n-form-item label="Appointments Needed">
                     <n-input-number v-model:value="procedure.appointments_needed" :min="0" placeholder="Appointments needed" />
                   </n-form-item>
-                  <n-form-item label="Dentist Commission">
+                  <!-- <n-form-item label="Dentist Commission">
                     <n-input-number v-model:value="procedure.dentist_commission" :min="0" :precision="2" placeholder="Dentist commission" />
                   </n-form-item>
                   <n-form-item label="Assistant Commission">
                     <n-input-number v-model:value="procedure.assistant_commission" :min="0" :precision="2" placeholder="Assistant commission" />
-                  </n-form-item>
+                  </n-form-item> -->
                   <n-form-item label="Active Status">
                     <n-switch v-model:value="procedure.is_active">
                       <template #checked>Active</template>
@@ -158,6 +158,84 @@
                 <div class="service-actions">
                   <n-button attr-type="button" secondary @click="updateProcedure(procedure)" :loading="pendingProcedureId === procedure.id">Save</n-button>
                   <n-button attr-type="button" type="error" quaternary @click="removeProcedure(procedure)" :loading="pendingDeleteProcedureId === procedure.id">Delete</n-button>
+                </div>
+              </n-card>
+            </div>
+          </div>
+        </n-tab-pane>
+
+        <!-- <n-tab-pane name="procedures" tab="Procedures">
+          <div class="service-section">
+            <n-card size="small" title="Add Procedure">
+              <div class="service-form-grid">
+                <n-form-item label="Procedure Name">
+                  <n-input v-model:value="newProcedure.name" />
+                </n-form-item>
+                <n-form-item label="Category">
+                  <n-input v-model:value="newProcedure.category" />
+                </n-form-item>
+                <n-form-item label="Base Price">
+                  <n-input-number v-model:value="newProcedure.base_price" />
+                </n-form-item>
+                <n-form-item label="Appointments Needed">
+                  <n-input-number v-model:value="newProcedure.appointments_needed" />
+                </n-form-item>
+                <n-form-item label="Active Status">
+                  <n-switch v-model:value="newProcedure.is_active" />
+                </n-form-item>
+              </div>
+              <n-button class="section-action" attr-type="button" type="primary" @click="createProcedure" :loading="procedureSubmitting">Add Procedure</n-button>
+            </n-card>
+
+            <div class="service-list">
+              <n-card v-for="procedure in procedures" :key="procedure.id" size="small" class="service-card">
+                <div class="service-form-grid">
+                  <n-form-item label="Name">
+                    <n-input v-model:value="procedure.name" />
+                  </n-form-item>
+                  <n-form-item label="Category">
+                    <n-input v-model:value="procedure.category" />
+                  </n-form-item>
+                  <n-form-item label="Base Price">
+                    <n-input-number v-model:value="procedure.base_price" />
+                  </n-form-item>
+                  <n-form-item label="Appointments Needed">
+                    <n-input-number v-model:value="procedure.appointments_needed" />
+                  </n-form-item>
+                  <n-form-item label="Active Status">
+                    <n-switch v-model:value="procedure.is_active" />
+                  </n-form-item>
+                </div>
+                <div class="service-actions">
+                  <n-button @click="updateProcedure(procedure)" type="primary" size="small" :loading="pendingProcedureId === procedure.id">Update</n-button>
+                  <n-button @click="removeProcedure(procedure)" type="error" size="small" :loading="pendingDeleteProcedureId === procedure.id">Delete</n-button>
+                </div>
+              </n-card>
+            </div>
+          </div>
+        </n-tab-pane> -->
+
+        <n-tab-pane name="prescriptions" tab="Prescriptions">
+          <div class="service-section">
+            <n-card size="small" title="Add Prescription">
+              <div class="service-form-grid">
+                <n-form-item label="Drug Name">
+                  <n-input v-model:value="newPrescription.name" placeholder="Drug name" />
+                </n-form-item>
+              </div>
+              <n-button class="section-action" attr-type="button" type="primary" @click="createPrescription" :loading="prescriptionSubmitting">Add Prescription</n-button>
+            </n-card>
+
+            <div class="service-list">
+              <n-card v-for="prescription in prescriptions" :key="prescription.id" size="small" class="service-card">
+                <div class="service-form-grid">
+                  <n-form-item label="Drug Name">
+                    <n-input v-model:value="prescription.name" placeholder="Drug name" />
+                  </n-form-item>
+                </div>
+                <div class="service-actions">
+                  <n-button @click="updatePrescription(prescription)" type="primary" size="small" :loading="pendingPrescriptionId === prescription.id">Update</n-button>
+                  <n-button @click="removePrescription(prescription)" type="error" size="small" :loading="pendingDeletePrescriptionId === prescription.id">Delete</n-button>
                 </div>
               </n-card>
             </div>
@@ -183,7 +261,7 @@
           </div>
         </n-tab-pane>
 
-        <n-tab-pane name="prescriptions" tab="Backup">
+        <n-tab-pane name="backup" tab="Backup">
           <div class="section-stack">
             <!-- <n-form-item label="Header Template">
               <n-input v-model:value="formData.prescription_template.header" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
@@ -233,8 +311,12 @@ import type { FormInst, SelectOption } from 'naive-ui'
 import settingsApi from '@/api/settings'
 import procedureApi from '@/api/procedure'
 import type ProcedureData from '@/api/interfaces/Procedure'
+import type PrescriptionData from '@/api/interfaces/Prescription'
 import type { SettingsData } from '@/api/interfaces/Settings'
 import { resolveBranchId } from '@/api/utils/branchParams'
+import useUserStore from '@/stores/user'
+import PrescriptionTemplate from '@/components/PrescriptionTemplate.vue'
+import prescriptionApi from '@api/prescription'
 
 const message = useMessage()
 const dialog = useDialog()
@@ -245,6 +327,7 @@ const procedureSubmitting = ref(false)
 const pendingProcedureId = ref<number | null>(null)
 const pendingDeleteProcedureId = ref<number | null>(null)
 const activeTab = ref('branch')
+const userStore = useUserStore()
 
 const defaultHours = {
   monday: { start: '09:00', end: '17:00', is_off: false },
@@ -293,8 +376,6 @@ const initialSettings = ref<SettingsData | null>(null)
 
 const procedures = ref<ProcedureData[]>([])
 
-
-
 const newProcedure = reactive<ProcedureData>({
   name: '',
   slug: '',
@@ -306,6 +387,16 @@ const newProcedure = reactive<ProcedureData>({
   assistant_commission: 0,
   is_active: true,
 })
+
+const prescriptions = ref<PrescriptionData[]>([])
+
+const newPrescription = reactive<PrescriptionData>({
+  name: '',
+})
+
+const prescriptionSubmitting = ref(false)
+const pendingPrescriptionId = ref<number | null>(null)
+const pendingDeletePrescriptionId = ref<number | null>(null)
 
 const rules = {
   clinic_name: { required: true, message: 'Clinic name is required', trigger: 'blur' },
@@ -321,13 +412,11 @@ const currencyOptions: SelectOption[] = [
   { label: 'AED (د.إ)', value: 'AED' },
 ]
 
-
-
 const receptionistPerms = computed(() => ({
   rec_can_edit_whatsapp: formData.rec_can_edit_whatsapp,
   rec_can_view_phones: formData.rec_can_view_phones,
   rec_show_kpi: formData.rec_show_kpi,
-  rec_show_suppliers: formData.rec_show_suppliers,
+  // rec_show_suppliers: formData.rec_show_suppliers,
   rec_log_actions: formData.rec_log_actions,
   rec_can_void_transactions: formData.rec_can_void_transactions,
   rec_can_edit_devices: formData.rec_can_edit_devices,
@@ -347,8 +436,8 @@ const permLabels = {
   rec: {
     rec_can_edit_whatsapp: 'Edit WA Templates',
     rec_can_view_phones: 'View Bulk Phones',
-    rec_show_kpi: 'Show KPI Dashboard',
-    rec_show_suppliers: 'Access Suppliers',
+    rec_show_kpi: 'View KPI Dashboard',
+    // rec_show_suppliers: 'Access Suppliers',
     rec_log_actions: 'Log Receptionist Actions',
     rec_can_void_transactions: 'Void Transactions',
     rec_can_edit_devices: 'Edit Device Status',
@@ -358,7 +447,7 @@ const permLabels = {
     doc_view_appointments: 'View Appointments',
     // doc_save_xrays: 'Save X-Rays',
     // doc_view_files: 'View Patient Files',
-    doc_view_contact: 'View Contact Details',
+    doc_view_contact: 'View Patient\'s Contact Details ',
     doc_edit_assets: 'Edit Clinic Assets',
     doc_issue_prescriptions: 'Issue Prescriptions',
   } as Record<string, string>,
@@ -421,6 +510,13 @@ function normalizeProcedure(procedure: any): ProcedureData {
   }
 }
 
+function normalizePrescription(prescription: any): PrescriptionData {
+  return {
+    id: prescription.id,
+    name: prescription.name || '',
+  }
+}
+
 function buildSettingsPayload(): Partial<SettingsData> {
   return {
     clinic_name: formData.clinic_name,
@@ -452,9 +548,10 @@ function buildSettingsPayload(): Partial<SettingsData> {
 }
 
 async function loadData() {
-  const [settingsResponse, proceduresResponse] = await Promise.all([
+  const [settingsResponse, proceduresResponse, prescriptionsResponse] = await Promise.all([
     settingsApi.getSettings(resolveBranchId()),
     procedureApi.getProcedures(),
+    prescriptionApi.getBranchPrescriptions(),
   ])
 
   const settings = unwrapSettingsResponse(settingsResponse.data)
@@ -465,6 +562,12 @@ async function loadData() {
     ? proceduresResponse.data.data.map(normalizeProcedure)
     : Array.isArray(proceduresResponse.data)
       ? proceduresResponse.data.map(normalizeProcedure)
+      : []
+
+  prescriptions.value = Array.isArray(prescriptionsResponse.data?.data)
+    ? prescriptionsResponse.data.data.map(normalizePrescription)
+    : Array.isArray(prescriptionsResponse.data)
+      ? prescriptionsResponse.data.map(normalizePrescription)
       : []
 }
 
@@ -556,6 +659,66 @@ function removeProcedure(procedure: ProcedureData) {
   })
 }
 
+function resetNewPrescription() {
+  Object.assign(newPrescription, {
+    name: '',
+    instructions: '',
+    category: '',
+    is_active: true,
+  })
+}
+
+async function createPrescription() {
+  prescriptionSubmitting.value = true
+  try {
+    const response = await prescriptionApi.postPrescription({ name: newPrescription.name })
+    prescriptions.value.unshift(normalizePrescription(response.data.data ?? response.data))
+    resetNewPrescription()
+    message.success('Prescription created')
+  } catch {
+    message.error('Failed to create prescription')
+  } finally {
+    prescriptionSubmitting.value = false
+  }
+}
+
+async function updatePrescription(prescription: PrescriptionData) {
+  if (!prescription.id) return
+  pendingPrescriptionId.value = prescription.id
+  try {
+    const response = await prescriptionApi.updatePrescription(prescription.id, { name: prescription.name })
+    const index = prescriptions.value.findIndex((entry) => entry.id === prescription.id)
+    if (index !== -1) prescriptions.value[index] = normalizePrescription(response.data.data ?? response.data)
+    message.success('Prescription updated')
+  } catch {
+    message.error('Failed to update prescription')
+  } finally {
+    pendingPrescriptionId.value = null
+  }
+}
+
+function removePrescription(prescription: any) {
+  if (!prescription.id) return
+  dialog.warning({
+    title: 'Delete prescription?',
+    content: `Delete ${prescription.name || 'this prescription'}?`,
+    positiveText: 'Delete',
+    negativeText: 'Cancel',
+    async onPositiveClick() {
+      pendingDeletePrescriptionId.value = prescription.id || null
+      try {
+        await prescriptionApi.deletePrescriptionn(prescription.id)
+        prescriptions.value = prescriptions.value.filter((entry) => entry.id !== prescription.id)
+        message.success('Prescription deleted')
+      } catch {
+        message.error('Failed to delete prescription')
+      } finally {
+        pendingDeletePrescriptionId.value = null
+      }
+    },
+  })
+}
+
 function resetForm() {
   dialog.warning({
     title: 'Reset changes?',
@@ -568,19 +731,54 @@ function resetForm() {
   })
 }
 
-function triggerBackup(type: 'full' | 'monthly') {
+async function triggerBackup(type: 'full' | 'monthly') {
   dialog.info({
     title: `Start ${type} backup?`,
-    content: 'This will archive the database and may take a few minutes.',
+    content: 'This will generate and download the SQL backup.',
     positiveText: 'Proceed',
     negativeText: 'Cancel',
+
     async onPositiveClick() {
       backupLoading.value = type
+
       try {
-        await settingsApi.backupDatabase(type)
-        message.success(`${type} backup initiated successfully`)
-      } catch {
-        message.error('Failed to start backup')
+        const response = await settingsApi.backupDatabase(type)
+
+        // Create downloadable blob
+        const blob = new Blob([response.data], {
+          type: 'application/sql',
+        })
+
+        // Extract filename from headers
+        const disposition = response.headers['content-disposition']
+
+        let filename = `backup_${type}.sql`
+
+        if (disposition) {
+          const match = disposition.match(/filename="?([^"]+)"?/)
+          if (match?.[1]) {
+            filename = match[1]
+          }
+        }
+
+        // Trigger browser download
+        const url = window.URL.createObjectURL(blob)
+
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', filename)
+
+        document.body.appendChild(link)
+        link.click()
+
+        link.remove()
+
+        window.URL.revokeObjectURL(url)
+
+        message.success('Backup downloaded successfully')
+      } catch (error) {
+        console.error(error)
+        message.error('Failed to download backup')
       } finally {
         backupLoading.value = null
       }

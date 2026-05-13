@@ -20,6 +20,10 @@ export default new (class User {
     return api.post('/reset-password', data)
   }
 
+  getSettings() {
+    return api.get('/settings')
+  }
+
   updateOwnProfilePicture(file: File) {
     const formData = new FormData()
     formData.append('image', file)

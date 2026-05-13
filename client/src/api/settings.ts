@@ -23,7 +23,13 @@ export default new (class Settings {
     })
   }
 
-  backupDatabase(type: 'full' | 'monthly') {
-    return api.post('/settings/backup', { type })
+  async backupDatabase(type: 'full' | 'monthly') {
+    return api.post(
+      `/settings/backup/${type}`,
+      {},
+      {
+        responseType: 'blob',
+      }
+    )
   }
 })()

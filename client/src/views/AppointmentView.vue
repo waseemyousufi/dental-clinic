@@ -248,7 +248,7 @@ const handleDateClick = (info: DateClickArg) => {
   isEditMode.value = false
   formModel.value = {
     description: '',
-    appointment_timestamp: info.date.toISOString(),
+    appointment_timestamp: info.dateStr, // Default to 8 AM on the selected date
     status: 'pending',
   }
   showAddEditModal.value = true

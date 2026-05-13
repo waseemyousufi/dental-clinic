@@ -14,12 +14,15 @@ class PrescriptionSeeder extends Seeder
     public function run(): void
     {
         Prescription::insert([
+            // [
+                // 'prescription_date' => '2024/04/04',
+                // 'instructions' => '400mg',
+                // 'employee_id' => 1,
+                // 'branch_id' => 1,
+                // 'patient_id' => 1
+            // ]
             [
-                'prescription_date' => '2024/04/04',
-                'instructions' => '400mg',
-                'employee_id' => 1,
-                'branch_id' => 1,
-                'patient_id' => 1
+                'drug_name' => 'Paracetamol'
             ]
         ]);
     }

@@ -110,7 +110,6 @@ if (userStore.isReceptionist || userStore.isAdmin) {
       icon: () => h(Icon, { icon: 'mdi:wallet-outline', style: 'font-size: 1.45em;' })
     },)
 }
-
 if (userStore.isAdmin) {
   navLinks.push({
     path: '/dashboard',
@@ -132,8 +131,14 @@ if (userStore.isAdmin) {
       label: 'Settings',
       icon: () => h(Icon, { icon: 'mdi:gear', style: 'font-size: 1.45em;' })
     })
-
 }
+
+if(!userStore.isAdmin && (userStore.settings && userStore.settings.rec_show_kpi))
+    navLinks.push({
+    path: '/dashboard',
+    label: 'Overview',
+    icon: () => h(Icon, { icon: 'mdi:view-dashboard-variant', style: 'font-size: 1.45em;' })
+  },)
 
 const selectBranch = (branchId: number) => {
   branchStore.setSelectedBranchId(branchId)
@@ -264,6 +269,9 @@ onMounted(async () => {
       router.replace({ query: { ...route.query, branchId: String(userBranchId.value) } })
     }
   }
+
+  const settings = await userApi.getSettings()
+  localStorage.setItem('settings', JSON.stringify(settings.data.data))
 })
 
 // ✅ Provide selectedBranchId from correct source

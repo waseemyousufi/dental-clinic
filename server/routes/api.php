@@ -19,9 +19,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/branch/{id}', [Admin\BranchController::class, 'update']);
         Route::delete('/branch/{id}', [Admin\BranchController::class, 'delete']);
 
-        Route::get('/settings', [Admin\SettingsController::class, 'index']);
         Route::match(['put', 'post'], '/settings/{branch?}', [Admin\SettingsController::class, 'update']);
-        Route::post('/settings/backup', [Admin\SettingsController::class, 'backupDatabase']);
+        Route::post('/settings/backup/{type}', [Admin\SettingsController::class, 'backupDatabase']);
 
 
     });
@@ -100,6 +99,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/prescription', [Shared\PrescriptionController::class, 'store']);
         Route::get('/prescription', [Shared\PrescriptionController::class, 'index']);
         Route::put('/prescription/{id}', [Shared\PrescriptionController::class, 'update']);
+        Route::delete('/prescription/{id}', [Shared\PrescriptionController::class, 'delete']);
 
         Route::post('/transaction', [Shared\TransactionController::class, 'store']);
         Route::get('/transaction', [Shared\TransactionController::class, 'index']);
@@ -159,6 +159,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/refresh', [AuthController::class, 'refresh']);
         Route::post('/update-profile-pic', [AuthController::class, 'updateProfilePic']);
         Route::get('/me', [AuthController::class, 'me']);
+        Route::get('/settings', [Admin\SettingsController::class, 'index']);
     });
 });
 

@@ -22,19 +22,21 @@ class PrescriptionController extends Controller
         $branchId = $this->effectiveBranchId($request);
 
         $data  = $request->validate([
-            'prescriptionDate' => 'required|string',
-            'instructions' => 'required|string',
-            'patientId' => 'required|integer',
+            'drug_name' => 'required|string'
+            // 'prescriptionDate' => 'required|string',
+            // 'instructions' => 'required|string',
+            // 'patientId' => 'required|integer',
         ]);
 
         $employee = $request->user()->employee;
 
         return Prescription::create([
-            'prescription_date' => $data['prescriptionDate'],
-            'instructions' => $data['instructions'],
-            'employee_id' => $employee->id,
-            'branch_id' => $branchId,
-            'patient_id' => $data['patientId'],
+            // 'prescription_date' => $data['prescriptionDate'],
+            // 'instructions' => $data['instructions'],
+            // 'employee_id' => $employee->id,
+            // 'branch_id' => $branchId,
+            // 'patient_id' => $data['patientId'],
+            'drug_name' => $data['drug_name']
         ]);
     }
 
@@ -43,19 +45,21 @@ class PrescriptionController extends Controller
         $branchId = $this->effectiveBranchId($request);
 
         $data  = $request->validate([
-            'prescriptionDate' => 'required|string',
-            'instructions' => 'required|string',
-            'patientId' => 'required|integer',
+            // 'prescriptionDate' => 'required|string',
+            // 'instructions' => 'required|string',
+            // 'patientId' => 'required|integer',
+            'drug_name' => 'required|string'
         ]);
 
         $employee = $request->user()->employee;
 
         return Prescription::find($id)->update([
-            'prescription_date' => $data['prescriptionDate'],
-            'instructions' => $data['instructions'],
-            'employee_id' => $employee->id,
-            'branch_id' => $branchId,
-            'patient_id' => $data['patientId'],
+            // 'prescription_date' => $data['prescriptionDate'],
+            // 'instructions' => $data['instructions'],
+            // 'employee_id' => $employee->id,
+            // 'branch_id' => $branchId,
+            // 'patient_id' => $data['patientId'],
+            'drug_name' => $data['drug_name']
         ]);
     }
 }

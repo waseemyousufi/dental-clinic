@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Setting;
@@ -8,7 +9,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
-use Illuminate\Support\Facades\Process;
+use Symfony\Component\Process\Process;
 
 class SettingsController extends Controller
 {
@@ -72,53 +73,39 @@ class SettingsController extends Controller
             $branch->save();
         }
 
-
-
         $setting = Setting::updateOrCreate(['branch_id' => $effectiveBranchId], $validated);
         return new SettingResource($setting);
     }
 
-    public function backupDatabase(Request $request)
- {
-    // $this->authorize('admin');
 
-    $dbConfig = config('database.connections.mysql');
-    $filename = "backup_full_" . now()->format('Y_m_d_His') . ".sql";
-    $tempPath = storage_path("app/temp/{$filename}");
 
-    // Ensure the temp directory exists
-    if (!file_exists(storage_path('app/temp'))) {
-        mkdir(storage_path('app/temp'), 0755, true);
+    public function backupDatabase()
+    {
+        $db = config('database.connections.mysql');
+
+        $filename = 'backup_' . now()->format('Y_m_d_His') . '.sql';
+        $path = storage_path("app/temp/$filename");
+
+        if (!is_dir(dirname($path))) {
+            mkdir(dirname($path), 0755, true);
+        }
+        $mysqldump = config('backup.mysqldump');
+        $command = "\"{$mysqldump}\" -u root -h 127.0.0.1 {$db['database']} > \"{$path}\" 2>&1";
+        $output = [];
+        $code = 0;
+
+        exec($command, $output, $code);
+
+        if ($code !== 0 || !file_exists($path)) {
+            return response()->json([
+                'success' => false,
+                'error' => $output,
+                'exit_code' => $code,
+            ], 500);
+        }
+
+        return response()->download($path)->deleteFileAfterSend(true);
     }
-
-    // Build the mysqldump command
-    // --single-transaction is used to avoid locking tables during backup
-    $command = sprintf(
-        'mysqldump --user=%s --password=%s --host=%s --single-transaction %s > %s',
-        escapeshellarg($dbConfig['username']),
-        escapeshellarg($dbConfig['password']),
-        escapeshellarg($dbConfig['host']),
-        escapeshellarg($dbConfig['database']),
-        escapeshellarg($tempPath)
-    );
-
-    $process = Process::run($command);
-
-    if ($process->successful()) {
-        Log::info("SQL backup downloaded by user {$request->user()->id}");
-
-        // Return the file and delete it from the server after the download completes
-        return response()->download($tempPath, $filename)->deleteFileAfterSend(true);
-    }
-
-    Log::error("Database backup failed: " . $process->errorOutput());
-
-    return response()->json([
-        'message' => 'Failed to generate backup.',
-        'errorDetails' => $process->errorOutput()
-    ], 500);
-}
-
     // protected function effectiveBranchId(Request $request): int
     // {
     //     $branchId = $request->query('branchId')

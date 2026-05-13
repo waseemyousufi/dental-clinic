@@ -11,9 +11,13 @@ type UserPosition =
 const stored = localStorage.getItem('user')
 
 let parsedUser: any = null
+let parsedStoredSettings: {}|null = null
 
 try {
   parsedUser = stored ? JSON.parse(stored)?.user : null
+  const storedSettings = localStorage.getItem('settings')
+  parsedStoredSettings = storedSettings ? JSON.parse(storedSettings) : null
+  console.log(parsedStoredSettings)
 } catch {
   parsedUser = null
 }
@@ -22,6 +26,7 @@ const useUserStore = defineStore('user', {
   state: () => ({
     user: parsedUser,
     position: parsedUser?.employee?.position ?? null as UserPosition | null,
+    settings: parsedStoredSettings,
   }),
 
   getters: {
@@ -34,7 +39,7 @@ const useUserStore = defineStore('user', {
 
     isReceptionist: (state) =>
       state.position === 'receptionist',
-    id: (state) => state.user.id,
+    id: (state) => state.user?.id,
   },
 
   actions: {

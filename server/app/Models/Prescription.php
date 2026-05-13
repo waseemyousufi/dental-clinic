@@ -10,25 +10,21 @@ class Prescription extends Model
 
     public $timestamps = false;
 protected $fillable = [
-        'prescription_date',
-        'instructions',
-        'employee_id',
-        'branch_id',
-        'patient_id'
+    'drug_name',
     ];
 
-    public function Employee(): BelongsTo
-    {
-        return $this->belongsTo(Employee::class);
-    }
+    // public function Employee(): BelongsTo
+    // {
+    //     return $this->belongsTo(Employee::class);
+    // }
 
-    public function Branch(): BelongsTo
-    {
-        return $this->belongsTo(Branch::class);
-    }
+    // public function Branch(): BelongsTo
+    // {
+    //     return $this->belongsTo(Branch::class);
+    // }
 
-    public function Patient(): BelongsTo
-    {
-        return $this->belongsTo(Patient::class);
-    }
+    // public function Patient(): BelongsTo
+    // {
+    //     return $this->belongsTo(Patient::class);
+    // }
 }

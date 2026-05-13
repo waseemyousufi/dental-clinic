@@ -1,5 +1,4 @@
 export default interface PrescriptionData {
-  prescriptionDate: String
-  instructions: String
-  patientId: Number
+  id?: number
+  name: string
 }

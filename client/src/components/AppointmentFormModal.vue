@@ -43,7 +43,7 @@
           <div class="appointment-form__pair">
             <n-form-item label="Appointment Cost" path="appointment_cost" class="appointment-form__field">
               <n-input-number v-model:value="formModel.appointment_cost" :min="0" size="small"
-                :disabled="Boolean(props.appointment?.id)" style="width: 100%" />
+                :disabled="Boolean(props.appointment?.id) || hasTreatmentPlan" style="width: 100%" />
             </n-form-item>
 
             <n-form-item v-if="isDoctorUsing" label="Clinical Notes" path="clinical_notes"
@@ -74,6 +74,7 @@
       </template>
     </n-card>
   </n-modal>
+  {{ console.log('formmodel: ', formModel.value) }}
 </template>
 
 <script setup lang="ts">
@@ -100,6 +101,8 @@ import treatmentPlanApi from '@api/treatmentPlan'
 import type AppointmentData from '@api/interfaces/Appointment'
 import type EmployeeData from '@api/interfaces/Employee'
 import type PatientData from '@api/interfaces/patient'
+import procedure from '@api/procedure'
+import { BASE_OPTION_DEFAULTS } from '@fullcalendar/core/internal'
 
 type EmployeeAbbr = {
   id: number
@@ -134,7 +137,6 @@ type TreatmentPlanRecord = {
   cost?: number | string | null
   price?: number | string | null
   appointment_cost?: number | string | null
-  procedure_id?: number | null
 }
 
 const props = withDefaults(defineProps<{
@@ -199,8 +201,8 @@ const formModel = ref({
 })
 
 const formatName = (obj: EmployeeAbbr | PatientAbbr) => {
-  if (obj.name) return `${obj.name}   ${obj.id ? `#${obj.id}` : ''}`
-  return `${obj.fName || ''} ${obj.lName || ''}   ${obj.id ? `#${obj.id}` : ''}`.trim() || 'Unknown'
+  if (obj.name) return obj.name
+  return '#'+obj.id + ` - ${obj.fName || ''} ${obj.lName || ''}`.trim()  || 'Unknown'
 }
 
 function normalizeId(value: unknown): number | null {
@@ -239,16 +241,21 @@ function getRecordCost(
   id: number | null,
 ): number | null {
   if (id == null) return null
-
   const record = records.find(item => item.id === id)
   if (!record) return null
 
+  console.log('getRecordCost', { id, record })
   return (
+    normalizeNumber(record.base_price) ??
     normalizeNumber(record.appointment_cost) ??
     normalizeNumber(record.cost) ??
     normalizeNumber(record.price)
   )
 }
+
+const hasTreatmentPlan = computed(() => {
+  return formModel.value.treatment_plan_id != null
+})
 
 function resetForm() {
   const appt = props.appointment
@@ -304,17 +311,23 @@ function resetForm() {
   }
 }
 
+
+
 async function loadOptions() {
   try {
     const [
       empRes,
       patRes,
       procedureRes,
+      treatmentPlanRes,
     ] = await Promise.all([
       employeeApi.getBranchEmployees(true),
       patientApi.getBranchPatients(true),
       procedureApi.getProcedures(),
+      treatmentPlanApi.getBranchTreatmentPlans(),
     ])
+
+    console.log('treatmentPlanRes', treatmentPlanRes)
 
     const rawEmps = empRes.data?.data || empRes.data
 
@@ -351,6 +364,7 @@ async function loadOptions() {
         name: procedure.name,
         cost: procedure.cost,
         price: procedure.price,
+        base_price: procedure.base_price,
         appointment_cost: procedure.appointment_cost,
       }))
       .filter(item => item.id !== 0 || item.name)
@@ -359,19 +373,6 @@ async function loadOptions() {
       label: procedure.name || 'Unknown',
       value: procedure.id,
     }))
-
-  } catch (error) {
-    console.log(error)
-    message.error('Failed to load appointment options')
-  }
-}
-
-async function loadTreatmentPlans(patientId?: number | null) {
-  try {
-    const normalizedPatientId = normalizeId(patientId)
-    const treatmentPlanRes = await treatmentPlanApi.getBranchTreatmentPlans(
-      normalizedPatientId ?? undefined,
-    )
 
     const rawTreatmentPlans = treatmentPlanRes.data?.data || treatmentPlanRes.data
     const treatmentPlanList = (
@@ -391,28 +392,15 @@ async function loadTreatmentPlans(patientId?: number | null) {
       }))
       .filter(item => item.id !== 0 || item.name)
 
-    treatmentPlanOptions.value = treatmentPlanRecords.value.map((plan) => {
-      const procedureLabel = procedureOptions.value.find(
-        procedure => procedure.value === plan.procedure_id,
-      )?.label
+    console.log(procedureOptions.value)
 
-      return {
-        label: plan.name || procedureLabel || 'Unknown',
-        value: plan.id,
-      }
-    })
-
-    if (
-      formModel.value.treatment_plan_id != null &&
-      !treatmentPlanOptions.value.some(
-        option => option.value === formModel.value.treatment_plan_id,
-      )
-    ) {
-      formModel.value.treatment_plan_id = null
-    }
+    treatmentPlanOptions.value = treatmentPlanRecords.value.map((plan) => ({
+      label: procedureOptions.value[plan.procedure_id - 1]?.label || 'Unknown',
+      value: plan.id,
+    }))
   } catch (error) {
     console.log(error)
-    message.error('Failed to load treatment plans')
+    message.error('Failed to load appointment options')
   }
 }
 
@@ -468,21 +456,29 @@ watch(
   { immediate: true },
 )
 
-watch(
-  () => formModel.value.patientId,
-  async patientId => {
-    if (!props.show) return
-    await loadTreatmentPlans(patientId)
-  },
-)
-
 onMounted(async () => {
   await loadOptions()
-  await loadTreatmentPlans(props.patientId)
   if (props.show) {
     resetForm()
   }
 })
+
+watch(
+  () => formModel.value.procedure_id,
+  (newProcedureId) => {
+    const procedureCost = getRecordCost(procedureRecords.value, newProcedureId)
+    if (procedureCost != null) {
+      formModel.value.appointment_cost = procedureCost
+    }
+  },
+)
+
+watch(
+  () => formModel.value.treatment_plan_id,
+  () => {
+    formModel.value.appointment_cost = 0
+  }
+)
 </script>
 
 <style scoped lang="scss">
