@@ -21,27 +21,41 @@ interface Props {
   clinicTertiary?: string;
   address: string;
   phone: string;
+  currency?: string;
   patientName: string;
   invoiceDate: string;
   invoiceNumber: string;
   treatmentPlan: TreatmentItem[];
   appointments: Appointment[];
   amountPaid: number;
+  totalAmount?: number | null;
+  balanceAmount?: number | null;
   notes?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   paperSize: 'A4',
+  currency: 'AFN',
   treatmentPlan: () => [],
   appointments: () => [],
   notes: "Please follow all post-operative instructions provided during your visit."
 });
 
-const totalAmount = computed(() =>
-  props.treatmentPlan.reduce((sum, item) => sum + item.cost, 0)
-);
+const totalAmount = computed(() => {
+  if (typeof props.totalAmount === 'number' && !Number.isNaN(props.totalAmount)) {
+    return props.totalAmount;
+  }
 
-const amountRemaining = computed(() => totalAmount.value - props.amountPaid);
+  return props.treatmentPlan.reduce((sum, item) => sum + item.cost, 0);
+});
+
+const amountRemaining = computed(() => {
+  if (typeof props.balanceAmount === 'number' && !Number.isNaN(props.balanceAmount)) {
+    return props.balanceAmount;
+  }
+
+  return totalAmount.value - props.amountPaid;
+});
 
 const containerClasses = computed(() => ({
   'bill-sheet': true,
@@ -51,7 +65,16 @@ const containerClasses = computed(() => ({
 
 // Formatter for currency
 const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: props.currency,
+      maximumFractionDigits: 0,
+    }).format(value);
+  }
+  catch {
+    return `${Number(value || 0).toLocaleString()} ${props.currency}`;
+  }
 };
 </script>
 
@@ -98,6 +121,9 @@ const formatCurrency = (value: number) => {
           <span>Service Description</span>
           <span class="text-right">Amount</span>
         </div>
+        <div v-if="!props.treatmentPlan.length" class="empty-copy">
+          No treatment plan items available.
+        </div>
         <div v-for="(item, i) in props.treatmentPlan" :key="i" class="table-row">
           <div class="service-info">
             <span class="service-name">{{ item.service }}</span>
@@ -110,6 +136,9 @@ const formatCurrency = (value: number) => {
       <div class="secondary-info-grid">
         <section>
           <h4 class="section-title">Scheduled Appointments</h4>
+          <div v-if="!props.appointments.length" class="empty-copy">
+            No scheduled appointments.
+          </div>
           <div v-for="(appt, j) in props.appointments" :key="j" class="appt-item">
             <Icon icon="mdi:calendar-clock" class="appt-icon" />
             <div>
@@ -120,7 +149,7 @@ const formatCurrency = (value: number) => {
         </section>
 
         <section>
-          <h4 class="section-title">Clinical Notes</h4>
+          <h4 class="section-title">Notes</h4>
           <div class="notes-box">{{ props.notes }}</div>
         </section>
       </div>
@@ -131,10 +160,10 @@ const formatCurrency = (value: number) => {
             <span>Total Treatment Cost</span>
             <span>{{ formatCurrency(totalAmount) }}</span>
           </div>
-          <div class="summary-line highlight">
+          <!-- <div class="summary-line highlight">
             <span>Amount Paid</span>
             <span>- {{ formatCurrency(props.amountPaid) }}</span>
-          </div>
+          </div> -->
           <div class="summary-line balance">
             <span>Balance Remaining</span>
             <span>{{ formatCurrency(amountRemaining) }}</span>
@@ -143,7 +172,7 @@ const formatCurrency = (value: number) => {
 
         <div class="payment-instructions">
           <Icon icon="mdi:information-outline" />
-          <span>Payment is due within 15 days. Make all checks payable to {{ props.clinicPrimary }}.</span>
+          <span>Please complete any remaining balance with {{ props.clinicPrimary }} reception.</span>
         </div>
       </footer>
     </article>
@@ -230,6 +259,7 @@ const formatCurrency = (value: number) => {
 .service-name { display: block; font-weight: 700; font-size: 1.05rem; }
 .service-desc { color: #666; font-size: 0.85rem; }
 .service-cost { font-weight: 700; font-size: 1.05rem; }
+.empty-copy { color: #666; font-size: 0.95rem; padding: 8px 5px; }
 
 /* Secondary Info Grid */
 .secondary-info-grid {
@@ -303,6 +333,6 @@ const formatCurrency = (value: number) => {
 @media print {
   @page { margin: 0; }
   .print-wrapper { padding: 0; background: none; }
-  .bill-sheet { box-shadow: none; }
+  .bill-sheet { margin-top: -250px; box-shadow: none; }
 }
 </style>

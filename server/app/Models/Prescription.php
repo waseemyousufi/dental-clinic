@@ -11,6 +11,7 @@ class Prescription extends Model
     public $timestamps = false;
 protected $fillable = [
     'drug_name',
+    'branch_id',
     ];
 
     // public function Employee(): BelongsTo

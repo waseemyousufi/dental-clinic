@@ -21,6 +21,8 @@ export interface SettingsData {
     header: string
     footer: string
   }
+  reception: number
+  reception_cost?: number
   rec_can_edit_whatsapp: boolean
   rec_can_view_phones: boolean
   rec_show_kpi: boolean

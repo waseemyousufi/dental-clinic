@@ -20,10 +20,9 @@ import patientApi from '@api/patient'
 import type PatientData from '@api/interfaces/Patient'
 import { Icon } from '@iconify/vue';
 import ItemViewPopup from '../components/ItemViewPopup.vue';
-import { useI18n } from 'vue-i18n'; // Import useI18n
+import { useI18n } from 'vue-i18n';
 import { useBranchStore } from '@/stores/branchStore'
-
-// BUG implement the profile picture backend
+import useUserStore from '@/stores/user'
 
 const { t } = useI18n(); // Get the t function
 
@@ -32,6 +31,7 @@ type PatientRow = PatientData & { id?: number }
 const message = useMessage()
 const router = useRouter()
 const route = useRoute()
+const userStore = useUserStore()
 
 const getEffectiveBranchId = (): number | undefined => {
   const usr = JSON.parse(localStorage.getItem('user') || 'null')
@@ -153,7 +153,7 @@ const columns = computed(() => [
           },
         ),
         // Dentist View button
-        h(
+        !userStore.isReceptionist && h(
           Icon,
           {
             icon: 'mdi:tooth',
@@ -302,6 +302,7 @@ async function handleSubmit() {
       emgContact: formModel.emgContact,
       registerationDate: formModel.registerationDate,
       phone: formModel.phone,
+      reception_cost: userStore.settings.reception_cost, // Include reception cost in payload
     }
 
     let patientId = editingId.value
@@ -417,7 +418,7 @@ onMounted(fetchPatients)
         </div>
 
         <div class="form-actions">
-          <p style="margin-right: auto;" class="reception-fee">Reception Fee: <span class="digit" style="font-weight: bold; color:green">200 AFN</span></p>
+          <p style="margin-right: auto;" class="reception-fee">Reception Fee: <span class="digit" style="font-weight: bold; color:green"> {{ userStore.settings.reception_cost }} AFN</span></p>
           <n-button size="small" @click="showEditor = false"> {{ $t('common.cancelButtonText') }} </n-button>
           <n-button type="primary" size="small" :loading="submitting" @click="handleSubmit">
             {{ $t('common.saveButtonText') }}

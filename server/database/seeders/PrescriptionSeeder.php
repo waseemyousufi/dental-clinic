@@ -22,7 +22,8 @@ class PrescriptionSeeder extends Seeder
                 // 'patient_id' => 1
             // ]
             [
-                'drug_name' => 'Paracetamol'
+                'drug_name' => 'Paracetamol',
+                'branch_id' => 1
             ]
         ]);
     }

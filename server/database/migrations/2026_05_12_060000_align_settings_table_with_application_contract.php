@@ -26,11 +26,15 @@ return new class extends Migration
             }
 
             if (!Schema::hasColumn('settings', 'currency')) {
-                $table->string('currency')->default('USD')->after('phone');
+                $table->string('currency')->default('AFN')->after('phone');
+            }
+
+            if (!Schema::hasColumn('settings', 'reception_cost')) {
+                $table->unsignedDecimal('reception_cost', 10, 2)->default(0)->after('currency');
             }
 
             if (!Schema::hasColumn('settings', 'working_hours')) {
-                $table->json('working_hours')->nullable()->after('currency');
+                $table->json('working_hours')->nullable()->after('reception_cost');
             }
 
             if (!Schema::hasColumn('settings', 'wa_patient_reminder')) {

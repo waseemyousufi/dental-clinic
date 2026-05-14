@@ -3,6 +3,7 @@ export default interface EmployeeData {
   fName: string,
   lName: string,
   email: string,
+  phone?: string,
   gender: string,
   hireDate: string,
   speciality: string,

@@ -15,7 +15,8 @@ return new class extends Migration
             $table->string('clinic_name')->nullable();
             $table->string('address')->nullable();
             $table->string('phone')->nullable();
-            $table->string('currency')->default('USD');
+            $table->string('currency')->default('AFN')->nullable();
+            $table->integer('reception_cost', false, true)->default(0);
 
             // Working Hours (JSON structure explained below)
             $table->json('working_hours')->nullable();

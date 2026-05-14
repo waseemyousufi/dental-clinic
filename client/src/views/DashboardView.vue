@@ -14,10 +14,10 @@
           <span class="meta-label">Branch</span>
           <span class="meta-value">{{ selectedBranchLabel }}</span>
         </div>
-        <div class="meta-pill">
+        <!-- <div class="meta-pill">
           <span class="meta-label">Period</span>
           <span class="meta-value">{{ periodLabel }}</span>
-        </div>
+        </div> -->
         <div class="meta-pill">
           <span class="meta-label">Updated</span>
           <span class="meta-value">{{ updatedLabel }}</span>
@@ -144,7 +144,7 @@
       </div>
     </section>
 
-    <section class="chart-grid chart-grid-three">
+    <!-- <section class="chart-grid chart-grid-three">
       <div class="surface-panel chart-card">
         <div class="panel-header">
           <div>
@@ -189,7 +189,7 @@
           </div>
         </div>
       </div>
-    </section>
+    </section> -->
 
     <section class="chart-grid chart-grid-two">
       <div class="surface-panel alerts-card">

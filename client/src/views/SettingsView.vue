@@ -31,6 +31,9 @@
               <n-form-item label="Phone" path="phone">
                 <n-input v-model:value="formData.phone" placeholder="+1 234 567 8900" />
               </n-form-item>
+              <n-form-item label="Reception Cost" path="reception">
+                <n-input-number v-model:value="formData.reception" :min="0" :step="50" />
+              </n-form-item>
             </div>
 
             <!-- <n-divider title-placement="left">Working Hours</n-divider>
@@ -219,8 +222,8 @@
           <div class="service-section">
             <n-card size="small" title="Add Prescription">
               <div class="service-form-grid">
-                <n-form-item label="Drug Name">
-                  <n-input v-model:value="newPrescription.name" placeholder="Drug name" />
+                <n-form-item label="Medicine Name">
+                  <n-input v-model:value="newPrescription.drug_name" placeholder="Medicine name" />
                 </n-form-item>
               </div>
               <n-button class="section-action" attr-type="button" type="primary" @click="createPrescription" :loading="prescriptionSubmitting">Add Prescription</n-button>
@@ -229,8 +232,8 @@
             <div class="service-list">
               <n-card v-for="prescription in prescriptions" :key="prescription.id" size="small" class="service-card">
                 <div class="service-form-grid">
-                  <n-form-item label="Drug Name">
-                    <n-input v-model:value="prescription.name" placeholder="Drug name" />
+                  <n-form-item label="Medicine Name">
+                    <n-input v-model:value="prescription.drug_name" placeholder="Medicine name" />
                   </n-form-item>
                 </div>
                 <div class="service-actions">
@@ -344,7 +347,8 @@ const createDefaultSettings = (): SettingsData => ({
   clinic_name: '',
   address: '',
   phone: '',
-  currency: 'USD',
+  currency: 'AFN',
+  reception: 0,
   working_hours: JSON.parse(JSON.stringify(defaultHours)),
   wa_patient_reminder: '',
   wa_patient_cancel: '',
@@ -391,7 +395,7 @@ const newProcedure = reactive<ProcedureData>({
 const prescriptions = ref<PrescriptionData[]>([])
 
 const newPrescription = reactive<PrescriptionData>({
-  name: '',
+  drug_name: '',
 })
 
 const prescriptionSubmitting = ref(false)
@@ -484,6 +488,7 @@ function applySettings(data: SettingsData) {
     doc_view_appointments: asBoolean(data.doc_view_appointments, defaults.doc_view_appointments),
     doc_save_xrays: asBoolean(data.doc_save_xrays, defaults.doc_save_xrays),
     doc_view_files: asBoolean(data.doc_view_files, defaults.doc_view_files),
+    reception: Number(((data as SettingsData & { reception_cost?: number })).reception_cost ?? data.reception ?? 0),
     doc_view_contact: asBoolean(data.doc_view_contact, defaults.doc_view_contact),
     doc_edit_assets: asBoolean(data.doc_edit_assets, defaults.doc_edit_assets),
     doc_issue_prescriptions: asBoolean(data.doc_issue_prescriptions, defaults.doc_issue_prescriptions),
@@ -513,11 +518,11 @@ function normalizeProcedure(procedure: any): ProcedureData {
 function normalizePrescription(prescription: any): PrescriptionData {
   return {
     id: prescription.id,
-    name: prescription.name || '',
+    drug_name: prescription.drug_name || '',
   }
 }
 
-function buildSettingsPayload(): Partial<SettingsData> {
+function buildSettingsPayload(): Record<string, unknown> {
   return {
     clinic_name: formData.clinic_name,
     address: formData.address,
@@ -529,6 +534,7 @@ function buildSettingsPayload(): Partial<SettingsData> {
     wa_patient_complete: formData.wa_patient_complete,
     wa_supplier_order: formData.wa_supplier_order,
     wa_supplier_cancel: formData.wa_supplier_cancel,
+    reception_cost: Number(formData.reception),
     prescription_template: formData.prescription_template,
     rec_can_edit_whatsapp: Boolean(formData.rec_can_edit_whatsapp),
     rec_can_view_phones: Boolean(formData.rec_can_view_phones),
@@ -661,7 +667,7 @@ function removeProcedure(procedure: ProcedureData) {
 
 function resetNewPrescription() {
   Object.assign(newPrescription, {
-    name: '',
+    drug_name: '',
     instructions: '',
     category: '',
     is_active: true,
@@ -671,7 +677,7 @@ function resetNewPrescription() {
 async function createPrescription() {
   prescriptionSubmitting.value = true
   try {
-    const response = await prescriptionApi.postPrescription({ name: newPrescription.name })
+    const response = await prescriptionApi.postPrescription({ drug_name: newPrescription.drug_name })
     prescriptions.value.unshift(normalizePrescription(response.data.data ?? response.data))
     resetNewPrescription()
     message.success('Prescription created')
@@ -686,7 +692,9 @@ async function updatePrescription(prescription: PrescriptionData) {
   if (!prescription.id) return
   pendingPrescriptionId.value = prescription.id
   try {
-    const response = await prescriptionApi.updatePrescription(prescription.id, { name: prescription.name })
+    const response = await prescriptionApi.updatePrescription(prescription.id, { drug_name: prescription.drug_name
+
+     })
     const index = prescriptions.value.findIndex((entry) => entry.id === prescription.id)
     if (index !== -1) prescriptions.value[index] = normalizePrescription(response.data.data ?? response.data)
     message.success('Prescription updated')
@@ -701,13 +709,13 @@ function removePrescription(prescription: any) {
   if (!prescription.id) return
   dialog.warning({
     title: 'Delete prescription?',
-    content: `Delete ${prescription.name || 'this prescription'}?`,
+    content: `Delete ${prescription.drug_name || 'this prescription'}?`,
     positiveText: 'Delete',
     negativeText: 'Cancel',
     async onPositiveClick() {
       pendingDeletePrescriptionId.value = prescription.id || null
       try {
-        await prescriptionApi.deletePrescriptionn(prescription.id)
+        await prescriptionApi.deletePrescription(prescription.id)
         prescriptions.value = prescriptions.value.filter((entry) => entry.id !== prescription.id)
         message.success('Prescription deleted')
       } catch {

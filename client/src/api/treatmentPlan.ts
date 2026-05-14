@@ -12,12 +12,13 @@ export default new class TreatmentPlan {
         ...(patientId != null ? { patient_id: patientId } : {}),
         ...(abbreviate ? { abr: true } : {}),
         ...(resolvedBranchId != null ? { branchId: resolvedBranchId } : {}),
+        with: 'procedure,appointments', // Eager load relationships
       },
     })
   }
 
   postTreatmentPlan(data: TreatmentPlanData) {
-    console.log(data)
+    console.log('treatment plan data:', data)
     return api.post('/treatment-plan', data);
   }
 

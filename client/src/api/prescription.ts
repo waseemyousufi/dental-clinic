@@ -12,6 +12,7 @@ export default new (class Prescription {
   }
 
   postPrescription(data: PrescriptionData) {
+    console.log('Posting prescription with data:', data)
     return api.post('/prescription', data)
   }
 
@@ -19,7 +20,7 @@ export default new (class Prescription {
     return api.put(`/prescription/${id}`, data)
   }
 
-  deletePrescriptionn(id: number) {
+  deletePrescription(id: number) {
     return api.delete(`/prescription/${id}`)
   }
 })()

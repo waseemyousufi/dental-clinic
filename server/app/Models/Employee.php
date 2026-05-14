@@ -22,6 +22,7 @@ class Employee extends Model
         'qualification',
         'speciality',
         'medical_license_number',
+        'phone',
         'work_start_time',
         'work_end_time',
         'position_id',

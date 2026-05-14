@@ -173,17 +173,17 @@ const isBranchExpanded = (branchId: number) => {
 // ... rest of your script
 
 const userMenuOptions = [
-  {
-    label: 'View profile',
-    key: 'profile',
-    icon: () => h(NIcon, null, { default: () => h(Icon, { icon: 'gg:profile' }) }),
-  },
-  {
-    label: 'Settings',
-    key: 'settings',
-    icon: () => h(NIcon, null, { default: () => h(Icon, { icon: 'ph:gear-six' }) }),
-  },
-  { type: 'divider', key: 'divider' },
+  // {
+  //   label: 'View profile',
+  //   key: 'profile',
+  //   icon: () => h(NIcon, null, { default: () => h(Icon, { icon: 'gg:profile' }) }),
+  // },
+  // {
+  //   label: 'Settings',
+  //   key: 'settings',
+  //   icon: () => h(NIcon, null, { default: () => h(Icon, { icon: 'ph:gear-six' }) }),
+  // },
+  // { type: 'divider', key: 'divider' },
   {
     label: 'Logout',
     key: 'logout',
@@ -353,17 +353,17 @@ provide('selectedBranchId', computed(() =>
 
             <!-- <hr v-if="userStore.isAdmin" style="opacity: .3; margin: .3em 1.45em;" /> -->
 
-            <sidebar-dropdown v-if="userStore.isAdmin" icon="" title="Reports">
+            <!-- <sidebar-dropdown v-if="userStore.isAdmin" icon="" title="Reports">
               <RouterLink to="/employee-activity-log">Employee Activity Log</RouterLink>
               <RouterLink to="/finance-reports">Finance</RouterLink>
-            </sidebar-dropdown>
+            </sidebar-dropdown> -->
 
             <!-- <hr v-if="userStore.isAdmin" style="opacity: .3; margin: .3em 1.45em;" /> -->
 
-            <sidebar-dropdown v-if="userStore.isAdmin" icon="ph:question" title="Support">
+            <!-- <sidebar-dropdown v-if="userStore.isAdmin" icon="ph:question" title="Support">
               <RouterLink to="/help">Help center</RouterLink>
               <RouterLink to="/contact">Contact support</RouterLink>
-            </sidebar-dropdown>
+            </sidebar-dropdown> -->
 
             <div class="sidebar-footer">
               <n-dropdown trigger="click" :options="userMenuOptions" @select="handleUserSelect" placement="top-start"

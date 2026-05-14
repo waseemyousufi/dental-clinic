@@ -19,7 +19,7 @@ class TreatmentPlan extends Model
         'branch_id',
         'total_estimated_cost',
         'status',
-        'appointemnts_needed',
+        'appointments_needed',
         'total_amount_paid',
         'start_date',
     ];

@@ -99,7 +99,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/prescription', [Shared\PrescriptionController::class, 'store']);
         Route::get('/prescription', [Shared\PrescriptionController::class, 'index']);
         Route::put('/prescription/{id}', [Shared\PrescriptionController::class, 'update']);
-        Route::delete('/prescription/{id}', [Shared\PrescriptionController::class, 'delete']);
+        Route::delete('/prescription/{id}', [Shared\PrescriptionController::class, 'destroy']);
 
         Route::post('/transaction', [Shared\TransactionController::class, 'store']);
         Route::get('/transaction', [Shared\TransactionController::class, 'index']);

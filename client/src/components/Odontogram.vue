@@ -79,7 +79,7 @@ const triggerPrint = (mode: 'portrait' | 'landscape') => {
 
           /* 4. Handle scaling based on orientation */
           .odontogram-table {
-            transform: scale(${mode === 'portrait' ? '2.2' : '2.8'});
+            transform: scale(${mode === 'portrait' ? '1' : '1.5'});
             transform-origin: center;
           }
 
@@ -168,8 +168,6 @@ const getPartStyle = (num: number, partId: string) => {
   const data = state.value[num]?.[partId]
   return { fill: (typeof data === 'object' ? data?.color : data) || '#ffffff', transition: 'fill 0.2s ease' }
 }
-
-
 
 </script>
 
@@ -298,7 +296,6 @@ const getPartStyle = (num: number, partId: string) => {
     transform: scale(1.5) !important;
     transition: transform 1s ease !important;
   }
-
 }
 
 @media print {

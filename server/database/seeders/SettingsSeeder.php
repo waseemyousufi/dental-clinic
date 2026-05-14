@@ -21,10 +21,11 @@ class SettingSeeder extends Seeder
             'wa_patient_complete' => "Thank you {{patient_name}}! Your appointment today is complete. See you soon.",
             'wa_supplier_order' => "New order placed: {{order_id}}. Total: {{currency}} {{amount}}. Please confirm delivery.",
             'wa_supplier_cancel' => "Order {{order_id}} has been cancelled. Please disregard.",
+            'reception_cost' => 0,
             'rec_can_view_phones' => true,
             'doc_view_appointments' => true,
             'doc_issue_prescriptions' => true,
-            'prescription_template' => ['header' => "{{clinic_name}}\n{{address}}\n{{phone}}", 'footer' => "Thank you for choosing {{clinic_name}}."],
+            'prescription_template' => ['header' => "{{clinic_name}}\n{{address}}\n{{phone}}", 'footer' => "Thank you for choosing us."],
             'clinic_items' => [],
             'clinic_procedures' => []
         ];

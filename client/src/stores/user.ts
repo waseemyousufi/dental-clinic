@@ -40,6 +40,8 @@ const useUserStore = defineStore('user', {
     isReceptionist: (state) =>
       state.position === 'receptionist',
     id: (state) => state.user?.id,
+    clinicName: (state) => (state.settings as any)?.clinic_name ?? '',
+    clinicPhone: (state) => (state.settings as any)?.phone ?? '',
   },
 
   actions: {

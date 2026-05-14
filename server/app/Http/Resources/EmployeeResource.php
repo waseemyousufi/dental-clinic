@@ -41,6 +41,7 @@ class EmployeeResource extends JsonResource
             'speciality' => $this->speciality,
             'qualification' => $this->qualification,
             'email' => $this->user->email,
+            'phone' => $this->phone,
             'hireDate' => $this->hire_date,
             'midLicenseNum' => $this->medical_license_number,
             'workStartTime' => $this->work_start_time,

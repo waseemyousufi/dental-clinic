@@ -15,6 +15,7 @@ class SettingResource extends JsonResource
             'address' => $this->address,
             'phone' => $this->phone,
             'currency' => $this->currency,
+            'reception_cost' => $this->reception_cost ?? 0,
             'working_hours' => $this->working_hours,
             'wa_patient_reminder' => $this->wa_patient_reminder,
             'wa_patient_cancel' => $this->wa_patient_cancel,

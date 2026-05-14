@@ -122,11 +122,15 @@ if(!userStore.isDoctor) {
       return h('span', `${row.total_estimated_cost.toLocaleString()} AFN`)
     }
   },
-  {
+)
+}
+
+if(!userStore.isReceptionist) {
+  columns.push(
+      {
     title: 'Actions',
     key: 'actions',
     render(row: TreatmentPlanData) {
-      if(user)
       return h(NSpace, {}, {
         default: () => [
           h(NButton, {
@@ -154,7 +158,8 @@ if(!userStore.isDoctor) {
         ]
       })
     }
-  })
+  }
+  )
 }
 
 // Methods
@@ -299,7 +304,7 @@ onMounted(loadData)
             <h1 style="margin: 0;">Treatment Plans</h1>
             <p style="color: #666;"></p>
           </div>
-          <n-button type="primary" size="large" @click="handleAdd">
+          <n-button v-if="!userStore.isReceptionist" type="primary" size="large" @click="handleAdd">
             <template #icon>
               <Icon icon="mdi:plus" />
             </template>

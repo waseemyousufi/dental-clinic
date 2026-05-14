@@ -82,6 +82,19 @@ const getExperienceTotalAmountDisplay = computed(() => {
             <template #label>
               <n-space>
                 <div class="icon-aligner">
+                  <Icon :size="16" icon="mdi:phone-outline" />
+                  Phone
+                </div>
+              </n-space>
+            </template>
+            <p class="indented">
+              {{ employeeData.phone || 'N/A' }}
+            </p>
+          </n-descriptions-item>
+          <n-descriptions-item>
+            <template #label>
+              <n-space>
+                <div class="icon-aligner">
                   <Icon :size="16" :icon="employeeData.gender === 'male' ? 'mdi:gender-male' : 'mdi:gender-female'" />
                   Gender
                 </div>

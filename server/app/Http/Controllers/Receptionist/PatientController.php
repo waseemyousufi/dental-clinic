@@ -63,28 +63,28 @@ class PatientController extends Controller
 
 
 
-        $account->update([
-            'total_amount' => $account->total_amount + $data['debit'],
-            'branch_id' => $branchId
-        ]);
+            $account->update([
+                'total_amount' => $account->total_amount + $data['debit'],
+                'branch_id' => $branchId
+            ]);
 
-        AccountTransaction::create([
-            'transaction_type' => 'in',
-            'amount' => $data['debit'],
-            'transaction_date' => now(),
-            'reference_type' => 'patient',
-            'description' => 'Collected from ' . $patient->f_name . ' ' . $patient->l_name,
-            'recorded_by_employee_id' => $request->user()->id,
-            'account_id' => 1,
-            'branch_id' => $branchId
-        ]);
+            AccountTransaction::create([
+                'transaction_type' => 'in',
+                'amount' => $data['debit'],
+                'transaction_date' => now(),
+                'reference_type' => 'patient',
+                'description' => 'Collected from ' . $patient->f_name . ' ' . $patient->l_name,
+                'recorded_by_employee_id' => $request->user()->id,
+                'account_id' => 1,
+                'branch_id' => $branchId
+            ]);
 
-        $patient->total_amount_due = $patient->total_amount_due - $data['debit'];
-        $patient->save();
+            $patient->total_amount_due = $patient->total_amount_due - $data['debit'];
+            $patient->save();
 
-        return [
-            'totalAmountDue' => $patient->total_amount_due
-        ];
+            return [
+                'totalAmountDue' => $patient->total_amount_due
+            ];
         });
     }
 
@@ -103,21 +103,39 @@ class PatientController extends Controller
             'emgContact' => 'nullable|string',
             'registerationDate' => 'required|string',
             'phone' => 'required|string',
+            'reception_cost' => 'required|integer',
         ]);
 
-        return Patient::create([
-            'f_name' => $data['fName'],
-            'l_name' => $data['lName'],
-            'gender' => $data['gender'],
-            'phone' => $data['phone'],
-            'blood_type' => $data['bloodType'],
-            'emergency_contact' => $data['emgContact'],
-            'registeration_date' => $data['registerationDate'],
-            'branch_id' => $branchId,
-        ]);
+        DB::transaction(function () use ($data, $branchId, $request) {
+            if ($data['reception_cost'] > 0) {
+                Account::where('branch_id', $branchId)
+                    ->where('account_type', 'income')
+                    ->first()
+                    ->increment('total_amount', $data['reception_cost']);
+                AccountTransaction::create([
+                    'transaction_type' => 'in',
+                    'amount' => $data['reception_cost'],
+                    'transaction_date' => now(),
+                    'reference_type' => 'patient',
+                    'description' => 'Reception fee for new patient: ' . $data['fName'] . ' ' . $data['lName'],
+                    'recorded_by_employee_id' => $request->user()->id,
+                    'account_id' => 1,
+                    'branch_id' => $branchId
+                ]);
+            }
+
+            return Patient::create([
+                'f_name' => $data['fName'],
+                'l_name' => $data['lName'],
+                'gender' => $data['gender'],
+                'phone' => $data['phone'],
+                'blood_type' => $data['bloodType'],
+                'emergency_contact' => $data['emgContact'],
+                'registeration_date' => $data['registerationDate'],
+                'branch_id' => $branchId,
+            ]);
+        });
     }
-
-
 
     /**
      * Update the specified resource in storage.

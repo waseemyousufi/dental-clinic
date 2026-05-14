@@ -7,6 +7,7 @@ export default interface PatientData {
   emgContact: string,
   registerationDate: string,
   phone: string,
+  reception_cost?: number,
 }
 
 export interface PatientAbbrData {

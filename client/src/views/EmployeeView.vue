@@ -96,6 +96,8 @@ const salaryForm = reactive({
 const formModel = reactive<EmployeeRow>({
   fName: '',
   lName: '',
+  email: '',
+  phone: '',
   gender: '',
   hireDate: null as null | string,
   speciality: '',
@@ -164,7 +166,7 @@ const filteredEmployees = computed(() => {
   if (!keyword.value.trim()) return employees.value
   const k = keyword.value.trim().toLowerCase()
   return employees.value.filter((e: EmployeeRow) =>
-    [e.name, e.email, e.speciality].some((field) =>
+    [e.name, e.email, e.phone, e.speciality].some((field) =>
       String(field || '')
         .toLowerCase()
         .includes(k),
@@ -182,6 +184,14 @@ const columns = [
     title: 'Email',
     key: 'email',
     ellipsis: { tooltip: true },
+  },
+  {
+    title: 'Phone',
+    key: 'phone',
+    ellipsis: { tooltip: true },
+    render(row: EmployeeRow) {
+      return row.phone || '-'
+    },
   },
   {
     title: 'Position',
@@ -376,6 +386,7 @@ function resetForm() {
   formModel.fName = ''
   formModel.lName = ''
   formModel.email = ''
+  formModel.phone = ''
   formModel.gender = ''
   formModel.hireDate = null // Changed to null
   formModel.speciality = ''
@@ -417,6 +428,7 @@ function handleEdit(row: EmployeeRow) {
   formModel.fName = String(row.fName || '')
   formModel.lName = String(row.lName || '')
   formModel.email = String(row.email || '')
+  formModel.phone = String(row.phone || '')
   formModel.gender = String(row.gender || '')
   formModel.hireDate = String(row.hireDate || null)
   formModel.speciality = String(row.speciality || '')
@@ -467,6 +479,7 @@ async function handleSubmit() {
       fName: formModel.fName,
       lName: formModel.lName,
       email: formModel.email,
+      phone: formModel.phone,
       gender: formModel.gender,
       hireDate: formModel.hireDate,
       speciality: formModel.speciality,
@@ -474,6 +487,7 @@ async function handleSubmit() {
       midLicenseNum: formModel.midLicenseNum,
       workStartTime: timestampToTime(formModel.workStartTime as any),
       workEndTime: timestampToTime(formModel.workEndTime as any),
+      position: '',
       positionId: formModel.positionId,
       experience: { ...formModel.experience },
     }
@@ -701,6 +715,10 @@ onMounted(() => {
 
         <div class="form-row dual">
           <n-form-item label="Email"><n-input v-model:value="formModel.email" /></n-form-item>
+          <n-form-item label="Phone"><n-input v-model:value="formModel.phone" /></n-form-item>
+        </div>
+
+        <div class="form-row dual">
           <n-form-item label="Hire date">
 
             <n-date-picker type="date" size="small" style="width: 100%"
@@ -708,15 +726,15 @@ onMounted(() => {
               @update:value="handleHireDateChange" />
 
           </n-form-item>
-        </div>
-
-        <div class="form-row dual">
           <n-form-item label="First name"><n-input v-model:value="formModel.fName" /></n-form-item>
-          <n-form-item label="Last name"><n-input v-model:value="formModel.lName" /></n-form-item>
         </div>
 
         <div class="form-row dual">
+          <n-form-item label="Last name"><n-input v-model:value="formModel.lName" /></n-form-item>
           <n-form-item label="Qualification"><n-input v-model:value="formModel.qualification" /></n-form-item>
+        </div>
+
+        <div class="form-row">
           <n-form-item label="Speciality"><n-input v-model:value="formModel.speciality" /></n-form-item>
         </div>
 
@@ -765,6 +783,53 @@ onMounted(() => {
           <n-button @click="showPayModal = false">Cancel</n-button>
           <n-button type="primary" @click="submitSalary">Pay</n-button>
         </div>
+      </div>
+    </n-modal>
+
+    <n-modal v-model:show="showInvite" style="max-width: 600px;" preset="card" title="Employee Invitation" class="responsive-modal">
+      <div class="invite-container">
+        <div class="invite-header">
+          <Icon icon="mdi:mail-send" width="24" />
+          <div>
+            <h3>Invitation Sent</h3>
+            <p>Share the reset password link with the employee</p>
+          </div>
+        </div>
+
+        <div class="invite-section">
+          <label class="invite-label">Email</label>
+          <div class="invite-field">
+            <n-input :value="inviteEmail" readonly />
+          </div>
+        </div>
+
+        <div class="invite-section">
+          <label class="invite-label">Reset Password Link</label>
+          <div class="invite-field">
+            <n-input :value="inviteLink" readonly />
+            <n-button ghost type="primary" @click="copyInviteLink" class="copy-btn">
+              <template #icon>
+                <Icon icon="mdi:content-copy" />
+              </template>
+              Copy
+            </n-button>
+          </div>
+        </div>
+
+        <div class="invite-note">
+          <Icon icon="mdi:information-outline" />
+          <p>The employee can use this link to set their password and access the system.</p>
+        </div>
+
+        <!-- <div class="form-actions">
+          <n-button @click="showInvite = false">Close</n-button>
+          <n-button type="primary" @click="sendInviteWhatsapp">
+            <template #icon>
+              <Icon icon="mdi:email-send" />
+            </template>
+            Send via Email
+          </n-button>
+        </div> -->
       </div>
     </n-modal>
   </div>
@@ -1049,5 +1114,82 @@ div.salary-footer-item {
 
 :deep(.n-data-table-wrapper) {
   margin-top: 1em !important
+}
+
+/* Invite Modal Styles */
+.invite-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.invite-header {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem;
+  background: #f0f7ff;
+  border-radius: 12px;
+  color: #1d4ed8;
+}
+
+.invite-header h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.invite-header p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+.invite-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.invite-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  text-transform: uppercase;
+}
+
+.invite-field {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.invite-field :deep(.n-input) {
+  flex: 1;
+}
+
+.copy-btn {
+  white-space: nowrap;
+}
+
+.invite-note {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 1rem;
+  background: #fffbeb;
+  border-left: 3px solid #f59e0b;
+  border-radius: 8px;
+  color: #92400e;
+  font-size: 0.875rem;
+}
+
+.invite-note p {
+  margin: 0;
+}
+
+.invite-note :deep(.iconify) {
+  flex-shrink: 0;
+  margin-top: 0.125rem;
 }
 </style>

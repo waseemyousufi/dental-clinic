@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useMessage } from 'naive-ui'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, nextTick, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import Odontogram from '@/components/Odontogram.vue'
 import PrimaryOdontogram from '@/components/PrimaryOdontogram.vue'
@@ -14,6 +14,10 @@ import type AppointmentData from '@api/interfaces/Appointment'
 import EditTreatment from '@/components/EditTreatment.vue'
 import AppointmentFormModal from '@/components/AppointmentFormModal.vue'
 import procedureApi from '@api/procedure'
+import prescriptionApi from '@api/prescription'
+import settingsApi from '@api/settings'
+import PrescriptionTemplate from '@/components/PrescriptionTemplate.vue'
+import type { SettingsData } from '@api/interfaces/Settings'
 
 import {
   NCard,
@@ -28,6 +32,26 @@ import {
 import { Icon } from '@iconify/vue'
 import useUserStore from '@/stores/user'
 type OdontogramState = Record<number, Record<string, any>>
+type PrescriptionOption = {
+  label: string
+  value: number
+}
+
+type PrintMedication = {
+  name: string
+  dosage: string
+}
+
+type PrescriptionPrintPayload = {
+  clinicPrimary: string
+  clinicSecondary: string
+  clinicTertiary?: string
+  address: string
+  phone: string
+  patientName: string
+  date: string
+  medications: PrintMedication[]
+}
 
 const route = useRoute()
 const patientId = computed(() => Number(route.params.id))
@@ -57,6 +81,13 @@ const editPlanLoading = ref(false)
 const isAppointmentModalVisible = ref(false)
 const editingAppointment = ref<Partial<AppointmentData> | null>(null)
 const appointmentSaving = ref(false)
+const prescriptions = ref<Array<{ id: number; drug_name: string }>>([])
+const prescriptionOptions = ref<PrescriptionOption[]>([])
+const selectedPrescriptionIds = ref<number[]>([])
+const prescribing = ref(false)
+const clinicSettings = ref<Partial<SettingsData> | null>(null)
+const prescriptionPrintData = ref<PrescriptionPrintPayload | null>(null)
+let prescriptionCleanupTimer: ReturnType<typeof setTimeout> | null = null
 
 const treatmentPlanStats = computed(() => {
   const total = treatmentPlans.value.length
@@ -120,6 +151,243 @@ function formatDate(dateValue: string | number | null | undefined) {
   return d.toLocaleDateString()
 }
 
+function normalizeResponse<T>(response: any): T {
+  return (response?.data?.data ?? response?.data ?? []) as T
+}
+
+function normalizePrescription(prescription: any) {
+  return {
+    id: Number(prescription?.id),
+    drug_name: prescription?.drug_name || prescription?.name || '',
+  }
+}
+
+function cleanupPrintedPrescription() {
+  prescriptionPrintData.value = null
+
+  if (prescriptionCleanupTimer) {
+    clearTimeout(prescriptionCleanupTimer)
+    prescriptionCleanupTimer = null
+  }
+}
+
+function printPrescriptionFromHost() {
+  const iframe = document.createElement('iframe')
+  iframe.style.position = 'fixed'
+  iframe.style.right = '0'
+  iframe.style.bottom = '0'
+  iframe.style.width = '0'
+  iframe.style.height = '0'
+  iframe.style.border = '0'
+  document.body.appendChild(iframe)
+
+  const doc = iframe.contentDocument || iframe.contentWindow?.document
+  if (!doc) {
+    document.body.removeChild(iframe)
+    throw new Error('Unable to access print iframe')
+  }
+
+  const data = prescriptionPrintData.value
+  if (!data) {
+    document.body.removeChild(iframe)
+    throw new Error('Prescription data not ready')
+  }
+
+  const medicationsMarkup = data.medications.length
+    ? data.medications
+      .map((medication) => `
+        <div class="med-item">
+          <div class="name">${medication.name}</div>
+          <div class="dosage">${medication.dosage}</div>
+        </div>
+      `)
+      .join('')
+    : `
+      <div class="med-item">
+        <div class="name">No medications selected</div>
+        <div class="dosage">Select one or more prescriptions before printing.</div>
+      </div>
+    `
+
+  doc.open()
+  doc.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          @page { margin: 0; }
+          html, body {
+            margin: 0;
+            padding: 0;
+            background: #fff;
+          }
+
+          body {
+            font-family: 'Inter', Arial, sans-serif;
+            color: #000;
+          }
+
+          .print-preview-wrapper {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            background: #fff;
+          }
+
+          .paper-sheet {
+            width: 210mm;
+            height: 297mm;
+            padding: 20mm;
+            box-sizing: border-box;
+            background: white;
+            display: flex;
+            flex-direction: column;
+          }
+
+          .prescription-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 5px solid black;
+            padding-bottom: 25px;
+            margin-bottom: 50px;
+          }
+
+          .h1-brand { font-size: 3.5rem; font-weight: 900; margin: 0; line-height: 0.9; letter-spacing: -2px; }
+          .h2-sub-brand { font-size: 1.4rem; font-weight: 700; margin: 5px 0 0; text-transform: uppercase; }
+          .h3-tagline { font-size: 1rem; font-weight: 400; color: #444; margin: 2px 0 0; white-space: pre-wrap; }
+
+          .contact-block { text-align: right; }
+          .contact-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 5px;
+            font-weight: 500;
+          }
+
+          .patient-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+            margin-bottom: 60px;
+          }
+
+          .field-box {
+            border-bottom: 1.5px solid black;
+            padding-bottom: 8px;
+          }
+
+          .field-box label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+          }
+
+          .field-value { font-size: 1.2rem; }
+
+          .prescription-main {
+            display: flex;
+            gap: 30px;
+            flex: 1;
+          }
+
+          .rx-indicator {
+            font-size: 5rem;
+            line-height: 1;
+            font-weight: 900;
+          }
+
+          .medication-area {
+            flex: 1;
+          }
+
+          .med-item { margin-bottom: 35px; }
+          .med-item .name { font-size: 1.3rem; font-weight: 800; }
+          .med-item .dosage { font-size: 1.1rem; font-style: italic; margin-top: 5px; color: #333; white-space: pre-wrap; }
+
+          .prescription-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 40px;
+          }
+
+          .legal-notice { font-size: 0.8rem; max-width: 250px; line-height: 1.4; color: #666; }
+          .signature-line { width: 250px; border-top: 2px solid black; margin-bottom: 8px; }
+          .signature-label { font-size: 0.85rem; font-weight: 700; text-align: center; }
+        </style>
+      </head>
+      <body>
+        <div class="print-preview-wrapper">
+          <article class="paper-sheet">
+            <header class="prescription-header">
+              <div class="identity">
+                <h1 class="h1-brand">${data.clinicPrimary}</h1>
+                <h2 class="h2-sub-brand">${data.clinicSecondary}</h2>
+                ${data.clinicTertiary ? `<h3 class="h3-tagline">${data.clinicTertiary}</h3>` : ''}
+              </div>
+
+              <div class="contact-block">
+                <div class="contact-row">
+                  <span>${data.address}</span>
+                </div>
+                <div class="contact-row">
+                  <span>${data.phone}</span>
+                </div>
+              </div>
+            </header>
+
+            <section class="patient-section">
+              <div class="field-box">
+                <label>Patient Name</label>
+                <div class="field-value">${data.patientName}</div>
+              </div>
+              <div class="field-box">
+                <label>Date</label>
+                <div class="field-value">${data.date}</div>
+              </div>
+            </section>
+
+            <main class="prescription-main">
+              <div class="rx-indicator">Rx</div>
+              <div class="medication-area">
+                ${medicationsMarkup}
+              </div>
+            </main>
+
+            <footer class="prescription-footer">
+              <div class="legal-notice">
+                This document is electronically generated for clinical records.
+                Valid only with an authorized signature.
+              </div>
+              <div class="signature-column">
+                <div class="signature-line"></div>
+                <div class="signature-label">Medical Practitioner Signature</div>
+              </div>
+            </footer>
+          </article>
+        </div>
+      </body>
+    </html>
+  `)
+  doc.close()
+
+  setTimeout(() => {
+    iframe.contentWindow?.focus()
+    iframe.contentWindow?.print()
+
+    setTimeout(() => {
+      if (iframe.parentNode) {
+        iframe.parentNode.removeChild(iframe)
+      }
+    }, 1000)
+  }, 250)
+}
+
 async function fetchTreatmentData() {
   if (!patientId.value) return
   planLoading.value = true
@@ -140,6 +408,72 @@ async function fetchTreatmentData() {
     message.error('Failed to load treatment plans')
   } finally {
     planLoading.value = false
+  }
+}
+
+async function fetchPrescriptionData() {
+  try {
+    const [settingsResponse, prescriptionsResponse] = await Promise.all([
+      settingsApi.getSettings(),
+      prescriptionApi.getBranchPrescriptions(),
+    ])
+
+    clinicSettings.value = normalizeResponse<any>(settingsResponse) ?? {}
+
+    const rawPrescriptions = normalizeResponse<any[]>(prescriptionsResponse)
+      .map(normalizePrescription)
+      .filter((entry) => entry.id && entry.drug_name)
+
+    prescriptions.value = rawPrescriptions
+    prescriptionOptions.value = rawPrescriptions.map((entry) => ({
+      label: entry.drug_name,
+      value: entry.id,
+    }))
+  } catch (error) {
+    console.error(error)
+    message.error('Failed to load prescriptions')
+  }
+}
+
+async function handlePrescribe() {
+  if (!patient.value) return
+  if (!selectedPrescriptionIds.value.length) {
+    message.warning('Select at least one prescription')
+    return
+  }
+
+  try {
+    prescribing.value = true
+
+    const medications = selectedPrescriptionIds.value
+      .map((id) => prescriptions.value.find((entry) => entry.id === id))
+      .filter(Boolean)
+      .map((entry) => ({
+        name: entry!.drug_name,
+        dosage: 'Use as directed by the dentist.',
+      }))
+
+    prescriptionPrintData.value = {
+      clinicPrimary: userStore.settings.clinic_name || clinicSettings.value?.clinic_name || 'Clinic',
+      clinicSecondary: 'Dental Prescription',
+      clinicTertiary: clinicSettings.value?.prescription_template?.footer || undefined,
+      address: clinicSettings.value?.address || 'Address unavailable',
+      phone: userStore.settings.clinic_phone || clinicSettings.value?.phone || 'Phone unavailable',
+      patientName: `${patient.value.fName || patient.value.f_name || ''} ${patient.value.lName || patient.value.l_name || ''}`.trim(),
+      date: new Date().toLocaleDateString(),
+      medications,
+    }
+
+    await nextTick()
+
+    prescriptionCleanupTimer = setTimeout(cleanupPrintedPrescription, 1500)
+    printPrescriptionFromHost()
+  } catch (error) {
+    console.error(error)
+    cleanupPrintedPrescription()
+    message.error('Failed to prepare prescription print')
+  } finally {
+    prescribing.value = false
   }
 }
 
@@ -568,6 +902,11 @@ async function handleToothClick(toothFdi: number, surface: string) {
 onMounted(async () => {
   await loadPatientData()
   await fetchTreatmentData()
+  await fetchPrescriptionData()
+})
+
+onBeforeUnmount(() => {
+  cleanupPrintedPrescription()
 })
 </script>
 
@@ -904,6 +1243,45 @@ onMounted(async () => {
               </div>
             </n-card>
           </section>
+
+          <section class="prescription-section">
+            <n-card class="prescription-board" :segmented="{ content: true }">
+              <template #header>
+                <div class="treatment-board__header">
+                  <div class="treatment-board__title-block">
+                    <p class="section-kicker">Medication</p>
+                    <h3>Prescription</h3>
+                    <p class="section-subtitle">
+                      Select one or more saved prescriptions, then print a patient-ready prescription sheet.
+                    </p>
+                  </div>
+                </div>
+              </template>
+
+              <div class="prescription-board__controls">
+                <n-select
+                  v-model:value="selectedPrescriptionIds"
+                  multiple
+                  filterable
+                  clearable
+                  placeholder="Select medications"
+                  :options="prescriptionOptions"
+                  class="prescription-select"
+                />
+
+                <n-button type="primary" :loading="prescribing" @click="handlePrescribe">
+                  <template #icon>
+                    <Icon icon="mdi:printer-outline" />
+                  </template>
+                  Prescribe
+                </n-button>
+              </div>
+
+              <div v-if="!prescriptionOptions.length" class="empty-state-mini">
+                <n-empty description="No saved prescriptions available" />
+              </div>
+            </n-card>
+          </section>
         </section>
 
         <EditTreatment v-model:show="isTreatmentModalVisible" :plan="editingPlan" :procedures="procedures"
@@ -912,6 +1290,20 @@ onMounted(async () => {
         <AppointmentFormModal :is-doctor-using="true" v-model:show="isAppointmentModalVisible"
           :appointment="editingAppointment" :patient-id="patientId" :lock-patient="true" :loading="appointmentSaving"
           @save="handleAppointmentSave" />
+
+        <div v-if="prescriptionPrintData" class="prescription-print-host">
+          <PrescriptionTemplate
+            :clinic-primary="prescriptionPrintData.clinicPrimary"
+            :clinic-secondary="prescriptionPrintData.clinicSecondary"
+            :clinic-tertiary="prescriptionPrintData.clinicTertiary"
+            :address="prescriptionPrintData.address"
+            :phone="prescriptionPrintData.phone"
+            :patient-name="prescriptionPrintData.patientName"
+            :date="prescriptionPrintData.date"
+            :medications="prescriptionPrintData.medications"
+            paper-size="A5"
+          />
+        </div>
       </main>
     </template>
 
@@ -1468,6 +1860,47 @@ onMounted(async () => {
   padding-top: 1rem;
 }
 
+.prescription-section {
+  margin-top: 1rem;
+}
+
+.prescription-board {
+  width: 100%;
+  border-radius: 1.15rem;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+  box-shadow: 0 0.125rem 0.9rem rgba(15, 23, 42, 0.06);
+  border: 1px solid #eef2f7;
+}
+
+.prescription-board :deep(.n-card-header) {
+  padding-bottom: 0.9rem;
+}
+
+.prescription-board :deep(.n-card__content) {
+  padding-top: 1rem;
+}
+
+.prescription-board__controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.prescription-select {
+  min-width: 0;
+}
+
+.prescription-print-host {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  pointer-events: none;
+  overflow: auto;
+  background: #fff;
+}
+
 .treatment-board__header {
   display: flex;
   align-items: flex-start;
@@ -1745,6 +2178,10 @@ onMounted(async () => {
   .plan-actions :deep(.n-button) {
     flex: 1 1 auto;
   }
+
+  .prescription-board__controls {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 75rem) {
@@ -1788,6 +2225,18 @@ onMounted(async () => {
 
   #app>* {
     visibility: hidden !important;
+  }
+
+  .prescription-print-host,
+  .prescription-print-host * {
+    visibility: visible !important;
+  }
+
+  .prescription-print-host {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #fff;
   }
 }
 </style>

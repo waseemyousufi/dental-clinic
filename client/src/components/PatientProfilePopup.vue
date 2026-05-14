@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watchEffect } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, watchEffect } from 'vue';
 import {
   NModal,
   NCard,
@@ -18,11 +18,49 @@ import type PatientData from '@api/interfaces/patient';
 import patientApi from '@api/patient';
 import appointmentApi from '@api/appointment';
 import type AppointmentData from '@api/interfaces/Appointment';
+import treatmentPlanApi from '@api/treatmentPlan';
+import settingsApi from '@api/settings';
+import useUserStore from '@/stores/user';
 import AppointmentFormModal from './AppointmentFormModal.vue';
+import BillTemplate from './BillTemplate.vue';
+
+type PatientProfileData = PatientData & {
+  totalAmountDue?: number | null;
+};
+
+type BillTreatmentItem = {
+  service: string;
+  description?: string;
+  cost: number;
+};
+
+type BillAppointmentItem = {
+  date: string;
+  time: string;
+  procedure: string;
+};
+
+type BillPrintPayload = {
+  clinicPrimary: string;
+  clinicSecondary: string;
+  clinicTertiary?: string;
+  address: string;
+  phone: string;
+  currency: string;
+  patientName: string;
+  invoiceDate: string;
+  invoiceNumber: string;
+  treatmentPlan: BillTreatmentItem[];
+  appointments: BillAppointmentItem[];
+  amountPaid: number;
+  totalAmount: number;
+  balanceAmount: number;
+  notes: string;
+};
 
 const props = defineProps<{
   show: boolean;
-  patientData: PatientData | null;
+  patientData: PatientProfileData | null;
 }>();
 
 const emit = defineEmits<{
@@ -30,6 +68,7 @@ const emit = defineEmits<{
 }>();
 
 const message = useMessage();
+const userStore = useUserStore();
 
 const showModal = computed({
   get: () => props.show,
@@ -42,7 +81,9 @@ const isCharging = ref(false);
 const amountDue = ref(0);
 const showAppointmentModal = ref(false);
 const appointmentSaving = ref(false);
-
+const billPreparing = ref(false);
+const billPrintData = ref<BillPrintPayload | null>(null);
+let billCleanupTimer: ReturnType<typeof setTimeout> | null = null;
 
 const patientFullName = computed(() => {
   if (!props.patientData) return 'N/A';
@@ -80,6 +121,37 @@ function formatCurrency(value: number) {
   return 'No Debit';
 }
 
+function formatDisplayDate(dateValue: string | null | undefined) {
+  if (!dateValue) return 'N/A';
+
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime())) return 'N/A';
+
+  return date.toLocaleDateString();
+}
+
+function formatDisplayTime(dateValue: string | null | undefined) {
+  if (!dateValue) return 'N/A';
+
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime())) return 'N/A';
+
+  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
+
+function normalizeResponse<T>(response: any): T {
+  return (response?.data?.data ?? response?.data ?? []) as T;
+}
+
+function cleanupPrintedBill() {
+  billPrintData.value = null;
+
+  if (billCleanupTimer) {
+    clearTimeout(billCleanupTimer);
+    billCleanupTimer = null;
+  }
+}
+
 /**
  * REAL-TIME INPUT VALIDATION
  */
@@ -95,6 +167,89 @@ function handleChargeInput(value: number | null) {
 function handleAddAppointment() {
   if (!props.patientData) return;
   showAppointmentModal.value = true;
+}
+
+async function handlePrintBill() {
+  if (!props.patientData) return;
+
+  try {
+    billPreparing.value = true;
+
+    const [settingsResponse, treatmentPlansResponse, appointmentsResponse] = await Promise.all([
+      settingsApi.getSettings(),
+      treatmentPlanApi.getBranchTreatmentPlans(props.patientData.id),
+      appointmentApi.getBranchAppointments(),
+    ]);
+
+    const settings = normalizeResponse<any>(settingsResponse) ?? {};
+    const treatmentPlans = normalizeResponse<any[]>(treatmentPlansResponse);
+    const allAppointments = normalizeResponse<any[]>(appointmentsResponse);
+
+    const patientAppointments = allAppointments.filter(
+      appointment => Number(appointment.patientId) === Number(props.patientData?.id),
+    );
+
+    const treatmentPlanItems: BillTreatmentItem[] = treatmentPlans.map((plan) => {
+      const status = plan?.status
+        ? String(plan.status).replace(/_/g, ' ')
+        : null;
+      const startDate = formatDisplayDate(plan?.start_date);
+      const descriptionParts = [
+        status ? `Status: ${status}` : null,
+        plan?.duration ? `Duration: ${plan.duration}` : null,
+        plan?.start_date ? `Start: ${startDate}` : null,
+      ].filter(Boolean);
+
+      return {
+        service: plan?.procedure?.name || `Treatment Plan #${plan?.id ?? ''}`.trim(),
+        description: descriptionParts.length ? descriptionParts.join(' • ') : undefined,
+        cost: Number(plan?.total_estimated_cost || 0),
+      };
+    });
+
+    const appointmentItems: BillAppointmentItem[] = patientAppointments.map(appointment => ({
+      date: formatDisplayDate(appointment?.appointment_timestamp),
+      time: formatDisplayTime(appointment?.appointment_timestamp),
+      procedure: appointment?.description || appointment?.status || 'Appointment',
+    }));
+
+    const totalAmount = treatmentPlanItems.reduce((sum, item) => sum + Number(item.cost || 0), 0);
+    const balanceAmount = Math.max(0, Number(amountDue.value || props.patientData.totalAmountDue || 0));
+    const amountPaid = Math.max(0, totalAmount - balanceAmount);
+    const today = new Date();
+
+    billPrintData.value = {
+      clinicPrimary: userStore.clinicName || settings?.clinic_name || 'Clinic',
+      clinicSecondary: 'Patient Billing Statement',
+      clinicTertiary: settings?.currency ? `Currency: ${settings.currency}` : undefined,
+      address: settings?.address || 'Address unavailable',
+      phone: userStore.clinicPhone || settings?.phone || 'Phone unavailable',
+      currency: settings?.currency || 'AFN',
+      patientName: patientFullName.value,
+      invoiceDate: today.toLocaleDateString(),
+      invoiceNumber: `${props.patientData.id}-${today.getTime().toString().slice(-5)}`,
+      treatmentPlan: treatmentPlanItems,
+      appointments: appointmentItems,
+      amountPaid,
+      totalAmount,
+      balanceAmount,
+      notes: `Outstanding balance for this patient is ${formatCurrency(balanceAmount)}.`,
+    };
+
+    await nextTick();
+
+    window.addEventListener('afterprint', cleanupPrintedBill, { once: true });
+    billCleanupTimer = setTimeout(cleanupPrintedBill, 1500);
+    window.print();
+  }
+  catch (error) {
+    console.error('Error printing patient bill:', error);
+    cleanupPrintedBill();
+    message.error('Failed to prepare patient bill.');
+  }
+  finally {
+    billPreparing.value = false;
+  }
 }
 
 async function handleAppointmentSave(payload: AppointmentData) {
@@ -144,10 +299,14 @@ async function handleChargePatient() {
     isCharging.value = false;
   }
 }
+
+onBeforeUnmount(() => {
+  cleanupPrintedBill();
+});
 </script>
 
 <template>
-  <n-modal v-model:show="showModal" closable :mask-closable="false" class="patient-profile-modal" content-scrollable>
+  <n-modal v-model:show="showModal" closable :mask-closable="true" class="patient-profile-modal" content-scrollable>
     <n-card class="profile-card" title="Patient Profile" :bordered="false" size="huge" style="
         width: min(760px, calc(100vw - 20px));
         max-height: 90vh;
@@ -161,8 +320,19 @@ async function handleChargePatient() {
               </template>
             </n-button>
           </template>
-
           Add appointment
+        </n-tooltip>
+
+        <n-tooltip trigger="hover">
+          <template #trigger>
+            <n-button quaternary circle type="primary" :loading="billPreparing" @click="handlePrintBill">
+              <template #icon>
+                <Icon icon="solar:printer-bold-duotone" />
+              </template>
+            </n-button>
+          </template>
+
+          Print bill
         </n-tooltip>
 
         <n-button style="margin-left: .4em;" quaternary circle @click="showModal = false">
@@ -303,6 +473,26 @@ async function handleChargePatient() {
     :loading="appointmentSaving"
     @save="handleAppointmentSave"
   />
+
+  <div v-if="billPrintData" class="bill-print-host">
+    <BillTemplate
+      :clinic-primary="billPrintData.clinicPrimary"
+      :clinic-secondary="billPrintData.clinicSecondary"
+      :clinic-tertiary="billPrintData.currency ? billPrintData.clinicTertiary : ''"
+      :address="billPrintData.address"
+      :phone="billPrintData.phone"
+      :currency="billPrintData.currency"
+      :patient-name="billPrintData.patientName"
+      :invoice-date="billPrintData.invoiceDate"
+      :invoice-number="billPrintData.invoiceNumber"
+      :treatment-plan="billPrintData.treatmentPlan"
+      :appointments="billPrintData.appointments"
+      :amount-paid="billPrintData.amountPaid"
+      :total-amount="billPrintData.totalAmount"
+      :balance-amount="billPrintData.balanceAmount"
+      :notes="billPrintData.notes"
+    />
+  </div>
 </template>
 
 <style scoped>
@@ -488,6 +678,37 @@ async function handleChargePatient() {
 
   .profile-details :deep(.n-descriptions) {
     grid-template-columns: 1fr !important;
+  }
+}
+</style>
+
+<style>
+.bill-print-host {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  pointer-events: none;
+  overflow: auto;
+  background: #fff;
+}
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .bill-print-host,
+  .bill-print-host * {
+    visibility: visible !important;
+  }
+
+  .bill-print-host {
+    position: static;
+    z-index: auto;
+    opacity: 1;
+    pointer-events: auto;
+    overflow: visible;
   }
 }
 </style>

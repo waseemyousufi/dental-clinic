@@ -22,6 +22,7 @@ export default new (class Patient {
   }
 
   postPatient(data: PatientData) {
+    console.log('Posting patient with data:', data)
     return api.post('/patient', data)
   }
 

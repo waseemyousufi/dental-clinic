@@ -66,8 +66,8 @@
             <n-input-number v-model:value="form.total_amount_paid" :min="0" clearable class="full" />
           </n-form-item> -->
 
-          <n-form-item label="Appoinments Needed">
-            <n-input-number v-model:value="form.duration" :min="0" clearable class="full" />
+          <n-form-item label="Appointments Needed">
+            <n-input-number v-model:value="form.appointments_needed" :min="0" clearable class="full" />
           </n-form-item>
 
           <n-form-item label="Start Date">
@@ -110,7 +110,7 @@ type TreatmentPlanLike = {
   procedure_id?: number
   total_estimated_cost?: number
   total_amount_paid?: number | null
-  duration?: number | null
+  appointments_needed?: number | null
   start_date?: string | number | null
   status?: 'proposed' | 'accepted' | 'rejected' | string
 }
@@ -128,7 +128,7 @@ const emit = defineEmits<{
     procedure_id: number
     total_estimated_cost: number
     total_amount_paid: number | null
-    duration: number | null
+    appointments_needed: number | null
     start_date: string
     status: string
   }): void
@@ -145,9 +145,10 @@ const form = reactive({
   procedure_id: null as number | null,
   total_estimated_cost: null as number | null,
   total_amount_paid: null as number | null,
-  duration: null as number | null,
+  appointments_needed: null as number | null,
   start_date: null as number | null,
   status: 'proposed'
+
 })
 
 function toTimestamp(value: string | number | null | undefined) {
@@ -168,7 +169,7 @@ watch(
       form.procedure_id = null
       form.total_estimated_cost = null
       form.total_amount_paid = null
-      form.duration = null
+      form.appointments_needed = null
       form.start_date = toTimestamp(new Date().toISOString())
       form.status = 'proposed'
       return
@@ -176,7 +177,7 @@ watch(
     form.procedure_id = plan.procedure_id ?? null
     form.total_estimated_cost = plan.total_estimated_cost ?? null
     form.total_amount_paid = plan.total_amount_paid ?? null
-    form.duration = plan.duration ?? null
+    form.appointments_needed = plan.appointments_needed ?? null
     form.start_date = toTimestamp(plan.start_date)
     form.status = plan.status || 'proposed'
   },
@@ -191,7 +192,7 @@ watch(
       form.procedure_id = props.plan.procedure_id ?? null
       form.total_estimated_cost = props.plan.total_estimated_cost ?? null
       form.total_amount_paid = props.plan.total_amount_paid ?? null
-      form.duration = props.plan.duration ?? null
+      form.appointments_needed = props.plan.appointments_needed ?? null
       form.start_date = toTimestamp(props.plan.start_date)
       form.status = props.plan.status || 'proposed'
       return
@@ -200,7 +201,7 @@ watch(
     form.procedure_id = null
     form.total_estimated_cost = null
     form.total_amount_paid = null
-    form.duration = null
+    form.appointments_needed = null
     form.start_date = toTimestamp(new Date().toISOString())
     form.status = 'proposed'
   }
@@ -236,7 +237,7 @@ function submit() {
     procedure_id: form.procedure_id,
     total_estimated_cost: form.total_estimated_cost,
     total_amount_paid: form.total_amount_paid,
-    duration: form.duration,
+    appointments_needed: form.appointments_needed,
     start_date: toDateString(form.start_date),
     status: form.status
   })
