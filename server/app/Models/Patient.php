@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
+
 class Patient extends Model
 {
-    public $timestamps = false;
+    public $timestamps = true;
     protected $fillable = ['total_amount_due','f_name', 'l_name', 'gender', 'emergency_contact', 'allergies', 'phone', 'blood_type', 'registeration_date', 'branch_id'];
 
 

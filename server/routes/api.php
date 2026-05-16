@@ -68,6 +68,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/account', [Receptionist\AccountController::class, 'store']);
         Route::get('/account', [Receptionist\AccountController::class, 'index']);
         Route::put('/account/{id}', [Receptionist\AccountController::class, 'update']);
+        Route::delete('/account/{id}', [Receptionist\AccountController::class, 'delete']);
+        Route::post('/account/{id}/charge', [Receptionist\AccountController::class, 'charge']);
+        Route::post('/account/{id}/withdraw', [Receptionist\AccountController::class, 'withdraw']);
     });
 
     Route::middleware('role:receptionist,doctor,assisstant,admin')->group(function () {

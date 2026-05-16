@@ -1,7 +1,7 @@
 export default interface AccountData {
-  id: number,
-  accountName: String
-  accountType: String
-  totalAmount: Number
-  status: String
+  id?: number
+  accountName: string
+  accountType: string
+  totalAmount?: number
+  status: string
 }

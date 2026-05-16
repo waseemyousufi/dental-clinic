@@ -3,29 +3,26 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Account;
 use App\Models\AccountTransaction;
 use App\Models\Appointment;
 use App\Models\AppointmentPatient;
 use App\Models\Branch;
 use App\Models\Patient;
-use App\Models\Treatment;
+use App\Models\Procedure;
+use App\Models\TreatmentPlan;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
-    /**
-     * Show the KPI dashboard data.
-     *
-     * Returns JSON payload for the Vue client.
-     */
     public function index(Request $request): JsonResponse
     {
+        Log::info('Dashboard index called', ['branch_id' => $request->input('branch_id'), 'days' => $request->input('days', 30)]);
+        
         $branchId = $this->effectiveBranchId($request);
         $days = (int) $request->input('days', 30);
         $days = in_array($days, [7, 30, 90], true) ? $days : 30;
@@ -60,58 +57,42 @@ class DashboardController extends Controller
         return response()->json($payload);
     }
 
-    // ... keep the rest of your class exactly as-is ...
-
     private function buildKpis(?int $branchId, Carbon $start, Carbon $end, Carbon $previousStart, Carbon $previousEnd): array
     {
-        $appointments = $this->appointmentQuery($branchId, $start, $end)->get();
-        $previousAppointments = $this->appointmentQuery($branchId, $previousStart, $previousEnd)->get();
+        $appointmentQuery = $this->appointmentQuery($branchId, $start, $end);
+        $previousAppointmentQuery = $this->appointmentQuery($branchId, $previousStart, $previousEnd);
 
-        $treatments = $this->treatmentQuery($branchId, $start, $end)->get();
-        $previousTreatments = $this->treatmentQuery($branchId, $previousStart, $previousEnd)->get();
+        $transactionQuery = $this->transactionQuery($branchId, $start, $end);
+        $previousTransactionQuery = $this->transactionQuery($branchId, $previousStart, $previousEnd);
 
-        $transactions = $this->transactionQuery($branchId, $start, $end)->get();
-        $previousTransactions = $this->transactionQuery($branchId, $previousStart, $previousEnd)->get();
+        $patientQuery = $this->patientQuery($branchId, $start, $end);
+        $previousPatientQuery = $this->patientQuery($branchId, $previousStart, $previousEnd);
 
-        $patients = $this->patientQuery($branchId, $start, $end)->get();
-        $previousPatients = $this->patientQuery($branchId, $previousStart, $previousEnd)->get();
+        // FIXED: Fetch plans created in this period. Only need id & status for KPIs.
+        $plans = $this->planQuery($branchId, $start, $end)->get(['id', 'status']);
 
-        $plans = $this->planQuery($branchId, $start, $end)->get();
+        $cashCollected = (float) (clone $transactionQuery)->where('transaction_type', 'in')->sum('amount');
+        $appointmentCharges = (float) (clone $appointmentQuery)->sum('appointment_cost');
 
-        $cashCollected = (float) $transactions->where('transaction_type', 'in')->sum('amount');
-        $creditIssued = (float) $transactions->where('transaction_type', 'debit')->sum('amount');
+        $previousCashCollected = (float) (clone $previousTransactionQuery)->where('transaction_type', 'in')->sum('amount');
+        $previousAppointmentCharges = (float) (clone $previousAppointmentQuery)->sum('appointment_cost');
 
-        $previousCashCollected = (float) $previousTransactions->where('transaction_type', 'in')->sum('amount');
-        $previousCreditIssued = (float) $previousTransactions->where('transaction_type', 'debit')->sum('amount');
+        $completedAppointments = (clone $appointmentQuery)->where('status', 'Completed')->count();
+        $noShowAppointments = (clone $appointmentQuery)->where('status', 'No Show')->count();
+        $totalAppointments = (clone $appointmentQuery)->count();
 
-        $activePatients = $this->countActivePatients($branchId, $start, $end);
-        $previousActivePatients = $this->countActivePatients($branchId, $previousStart, $previousEnd);
+        $newPatients = (clone $patientQuery)->count();
+        $previousNewPatients = (clone $previousPatientQuery)->count();
 
-        $completedAppointments = $appointments->where('status', 'Completed')->count();
-        $cancelledAppointments = $appointments->where('status', 'Cancelled')->count();
-        $noShowAppointments = $appointments->where('status', 'No Show')->count();
-        $totalAppointments = $appointments->count();
-
-        $completedTreatments = $treatments->where('status', 'completed')->count();
-        $inProgressTreatments = $treatments->where('status', 'in_progress')->count();
-        $totalTreatments = $treatments->count();
-
-        $newPatients = $patients->count();
-        $previousNewPatients = $previousPatients->count();
-
-        $avgTreatmentValue = $totalTreatments > 0
-            ? round((float) $treatments->sum(fn ($row) => (float) ($row->actual_price ?? $row->cost ?? 0)) / $totalTreatments, 2)
+        $averageProductionPerVisit = $totalAppointments > 0
+            ? round($appointmentCharges / $totalAppointments, 2)
             : 0.0;
 
-        $averageProductionPerVisit = $completedAppointments > 0
-            ? round($cashCollected / $completedAppointments, 2)
-            : 0.0;
-
-        $collectionRate = $creditIssued > 0
-            ? round(($cashCollected / $creditIssued) * 100, 2)
+        $collectionRate = $appointmentCharges > 0
+            ? round(($cashCollected / $appointmentCharges) * 100, 2)
             : 100.0;
 
-        $pricingAudit = $this->pricingAudit($treatments);
+        $pricingAudit = $this->pricingAudit((clone $appointmentQuery)->get(['id', 'appointment_cost']));
 
         $creditBalances = $this->creditBalances($branchId);
         $outstandingAR = round($creditBalances->sum('balance'), 2);
@@ -119,14 +100,16 @@ class DashboardController extends Controller
         $patientRetention = $this->patientRetentionRate($branchId, $start, $end);
         $repeatPatientRate = $this->repeatPatientRate($branchId, $start, $end);
 
-        $sameDayCollectionRate = $this->sameDayCollectionRate($treatments, $transactions);
+        $sameDayAppointments = (clone $appointmentQuery)->get(['id', 'branch_id', 'patient_id', 'appointment_timestamp']);
+        $sameDayTransactions = (clone $transactionQuery)->where('transaction_type', 'in')->get(['transaction_date', 'branch_id', 'patient_id', 'transaction_type']);
+        $sameDayCollectionRate = $this->sameDayCollectionRate($sameDayAppointments, $sameDayTransactions);
 
         $newPatientGrowth = $this->growthRate($newPatients, $previousNewPatients);
         $cashGrowth = $this->growthRate($cashCollected, $previousCashCollected);
-        $creditGrowth = $this->growthRate($creditIssued, $previousCreditIssued);
 
+        // FIXED: Both rates now use the EXACT SAME $plans collection
         $treatmentPlanAcceptance = $this->planAcceptanceRate($plans);
-        $treatmentCompletionRate = $this->treatmentCompletionRate($plans, $treatments);
+        $treatmentCompletionRate = $this->treatmentCompletionRate($plans);
 
         return [
             [
@@ -157,7 +140,7 @@ class DashboardController extends Controller
                 'trend' => null,
                 'trend_label' => $collectionRate >= 85 ? 'Healthy' : 'Needs action',
                 'tone' => $collectionRate >= 85 ? 'good' : 'warn',
-                'help' => 'Cash collected versus debits raised.',
+                'help' => 'Cash collected versus appointment charges.',
             ],
             [
                 'key' => 'avg_ppv',
@@ -197,7 +180,7 @@ class DashboardController extends Controller
                 'trend' => null,
                 'trend_label' => 'Local strength',
                 'tone' => 'good',
-                'help' => 'Treatments that were collected on the same day.',
+                'help' => 'Appointments that were collected on the same day.',
             ],
             [
                 'key' => 'pricing_discipline',
@@ -205,9 +188,9 @@ class DashboardController extends Controller
                 'value' => $pricingAudit['in_range_rate'],
                 'formatted' => $this->percent($pricingAudit['in_range_rate']),
                 'trend' => null,
-                'trend_label' => $pricingAudit['in_range_count'].'/'.$pricingAudit['audited_count'].' in range',
+                'trend_label' => $pricingAudit['in_range_count'].'/'.$pricingAudit['audited_count'].' matched',
                 'tone' => $pricingAudit['in_range_rate'] >= 70 ? 'good' : 'warn',
-                'help' => 'Share of treatments priced inside procedure ranges.',
+                'help' => 'Share of appointments priced exactly at procedure base.',
             ],
             [
                 'key' => 'patient_retention',
@@ -259,22 +242,53 @@ class DashboardController extends Controller
             $days->push($date->copy()->toDateString());
         }
 
-        $transactions = $this->transactionQuery($branchId, $start, $end)->get();
-        $appointments = $this->appointmentQuery($branchId, $start, $end)->get();
-        $treatments = $this->treatmentQuery($branchId, $start, $end)->get();
-        $patients = $this->patientQuery($branchId, $start, $end)->get();
+        $cashData = $this->transactionQuery($branchId, $start, $end)
+            ->where('transaction_type', 'in')
+            ->selectRaw('transaction_date, SUM(amount) as total')
+            ->groupBy('transaction_date')
+            ->pluck('total', 'transaction_date');
 
-        $cashSeries = $days->map(fn ($day) => (float) $transactions->where('transaction_date', $day)->where('transaction_type', 'in')->sum('amount'))->values();
-        $debitSeries = $days->map(fn ($day) => (float) $transactions->where('transaction_date', $day)->where('transaction_type', 'debit')->sum('amount'))->values();
-        $appointmentSeries = $days->map(fn ($day) => $appointments->filter(fn ($row) => Carbon::parse($row->appointment_timestamp)->toDateString() === $day)->count())->values();
-        $treatmentSeries = $days->map(fn ($day) => $treatments->where('treatment_date', $day)->count())->values();
-        $patientSeries = $days->map(fn ($day) => $patients->where('registeration_date', $day)->count())->values();
+        $chargeData = $this->appointmentQuery($branchId, $start, $end)
+            ->selectRaw('DATE(appointment_timestamp) as date, SUM(appointment_cost) as total')
+            ->groupBy(DB::raw('DATE(appointment_timestamp)'))
+            ->pluck('total', 'date');
 
-        $treatmentMix = $treatments->groupBy('treatment_type')->map->count()->sortDesc();
-        $visitMix = $appointments->groupBy(fn ($row) => $row->visit_type ?? 'planned')->map->count()->sortDesc();
-        $patientSource = $patients->groupBy(fn ($row) => $row->referral_source ?? 'Unknown')->map->count()->sortDesc();
+        $appointmentCounts = $this->appointmentQuery($branchId, $start, $end)
+            ->selectRaw('DATE(appointment_timestamp) as date, COUNT(*) as count')
+            ->groupBy(DB::raw('DATE(appointment_timestamp)'))
+            ->pluck('count', 'date');
 
-        $pricingAudit = $this->pricingAudit($treatments);
+        // FIXED: Direct query for chart counts. Uses created_at to match KPI logic.
+        $treatmentCounts = TreatmentPlan::query()
+            ->whereBetween('created_at', [$start->toDateTimeString(), $end->copy()->endOfDay()->toDateTimeString()])
+            ->when(!is_null($branchId), fn($q) => $q->where('branch_id', $branchId))
+            ->whereIn('status', ['accepted', 'partially_accepted', 'completed'])
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->pluck('count', 'date');
+
+        $patientCounts = $this->patientQuery($branchId, $start, $end)
+            ->selectRaw('registeration_date, COUNT(*) as count')
+            ->groupBy('registeration_date')
+            ->pluck('count', 'registeration_date');
+
+        $cashSeries = $days->map(fn ($day) => (float) ($cashData[$day] ?? 0.0))->values();
+        $chargeSeries = $days->map(fn ($day) => (float) ($chargeData[$day] ?? 0.0))->values();
+        $appointmentSeries = $days->map(fn ($day) => (int) ($appointmentCounts[$day] ?? 0))->values();
+        $treatmentSeries = $days->map(fn ($day) => (int) ($treatmentCounts[$day] ?? 0))->values();
+        $patientSeries = $days->map(fn ($day) => (int) ($patientCounts[$day] ?? 0))->values();
+
+        $appointmentsForMix = $this->appointmentQuery($branchId, $start, $end)->get(['id', 'visit_type']);
+        $procedureMix = $this->procedureMixFromAppointments($appointmentsForMix);
+        $visitMix = $appointmentsForMix->groupBy(fn ($row) => $row->visit_type ?? 'planned')->map->count()->sortDesc();
+
+        $patientSource = $this->patientQuery($branchId, $start, $end)
+            ->get(['referral_source'])
+            ->groupBy(fn ($row) => $row->referral_source ?? 'Unknown')
+            ->map->count()
+            ->sortDesc();
+
+        $pricingAudit = $this->pricingAudit($this->appointmentQuery($branchId, $start, $end)->get(['id', 'appointment_cost']));
         $aging = $this->creditAgingBuckets($branchId);
 
         return [
@@ -282,7 +296,7 @@ class DashboardController extends Controller
                 'labels' => $days->values()->all(),
                 'datasets' => [
                     ['label' => 'Cash in', 'data' => $cashSeries->all()],
-                    ['label' => 'Debits', 'data' => $debitSeries->all()],
+                    ['label' => 'Appointment charges', 'data' => $chargeSeries->all()],
                 ],
             ],
             'credit_aging' => [
@@ -292,23 +306,27 @@ class DashboardController extends Controller
                 ],
             ],
             'treatment_mix' => [
-                'labels' => $treatmentMix->keys()->all(),
+                'labels' => $procedureMix->keys()->all(),
                 'datasets' => [
-                    ['label' => 'Treatments', 'data' => $treatmentMix->values()->all()],
+                    ['label' => 'Procedures', 'data' => $procedureMix->values()->all()],
                 ],
             ],
             'patient_behavior' => [
                 'labels' => $days->values()->all(),
                 'datasets' => [
                     ['label' => 'Appointments', 'data' => $appointmentSeries->all()],
-                    ['label' => 'Treatments', 'data' => $treatmentSeries->all()],
+                    ['label' => 'Treatments Accepted', 'data' => $treatmentSeries->all()],
                     ['label' => 'New patients', 'data' => $patientSeries->all()],
                 ],
             ],
             'pricing_discipline' => [
-                'labels' => ['In range', 'Out of range'],
+                'labels' => ['In Range', 'Above Base', 'Below Base'],
                 'datasets' => [
-                    ['label' => 'Pricing audit', 'data' => [$pricingAudit['in_range_count'], $pricingAudit['out_of_range_count']]],
+                    ['label' => 'Pricing audit', 'data' => [
+                        $pricingAudit['in_range_count'],
+                        $pricingAudit['above_count'],
+                        $pricingAudit['below_count'],
+                    ]],
                 ],
             ],
             'referral_source' => [
@@ -328,19 +346,16 @@ class DashboardController extends Controller
 
     private function buildAlerts(?int $branchId, Carbon $start, Carbon $end): array
     {
-        $appointments = $this->appointmentQuery($branchId, $start, $end)->get();
-        $transactions = $this->transactionQuery($branchId, $start, $end)->get();
-        $treatments = $this->treatmentQuery($branchId, $start, $end)->get();
+        $appointmentQuery = $this->appointmentQuery($branchId, $start, $end);
+        $totalAppointments = (clone $appointmentQuery)->count();
+        $noShowCount = (clone $appointmentQuery)->where('status', 'No Show')->count();
+        $noShowRate = $totalAppointments > 0 ? ($noShowCount / $totalAppointments) * 100 : 0;
 
-        $totalAppointments = $appointments->count();
-        $noShowRate = $totalAppointments > 0
-            ? ($appointments->where('status', 'No Show')->count() / $totalAppointments) * 100
-            : 0;
+        $pricingAudit = $this->pricingAudit((clone $appointmentQuery)->get(['id', 'appointment_cost']));
+        $creditCollected = (float) $this->transactionQuery($branchId, $start, $end)->where('transaction_type', 'in')->sum('amount');
+        $appointmentCharges = (float) (clone $appointmentQuery)->sum('appointment_cost');
 
-        $pricingAudit = $this->pricingAudit($treatments);
-        $creditCollected = (float) $transactions->where('transaction_type', 'in')->sum('amount');
-        $creditIssued = (float) $transactions->where('transaction_type', 'debit')->sum('amount');
-        $collectionRate = $creditIssued > 0 ? ($creditCollected / $creditIssued) * 100 : 100;
+        $collectionRate = $appointmentCharges > 0 ? ($creditCollected / $appointmentCharges) * 100 : 100;
         $outstandingAR = $this->creditBalances($branchId)->sum('balance');
 
         $alerts = [];
@@ -350,9 +365,7 @@ class DashboardController extends Controller
                 'tone' => 'warn',
                 'title' => 'Credit balances need attention',
                 'message' => 'There is '.$this->money($outstandingAR).' still outstanding across accounts. Review the oldest balances first.',
-                'meta' => [
-                    'action' => 'Review overdue accounts',
-                ],
+                'meta' => ['action' => 'Review overdue accounts'],
             ];
         }
 
@@ -361,20 +374,16 @@ class DashboardController extends Controller
                 'tone' => 'warn',
                 'title' => 'No-show rate is high',
                 'message' => 'The no-show rate is '.$this->percent($noShowRate).'. Review reminder timing, slot length, and booking lead time.',
-                'meta' => [
-                    'action' => 'Audit scheduling process',
-                ],
+                'meta' => ['action' => 'Audit scheduling process'],
             ];
         }
 
         if ($pricingAudit['in_range_rate'] < 70) {
             $alerts[] = [
                 'tone' => 'warn',
-                'title' => 'Pricing is drifting outside the range',
-                'message' => 'Only '.$this->percent($pricingAudit['in_range_rate']).' of audited treatments are inside the defined procedure range.',
-                'meta' => [
-                    'action' => 'Check discounts and overrides',
-                ],
+                'title' => 'Pricing is drifting from base',
+                'message' => 'Only '.$this->percent($pricingAudit['in_range_rate']).' of audited appointments match procedure base price.',
+                'meta' => ['action' => 'Check appointment charges'],
             ];
         }
 
@@ -383,9 +392,7 @@ class DashboardController extends Controller
                 'tone' => 'bad',
                 'title' => 'Collection rate is below target',
                 'message' => 'The collection rate is '.$this->percent($collectionRate).'. Tighten credit policy and increase upfront payment.',
-                'meta' => [
-                    'action' => 'Review payment rules',
-                ],
+                'meta' => ['action' => 'Review payment rules'],
             ];
         }
 
@@ -394,9 +401,7 @@ class DashboardController extends Controller
                 'tone' => 'good',
                 'title' => 'Dashboard looks healthy',
                 'message' => 'No major warning thresholds were triggered in the current period.',
-                'meta' => [
-                    'action' => 'Continue monitoring',
-                ],
+                'meta' => ['action' => 'Continue monitoring'],
             ];
         }
 
@@ -405,8 +410,17 @@ class DashboardController extends Controller
 
     private function buildRecentTables(?int $branchId, Carbon $start, Carbon $end): array
     {
-        $recentTreatments = $this->treatmentQuery($branchId, $start, $end)
-            ->orderByDesc('treatment_date')
+        $recentAppointments = $this->appointmentQuery($branchId, $start, $end)
+            ->orderByDesc('appointment_timestamp')
+            ->limit(10)
+            ->get();
+
+        // FIXED: Fetch actual TreatmentPlan records. Eager load procedure for names.
+        $recentTreatments = TreatmentPlan::query()
+            ->with('procedure:id,name')
+            ->whereBetween('created_at', [$start->toDateTimeString(), $end->copy()->endOfDay()->toDateTimeString()])
+            ->when(!is_null($branchId), fn($q) => $q->where('branch_id', $branchId))
+            ->orderByDesc('created_at')
             ->limit(10)
             ->get();
 
@@ -415,19 +429,58 @@ class DashboardController extends Controller
             ->limit(10)
             ->get();
 
-        return [
-            'treatments' => $recentTreatments->map(fn ($row) => [
+        $summaries = $this->appointmentPricingSummaries($recentAppointments);
+
+        $mappedAppointments = $recentAppointments->map(function ($row) use ($summaries, $branchId) {
+            $summary = $summaries[(int) $row->id] ?? [
+                'base_total' => 0.0,
+                'procedure_names' => [],
+                'procedure_count' => 0,
+            ];
+
+            $actual = (float) ($row->appointment_cost ?? 0);
+            $base = (float) ($summary['base_total'] ?? 0);
+            $procedureNames = $summary['procedure_names'] ?? [];
+            $procedureLabel = ! empty($procedureNames) ? implode(', ', $procedureNames) : 'Unlinked procedure';
+
+            return [
                 'id' => $row->id,
                 'patient_name' => $this->resolvePatientName($row->patient_id ?? null),
                 'branch_name' => $this->resolveBranchName($row->branch_id ?? $branchId),
-                'treatment_type' => $row->treatment_type,
-                'diagnosis' => $row->diagnosis,
-                'date' => $row->treatment_date,
-                'status' => $row->status ?? 'completed',
-                'amount' => (float) ($row->actual_price ?? $row->cost ?? 0),
-                'range_fit' => $this->pricingRangeLabel($row),
+                'procedure_name' => $procedureLabel,
+                'treatment_type' => $procedureLabel,
+                'diagnosis' => $row->notes ?? $row->description ?? $row->reason ?? $row->visit_type ?? '',
+                'date' => $row->appointment_timestamp ?? $row->appointment_date ?? $row->created_at,
+                'status' => $row->status ?? 'scheduled',
+                'amount' => $actual,
+                'appointment_cost' => $actual,
+                'base_price' => $base,
+                'variance' => round($actual - $base, 2),
+                'range_fit' => $this->appointmentPricingStatusLabel($actual, $base),
                 'balance' => $this->accountBalanceForPatient($row->patient_id ?? null),
-            ])->values()->all(),
+                'procedure_count' => (int) ($summary['procedure_count'] ?? 0),
+                'procedure_names' => $procedureNames,
+            ];
+        })->values()->all();
+
+        // FIXED: Correctly map TreatmentPlan schema columns
+        $mappedTreatments = $recentTreatments->map(function ($row) use ($branchId) {
+            return [
+                'id' => $row->id,
+                'patient_name' => $this->resolvePatientName($row->patient_id ?? null),
+                'branch_name' => $this->resolveBranchName($row->branch_id ?? $branchId),
+                'procedure_name' => $row->procedure?->name ?? 'Unknown Procedure',
+                'treatment_type' => $row->procedure?->name ?? 'Clinical Procedure',
+                'diagnosis' => 'Treatment Plan Entry', // No notes column in schema
+                'date' => $row->start_date ?? $row->created_at,
+                'status' => $row->status ?? 'proposed',
+                'amount' => (float) ($row->total_estimated_cost ?? 0),
+            ];
+        })->values()->all();
+
+        return [
+            'appointments' => $mappedAppointments,
+            'treatments' => $mappedTreatments,
             'transactions' => $recentTransactions->map(fn ($row) => [
                 'id' => $row->id,
                 'branch_name' => $this->resolveBranchName($row->branch_id ?? $branchId),
@@ -441,435 +494,271 @@ class DashboardController extends Controller
 
     private function appointmentQuery(?int $branchId, Carbon $start, Carbon $end)
     {
-        $query = Appointment::query()
-            ->whereBetween('appointment_timestamp', [$start->toDateTimeString(), $end->copy()->endOfDay()->toDateTimeString()]);
-
-        if (! is_null($branchId)) {
-            $query->where('branch_id', $branchId);
-        }
-
-        return $query;
+        return Appointment::query()
+            ->whereBetween('appointment_timestamp', [$start->toDateTimeString(), $end->copy()->endOfDay()->toDateTimeString()])
+            ->when(! is_null($branchId), fn($q) => $q->where('branch_id', $branchId));
     }
 
     private function treatmentQuery(?int $branchId, Carbon $start, Carbon $end)
     {
-        $query = Treatment::query()
-            ->whereBetween('treatment_date', [$start->toDateString(), $end->toDateString()]);
-
-        if (! is_null($branchId)) {
-            $query->where('branch_id', $branchId);
-        }
-
-        return $query;
+        return TreatmentPlan::query()
+            ->whereBetween('start_date', [$start->toDateString(), $end->toDateString()])
+            ->when(! is_null($branchId), fn($q) => $q->where('branch_id', $branchId));
     }
 
     private function transactionQuery(?int $branchId, Carbon $start, Carbon $end)
     {
-        $query = AccountTransaction::query()
-            ->whereBetween('transaction_date', [$start->toDateString(), $end->toDateString()]);
-
-        if (! is_null($branchId)) {
-            $query->where('branch_id', $branchId);
-        }
-
-        return $query;
+        return AccountTransaction::query()
+            ->whereBetween('transaction_date', [$start->toDateString(), $end->toDateString()])
+            ->when(! is_null($branchId), fn($q) => $q->where('branch_id', $branchId));
     }
 
     private function patientQuery(?int $branchId, Carbon $start, Carbon $end)
     {
-        $query = Patient::query()
-            ->whereBetween('registeration_date', [$start->toDateString(), $end->toDateString()]);
-
-        if (! is_null($branchId)) {
-            $query->where('branch_id', $branchId);
-        }
-
-        return $query;
+        return Patient::query()
+            ->whereBetween('registeration_date', [$start->toDateString(), $end->toDateString()])
+            ->when(! is_null($branchId), fn($q) => $q->where('branch_id', $branchId));
     }
 
     private function planQuery(?int $branchId, Carbon $start, Carbon $end)
     {
-        $query = Treatment::query()
-            ->whereBetween('created_at', [$start->toDateTimeString(), $end->copy()->endOfDay()->toDateTimeString()]);
-
-        if (! is_null($branchId)) {
-            $query->where('branch_id', $branchId);
-        }
-
-        return $query;
+        return TreatmentPlan::query()
+            ->whereBetween('created_at', [$start->toDateTimeString(), $end->copy()->endOfDay()->toDateTimeString()])
+            ->when(! is_null($branchId), fn($q) => $q->where('branch_id', $branchId));
     }
 
     private function creditBalances(?int $branchId): Collection
     {
-        // Prefer an accounts table if your schema stores patient balances there.
-        // Fallback: derive balances from account transactions grouped by account_id.
-        $transactions = AccountTransaction::query();
-
+        $query = Patient::query();
         if (! is_null($branchId)) {
-            $transactions->where('branch_id', $branchId);
+            $query->where('branch_id', $branchId);
         }
 
-        $rows = $transactions->get(['account_id', 'transaction_type', 'amount', 'transaction_date']);
-
-        return $rows
-            ->groupBy(fn ($row) => $row->account_id ?? 'unknown')
-            ->map(function (Collection $group) {
-                $debits = (float) $group->where('transaction_type', 'debit')->sum('amount');
-                $credits = (float) $group->where('transaction_type', 'in')->sum('amount');
-                $balance = max(0, $debits - $credits);
-                $oldestDebit = $group->where('transaction_type', 'debit')->min('transaction_date');
-
-                return (object) [
-                    'account_id' => $group->first()->account_id ?? null,
-                    'balance' => $balance,
-                    'oldest_debit_date' => $oldestDebit,
-                ];
-            })
+        return $query->get(['id', 'total_amount_due', 'updated_at'])
+            ->map(fn ($p) => (object) [
+                'account_id' => $p->id,
+                'balance' => max(0, (float) ($p->total_amount_due ?? 0)),
+                'oldest_debit_date' => $p->updated_at,
+            ])
             ->filter(fn ($row) => $row->balance > 0)
             ->values();
     }
 
     private function creditAgingBuckets(?int $branchId): array
     {
-        $buckets = [
-            '0-30' => 0.0,
-            '31-60' => 0.0,
-            '61-90' => 0.0,
-            '90+' => 0.0,
-        ];
-
+        $buckets = ['0-30' => 0.0, '31-60' => 0.0, '61-90' => 0.0, '90+' => 0.0];
         $balances = $this->creditBalances($branchId);
 
         foreach ($balances as $row) {
-            $days = $row->oldest_debit_date
-                ? Carbon::parse($row->oldest_debit_date)->diffInDays(now())
-                : 0;
-
-            if ($days <= 30) {
-                $buckets['0-30'] += $row->balance;
-            } elseif ($days <= 60) {
-                $buckets['31-60'] += $row->balance;
-            } elseif ($days <= 90) {
-                $buckets['61-90'] += $row->balance;
-            } else {
-                $buckets['90+'] += $row->balance;
-            }
+            $days = $row->oldest_debit_date ? Carbon::parse($row->oldest_debit_date)->diffInDays(now()) : 0;
+            if ($days <= 30) $buckets['0-30'] += $row->balance;
+            elseif ($days <= 60) $buckets['31-60'] += $row->balance;
+            elseif ($days <= 90) $buckets['61-90'] += $row->balance;
+            else $buckets['90+'] += $row->balance;
         }
 
-        return array_map(fn ($value) => round($value, 2), $buckets);
+        return array_map(fn ($v) => round($v, 2), $buckets);
     }
 
-    private function pricingAudit(Collection $treatments): array
+    private function pricingAudit(Collection $appointments): array
     {
-        $audited = 0;
-        $inRange = 0;
-        $outOfRange = 0;
-        $totalDeviation = 0.0;
+        $audited = 0; $matched = 0; $above = 0; $below = 0; $totalDeviation = 0.0;
+        $summaries = $this->appointmentPricingSummaries($appointments);
 
-        foreach ($treatments as $treatment) {
-            $procedure = $this->resolveProcedure($treatment->treatment_type ?? null);
-            if (! $procedure) {
-                continue;
-            }
+        foreach ($appointments as $appointment) {
+            $summary = $summaries[(int) $appointment->id] ?? null;
+            $base = (float) ($summary['base_total'] ?? 0);
+            if ($base <= 0) continue;
 
             $audited++;
-            $price = (float) ($treatment->actual_price ?? $treatment->cost ?? 0);
-            $min = (float) ($procedure->min_price ?? $procedure->min ?? 0);
-            $max = (float) ($procedure->max_price ?? $procedure->max ?? 0);
+            $actual = (float) ($appointment->appointment_cost ?? 0);
+            $diff = round($actual - $base, 2);
 
-            if ($price >= $min && $price <= $max) {
-                $inRange++;
-            } else {
-                $outOfRange++;
-                $reference = $price < $min ? $min : $max;
-                $totalDeviation += abs($price - $reference);
-            }
+            if (abs($diff) < 0.01) $matched++;
+            elseif ($diff > 0) { $above++; $totalDeviation += abs($diff); }
+            else { $below++; $totalDeviation += abs($diff); }
         }
 
+        $outOfRange = $above + $below;
         return [
-            'audited_count' => $audited,
-            'in_range_count' => $inRange,
-            'out_of_range_count' => $outOfRange,
-            'in_range_rate' => $audited > 0 ? round(($inRange / $audited) * 100, 2) : 0.0,
+            'audited_count' => $audited, 'in_range_count' => $matched,
+            'above_count' => $above, 'below_count' => $below, 'out_of_range_count' => $outOfRange,
+            'in_range_rate' => $audited > 0 ? round(($matched / $audited) * 100, 2) : 0.0,
             'out_of_range_rate' => $audited > 0 ? round(($outOfRange / $audited) * 100, 2) : 0.0,
             'total_deviation' => round($totalDeviation, 2),
+            'average_deviation' => $outOfRange > 0 ? round($totalDeviation / $outOfRange, 2) : 0.0,
         ];
     }
 
+    private function appointmentPricingSummaries(Collection $appointments): array
+    {
+        $appointmentIds = $appointments->pluck('id')->filter()->map(fn ($v) => (int) $v)->values()->all();
+        if (empty($appointmentIds)) return [];
+
+        $pivotRows = DB::table('appointment_procedure')->whereIn('appointment_id', $appointmentIds)->get(['appointment_id', 'procedure_id']);
+        if ($pivotRows->isEmpty()) return [];
+
+        $procedureIds = $pivotRows->pluck('procedure_id')->filter()->map(fn ($v) => (int) $v)->unique()->values()->all();
+        if (empty($procedureIds)) return [];
+
+        $procedureMap = class_exists(Procedure::class)
+            ? Procedure::query()->whereIn('id', $procedureIds)->get(['id', 'name', 'base_price'])->keyBy('id')
+            : DB::table('procedures')->whereIn('id', $procedureIds)->get(['id', 'name', 'base_price'])->keyBy('id');
+
+        $summary = [];
+        foreach ($pivotRows->groupBy('appointment_id') as $appId => $rows) {
+            $baseTotal = 0.0; $names = []; $unique = [];
+            foreach ($rows as $row) {
+                $proc = $procedureMap->get($row->procedure_id);
+                if (!$proc) continue;
+                $unique[(int) $row->procedure_id] = true;
+                $baseTotal += (float) ($proc->base_price ?? 0);
+                $name = trim((string) ($proc->name ?? ''));
+                if ($name !== '') $names[] = $name;
+            }
+            $summary[(int) $appId] = [
+                'base_total' => round($baseTotal, 2),
+                'procedure_names' => array_values(array_unique($names)),
+                'procedure_count' => count($unique),
+            ];
+        }
+        return $summary;
+    }
+
+    private function procedureMixFromAppointments(Collection $appointments): Collection
+    {
+        $summaries = $this->appointmentPricingSummaries($appointments);
+        $counts = [];
+        foreach ($summaries as $summary) {
+            foreach (($summary['procedure_names'] ?? []) as $name) {
+                $counts[$name] = ($counts[$name] ?? 0) + 1;
+            }
+        }
+        return collect($counts)->sortDesc();
+    }
+
+    private function appointmentPricingStatusLabel(float $actual, float $base): string
+    {
+        if ($base <= 0.0) return 'No Procedure';
+        if (abs($actual - $base) < 0.01) return 'In Range';
+        return $actual > $base ? 'Above Base' : 'Below Base';
+    }
+
+    // FIXED: Status list matches migration comment: proposed, accepted, partially_accepted, rejected
     private function planAcceptanceRate(Collection $plans): float
     {
-        if ($plans->isEmpty()) {
-            return 0.0;
-        }
-
-        $accepted = $plans->filter(fn ($row) => in_array($row->status, ['accepted', 'partially_accepted'], true))->count();
-
+        if ($plans->isEmpty()) return 0.0;
+        $accepted = $plans->filter(fn ($row) => in_array($row->status, ['accepted', 'partially_accepted', 'completed'], true))->count();
         return round(($accepted / $plans->count()) * 100, 2);
     }
 
-    private function treatmentCompletionRate(Collection $plans, Collection $treatments): float
+    // FIXED: Uses same $plans collection. Checks for 'completed' status.
+    private function treatmentCompletionRate(Collection $plans): float
     {
-        $acceptedPlans = $plans->filter(fn ($row) => in_array($row->status, ['accepted', 'partially_accepted'], true));
-        if ($acceptedPlans->isEmpty()) {
-            return 0.0;
-        }
-
-        $acceptedPlanIds = $acceptedPlans->pluck('id')->all();
-        $completed = $treatments->filter(fn ($row) => in_array($row->treatment_plan_id, $acceptedPlanIds, true) && ($row->status ?? 'completed') === 'completed')->count();
-
-        return round(($completed / $acceptedPlans->count()) * 100, 2);
+        $accepted = $plans->filter(fn ($row) => in_array($row->status, ['accepted', 'partially_accepted', 'completed'], true));
+        if ($accepted->isEmpty()) return 0.0;
+        
+        $completed = $accepted->filter(fn ($row) => $row->status === 'completed')->count();
+        return round(($completed / $accepted->count()) * 100, 2);
     }
 
     private function patientRetentionRate(?int $branchId, Carbon $start, Carbon $end): float
     {
-        $patients = $this->patientQuery($branchId, $start, $end)->get();
-        if ($patients->isEmpty()) {
-            return 0.0;
-        }
+        $patients = $this->patientQuery($branchId, $start, $end)->get(['id']);
+        if ($patients->isEmpty()) return 0.0;
 
         $patientIds = $patients->pluck('id')->all();
-
-        $appointmentCounts = AppointmentPatient::query()
+        $counts = AppointmentPatient::query()
             ->whereIn('patient_id', $patientIds)
-            ->when(! is_null($branchId), function ($query) use ($branchId) {
-                $query->whereHas('appointment', fn ($q) => $q->where('branch_id', $branchId));
-            })
+            ->when(!is_null($branchId), fn($q) => $q->whereHas('appointment', fn($aq) => $aq->where('branch_id', $branchId)))
             ->select('patient_id', DB::raw('count(*) as visits'))
             ->groupBy('patient_id')
             ->get();
 
-        $returning = $appointmentCounts->filter(fn ($row) => (int) $row->visits > 1)->count();
-
+        $returning = $counts->filter(fn ($row) => (int) $row->visits > 1)->count();
         return round(($returning / max($patients->count(), 1)) * 100, 2);
     }
 
     private function repeatPatientRate(?int $branchId, Carbon $start, Carbon $end): float
     {
-        $linkedAppointments = AppointmentPatient::query()
-            ->whereHas('appointment', function ($query) use ($branchId, $start, $end) {
-                $query->whereBetween('appointment_timestamp', [$start->toDateTimeString(), $end->copy()->endOfDay()->toDateTimeString()]);
-
-                if (! is_null($branchId)) {
-                    $query->where('branch_id', $branchId);
-                }
+        $linked = AppointmentPatient::query()
+            ->whereHas('appointment', function ($q) use ($branchId, $start, $end) {
+                $q->whereBetween('appointment_timestamp', [$start->toDateTimeString(), $end->copy()->endOfDay()->toDateTimeString()]);
+                if (!is_null($branchId)) $q->where('branch_id', $branchId);
             })
             ->get(['patient_id', 'appointment_id']);
 
-        if ($linkedAppointments->isEmpty()) {
-            return 0.0;
-        }
-
-        $byPatient = $linkedAppointments->groupBy('patient_id')->map->count();
-        $repeat = $byPatient->filter(fn ($count) => $count > 1)->count();
-
+        if ($linked->isEmpty()) return 0.0;
+        $byPatient = $linked->groupBy('patient_id')->map->count();
+        $repeat = $byPatient->filter(fn ($c) => $c > 1)->count();
         return round(($repeat / max($byPatient->count(), 1)) * 100, 2);
     }
 
-    private function sameDayCollectionRate(Collection $treatments, Collection $transactions): float
+    private function sameDayCollectionRate(Collection $appointments, Collection $transactions): float
     {
-        if ($treatments->isEmpty()) {
-            return 0.0;
-        }
-
-        $collectedSameDay = 0;
-
-        foreach ($treatments as $treatment) {
-            $hasCashOnSameDay = $transactions->contains(function ($transaction) use ($treatment) {
-                return $transaction->transaction_type === 'in'
-                    && (string) $transaction->transaction_date === (string) $treatment->treatment_date
-                    && (int) $transaction->branch_id === (int) $treatment->branch_id;
-            });
-
-            if ($hasCashOnSameDay) {
-                $collectedSameDay++;
+        if ($appointments->isEmpty()) return 0.0;
+        $collected = 0;
+        foreach ($appointments as $apt) {
+            $aptDate = Carbon::parse($apt->appointment_timestamp)->toDateString();
+            if ($transactions->contains(fn($t) => 
+                $t->transaction_type === 'in' &&
+                (string) $t->transaction_date === $aptDate &&
+                (int) $t->branch_id === (int) $apt->branch_id &&
+                (int) ($t->patient_id ?? 0) === (int) ($apt->patient_id ?? 0)
+            )) {
+                $collected++;
             }
         }
-
-        return round(($collectedSameDay / $treatments->count()) * 100, 2);
-    }
-
-    private function countActivePatients(?int $branchId, Carbon $start, Carbon $end): int
-    {
-        return AppointmentPatient::query()
-            ->whereHas('appointment', function ($query) use ($branchId, $start, $end) {
-                $query->whereBetween('appointment_timestamp', [$start->toDateTimeString(), $end->copy()->endOfDay()->toDateTimeString()]);
-                if (! is_null($branchId)) {
-                    $query->where('branch_id', $branchId);
-                }
-            })
-            ->distinct('patient_id')
-            ->count('patient_id');
+        return round(($collected / $appointments->count()) * 100, 2);
     }
 
     private function growthRate(float|int $current, float|int $previous): float
     {
-        $current = (float) $current;
-        $previous = (float) $previous;
-
-        if ($previous == 0.0) {
-            return $current > 0 ? 100.0 : 0.0;
-        }
-
+        $current = (float) $current; $previous = (float) $previous;
+        if ($previous == 0.0) return $current > 0 ? 100.0 : 0.0;
         return round((($current - $previous) / abs($previous)) * 100, 2);
     }
 
     private function trendLabel(?float $growth): string
     {
-        if ($growth === null) {
-            return '-';
-        }
-
-        if ($growth > 0) {
-            return '+' . number_format($growth, 1) . '%';
-        }
-
-        if ($growth < 0) {
-            return number_format($growth, 1) . '%';
-        }
-
+        if ($growth === null) return '-';
+        if ($growth > 0) return '+' . number_format($growth, 1) . '%';
+        if ($growth < 0) return number_format($growth, 1) . '%';
         return 'Flat';
     }
 
     private function trendTone(?float $growth): string
     {
-        if ($growth === null) {
-            return 'neutral';
-        }
-
-        if ($growth > 0) {
-            return 'up';
-        }
-
-        if ($growth < 0) {
-            return 'down';
-        }
-
-        return 'neutral';
+        if ($growth === null) return 'neutral';
+        return $growth > 0 ? 'up' : ($growth < 0 ? 'down' : 'neutral');
     }
 
-    private function money(float|int $value): string
-    {
-        return number_format((float) $value, 0);
-    }
-
-    private function percent(float|int $value): string
-    {
-        return number_format((float) $value, 1).'%';
-    }
+    private function money(float|int $value): string { return number_format((float) $value, 0); }
+    private function percent(float|int $value): string { return number_format((float) $value, 1) . '%'; }
 
     private function branchOptions(?int $branchId): array
     {
-        $query = Branch::query()->orderBy('branch_name');
-
-        if (! is_null($branchId)) {
-            $query->where('id', $branchId);
-        }
-
-        return $query->get(['id', 'branch_name'])->map(fn ($branch) => [
-            'id' => $branch->id,
-            'branch_name' => $branch->name,
-        ])->values()->all();
+        $q = Branch::query()->orderBy('branch_name');
+        if (!is_null($branchId)) $q->where('id', $branchId);
+        return $q->get(['id', 'branch_name'])->map(fn($b) => ['id' => $b->id, 'branch_name' => $b->branch_name])->values()->all();
     }
 
     private function resolveBranchName(?int $branchId): string
     {
-        if (is_null($branchId)) {
-            return 'All branches';
-        }
-
+        if (is_null($branchId)) return 'All branches';
         return Branch::query()->where('id', $branchId)->value('branch_name') ?? 'Branch #'.$branchId;
     }
 
     private function resolvePatientName(?int $patientId): string
     {
-        if (is_null($patientId)) {
-            return 'Unknown patient';
-        }
-
-        $patient = Patient::query()->where('id', $patientId)->first(['f_name', 'l_name']);
-
-        if (! $patient) {
-            return 'Patient #'.$patientId;
-        }
-
-        return trim($patient->f_name.' '.$patient->l_name);
-    }
-
-    private function resolveProcedure(?string $treatmentType)
-    {
-        if (blank($treatmentType)) {
-            return null;
-        }
-
-        $modelClass = '\\App\\Models\\Procedure';
-        if (! class_exists($modelClass)) {
-            return DB::table('procedures')->whereRaw('LOWER(name) = ?', [strtolower($treatmentType)])->first();
-        }
-
-        return $modelClass::query()
-            ->whereRaw('LOWER(name) = ?', [strtolower($treatmentType)])
-            ->first();
-    }
-
-    private function pricingRangeLabel($treatment): string
-    {
-        $procedure = $this->resolveProcedure($treatment->treatment_type ?? null);
-        if (! $procedure) {
-            return 'No rule';
-        }
-
-        $price = (float) ($treatment->actual_price ?? $treatment->cost ?? 0);
-        $min = (float) ($procedure->min_price ?? $procedure->min ?? 0);
-        $max = (float) ($procedure->max_price ?? $procedure->max ?? 0);
-
-        if ($price < $min) {
-            return 'Below range';
-        }
-
-        if ($price > $max) {
-            return 'Above range';
-        }
-
-        return 'In range';
+        if (is_null($patientId)) return 'Unknown patient';
+        $p = Patient::query()->where('id', $patientId)->first(['f_name', 'l_name']);
+        return $p ? trim($p->f_name.' '.$p->l_name) : 'Patient #'.$patientId;
     }
 
     private function accountBalanceForPatient(?int $patientId): float
     {
-        if (is_null($patientId)) {
-            return 0.0;
-        }
-
-        $account = Account::query()
-            ->where('patient_id', $patientId)
-            ->first();
-
-        if ($account && isset($account->balance)) {
-            return (float) $account->balance;
-        }
-
-        // Fallback to transactions if your accounts table doesn't store balance directly.
-        $accountIds = Account::query()
-            ->where('patient_id', $patientId)
-            ->pluck('id');
-
-        if ($accountIds->isEmpty()) {
-            return 0.0;
-        }
-
-        $debits = AccountTransaction::query()->whereIn('account_id', $accountIds)->where('transaction_type', 'debit')->sum('amount');
-        $credits = AccountTransaction::query()->whereIn('account_id', $accountIds)->where('transaction_type', 'in')->sum('amount');
-
-        return max(0.0, (float) $debits - (float) $credits);
+        if (is_null($patientId)) return 0.0;
+        return (float) (Patient::query()->where('id', $patientId)->value('total_amount_due') ?? 0);
     }
-
-    /**
-     * From Controller.php; used in this controller for branch scoping.
-     * The method exists in your base controller.
-     */
-    // protected function effectiveBranchId(): ?int
-    // {
-    //     return method_exists(get_parent_class($this), 'effectiveBranchId')
-    //         ? parent::effectiveBranchId()
-    //         : null;
-    // }
 }

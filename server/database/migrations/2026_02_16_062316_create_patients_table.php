@@ -22,6 +22,7 @@ return new class extends Migration
             $table->date('registeration_date');
             $table->integer('total_amount_due', false, true)->nullable();
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
         });
 
         Schema::create('teeth_reference', function (Blueprint $table) {

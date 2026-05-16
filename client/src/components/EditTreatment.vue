@@ -38,6 +38,8 @@
             <n-select
               v-model:value="form.procedure_id"
               :options="procedureOptions"
+              @update:value="handleProcedureChange"
+              placeholder="Select a procedure"
               filterable
               clearable
               class="full"
@@ -160,6 +162,17 @@ function toTimestamp(value: string | number | null | undefined) {
 function toDateString(value: number | null) {
   if (!value) return new Date().toISOString().slice(0, 10)
   return new Date(value).toISOString().slice(0, 10)
+}
+
+function handleProcedureChange(value: number) {
+  const selected = (props.procedures || []).find(
+    (p: any) => Number(p.id) === Number(value)
+  )
+
+  if (!selected) return
+
+  form.total_estimated_cost = selected.base_price ?? 0
+  form.appointments_needed = selected.appointments_needed ?? 1
 }
 
 watch(

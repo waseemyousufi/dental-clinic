@@ -122,11 +122,6 @@ if (userStore.isAdmin) {
       icon: () => h(Icon, { icon: 'mdi:badge-account-outline', style: 'font-size: 1.45em;' })
     },
     {
-      path: '/transactions',
-      label: 'Transactions',
-      icon: () => h(Icon, { icon: 'mdi:receipt-text-outline', style: 'font-size: 1.45em;' })
-    },
-    {
       path: '/settings',
       label: 'Settings',
       icon: () => h(Icon, { icon: 'mdi:gear', style: 'font-size: 1.45em;' })
@@ -153,17 +148,13 @@ const toggleUserMenu = () => {
 }
 
 const toggleBranchExpansion = (branchId: number) => {
-  expandedBranchIds.value = []
-  expandedBranchIds.value.push(branchId)
+  if (isBranchExpanded(branchId)) {
+    expandedBranchIds.value = []
+    return
+  }
+
+  expandedBranchIds.value = [branchId]
   selectBranch(branchId)
-  // const index = expandedBranchIds.value.indexOf(branchId)
-  // if (index > -1) {
-  //   // Remove if already open
-  //   expandedBranchIds.value.splice(index, 1)
-  // } else {
-  //   // Add if closed
-  //   expandedBranchIds.value.push(branchId)
-  // }
 }
 
 const isBranchExpanded = (branchId: number) => {

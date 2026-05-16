@@ -51,6 +51,6 @@ class Appointment extends Model
             'appointment_procedure',
             'appointment_id',
             'procedure_id'
-        );
+        )->withTimestamps();
     }
 }

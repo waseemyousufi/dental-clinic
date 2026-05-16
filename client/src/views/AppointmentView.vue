@@ -237,10 +237,10 @@ const calendarOptions = computed(() => ({
   selectable: true,
   dateClick: handleDateClick,
   businessHours: {
-    // Saturday to Thursday: 8 AM to 5 PM
-    daysOfWeek: [6, 0, 1, 2, 3, 4], // Saturday, Sunday, Monday, Tuesday, Wednesday, Thursday
-    startTime: '08:00',
-    endTime: '17:00',
+    // Saturday to Friday: 8 AM to 5 PM
+    daysOfWeek: [6, 0, 1, 2, 3, 4, 5], // Saturday, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday
+    startTime: '06:00',
+    endTime: '20:00',
   },
 }))
 

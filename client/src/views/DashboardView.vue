@@ -14,10 +14,10 @@
           <span class="meta-label">Branch</span>
           <span class="meta-value">{{ selectedBranchLabel }}</span>
         </div>
-        <!-- <div class="meta-pill">
+        <div class="meta-pill">
           <span class="meta-label">Period</span>
           <span class="meta-value">{{ periodLabel }}</span>
-        </div> -->
+        </div>
         <div class="meta-pill">
           <span class="meta-label">Updated</span>
           <span class="meta-value">{{ updatedLabel }}</span>
@@ -28,6 +28,7 @@
         </div>
       </div>
     </section>
+
 <!--
     <section class="surface-panel scope-panel">
       <div class="panel-header">
@@ -75,7 +76,7 @@
         <div class="panel-header">
           <div>
             <h2>Cash flow</h2>
-            <p>Collected money versus debits across the selected period.</p>
+            <p>Collected money versus patient dues across the selected period.</p>
           </div>
           <div class="badge tone-brand">Daily trend</div>
         </div>
@@ -191,7 +192,7 @@
       </div>
     </section> -->
 
-    <section class="chart-grid chart-grid-two">
+    <!-- <section class="chart-grid chart-grid-two">
       <div class="surface-panel alerts-card">
         <div class="panel-header">
           <div>
@@ -219,7 +220,7 @@
             <h2>Recent activity</h2>
             <p>Latest treatments and transactions from the backend.</p>
           </div>
-          <div class="badge tone-brand">Latest rows</div>
+          <div class="badge tone-brand">Latest records</div>
         </div>
 
         <div class="table-switch">
@@ -285,8 +286,7 @@
           </table>
         </div>
       </div>
-    </section>
-
+    </section> -->
   </div>
 </template>
 
@@ -417,6 +417,7 @@ const formatDateTime = (value: string | null | undefined) => {
 
 const dashboardMeta = computed(() => dashboard.value?.meta ?? {})
 const branchId = computed(() => dashboardMeta.value.branch_id ?? null)
+
 const selectedBranchLabel = computed(() => {
   const branchName = dashboardMeta.value.branch_name?.trim()
   if (branchName) return branchName
@@ -468,12 +469,12 @@ const operationalStats = computed(() => {
   return [
     { label: 'Cash collected', value: find('cash_collected')?.formatted ?? '0', help: 'Actual money received in the selected period.' },
     { label: 'Outstanding credit', value: find('outstanding_ar')?.formatted ?? '0', help: 'Balances still owed by patients.' },
-    { label: 'Collection rate', value: find('collection_rate')?.formatted ?? '0%', help: 'Cash collected versus debits raised.' },
+    { label: 'Collection rate', value: find('collection_rate')?.formatted ?? '0%', help: 'Cash collected versus total patient dues.' },
     { label: 'No-show rate', value: find('no_show_rate')?.formatted ?? '0%', help: 'Missed appointments within the period.' },
     { label: 'New patients', value: find('new_patients')?.formatted ?? '0', help: 'Registered patients in the selected period.' },
     { label: 'Pricing discipline', value: find('pricing_discipline')?.formatted ?? '0%', help: 'Share of treatments priced inside range.' },
     { label: 'Same-day collection', value: find('same_day_collection')?.formatted ?? '0%', help: 'Treatments collected on the same day.' },
-    { label: 'Case acceptance', value: find('plan_acceptance')?.formatted ?? '0%', help: 'Accepted treatment plans versus proposals.' },
+    // { label: 'Case acceptance', value: find('plan_acceptance')?.formatted ?? '0%', help: 'Accepted treatment plans versus proposals.' },
   ]
 })
 

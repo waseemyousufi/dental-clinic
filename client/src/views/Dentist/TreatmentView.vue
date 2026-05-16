@@ -38,7 +38,7 @@ const formModel = ref({
   total_amount_paid: 0,
   status: 'proposed' as TreatmentPlanData['status'],
   start_date: null as number | null,
-  duration: 30
+  appointments_needed: 1
 })
 
 // Options
@@ -150,11 +150,11 @@ if(!userStore.isReceptionist) {
             }, { icon: () => h(Icon, { icon: 'mdi:delete-outline' }) }),
             default: () => 'Are you sure you want to delete this treatment plan?'
           }),
-          row.status === 'accepted' ? h(NButton, {
-            size: 'small',
-            type: 'primary',
-            onClick: () => handleExecute(row)
-          }, { default: () => 'Execute' }) : null
+          // row.status === 'accepted' ? h(NButton, {
+          //   size: 'small',
+          //   type: 'primary',
+          //   onClick: () => handleExecute(row)
+          // }, { default: () => 'Execute' }) : null
         ]
       })
     }
@@ -191,7 +191,7 @@ function handleAdd() {
     total_amount_paid: 0,
     status: 'proposed',
     start_date: Date.now(),
-    duration: 30
+    appointments_needed: 1
   }
   showModal.value = true
 }
@@ -205,7 +205,7 @@ function handleEdit(plan: TreatmentPlanData) {
     total_amount_paid: plan.total_amount_paid || 0,
     status: plan.status,
     start_date: plan.start_date ? new Date(plan.start_date).getTime() : null,
-    duration: plan.duration || 30
+    appointments_needed: plan.appointments_needed || 1
   }
   showModal.value = true
 }
@@ -430,8 +430,8 @@ onMounted(loadData)
             />
           </n-form-item>
 
-          <n-form-item label="Duration" path="duration">
-            <n-input-number v-model:value="formModel.duration" :min="1" style="width: 100%" />
+          <n-form-item label="appointments needed" path="appointments_needed">
+            <n-input-number v-model:value="formModel.appointments_needed" :min="1" style="width: 100%" />
           </n-form-item>
         </n-form>
 

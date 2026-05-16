@@ -103,6 +103,7 @@ import type EmployeeData from '@api/interfaces/Employee'
 import type PatientData from '@api/interfaces/patient'
 import procedure from '@api/procedure'
 import { BASE_OPTION_DEFAULTS } from '@fullcalendar/core/internal'
+import type patient from '@api/patient'
 
 type EmployeeAbbr = {
   id: number
@@ -330,12 +331,12 @@ async function loadOptions() {
     console.log('treatmentPlanRes', treatmentPlanRes)
 
     const rawEmps = empRes.data?.data || empRes.data
-
+    console.log('rawEmps', rawEmps)
     employeeOptions.value = (
       Array.isArray(rawEmps)
         ? rawEmps
         : rawEmps?.employees || []
-    ).map((emp: EmployeeData) => ({
+    ).filter(emp => emp.position === 'doctor').map((emp: EmployeeData) => ({
       label: formatName(emp as EmployeeAbbr),
       value: normalizeId(emp.id) ?? 0,
     }))
@@ -388,6 +389,7 @@ async function loadOptions() {
         cost: plan.cost,
         price: plan.price,
         procedure_id: normalizeId(plan.procedure_id),
+        patient_id: normalizeId(plan.patient_id),
         appointment_cost: plan.appointment_cost,
       }))
       .filter(item => item.id !== 0 || item.name)
@@ -464,20 +466,60 @@ onMounted(async () => {
 })
 
 watch(
-  () => formModel.value.procedure_id,
-  (newProcedureId) => {
-    const procedureCost = getRecordCost(procedureRecords.value, newProcedureId)
-    if (procedureCost != null) {
-      formModel.value.appointment_cost = procedureCost
+  () => [
+    formModel.value.procedure_id,
+    formModel.value.treatment_plan_id,
+  ],
+  ([procedureId, treatmentPlanId]) => {
+    // If treatment plan selected → force cost to 0
+    if (treatmentPlanId != null) {
+      formModel.value.appointment_cost = 0
+      return
     }
+
+    // Otherwise use procedure cost
+    const procedureCost = getRecordCost(
+      procedureRecords.value,
+      procedureId
+    )
+
+    formModel.value.appointment_cost =
+      procedureCost ?? 0
   },
+  { immediate: true }
 )
 
 watch(
-  () => formModel.value.treatment_plan_id,
-  () => {
-    formModel.value.appointment_cost = 0
-  }
+  () => formModel.value.patientId,
+  (patientId) => {
+    if (!patientId) {
+      treatmentPlanOptions.value = []
+      return
+    }
+
+    treatmentPlanOptions.value = treatmentPlanRecords.value
+      .filter(plan => plan.patient_id === patientId)
+      .map((plan) => ({
+        label:
+          procedureOptions.value.find(
+            p => p.value === plan.procedure_id
+          )?.label || 'Unknown',
+        value: plan.id,
+      }))
+
+    // clear selected plan if it doesn't belong to patient
+    if (
+      formModel.value.treatment_plan_id &&
+      !treatmentPlanRecords.value.some(
+        plan =>
+          plan.id === formModel.value.treatment_plan_id &&
+          plan.patient_id === patientId
+      )
+    ) {
+      formModel.value.treatment_plan_id = null
+    }
+  },
+  { immediate: true }
 )
 </script>
 

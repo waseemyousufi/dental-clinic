@@ -23,6 +23,20 @@ export default new (class Account {
     return api.put(`/account/${id}`, data)
   }
 
+  charge(id: number, amount: number, description?: string) {
+    return api.post(`/account/${id}/charge`, {
+      amount,
+      ...(description ? { description } : {}),
+    })
+  }
+
+  withdraw(id: number, amount: number, description?: string) {
+    return api.post(`/account/${id}/withdraw`, {
+      amount,
+      ...(description ? { description } : {}),
+    })
+  }
+
   deleteAccount(id: number) {
     return api.delete(`/account/${id}`)
   }

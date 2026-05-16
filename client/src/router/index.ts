@@ -50,7 +50,7 @@ const router = createRouter({
     },
     {
       path: '/transactions',
-      component: () => import('@views/TransactionView.vue'),
+      redirect: '/accounts',
     },
     {
       path: '/appointments',

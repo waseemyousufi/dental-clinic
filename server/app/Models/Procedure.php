@@ -28,6 +28,6 @@ class Procedure extends Model
             'appointment_procedure',
             'procedure_id',
             'appointment_id'
-        );
+        )->withTimestamps();
     }
 }

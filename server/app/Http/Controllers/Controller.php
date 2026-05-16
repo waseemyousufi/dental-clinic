@@ -14,7 +14,7 @@ abstract class Controller
     $raw = $request->query('branchId');
 
     // 2. Immediate log - if you don't see this, the method isn't being called
-    Log::info('EffectiveBranchId Debug', ['raw_query' => $raw]);
+    // Log::info('EffectiveBranchId Debug', ['raw_query' => $raw]);
 
 
     // 3. Logic: URL first, User fallback second

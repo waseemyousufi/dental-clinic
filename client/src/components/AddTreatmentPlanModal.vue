@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import {
   NModal, NCard, NForm, NFormItem, NSelect,
   NInputNumber, NButton, NSpace, useMessage
@@ -7,6 +7,7 @@ import {
 import { Icon } from '@iconify/vue'
 import procedureApi from '@api/procedure'
 import TreatmentPlanApi from '@api/treatmentPlan'
+import appointment from '@api/appointment'
 
 const props = defineProps<{
   show: boolean
@@ -22,6 +23,7 @@ const procedureOptions = ref<{ label: string; value: number; price: number }[]>(
 
 const formModel = ref({
   procedure_id: null as number | null,
+  appointments_needed: 1,
   total_estimated_cost: 0,
 })
 
@@ -40,13 +42,34 @@ async function loadProcedures() {
   }
 }
 
-// Automatically update cost when procedure changes
-function handleProcedureChange(value: number) {
-  const selected = procedureOptions.value.find(p => p.value === value)
-  if (selected) {
-    formModel.value.total_estimated_cost = selected.price
-  }
-}
+watch(
+  () => [
+    formModel.value.procedure_id,
+    formModel.value.appointments_needed,
+  ],
+  ([procedureId, appointmentsNeeded]) => {
+    const selected = procedureOptions.value.find(
+      p => p.value === procedureId
+    )
+
+    if (!selected) {
+      formModel.value.total_estimated_cost = 0
+      return
+    }
+
+    formModel.value.total_estimated_cost =
+      selected.price * (appointmentsNeeded || 1)
+  },
+  { immediate: true }
+)
+
+// // Automatically update cost when procedure changes
+// function handleProcedureChange(value: number) {
+//   const selected = procedureOptions.value.find(p => p.value === value)
+//   if (selected) {
+//     formModel.value.total_estimated_cost = selected.price
+//   }
+// }
 
 async function handleSubmit() {
   if (!formModel.value.procedure_id) {
@@ -60,6 +83,7 @@ async function handleSubmit() {
       patient_id: props.patientId,
       appointment_id: props.appointmentId,
       procedure_id: formModel.value.procedure_id,
+      appointments_needed: formModel.value.appointments_needed,
       total_estimated_cost: formModel.value.total_estimated_cost,
       status: 'proposed'
     }
@@ -79,6 +103,7 @@ function closeModal() {
   emit('update:show', false)
   formModel.value.procedure_id = null
   formModel.value.total_estimated_cost = 0
+  formModel.value.appointments_needed = 1
 }
 
 onMounted(loadProcedures)
@@ -86,14 +111,8 @@ onMounted(loadProcedures)
 
 <template>
   <n-modal :show="show" @mask-click="closeModal">
-    <n-card
-      style="width: 500px"
-      title="Propose Treatment Plan"
-      :bordered="false"
-      size="huge"
-      role="dialog"
-      aria-modal="true"
-    >
+    <n-card style="width: 500px" title="Propose Treatment Plan" :bordered="false" size="huge" role="dialog"
+      aria-modal="true">
       <template #header-extra>
         <n-button quaternary circle @click="closeModal">
           <template #icon>
@@ -104,13 +123,8 @@ onMounted(loadProcedures)
 
       <n-form :model="formModel">
         <n-form-item label="Select Procedure" path="procedure_id">
-          <n-select
-            v-model:value="formModel.procedure_id"
-            :options="procedureOptions"
-            placeholder="Search procedure..."
-            filterable
-            @update:value="handleProcedureChange"
-          >
+          <n-select v-model:value="formModel.procedure_id" :options="procedureOptions" placeholder="Search procedure..."
+            filterable>
             <template #prefix>
               <Icon icon="healthicons:tooth-outline" />
             </template>
@@ -118,12 +132,8 @@ onMounted(loadProcedures)
         </n-form-item>
 
         <n-form-item label="Estimated Cost (AFN)" path="total_estimated_cost">
-          <n-input-number
-            v-model:value="formModel.total_estimated_cost"
-            :min="0"
-            style="width: 100%"
-            placeholder="0.00"
-          >
+          <n-input-number v-model:value="formModel.total_estimated_cost" :min="0" style="width: 100%"
+            placeholder="0.00">
             <template #prefix>
               <Icon icon="mdi:cash-multiple" />
             </template>
@@ -131,14 +141,14 @@ onMounted(loadProcedures)
         </n-form-item>
       </n-form>
 
+      <n-form-item label="Appointments Needed" path="appointments_needed">
+        <n-input-number v-model:value="formModel.appointments_needed" :min="1" style="width: 100%" placeholder="1" />
+      </n-form-item>
+
       <template #footer>
         <n-space justify="end">
           <n-button @click="closeModal">Cancel</n-button>
-          <n-button
-            type="primary"
-            :loading="loading"
-            @click="handleSubmit"
-          >
+          <n-button type="primary" :loading="loading" @click="handleSubmit">
             <template #icon>
               <Icon icon="mdi:check-circle-outline" />
             </template>

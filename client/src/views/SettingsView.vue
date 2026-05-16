@@ -31,7 +31,7 @@
               <n-form-item label="Phone" path="phone">
                 <n-input v-model:value="formData.phone" placeholder="+1 234 567 8900" />
               </n-form-item>
-              <n-form-item label="Reception Cost" path="reception">
+              <n-form-item label="Reception Fee" path="reception">
                 <n-input-number v-model:value="formData.reception" :min="0" :step="50" />
               </n-form-item>
             </div>
@@ -61,7 +61,7 @@
           </div>
         </n-tab-pane>
 
-        <n-tab-pane name="whatsapp" tab="WhatsApp">
+        <!-- <n-tab-pane name="whatsapp" tab="WhatsApp">
           <div class="section-stack">
             <n-alert type="info" show-icon>
               <template #header>Dynamic Variables</template>
@@ -90,7 +90,7 @@
               </n-form-item>
             </div>
           </div>
-        </n-tab-pane>
+        </n-tab-pane> -->
 
         <n-tab-pane name="procedures" tab="Procedures">
           <div class="service-section">
