@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -17,6 +18,28 @@ export default defineConfig({
     vue(),
     vueJsx(),
     vueDevTools(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      workbox: {
+        // Enforce runtime asset caching rules
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/api\.iconify\.design\/.*/i,
+            handler: 'CacheFirst', // Query the cache first, bypass network if found
+            options: {
+              cacheName: 'iconify-remote-icons',
+              expiration: {
+                maxEntries: 500,           // Caps total storage usage
+                maxAgeSeconds: 60 * 60 * 24 * 365, // Cache icons for 1 full year
+              },
+              cacheableResponse: {
+                statuses: [0, 200], // Ensure successful API responses are stored
+              },
+            },
+          },
+        ],
+      },
+    }),
   ],
   resolve: {
     alias: {

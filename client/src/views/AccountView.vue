@@ -273,7 +273,7 @@ const transactionColumns = [
         text: row.transactionType as string,
         patterns: [row.transactionType as string],
         highlightStyle: {
-          backgroundColor: row.transactionType === 'in' ? '#16ff4a77' : '#e30e0eaa',
+          backgroundColor: row.transactionType === 'in' ? '#16ff4a77' : row.transactionType === 'voided' ? '#f59e0b77' : row.transactionType === 'charge' ? '#16ff4a77' : row.transactionType === 'withdraw' ? '#e30e0eaa' : '#e30e0eaa' ,
           padding: '2px 4px',
           borderRadius: '4px',
           textTransform: 'uppercase',
@@ -314,32 +314,32 @@ const transactionColumns = [
     key: 'account',
     width: 120,
   },
-  {
-    title: 'Actions',
-    key: 'actions',
-    render(row: TransactionRow) {
-      return h('div', { style: 'display: flex; gap: 8px; align-items: center;' }, [
-        // h(Icon, {
-        //   icon: 'akar-icons:edit',
-        //   title: 'Edit',
-        //   width: 20,
-        //   height: 20,
-        //   color: '#4f46e5',
-        //   style: { cursor: 'pointer' },
-        //   onClick: () => handleTransactionEdit(row),
-        // }),
-        h(Icon, {
-          icon: 'fluent:delete-16-filled',
-          title: 'Delete',
-          width: 20,
-          height: 20,
-          color: '#dc2626',
-          style: { cursor: 'pointer' },
-          onClick: () => handleTransactionDelete(row),
-        }),
-      ])
-    },
-  },
+  // {
+  //   title: 'Actions',
+  //   key: 'actions',
+  //   render(row: TransactionRow) {
+  //     return h('div', { style: 'display: flex; gap: 8px; align-items: center;' }, [
+  //       // h(Icon, {
+  //       //   icon: 'akar-icons:edit',
+  //       //   title: 'Edit',
+  //       //   width: 20,
+  //       //   height: 20,
+  //       //   color: '#4f46e5',
+  //       //   style: { cursor: 'pointer' },
+  //       //   onClick: () => handleTransactionEdit(row),
+  //       // }),
+  //       h(Icon, {
+  //         icon: 'fluent:delete-16-filled',
+  //         title: 'Delete',
+  //         width: 20,
+  //         height: 20,
+  //         color: '#dc2626',
+  //         style: { cursor: 'pointer' },
+  //         onClick: () => handleTransactionDelete(row),
+  //       }),
+  //     ])
+  //   },
+  // },
 ]
 
 async function fetchAccounts() {
@@ -494,7 +494,7 @@ async function handleTransactionDelete(row: TransactionRow) {
 
   try {
     await transactionApi.deleteTransaction(id)
-    message.success('Transaction deleted')
+    message.success('Transaction Voided')
     await Promise.all([fetchTransactions(), fetchAccounts(), fetchAccountOptions()])
   } catch (error) {
     console.error(error)
@@ -669,7 +669,7 @@ onMounted(() => {
           placeholder="Search by type, description or account"
           size="small"
         />
-        <n-button type="primary" size="small" @click="openTransactionCreate">New Transaction</n-button>
+        <!-- <n-button type="primary" size="small" @click="openTransactionCreate">New Transaction</n-button> -->
       </div>
 
       <div class="table-wrapper">

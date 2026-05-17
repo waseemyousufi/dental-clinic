@@ -357,7 +357,7 @@ const createDefaultSettings = (): SettingsData => ({
   wa_supplier_cancel: '',
   prescription_template: {
     header: '{{clinic_name}}\n{{address}}\n{{phone}}',
-    footer: 'Thank you for choosing {{clinic_name}}.',
+    footer: 'Thank you for choosing our clinic.',
   },
   rec_can_edit_whatsapp: false,
   rec_can_view_phones: true,

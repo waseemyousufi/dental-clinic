@@ -86,12 +86,12 @@ class AccountController extends Controller
 
     public function charge(Request $request, $id)
     {
-        return $this->applyBalanceChange($request, $id, 'in', 'account charge');
+        return $this->applyBalanceChange($request, $id, 'charge', 'account charge');
     }
 
     public function withdraw(Request $request, $id)
     {
-        return $this->applyBalanceChange($request, $id, 'out', 'account withdraw');
+        return $this->applyBalanceChange($request, $id, 'withdraw', 'account withdraw');
     }
 
     public function delete($id)

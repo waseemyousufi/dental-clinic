@@ -75,6 +75,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:receptionist,doctor,assisstant,admin')->group(function () {
         Route::get('/dashboard', [Admin\DashboardController::class, 'index']);
+        Route::get('/reports', [Admin\ReportsController::class, 'index']);
         Route::get('/appointment', [Receptionist\AppointmentController::class, 'index']);
         Route::put('/appointment/{id}', [Receptionist\AppointmentController::class, 'update']);
         Route::delete('/appointment/{id}', [Receptionist\AppointmentController::class, 'delete']);
@@ -107,6 +108,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/transaction', [Shared\TransactionController::class, 'store']);
         Route::get('/transaction', [Shared\TransactionController::class, 'index']);
         Route::put('/transaction/{id}', [Shared\TransactionController::class, 'update']);
+        Route::delete('/transaction/{id}', [Shared\TransactionController::class, 'destroy']);
 
         Route::post('dental-xray', [Shared\DentalXrayController::class, 'store']);
         Route::get('dental-xray', [Shared\DentalXrayController::class, 'index']);

@@ -56,22 +56,22 @@ const router = createRouter({
       path: '/appointments',
       component: () => import('@views/AppointmentView.vue'),
     },
-    {
-      path: '/test',
-      component: () => import('../components/PrimaryOdontogram.vue'),
-    },
+    // {
+    //   path: '/test',
+    //   component: () => import('../components/PrimaryOdontogram.vue'),
+    // },
     {
       path: '/prescriptions',
       component: () => import('../components/PrescriptionAligner.vue'),
     },
-    {
-      path: '/xrays',
-      component: () => import('@views/XrayView.vue'),
-    },
-    {
-      path: '/voice-commands',
-      component: () => import('@views/VoiceCommandsView.vue'),
-    },
+    // {
+    //   path: '/xrays',
+    //   component: () => import('@views/XrayView.vue'),
+    // },
+    // {
+    //   path: '/voice-commands',
+    //   component: () => import('@views/VoiceCommandsView.vue'),
+    // },
     {
       path: '/patient-doctor/:id',
       component: () => import('@views/Dentist/PatientView.vue'),
@@ -115,6 +115,12 @@ const router = createRouter({
       path: '/settings',
       name: 'Settings',
       component: () => import('@views/SettingsView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/reports',
+      name: 'Reports',
+      component: () => import('@views/ReportsView.vue'),
       meta: { requiresAuth: true }
     }
   ],

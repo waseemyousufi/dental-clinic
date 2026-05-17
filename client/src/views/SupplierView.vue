@@ -723,7 +723,7 @@ const handleCancelOrder = async (
     supplier.phone,
     supplier.name,
     orderId.slice(0, 8),
-    order.items.map((i) => ({
+    order.items.map((i: any) => ({
       productName: i.productName,
       quantity: i.quantity,
       unit: i.unit

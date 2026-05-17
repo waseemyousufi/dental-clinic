@@ -108,19 +108,21 @@ class TransactionController extends Controller
      */
     public function destroy(string $id)
     {
-        // $transaction = AccountTransaction::find($id);
-        // $account = Account::find($transaction->account_id);
+        $transaction = AccountTransaction::find($id);
+        $account = Account::find($transaction->account_id);
 
-        // if ($transaction->transaction_type == 'in') {
-        //     $account->update([
-        //         'total_amount' => $account->total_amount - $transaction->amount,
-        //     ]);
-        // } else if ($transaction->transaction_type == 'out') {
-        //     $account->update([
-        //         'total_amount' => $account->total_amount + $transaction->amount,
-        //     ]);
-        // }
+        if ($transaction->transaction_type == 'in') {
+            $account->update([
+                'total_amount' => $account->total_amount - $transaction->amount,
+            ]);
+        } else if ($transaction->transaction_type == 'out') {
+            $account->update([
+                'total_amount' => $account->total_amount + $transaction->amount,
+            ]);
+        }
 
-        return AccountTransaction::delete($id);
+        $transaction->transaction_type = 'voided';
+        $transaction->save();
+        return response()->json(['message' => 'Transaction voided successfully', 'transaction' => new TransactionResource($transaction)]);
     }
 }

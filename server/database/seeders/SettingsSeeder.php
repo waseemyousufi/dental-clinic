@@ -25,7 +25,7 @@ class SettingSeeder extends Seeder
             'rec_can_view_phones' => true,
             'doc_view_appointments' => true,
             'doc_issue_prescriptions' => true,
-            'prescription_template' => ['header' => "{{clinic_name}}\n{{address}}\n{{phone}}", 'footer' => "Thank you for choosing us."],
+            'prescription_template' => ['header' => "{{clinic_name}}\n{{address}}\n{{phone}}", 'footer' => "Thank you for choosing our clinic."],
             'clinic_items' => [],
             'clinic_procedures' => []
         ];

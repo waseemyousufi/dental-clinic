@@ -113,7 +113,7 @@ if (userStore.isReceptionist || userStore.isAdmin) {
 if (userStore.isAdmin) {
   navLinks.push({
     path: '/dashboard',
-    label: 'Overview',
+    label: 'Dashboard',
     icon: () => h(Icon, { icon: 'mdi:view-dashboard-variant', style: 'font-size: 1.45em;' })
   },
     {
@@ -125,7 +125,13 @@ if (userStore.isAdmin) {
       path: '/settings',
       label: 'Settings',
       icon: () => h(Icon, { icon: 'mdi:gear', style: 'font-size: 1.45em;' })
-    })
+    },
+    {
+      path: '/reports',
+      label: 'Reports',
+      icon: () => h(Icon, { icon: 'mdi:file-chart', style: 'font-size: 1.45em;' })
+    }
+  )
 }
 
 if(!userStore.isAdmin && (userStore.settings && userStore.settings.rec_show_kpi))
