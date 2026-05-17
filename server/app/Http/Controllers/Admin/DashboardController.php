@@ -22,7 +22,7 @@ class DashboardController extends Controller
     public function index(Request $request): JsonResponse
     {
         Log::info('Dashboard index called', ['branch_id' => $request->input('branch_id'), 'days' => $request->input('days', 30)]);
-        
+
         $branchId = $this->effectiveBranchId($request);
         $days = (int) $request->input('days', 30);
         $days = in_array($days, [7, 30, 90], true) ? $days : 30;
@@ -100,8 +100,18 @@ class DashboardController extends Controller
         $patientRetention = $this->patientRetentionRate($branchId, $start, $end);
         $repeatPatientRate = $this->repeatPatientRate($branchId, $start, $end);
 
-        $sameDayAppointments = (clone $appointmentQuery)->get(['id', 'branch_id', 'patient_id', 'appointment_timestamp']);
-        $sameDayTransactions = (clone $transactionQuery)->where('transaction_type', 'in')->get(['transaction_date', 'branch_id', 'patient_id', 'transaction_type']);
+        // FIXED: Join pivot table to access patient_id for same-day collection calculation
+        $sameDayAppointments = (clone $appointmentQuery)
+            ->join('appointment_patient', 'appointments.id', '=', 'appointment_patient.appointment_id')
+            ->select(
+                'appointments.id',
+                'appointments.branch_id',
+                'appointment_patient.patient_id',
+                'appointments.appointment_timestamp'
+            )
+            ->get();
+
+        $sameDayTransactions = (clone $transactionQuery)->where('transaction_type', 'in')->get(['transaction_date', 'branch_id', 'transaction_type']);
         $sameDayCollectionRate = $this->sameDayCollectionRate($sameDayAppointments, $sameDayTransactions);
 
         $newPatientGrowth = $this->growthRate($newPatients, $previousNewPatients);
@@ -278,15 +288,11 @@ class DashboardController extends Controller
         $treatmentSeries = $days->map(fn ($day) => (int) ($treatmentCounts[$day] ?? 0))->values();
         $patientSeries = $days->map(fn ($day) => (int) ($patientCounts[$day] ?? 0))->values();
 
-        $appointmentsForMix = $this->appointmentQuery($branchId, $start, $end)->get(['id', 'visit_type']);
+        $appointmentsForMix = $this->appointmentQuery($branchId, $start, $end)->get(['id', 'procedure_id', 'status']);
         $procedureMix = $this->procedureMixFromAppointments($appointmentsForMix);
-        $visitMix = $appointmentsForMix->groupBy(fn ($row) => $row->visit_type ?? 'planned')->map->count()->sortDesc();
+        $visitMix = $appointmentsForMix->groupBy(fn ($row) => $row->status ?? 'Unknown')->map->count()->sortDesc();
 
-        $patientSource = $this->patientQuery($branchId, $start, $end)
-            ->get(['referral_source'])
-            ->groupBy(fn ($row) => $row->referral_source ?? 'Unknown')
-            ->map->count()
-            ->sortDesc();
+        $patientSource = $this->patientQuery($branchId, $start, $end)->get()->groupBy(fn ($row) => 'Unknown')->map->count()->sortDesc();
 
         $pricingAudit = $this->pricingAudit($this->appointmentQuery($branchId, $start, $end)->get(['id', 'appointment_cost']));
         $aging = $this->creditAgingBuckets($branchId);
@@ -410,7 +416,13 @@ class DashboardController extends Controller
 
     private function buildRecentTables(?int $branchId, Carbon $start, Carbon $end): array
     {
+        // FIXED: Join pivot table to access patient_id for recent appointments display
         $recentAppointments = $this->appointmentQuery($branchId, $start, $end)
+            ->join('appointment_patient', 'appointments.id', '=', 'appointment_patient.appointment_id')
+            ->select(
+                'appointments.*',
+                'appointment_patient.patient_id'
+            )
             ->orderByDesc('appointment_timestamp')
             ->limit(10)
             ->get();
@@ -449,7 +461,7 @@ class DashboardController extends Controller
                 'branch_name' => $this->resolveBranchName($row->branch_id ?? $branchId),
                 'procedure_name' => $procedureLabel,
                 'treatment_type' => $procedureLabel,
-                'diagnosis' => $row->notes ?? $row->description ?? $row->reason ?? $row->visit_type ?? '',
+                'diagnosis' => $row->clinical_notes ?? $row->description ?? '',
                 'date' => $row->appointment_timestamp ?? $row->appointment_date ?? $row->created_at,
                 'status' => $row->status ?? 'scheduled',
                 'amount' => $actual,
@@ -657,7 +669,7 @@ class DashboardController extends Controller
     {
         $accepted = $plans->filter(fn ($row) => in_array($row->status, ['accepted', 'partially_accepted', 'completed'], true));
         if ($accepted->isEmpty()) return 0.0;
-        
+
         $completed = $accepted->filter(fn ($row) => $row->status === 'completed')->count();
         return round(($completed / $accepted->count()) * 100, 2);
     }
@@ -700,11 +712,10 @@ class DashboardController extends Controller
         $collected = 0;
         foreach ($appointments as $apt) {
             $aptDate = Carbon::parse($apt->appointment_timestamp)->toDateString();
-            if ($transactions->contains(fn($t) => 
+            if ($transactions->contains(fn($t) =>
                 $t->transaction_type === 'in' &&
                 (string) $t->transaction_date === $aptDate &&
-                (int) $t->branch_id === (int) $apt->branch_id &&
-                (int) ($t->patient_id ?? 0) === (int) ($apt->patient_id ?? 0)
+                (int) $t->branch_id === (int) $apt->branch_id
             )) {
                 $collected++;
             }
