@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, h, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   NCard,
   NButton,
@@ -38,6 +39,7 @@ type EmployeeRow = EmployeeData & { id?: number }
 
 const message = useMessage()
 const route = useRoute()
+const { t } = useI18n()
 
 const getEffectiveBranchId = (): number | undefined => {
   const usr = JSON.parse(localStorage.getItem('user') || 'null')
@@ -176,17 +178,17 @@ const filteredEmployees = computed(() => {
 
 const columns = [
   {
-    title: 'Name',
+    title: t('employeeView.columns.name'),
     key: 'name',
     ellipsis: { tooltip: true },
   },
   {
-    title: 'Email',
+    title: t('employeeView.columns.email'),
     key: 'email',
     ellipsis: { tooltip: true },
   },
   {
-    title: 'Phone',
+    title: t('employeeView.columns.phone'),
     key: 'phone',
     ellipsis: { tooltip: true },
     render(row: EmployeeRow) {
@@ -194,20 +196,20 @@ const columns = [
     },
   },
   {
-    title: 'Position',
+    title: t('employeeView.columns.position'),
     key: 'position',
     ellipsis: { tooltip: true },
   },
   {
-    title: 'Work start',
+    title: t('employeeView.columns.workStartTime'),
     key: 'workStartTime',
   },
   {
-    title: 'Work end',
+    title: t('employeeView.columns.workEndTime'),
     key: 'workEndTime',
   },
   {
-    title: 'Actions',
+    title: t('employeeView.columns.actions'),
     key: 'actions',
     render(row: EmployeeRow) {
       return h('div', { style: 'display: flex; gap: 8px; align-items: center;' }, [
@@ -215,7 +217,7 @@ const columns = [
           Icon,
           {
             icon: 'carbon:data-view-alt',
-            title: 'View',
+            title: t('employeeView.actions.viewTooltip'),
             width: 20,
             height: 20,
             style: { cursor: 'pointer' },
@@ -226,7 +228,7 @@ const columns = [
           Icon,
           {
             icon: 'glyphs-poly:dollar-bills',
-            title: 'Pay Salary',
+            title: t('employeeView.actions.paySalary'),
             width: 20,
             height: 20,
             style: { cursor: 'pointer' },
@@ -237,7 +239,7 @@ const columns = [
           Icon,
           {
             icon: 'fluent:delete-16-filled',
-            title: 'Delete',
+            title: t('employeeView.actions.deleteTooltip'),
             width: 20,
             height: 20,
             color: '#dc2626',
@@ -252,7 +254,7 @@ const columns = [
 
 const salaryColumns: DataTableColumn<any>[] = [
   {
-    title: 'Salary Month',
+    title: t('employeeView.salaryColumns.salaryMonth'),
     key: 'salaryMonth',
     render(row) {
       return h('div', { class: 'salary-month-cell' }, [
@@ -265,21 +267,21 @@ const salaryColumns: DataTableColumn<any>[] = [
     }
   },
   {
-    title: 'Paid To',
+    title: t('employeeView.salaryColumns.paidTo'),
     key: 'employee',
     render(row) {
       return h('span', { class: 'money-base' }, row.employee)
     },
   },
   {
-    title: 'Total',
+    title: t('employeeView.salaryColumns.total'),
     key: 'totalAmount',
     render(row) {
       return h('span', { class: 'money-total' }, formatMoney(row.totalAmount))
     },
   },
   {
-    title: 'Remark',
+    title: t('employeeView.salaryColumns.remark'),
     key: 'remark',
     ellipsis: { tooltip: true },
     render(row) {
@@ -287,7 +289,7 @@ const salaryColumns: DataTableColumn<any>[] = [
     },
   },
   {
-    title: 'Account',
+    title: t('employeeView.salaryColumns.account'),
     key: 'accountName',
     render(row) {
       return h('div', { class: 'account-cell' }, [
@@ -340,11 +342,11 @@ async function submitSalary() {
       accountId: salaryForm.accountId,
     }
     await employeeApi.paySalary(payingEmployee.value.id, payload)
-    message.success('Salary paid successfully')
+    message.success(t('employeeView.messages.salaryPaidSuccess'))
     showPayModal.value = false
     fetchSalaries()
   } catch (e) {
-    message.error('Failed to pay salary')
+    message.error(t('employeeView.messages.paySalaryError'))
   }
 }
 
@@ -355,7 +357,7 @@ async function fetchSalaries() {
     const rows = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : []
     salaries.value = rows
   } catch (error) {
-    message.error('Failed to load salaries')
+    message.error(t('employeeView.messages.loadSalariesError'))
   } finally {
     salariesLoading.value = false
   }
@@ -378,7 +380,7 @@ async function loadAccounts() {
       value: acc.id,
     }))
   } catch (e) {
-    message.error('Failed to load accounts')
+    message.error(t('employeeView.messages.loadAccountsError'))
   }
 }
 
@@ -408,7 +410,7 @@ async function fetchEmployees() {
     const { data } = await employeeApi.getBranchEmployees(false, getEffectiveBranchId())
     employees.value = data.data as EmployeeRow[]
   } catch (error) {
-    message.error('Failed to load employees')
+    message.error(t('employeeView.messages.loadEmployeesError'))
   } finally {
     loading.value = false
   }
@@ -447,13 +449,13 @@ function handleEdit(row: EmployeeRow) {
 
 async function handleDelete(row: EmployeeRow) {
   const id = (row as any).id
-  if (!id) return message.error('Missing employee id')
+  if (!id) return message.error(t('employeeView.messages.missingEmployeeIdError'))
   try {
     await employeeApi.deleteEmployee(id)
-    message.success('Employee deleted')
+    message.success(t('employeeView.messages.employeeDeletedSuccess'))
     fetchEmployees()
   } catch (error) {
-    message.error('Failed to delete employee')
+    message.error(t('employeeView.messages.deleteEmployeeError'))
   }
 }
 
@@ -497,10 +499,10 @@ async function handleSubmit() {
     let employeeId = editingId.value
     if (isEditing.value && employeeId != null) {
       await employeeApi.updateEmployee(employeeId, payload)
-      message.success('Employee updated')
+      message.success(t('employeeView.messages.employeeUpdatedSuccess'))
     } else {
       const { data } = await employeeApi.postEmployee(payload)
-      message.success('Employee created')
+      message.success(t('employeeView.messages.employeeCreatedSuccess'))
       employeeId = (data as any)?.employeeId
       const created: any = data ?? {}
       if (created.token && created.email) {
@@ -516,13 +518,13 @@ async function handleSubmit() {
         await employeeApi.updateEmployeeProfilePicture(employeeId, profileFile.value)
         profileFile.value = null
       } catch (imgError) {
-        message.warning('Employee saved, but profile picture failed')
+        message.warning(t('employeeView.messages.profilePictureFailed'))
       }
     }
     showEditor.value = false
     await fetchEmployees()
   } catch (error) {
-    message.error('Failed to save employee')
+    message.error(t('employeeView.messages.saveEmployeeError'))
   } finally {
     submitting.value = false
   }
@@ -560,9 +562,9 @@ async function copyInviteLink() {
   if (!inviteLink.value) return
   try {
     await navigator.clipboard.writeText(inviteLink.value)
-    message.success('Link copied')
+    message.success(t('employeeView.messages.copyLinkSuccess'))
   } catch (error) {
-    message.error('Failed to copy')
+    message.error(t('employeeView.messages.copyLinkError'))
   }
 }
 
@@ -570,9 +572,9 @@ async function sendInviteWhatsapp() {
   if (!inviteEmail.value || !inviteToken.value) return
   try {
     await userApi.sendTokenViaEmail({ email: inviteEmail.value, token: inviteToken.value })
-    message.success('Invitation email sent')
+    message.success(t('employeeView.messages.inviteEmailSentSuccess'))
   } catch (error) {
-    message.error('Failed to send')
+    message.error(t('employeeView.messages.sendEmailError'))
   }
 }
 
@@ -596,9 +598,9 @@ onMounted(() => {
           </div>
           <div>
             <!-- <div class="employees-hero__eyebrow">Clinic management</div> -->
-            <h2 class="employees-hero__title">Employees</h2>
+            <h2 class="employees-hero__title">{{ t('employeeView.hero.title') }}</h2>
             <p class="employees-hero__subtitle">
-              Manage staff records, payroll, and branch assignments.
+              {{ t('employeeView.hero.subtitle') }}
             </p>
           </div>
         </div>
@@ -608,7 +610,7 @@ onMounted(() => {
             <div class="hero-stat">
               <Icon icon="mdi:account-multiple-outline" width="18" />
               <div>
-                <span class="hero-stat__label">Total</span>
+                <span class="hero-stat__label">{{ t('employeeView.stats.total') }}</span>
                 <strong class="hero-stat__value">{{ employees.length }}</strong>
               </div>
             </div>
@@ -622,7 +624,7 @@ onMounted(() => {
           </div>
 
           <div class="employees-hero__actions">
-            <n-input v-model:value="keyword" clearable placeholder="Search..." class="employees-hero__search">
+            <n-input v-model:value="keyword" clearable :placeholder="t('employeeView.searchPlaceholder')" class="employees-hero__search">
               <template #prefix>
                 <Icon icon="mdi:magnify" width="18" />
               </template>
@@ -635,7 +637,7 @@ onMounted(() => {
                 <template #icon>
                   <Icon icon="mdi:account-plus" width="18" />
                 </template>
-                <span class="btn-text">New Employee</span>
+                <span class="btn-text">{{ t('employeeView.newEmployeeButtonText') }}</span>
               </n-button>
             </div>
           </div>
@@ -655,8 +657,8 @@ onMounted(() => {
             <Icon icon="solar:money-bag-broken" width="22" />
           </div>
           <div>
-            <h3>Employee Salaries</h3>
-            <p>Payroll history for the current branch</p>
+            <h3>{{ t('employeeView.salaryPanel.title') }}</h3>
+            <p>{{ t('employeeView.salaryPanel.subtitle') }}</p>
           </div>
         </div>
         <n-button quaternary circle @click="fetchSalaries" :loading="salariesLoading">
@@ -668,7 +670,7 @@ onMounted(() => {
         <n-gi>
           <div class="stat-card stat-card-primary">
             <div class="stat-top">
-              <Icon icon="mdi:cash-multiple" width="20" /><span>Records</span>
+              <Icon icon="mdi:cash-multiple" width="20" /><span>{{ t('employeeView.salaryPanel.records') }}</span>
             </div>
             <div class="stat-value">{{ salarySummary.count }}</div>
           </div>
@@ -676,7 +678,7 @@ onMounted(() => {
         <n-gi>
           <div class="stat-card">
             <div class="stat-top">
-              <Icon icon="mdi:wallet-outline" width="20" /><span>Base Pay</span>
+              <Icon icon="mdi:wallet-outline" width="20" /><span>{{ t('employeeView.salaryPanel.basePay') }}</span>
             </div>
             <div class="stat-value">{{ formatMoney(salarySummary.totalBase) }}</div>
           </div>
@@ -684,7 +686,7 @@ onMounted(() => {
         <n-gi>
           <div class="stat-card stat-card-accent">
             <div class="stat-top">
-              <Icon icon="mdi:gift-outline" width="20" /><span>Total Bonus</span>
+              <Icon icon="mdi:gift-outline" width="20" /><span>{{ t('employeeView.salaryPanel.totalBonus') }}</span>
             </div>
             <div class="stat-value">{{ formatMoney(salarySummary.totalBonus) }}</div>
           </div>
@@ -698,17 +700,17 @@ onMounted(() => {
 
       <div class="salary-footer">
         <div class="salary-footer-item">
-          <Icon icon="mdi:cash-check" width="18" /><span>Total Paid: {{ formatMoney(salarySummary.totalPaid) }}</span>
+          <Icon icon="mdi:cash-check" width="18" /><span>{{ t('employeeView.salaryPanel.totalPaid', { amount: formatMoney(salarySummary.totalPaid) }) }}</span>
         </div>
         <div class="salary-footer-item">
-          <Icon icon="mdi:calendar-month-outline" width="18" /><span>{{ salarySummary.count }} payments</span>
+          <Icon icon="mdi:calendar-month-outline" width="18" /><span>{{ t('employeeView.salaryPanel.payments', { count: salarySummary.count }) }}</span>
         </div>
       </div>
     </n-card>
 
     <EmployeeProfilePopup v-if="showViewPopup" v-model:show="showViewPopup" :employee-data="viewPopupData" />
     <n-modal content-scrollable style="max-width: 600px; max-height: 90vh;" v-model:show="showEditor" preset="card"
-      :title="isEditing ? 'Edit Employee' : 'New Employee'" class="responsive-modal">
+      :title="isEditing ? t('employeeView.modal.editTitle') : t('employeeView.modal.newTitle')" class="responsive-modal">
       <n-form label-placement="top">
         <div class="profile-upload-row">
           <div class="profile-image-container" @click="triggerFileInput">
@@ -719,12 +721,12 @@ onMounted(() => {
         </div>
 
         <div class="form-row dual">
-          <n-form-item label="Email"><n-input v-model:value="formModel.email" /></n-form-item>
-          <n-form-item label="Phone"><n-input v-model:value="formModel.phone" /></n-form-item>
+          <n-form-item :label="t('employeeView.form.emailLabel')"><n-input v-model:value="formModel.email" /></n-form-item>
+          <n-form-item :label="t('employeeView.form.phoneLabel')"><n-input v-model:value="formModel.phone" /></n-form-item>
         </div>
 
         <div class="form-row dual">
-          <n-form-item label="Hire date">
+          <n-form-item :label="t('employeeView.form.hireDateLabel')">
 
             <n-date-picker type="date" size="small" style="width: 100%" :value="formModel.hireDate
                 ? new Date(formModel.hireDate + 'T00:00:00').getTime()
@@ -732,101 +734,101 @@ onMounted(() => {
               " @update:value="handleHireDateChange" />
 
           </n-form-item>
-          <n-form-item label="First name"><n-input v-model:value="formModel.fName" /></n-form-item>
+          <n-form-item :label="t('employeeView.form.firstNameLabel')"><n-input v-model:value="formModel.fName" /></n-form-item>
         </div>
 
         <div class="form-row dual">
-          <n-form-item label="Last name"><n-input v-model:value="formModel.lName" /></n-form-item>
-          <n-form-item label="Qualification"><n-input v-model:value="formModel.qualification" /></n-form-item>
+          <n-form-item :label="t('employeeView.form.lastNameLabel')"><n-input v-model:value="formModel.lName" /></n-form-item>
+          <n-form-item :label="t('employeeView.form.qualificationLabel')"><n-input v-model:value="formModel.qualification" /></n-form-item>
         </div>
 
         <div class="form-row">
-          <n-form-item label="Speciality"><n-input v-model:value="formModel.speciality" /></n-form-item>
+          <n-form-item :label="t('employeeView.form.specialityLabel')"><n-input v-model:value="formModel.speciality" /></n-form-item>
         </div>
 
         <div class="form-row">
-          <n-form-item label="License Number"><n-input v-model:value="formModel.midLicenseNum" /></n-form-item>
+          <n-form-item :label="t('employeeView.form.medicalLicenseNumberLabel')"><n-input v-model:value="formModel.midLicenseNum" /></n-form-item>
         </div>
 
         <div class="form-row dual">
-          <n-form-item label="Gender"><n-select v-model:value="formModel.gender"
+          <n-form-item :label="t('employeeView.form.genderLabel')"><n-select v-model:value="formModel.gender"
               :options="genderOptions" /></n-form-item>
-          <n-form-item label="Position">
+          <n-form-item :label="t('employeeView.form.positionLabel')">
             <n-select :options="positionOptions" @update:value="handlePositionChange"
               :value="positionOptions[(formModel.positionId as number) - 1]?.value" />
           </n-form-item>
         </div>
 
         <div class="form-row dual">
-          <n-form-item label="Work Start"><n-time-picker v-model:value="formModel.workStartTime"
+          <n-form-item :label="t('employeeView.form.workStartTimeLabel')"><n-time-picker v-model:value="formModel.workStartTime"
               format="HH:mm" /></n-form-item>
-          <n-form-item label="Work End"><n-time-picker v-model:value="formModel.workEndTime"
+          <n-form-item :label="t('employeeView.form.workEndTimeLabel')"><n-time-picker v-model:value="formModel.workEndTime"
               format="HH:mm" /></n-form-item>
         </div>
 
         <div class="form-actions">
-          <n-button @click="showEditor = false">Cancel</n-button>
-          <n-button type="primary" :loading="submitting" @click="handleSubmit">Save</n-button>
+          <n-button @click="showEditor = false">{{ t('common.cancelButtonText') }}</n-button>
+          <n-button type="primary" :loading="submitting" @click="handleSubmit">{{ t('common.saveButtonText') }}</n-button>
         </div>
       </n-form>
     </n-modal>
 
-    <n-modal v-model:show="showPayModal" style="max-width: 600px;" preset="card" title="Pay Salary"
+    <n-modal v-model:show="showPayModal" style="max-width: 600px;" preset="card" :title="t('employeeView.payModal.title')"
       class="responsive-modal small">
       <div class="payroll-container">
         <div class="payroll-header">
           <Icon icon="mdi:account-cash" width="22" /><strong>{{ payingEmployee?.name }}</strong>
         </div>
-        <n-form-item label="Salary Month"><n-date-picker type="month" v-model:value="salaryForm.salaryMonth"
+        <n-form-item :label="t('employeeView.payModal.salaryMonthLabel')"><n-date-picker type="month" v-model:value="salaryForm.salaryMonth"
             style="width: 100%" /></n-form-item>
         <div class="form-row dual">
-          <n-form-item label="Amount"><n-input-number v-model:value="salaryForm.amount" :min="0" /></n-form-item>
-          <n-form-item label="Bonus"><n-input-number v-model:value="salaryForm.bonus" :min="0" /></n-form-item>
+          <n-form-item :label="t('employeeView.payModal.amountLabel')"><n-input-number v-model:value="salaryForm.amount" :min="0" /></n-form-item>
+          <n-form-item :label="t('employeeView.payModal.bonusLabel')"><n-input-number v-model:value="salaryForm.bonus" :min="0" /></n-form-item>
         </div>
-        <n-form-item label="Pay From Account"><n-select v-model:value="salaryForm.accountId"
+        <n-form-item :label="t('employeeView.payModal.payFromAccountLabel')"><n-select v-model:value="salaryForm.accountId"
             :options="accounts" /></n-form-item>
-        <n-form-item label="Remarks"><n-input v-model:value="salaryForm.remark" type="textarea" /></n-form-item>
+        <n-form-item :label="t('employeeView.payModal.remarksLabel')"><n-input v-model:value="salaryForm.remark" type="textarea" /></n-form-item>
         <div class="form-actions">
-          <n-button @click="showPayModal = false">Cancel</n-button>
-          <n-button type="primary" @click="submitSalary">Pay</n-button>
+          <n-button @click="showPayModal = false">{{ t('common.cancelButtonText') }}</n-button>
+          <n-button type="primary" @click="submitSalary">{{ t('employeeView.payModal.payButton') }}</n-button>
         </div>
       </div>
     </n-modal>
 
-    <n-modal v-model:show="showInvite" style="max-width: 600px;" preset="card" title="Employee Invitation"
+    <n-modal v-model:show="showInvite" style="max-width: 600px;" preset="card" :title="t('employeeView.inviteModal.title')"
       class="responsive-modal">
       <div class="invite-container">
         <div class="invite-header">
           <Icon icon="mdi:mail-send" width="24" />
           <div>
-            <h3>Invitation Sent</h3>
-            <p>Share the reset password link with the employee</p>
+            <h3>{{ t('employeeView.inviteModal.sentTitle') }}</h3>
+            <p>{{ t('employeeView.inviteModal.sentCopy') }}</p>
           </div>
         </div>
 
         <div class="invite-section">
-          <label class="invite-label">Email</label>
+          <label class="invite-label">{{ t('employeeView.inviteModal.emailLabel') }}</label>
           <div class="invite-field">
             <n-input :value="inviteEmail" readonly />
           </div>
         </div>
 
         <div class="invite-section">
-          <label class="invite-label">Reset Password Link</label>
+          <label class="invite-label">{{ t('employeeView.inviteModal.linkLabel') }}</label>
           <div class="invite-field">
             <n-input :value="inviteLink" readonly />
             <n-button ghost type="primary" @click="copyInviteLink" class="copy-btn">
               <template #icon>
                 <Icon icon="mdi:content-copy" />
               </template>
-              Copy
+              {{ t('employeeView.inviteModal.copyButton') }}
             </n-button>
           </div>
         </div>
 
         <div class="invite-note">
           <Icon icon="mdi:information-outline" />
-          <p>The employee can use this link to set their password and access the system.</p>
+          <p>{{ t('employeeView.inviteModal.note') }}</p>
         </div>
 
         <!-- <div class="form-actions">

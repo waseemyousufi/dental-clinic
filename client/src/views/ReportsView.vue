@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { fetchReports } from '@/api/reports'
 import { resolveBranchId } from '@/api/utils/branchParams'
 import ReportControlHeader from '@/components/reports/ReportControlHeader.vue'
@@ -42,6 +43,7 @@ interface ReportResponse {
 
 const loading = ref(false)
 const errorMessage = ref('')
+const { t } = useI18n()
 const selectedPeriod = ref<PeriodKey>('30D')
 const customDateRange = ref<{ start: string | null; end: string | null }>({
   start: null,
@@ -58,11 +60,11 @@ const periodToDays: Record<Exclude<PeriodKey, 'CUSTOM'>, number> = {
 }
 
 const periodLabels: Record<PeriodKey, string> = {
-  '1D': 'Today',
-  '7D': 'Last 7 days',
-  '30D': 'Last 30 days',
-  '90D': 'Last 90 days',
-  CUSTOM: 'Custom range',
+  '1D': t('reportsView.periodLabels.today'),
+  '7D': t('reportsView.periodLabels.last7Days'),
+  '30D': t('reportsView.periodLabels.last30Days'),
+  '90D': t('reportsView.periodLabels.last90Days'),
+  CUSTOM: t('reportsView.periodLabels.customRange'),
 }
 
 const financialSummary = computed(
@@ -93,11 +95,11 @@ const operationalSummary = computed(
     },
 )
 
-const scopeLabel = computed(() => reportData.value?.meta.branch_name || 'Current branch')
+const scopeLabel = computed(() => reportData.value?.meta.branch_name || t('reportsView.scopeLabel'))
 
 const generatedAtLabel = computed(() => {
   const raw = reportData.value?.meta.generated_at
-  if (!raw) return 'n/a'
+  if (!raw) return t('reportsView.notAvailable')
   return new Intl.DateTimeFormat(undefined, {
     dateStyle: 'medium',
     timeStyle: 'short',
@@ -109,7 +111,7 @@ const periodLabel = computed(() => periodLabels[selectedPeriod.value])
 const periodRangeLabel = computed(() => {
   const start = reportData.value?.meta.period_start
   const end = reportData.value?.meta.period_end
-  if (!start || !end) return 'Range not available'
+  if (!start || !end) return t('reportsView.rangeNotAvailable')
   const fmt = new Intl.DateTimeFormat(undefined, {
     dateStyle: 'medium',
   })
@@ -118,7 +120,7 @@ const periodRangeLabel = computed(() => {
 
 const customRangeLabel = computed(() => {
   const { start, end } = customDateRange.value
-  if (!start || !end) return 'Select dates'
+  if (!start || !end) return t('reportsView.selectDates')
   return `${start} → ${end}`
 })
 
@@ -159,7 +161,7 @@ const loadReports = async () => {
 
     reportData.value = payload
   } catch {
-    errorMessage.value = 'Unable to load reports. Please try again.'
+    errorMessage.value = t('reportsView.loadError')
   } finally {
     loading.value = false
   }
@@ -204,7 +206,7 @@ onMounted(loadReports)
             <div class="hero-badge">{{ selectedPeriod === 'CUSTOM' ? customRangeLabel : periodLabel }}</div>
             <div class="hero-badge">{{ periodRangeLabel }}</div>
             <div class="hero-badge" :class="loading ? 'hero-badge-loading' : 'hero-badge-ready'">
-              {{ loading ? 'Syncing' : 'Live data' }}
+              {{ loading ? t('reportsView.syncing') : t('reportsView.liveData') }}
             </div>
           </div>
         </div>
@@ -250,22 +252,19 @@ onMounted(loadReports)
       <section class="section-block">
         <div class="section-heading">
           <div>
-            <h2>Financial Overview</h2>
-            <p>
-              Key revenue signals, receivables, collections and treatment yield for the selected
-              period.
-            </p>
+            <h2>{{ t('reportsView.financialOverview.title') }}</h2>
+            <p>{{ t('reportsView.financialOverview.description') }}</p>
           </div>
         </div>
 
         <div class="financial-grid">
           <div class="financial-card revenue-card">
             <div class="card-top">
-              <span class="card-label">Net Profit</span>
+              <span class="card-label">{{ t('reportsView.cards.netProfit') }}</span>
               <div class="card-indicator positive" />
             </div>
             <h3>{{ currency(financialSummary.netProfit) }}</h3>
-            <p>Total profit generated during the selected reporting period.</p>
+            <p>{{ t('reportsView.cards.netProfitDescription') }}</p>
             <!-- <div class="trend-chip" :class="signedTrendClass(financialSummary.grossRevenueTrend)">
               <span>Trend</span>
               <strong>{{ financialSummary.grossRevenueTrend || '—' }}</strong>
@@ -274,11 +273,11 @@ onMounted(loadReports)
 
           <div class="financial-card collected-card">
             <div class="card-top">
-              <span class="card-label">Income</span>
+              <span class="card-label">{{ t('reportsView.cards.income') }}</span>
               <div class="card-indicator success" />
             </div>
             <h3>{{ currency(financialSummary.netCollected) }}</h3>
-            <p>Collected cash and realized payments across the reporting period.</p>
+            <p>{{ t('reportsView.cards.incomeDescription') }}</p>
             <!-- <div class="trend-chip" :class="signedTrendClass(financialSummary.netCollectedTrend)">
               <span>Trend</span>
               <strong>{{ financialSummary.netCollectedTrend || '—' }}</strong>
@@ -287,11 +286,11 @@ onMounted(loadReports)
 
           <div class="financial-card ar-card">
             <div class="card-top">
-              <span class="card-label">Receivable Amount</span>
+              <span class="card-label">{{ t('reportsView.cards.receivableAmount') }}</span>
               <div class="card-indicator warning" />
             </div>
             <h3>{{ currency(financialSummary.accountsReceivable) }}</h3>
-            <p>Outstanding balances pending collection from patients or insurers.</p>
+            <p>{{ t('reportsView.cards.receivableAmountDescription') }}</p>
             <!-- <div class="trend-chip" :class="signedTrendClass(financialSummary.accountsReceivableTrend)">
               <span>Trend</span>
               <strong>{{ financialSummary.accountsReceivableTrend || '—' }}</strong>
@@ -300,11 +299,11 @@ onMounted(loadReports)
 
           <div class="financial-card operations-card">
             <div class="card-top">
-              <span class="card-label">Collection Rate</span>
+              <span class="card-label">{{ t('reportsView.cards.collectionRate') }}</span>
               <div class="card-indicator info" />
             </div>
             <h3>{{ percent(operationalSummary.collection_rate) }}</h3>
-            <p>Collection efficiency across the selected reporting window.</p>
+            <p>{{ t('reportsView.cards.collectionRateDescription') }}</p>
             <!-- <div class="trend-chip trend-neutral">
               <span>Volume</span>
               <strong>{{ operationalSummary.appointments_completed }} completed</strong>
@@ -315,11 +314,10 @@ onMounted(loadReports)
         <div class="yield-panel">
           <div class="yield-panel-heading">
             <div>
-              <h3>Treatment Yield</h3>
-              <p>Revenue mix by treatment category, shown as readable cards for faster scanning.</p>
-            </div>
+                <h3>{{ t('reportsView.treatmentYield.title') }}</h3>
+                <p>{{ t('reportsView.treatmentYield.description') }}</p>
+        </div>
           </div>
-
           <div v-if="financialSummary.treatmentYield.length" class="yield-grid">
             <div
               v-for="item in financialSummary.treatmentYield"
@@ -331,12 +329,14 @@ onMounted(loadReports)
               <div class="yield-bar">
                 <div class="yield-fill" :style="{ width: `${Math.min(item.percentage, 100)}%` }" />
               </div>
-              <div class="yield-meta">{{ percent(item.percentage) }} of treatment yield</div>
+              <div class="yield-meta">
+                {{ percent(item.percentage) }} {{ t('reportsView.treatmentYield.ofYield') }}
+              </div>
             </div>
           </div>
 
           <div v-else class="empty-state">
-            Treatment yield data is not available for this period.
+            {{ t('reportsView.treatmentYield.emptyState') }}
           </div>
         </div>
 
@@ -371,11 +371,10 @@ onMounted(loadReports)
       <section class="section-block">
         <div class="section-heading">
           <div>
-            <h2>Provider Productivity</h2>
-            <p>Performance output, treatment efficiency and collections by provider.</p>
-          </div>
+              <h2>{{ t('reportsView.providerProductivity.title') }}</h2>
+              <p>{{ t('reportsView.providerProductivity.description') }}</p>
+`         </div>
         </div>
-
         <div class="table-shell">
           <ProviderProductivityTable :data="providerProductivity" />
         </div>

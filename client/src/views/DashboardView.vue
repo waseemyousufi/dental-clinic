@@ -474,7 +474,7 @@ const operationalStats = computed(() => {
     { label: 'New patients', value: find('new_patients')?.formatted ?? '0', help: 'Registered patients in the selected period.' },
     { label: 'Pricing discipline', value: find('pricing_discipline')?.formatted ?? '0%', help: 'Share of treatments priced inside range.' },
     { label: 'Same-day collection', value: find('same_day_collection')?.formatted ?? '0%', help: 'Treatments collected on the same day.' },
-    // { label: 'Case acceptance', value: find('plan_acceptance')?.formatted ?? '0%', help: 'Accepted treatment plans versus proposals.' },
+    { label: 'Case acceptance', value: find('plan_acceptance')?.formatted ?? '0%', help: 'Accepted treatment plans versus proposals.' },
   ]
 })
 

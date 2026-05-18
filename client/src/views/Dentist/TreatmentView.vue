@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ref, onMounted, computed, h, useTransitionState } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   NCard, NDataTable, NButton, NSpace, NTag, NInput,
   NModal, NForm, NFormItem, NSelect, NInputNumber,
@@ -18,6 +19,7 @@ import user from '@api/user'
 
 const message = useMessage()
 const dialog = useDialog()
+const { t } = useI18n()
 const userStore = useUserStore()
 
 // State
@@ -43,11 +45,11 @@ const formModel = ref({
 
 // Options
 const statusOptions = [
-  { label: 'Proposed', value: 'proposed' },
-  { label: 'Accepted', value: 'accepted' },
-  { label: 'Partially Accepted', value: 'partially_accepted' },
-  { label: 'Rejected', value: 'rejected' },
-  { label: 'Completed', value: 'completed' }
+  { label: t('treatmentView.statusOptions.proposed'), value: 'proposed' },
+  { label: t('treatmentView.statusOptions.accepted'), value: 'accepted' },
+  { label: t('treatmentView.statusOptions.partially_accepted'), value: 'partially_accepted' },
+  { label: t('treatmentView.statusOptions.rejected'), value: 'rejected' },
+  { label: t('treatmentView.statusOptions.completed'), value: 'completed' }
 ]
 
 const procedureOptions = computed(() =>
@@ -68,26 +70,26 @@ const patientOptions = computed(() =>
 // Table Columns
 const columns = [
   {
-    title: 'Patient',
+    title: t('treatmentView.columns.patient'),
     key: 'patient',
     render(row: TreatmentPlanData) {
       return h(NSpace, { align: 'center', size: 'small' }, {
         default: () => [
           h(Icon, { icon: 'mdi:account-outline', style: { fontSize: '18px' } }),
-          h('span', row.patient ? `${row.patient.fName} ${row.patient.lName}` : 'Unknown')
+          h('span', row.patient ? `${row.patient.fName} ${row.patient.lName}` : t('common.noDataAvailable'))
         ]
       })
     }
   },
   {
-    title: 'Procedure',
+    title: t('treatmentView.columns.procedure'),
     key: 'procedure',
     render(row: TreatmentPlanData) {
-      return h('span', { style: { fontWeight: 'bold' } }, row.procedure?.name || 'N/A')
+      return h('span', { style: { fontWeight: 'bold' } }, row.procedure?.name || t('common.noDataAvailable'))
     }
   },
   {
-    title: 'Status',
+    title: t('treatmentView.columns.status'),
     key: 'status',
     render(row: TreatmentPlanData) {
       const typeMap: Record<string, 'default' | 'info' | 'success' | 'warning' | 'error'> = {
@@ -101,14 +103,14 @@ const columns = [
         type: typeMap[row.status] || 'default',
         round: true,
         bordered: false
-      }, { default: () => row.status.toUpperCase() })
+      }, { default: () => t(`treatmentView.statusOptions.${row.status}`) || row.status.toUpperCase() })
     }
   },
   {
-    title: 'Date',
+    title: t('treatmentView.columns.date'),
     key: 'start_date',
     render(row: TreatmentPlanData) {
-      return row.start_date || 'N/A'
+      return row.start_date || t('common.noDataAvailable')
     }
   },
 ]
@@ -128,7 +130,7 @@ if(!userStore.isDoctor) {
 if(!userStore.isReceptionist) {
   columns.push(
       {
-    title: 'Actions',
+    title: t('treatmentView.columns.actions'),
     key: 'actions',
     render(row: TreatmentPlanData) {
       return h(NSpace, {}, {
@@ -148,7 +150,7 @@ if(!userStore.isReceptionist) {
               circle: true,
               type: 'error'
             }, { icon: () => h(Icon, { icon: 'mdi:delete-outline' }) }),
-            default: () => 'Are you sure you want to delete this treatment plan?'
+            default: () => t('treatmentView.messages.deleteConfirmMessage')
           }),
           // row.status === 'accepted' ? h(NButton, {
           //   size: 'small',
@@ -176,7 +178,7 @@ async function loadData() {
     procedures.value = proceduresRes.data.data || proceduresRes.data
     patients.value = patientsRes.data.data || patientsRes.data
   } catch (err) {
-    message.error('Failed to load data')
+    message.error(t('treatmentView.messages.loadDataError'))
   } finally {
     loading.value = false
   }
@@ -219,7 +221,7 @@ function handleProcedureChange(value: number) {
 
 async function handleSubmit() {
   if (!formModel.value.patient_id || !formModel.value.procedure_id) {
-    message.warning('Please fill in required fields')
+    message.warning(t('treatmentView.messages.requiredFieldsWarning'))
     return
   }
 
@@ -232,15 +234,15 @@ async function handleSubmit() {
 
     if (editingPlan.value) {
       await TreatmentPlanApi.putTreatmentPlan(editingPlan.value.id!, payload as any)
-      message.success('Treatment plan updated')
+      message.success(t('treatmentView.messages.planUpdatedSuccess'))
     } else {
       await TreatmentPlanApi.postTreatmentPlan(payload as any)
-      message.success('Treatment plan created')
+      message.success(t('treatmentView.messages.planCreatedSuccess'))
     }
     showModal.value = false
     loadData()
   } catch (err) {
-    message.error('Operation failed')
+    message.error(t('treatmentView.messages.operationFailed'))
   } finally {
     modalLoading.value = false
   }
@@ -249,26 +251,29 @@ async function handleSubmit() {
 async function handleDelete(id: number) {
   try {
     await TreatmentPlanApi.deleteTreatmentPlan(id)
-    message.success('Treatment plan deleted')
+    message.success(t('treatmentView.messages.planDeletedSuccess'))
     loadData()
   } catch (err) {
-    message.error('Delete failed')
+    message.error(t('treatmentView.messages.deleteFailed'))
   }
 }
 
 function handleExecute(plan: TreatmentPlanData) {
   dialog.warning({
-    title: 'Execute Treatment',
-    content: `Are you sure you want to execute ${plan.procedure?.name} for ${plan.patient?.fName}? This will update inventory.`,
-    positiveText: 'Execute',
-    negativeText: 'Cancel',
+    title: t('treatmentView.executeDialog.title'),
+    content: t('treatmentView.executeDialog.content', {
+      procedure: plan.procedure?.name || t('common.noDataAvailable'),
+      patient: plan.patient?.fName || t('common.noDataAvailable')
+    }),
+    positiveText: t('treatmentView.executeDialog.positiveText'),
+    negativeText: t('common.cancelButtonText'),
     onPositiveClick: async () => {
       try {
         await TreatmentPlanApi.updateStatus(plan.id!, { ...plan, status: 'completed' })
-        message.success('Treatment executed successfully')
+        message.success(t('treatmentView.messages.executionSuccess'))
         loadData()
       } catch (err) {
-        message.error('Execution failed')
+        message.error(t('treatmentView.messages.executionFailed'))
       }
     }
   })
@@ -301,21 +306,21 @@ onMounted(loadData)
       <n-space vertical size="large">
         <div class="header">
           <div>
-            <h1 style="margin: 0;">Treatment Plans</h1>
-            <p style="color: #666;"></p>
+            <h1 style="margin: 0;">{{ t('treatmentView.headerTitle') }}</h1>
+            <p style="color: #666;">{{ t('treatmentView.headerCopy') }}</p>
           </div>
           <n-button v-if="!userStore.isReceptionist" type="primary" size="large" @click="handleAdd">
             <template #icon>
               <Icon icon="mdi:plus" />
             </template>
-            New Treatment Plan
+            {{ t('treatmentView.newPlanButtonText') }}
           </n-button>
         </div>
 
         <n-grid cols="1 400:2 800:4" x-gap="12" y-gap="12">
           <n-gi>
             <n-card size="small" class="stat-card">
-              <n-statistic label="Total Plans" :value="stats.total">
+              <n-statistic :label="t('treatmentView.stats.totalPlans')" :value="stats.total">
                 <template #prefix>
                   <Icon icon="mdi:clipboard-text-outline" color="#1890ff" />
                 </template>
@@ -324,7 +329,7 @@ onMounted(loadData)
           </n-gi>
           <n-gi>
             <n-card size="small" class="stat-card">
-              <n-statistic label="Completed" :value="stats.completed">
+              <n-statistic :label="t('treatmentView.stats.completed')" :value="stats.completed">
                 <template #prefix>
                   <Icon icon="mdi:check-circle-outline" color="#52c41a" />
                 </template>
@@ -333,7 +338,7 @@ onMounted(loadData)
           </n-gi>
           <n-gi>
             <n-card size="small" class="stat-card">
-              <n-statistic label="Accepted" :value="stats.accepted">
+              <n-statistic :label="t('treatmentView.stats.accepted')" :value="stats.accepted">
                 <template #prefix>
                   <Icon icon="mdi:handshake-outline" color="#faad14" />
                 </template>
@@ -342,7 +347,7 @@ onMounted(loadData)
           </n-gi>
           <n-gi>
             <n-card size="small" class="stat-card" v-if="userStore.isAdmin">
-              <n-statistic label="Est. Revenue" :value="stats.revenue">
+              <n-statistic :label="t('treatmentView.stats.revenue')" :value="stats.revenue">
                 <template #prefix>
                   <Icon icon="mdi:cash" color="#eb2f96" />
                 </template>
@@ -356,7 +361,7 @@ onMounted(loadData)
           <n-space vertical>
             <n-input
               v-model:value="searchQuery"
-              placeholder="Search by patient or procedure..."
+              :placeholder="t('treatmentView.searchPlaceholder')"
               clearable
               size="large"
             >
@@ -381,48 +386,48 @@ onMounted(loadData)
     <n-modal v-model:show="showModal" @mask-click="showModal = false">
       <n-card
         style="width: 600px"
-        :title="editingPlan ? 'Edit Treatment Plan' : 'New Treatment Plan'"
+        :title="editingPlan ? t('treatmentView.modal.editTitle') : t('treatmentView.modal.newTitle')"
         :bordered="false"
         size="huge"
         role="dialog"
         aria-modal="true"
       >
         <n-form :model="formModel" label-placement="left" label-width="140">
-          <n-form-item label="Patient" path="patient_id" required>
+          <n-form-item :label="t('treatmentView.form.patientLabel')" path="patient_id" required>
             <n-select
               v-model:value="formModel.patient_id"
               :options="patientOptions"
-              placeholder="Select Patient"
+              :placeholder="t('treatmentView.form.patientPlaceholder')"
               filterable
             />
           </n-form-item>
 
-          <n-form-item label="Procedure" path="procedure_id" required>
+          <n-form-item :label="t('treatmentView.form.procedureLabel')" path="procedure_id" required>
             <n-select
               v-model:value="formModel.procedure_id"
               :options="procedureOptions"
-              placeholder="Select Procedure"
+              :placeholder="t('treatmentView.form.procedurePlaceholder')"
               filterable
               @update:value="handleProcedureChange"
             />
           </n-form-item>
 
-          <n-form-item label="Estimated Cost" path="total_estimated_cost">
+          <n-form-item :label="t('treatmentView.form.estimatedCostLabel')" path="total_estimated_cost">
             <n-input-number
               v-model:value="formModel.total_estimated_cost"
               :min="0"
               style="width: 100%"
-              placeholder="0.00"
+              :placeholder="t('treatmentView.form.estimatedCostPlaceholder')"
             >
               <template #suffix>AFN</template>
             </n-input-number>
           </n-form-item>
 
-          <n-form-item label="Status" path="status">
+          <n-form-item :label="t('treatmentView.form.statusLabel')" path="status">
             <n-select v-model:value="formModel.status" :options="statusOptions" />
           </n-form-item>
 
-          <n-form-item label="Start Date" path="start_date">
+          <n-form-item :label="t('treatmentView.form.startDateLabel')" path="start_date">
             <n-date-picker
               v-model:value="formModel.start_date"
               type="date"
@@ -430,16 +435,16 @@ onMounted(loadData)
             />
           </n-form-item>
 
-          <n-form-item label="appointments needed" path="appointments_needed">
+          <n-form-item :label="t('treatmentView.form.appointmentsNeededLabel')" path="appointments_needed">
             <n-input-number v-model:value="formModel.appointments_needed" :min="1" style="width: 100%" />
           </n-form-item>
         </n-form>
 
         <template #footer>
           <n-space justify="end">
-            <n-button @click="showModal = false">Cancel</n-button>
+            <n-button @click="showModal = false">{{ t('common.cancelButtonText') }}</n-button>
             <n-button type="primary" :loading="modalLoading" @click="handleSubmit">
-              Save Plan
+              {{ t('common.saveButtonText') }}
             </n-button>
           </n-space>
         </template>

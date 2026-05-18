@@ -4,34 +4,34 @@
       <template #header>
         <div class="header-bar">
           <div>
-            <h2 class="page-title">Branch Settings</h2>
-            <p class="page-subtitle">Manage clinic details, templates, permissions, and procedures.</p>
+            <h2 class="page-title">{{ t('settingsView.pageTitle') }}</h2>
+            <p class="page-subtitle">{{ t('settingsView.pageSubtitle') }}</p>
           </div>
           <n-space class="header-actions" wrap>
-            <n-button @click="resetForm" secondary>Reset</n-button>
-            <n-button type="primary" @click="submitForm" :loading="loading">Save Changes</n-button>
+            <n-button @click="resetForm" secondary>{{ t('settingsView.resetButton') }}</n-button>
+            <n-button type="primary" @click="submitForm" :loading="loading">{{ t('settingsView.saveChangesButton') }}</n-button>
           </n-space>
         </div>
       </template>
 
       <n-form ref="formRef" :model="formData" :rules="rules" label-placement="top" @submit.prevent>
       <n-tabs v-model:value="activeTab" type="line" animated placement="top" class="settings-tabs">
-        <n-tab-pane name="branch" tab="Branch">
+        <n-tab-pane name="branch" :tab="t('settingsView.tabs.branch')">
           <div class="section-stack">
             <div class="responsive-grid">
-              <n-form-item label="Clinic Name" path="clinic_name">
-                <n-input v-model:value="formData.clinic_name" placeholder="e.g., SmileCare Dental" />
+              <n-form-item :label="t('settingsView.branchForm.clinicNameLabel')" path="clinic_name">
+                <n-input v-model:value="formData.clinic_name" :placeholder="t('settingsView.branchForm.clinicNamePlaceholder')" />
               </n-form-item>
               <!-- <n-form-item label="Currency" path="currency">
                 <n-select v-model:value="formData.currency" :options="currencyOptions" />
               </n-form-item> -->
-              <n-form-item class="full-span" label="Address" path="address">
-                <n-input v-model:value="formData.address" type="textarea" placeholder="Full clinic address" :autosize="{ minRows: 3, maxRows: 5 }" />
+              <n-form-item class="full-span" :label="t('settingsView.branchForm.addressLabel')" path="address">
+                <n-input v-model:value="formData.address" type="textarea" :placeholder="t('settingsView.branchForm.addressPlaceholder')" :autosize="{ minRows: 3, maxRows: 5 }" />
               </n-form-item>
-              <n-form-item label="Phone" path="phone">
-                <n-input v-model:value="formData.phone" placeholder="+1 234 567 8900" />
+              <n-form-item :label="t('settingsView.branchForm.phoneLabel')" path="phone">
+                <n-input v-model:value="formData.phone" :placeholder="t('settingsView.branchForm.phonePlaceholder')" />
               </n-form-item>
-              <n-form-item label="Reception Fee" path="reception">
+              <n-form-item :label="t('settingsView.branchForm.receptionFeeLabel')" path="reception">
                 <n-input-number v-model:value="formData.reception" :min="0" :step="50" />
               </n-form-item>
             </div>
@@ -92,24 +92,24 @@
           </div>
         </n-tab-pane> -->
 
-        <n-tab-pane name="procedures" tab="Procedures">
+        <n-tab-pane name="procedures" :tab="t('settingsView.tabs.procedures')">
           <div class="service-section">
-            <n-card size="small" title="Add Procedure">
+            <n-card size="small" :title="t('settingsView.procedureForm.addProcedureTitle')">
               <div class="service-form-grid">
-                <n-form-item label="Procedure Name">
-                  <n-input v-model:value="newProcedure.name" placeholder="Procedure name" />
+                <n-form-item :label="t('settingsView.procedureForm.procedureNameLabel')">
+                  <n-input v-model:value="newProcedure.name" :placeholder="t('settingsView.procedureForm.procedureNamePlaceholder')" />
                 </n-form-item>
-                <n-form-item label="Category">
-                  <n-input v-model:value="newProcedure.category" placeholder="Category" />
+                <n-form-item :label="t('settingsView.procedureForm.categoryLabel')">
+                  <n-input v-model:value="newProcedure.category" :placeholder="t('settingsView.procedureForm.categoryPlaceholder')" />
                 </n-form-item>
-                <n-form-item label="Base Price">
-                  <n-input-number v-model:value="newProcedure.base_price" :min="0" :precision="2" placeholder="Base price" />
+                <n-form-item :label="t('settingsView.procedureForm.basePriceLabel')">
+                  <n-input-number v-model:value="newProcedure.base_price" :min="0" :precision="2" :placeholder="t('settingsView.procedureForm.basePricePlaceholder')" />
                 </n-form-item>
                 <!-- <n-form-item label="Minimum Price">
                   <n-input-number v-model:value="newProcedure.min_price" :min="0" :precision="2" placeholder="Min price" />
                 </n-form-item> -->
-                <n-form-item label="Appointments Needed">
-                  <n-input-number v-model:value="newProcedure.appointments_needed" :min="0" placeholder="Appointments needed" />
+                <n-form-item :label="t('settingsView.procedureForm.appointmentsNeededLabel')">
+                  <n-input-number v-model:value="newProcedure.appointments_needed" :min="0" :placeholder="t('settingsView.procedureForm.appointmentsNeededPlaceholder')" />
                 </n-form-item>
                 <!-- <n-form-item label="Dentist Commission">
                   <n-input-number v-model:value="newProcedure.dentist_commission" :min="0" :precision="2" placeholder="Dentist commission" />
@@ -117,33 +117,33 @@
                 <n-form-item label="Assistant Commission">
                   <n-input-number v-model:value="newProcedure.assistant_commission" :min="0" :precision="2" placeholder="Assistant commission" />
                 </n-form-item> -->
-                <n-form-item label="Active Status">
+                <n-form-item :label="t('settingsView.procedureForm.activeStatusLabel')">
                   <n-switch v-model:value="newProcedure.is_active">
-                    <template #checked>Active</template>
-                    <template #unchecked>Inactive</template>
+                    <template #checked>{{ t('settingsView.procedureForm.activeStatusChecked') }}</template>
+                    <template #unchecked>{{ t('settingsView.procedureForm.activeStatusUnchecked') }}</template>
                   </n-switch>
                 </n-form-item>
               </div>
-              <n-button class="section-action" attr-type="button" type="primary" @click="createProcedure" :loading="procedureSubmitting">Add Procedure</n-button>
+              <n-button class="section-action" attr-type="button" type="primary" @click="createProcedure" :loading="procedureSubmitting">{{ t('settingsView.procedureForm.addProcedureButton') }}</n-button>
             </n-card>
 
             <div class="service-list">
               <n-card v-for="procedure in procedures" :key="procedure.id" size="small" class="service-card">
                 <div class="service-form-grid">
-                  <n-form-item label="Procedure Name">
-                    <n-input v-model:value="procedure.name" placeholder="Procedure name" />
+                  <n-form-item :label="t('settingsView.procedureForm.procedureNameLabel')">
+                    <n-input v-model:value="procedure.name" :placeholder="t('settingsView.procedureForm.procedureNamePlaceholder')" />
                   </n-form-item>
-                  <n-form-item label="Category">
-                    <n-input v-model:value="procedure.category" placeholder="Category" />
+                  <n-form-item :label="t('settingsView.procedureForm.categoryLabel')">
+                    <n-input v-model:value="procedure.category" :placeholder="t('settingsView.procedureForm.categoryPlaceholder')" />
                   </n-form-item>
-                  <n-form-item label="Base Price">
-                    <n-input-number v-model:value="procedure.base_price" :min="0" :precision="2" placeholder="Base price" />
+                  <n-form-item :label="t('settingsView.procedureForm.basePriceLabel')">
+                    <n-input-number v-model:value="procedure.base_price" :min="0" :precision="2" :placeholder="t('settingsView.procedureForm.basePricePlaceholder')" />
                   </n-form-item>
                   <!-- <n-form-item label="Minimum Price">
                     <n-input-number v-model:value="procedure.min_price" :min="0" :precision="2" placeholder="Min price" />
                   </n-form-item> -->
-                  <n-form-item label="Appointments Needed">
-                    <n-input-number v-model:value="procedure.appointments_needed" :min="0" placeholder="Appointments needed" />
+                  <n-form-item :label="t('settingsView.procedureForm.appointmentsNeededLabel')">
+                    <n-input-number v-model:value="procedure.appointments_needed" :min="0" :placeholder="t('settingsView.procedureForm.appointmentsNeededPlaceholder')" />
                   </n-form-item>
                   <!-- <n-form-item label="Dentist Commission">
                     <n-input-number v-model:value="procedure.dentist_commission" :min="0" :precision="2" placeholder="Dentist commission" />
@@ -151,16 +151,16 @@
                   <n-form-item label="Assistant Commission">
                     <n-input-number v-model:value="procedure.assistant_commission" :min="0" :precision="2" placeholder="Assistant commission" />
                   </n-form-item> -->
-                  <n-form-item label="Active Status">
+                  <n-form-item :label="t('settingsView.procedureForm.activeStatusLabel')">
                     <n-switch v-model:value="procedure.is_active">
-                      <template #checked>Active</template>
-                      <template #unchecked>Inactive</template>
+                      <template #checked>{{ t('settingsView.procedureForm.activeStatusChecked') }}</template>
+                      <template #unchecked>{{ t('settingsView.procedureForm.activeStatusUnchecked') }}</template>
                     </n-switch>
                   </n-form-item>
                 </div>
                 <div class="service-actions">
-                  <n-button attr-type="button" secondary @click="updateProcedure(procedure)" :loading="pendingProcedureId === procedure.id">Save</n-button>
-                  <n-button attr-type="button" type="error" quaternary @click="removeProcedure(procedure)" :loading="pendingDeleteProcedureId === procedure.id">Delete</n-button>
+                  <n-button attr-type="button" secondary @click="updateProcedure(procedure)" :loading="pendingProcedureId === procedure.id">{{ t('settingsView.procedureForm.saveProcedureButton') }}</n-button>
+                  <n-button attr-type="button" type="error" quaternary @click="removeProcedure(procedure)" :loading="pendingDeleteProcedureId === procedure.id">{{ t('settingsView.procedureForm.deleteProcedureButton') }}</n-button>
                 </div>
               </n-card>
             </div>
@@ -218,43 +218,43 @@
           </div>
         </n-tab-pane> -->
 
-        <n-tab-pane name="prescriptions" tab="Prescriptions">
+        <n-tab-pane name="prescriptions" :tab="t('settingsView.tabs.prescriptions')">
           <div class="service-section">
-            <n-card size="small" title="Add Prescription">
+            <n-card size="small" :title="t('settingsView.prescriptionForm.addPrescriptionTitle')">
               <div class="service-form-grid">
-                <n-form-item label="Medicine Name">
-                  <n-input v-model:value="newPrescription.drug_name" placeholder="Medicine name" />
+                <n-form-item :label="t('settingsView.prescriptionForm.medicineNameLabel')">
+                  <n-input v-model:value="newPrescription.drug_name" :placeholder="t('settingsView.prescriptionForm.medicineNamePlaceholder')" />
                 </n-form-item>
               </div>
-              <n-button class="section-action" attr-type="button" type="primary" @click="createPrescription" :loading="prescriptionSubmitting">Add Prescription</n-button>
+              <n-button class="section-action" attr-type="button" type="primary" @click="createPrescription" :loading="prescriptionSubmitting">{{ t('settingsView.prescriptionForm.addPrescriptionButton') }}</n-button>
             </n-card>
 
             <div class="service-list">
               <n-card v-for="prescription in prescriptions" :key="prescription.id" size="small" class="service-card">
                 <div class="service-form-grid">
-                  <n-form-item label="Medicine Name">
-                    <n-input v-model:value="prescription.drug_name" placeholder="Medicine name" />
+                  <n-form-item :label="t('settingsView.prescriptionForm.medicineNameLabel')">
+                    <n-input v-model:value="prescription.drug_name" :placeholder="t('settingsView.prescriptionForm.medicineNamePlaceholder')" />
                   </n-form-item>
                 </div>
                 <div class="service-actions">
-                  <n-button @click="updatePrescription(prescription)" type="primary" size="small" :loading="pendingPrescriptionId === prescription.id">Update</n-button>
-                  <n-button @click="removePrescription(prescription)" type="error" size="small" :loading="pendingDeletePrescriptionId === prescription.id">Delete</n-button>
+                  <n-button @click="updatePrescription(prescription)" type="primary" size="small" :loading="pendingPrescriptionId === prescription.id">{{ t('settingsView.prescriptionForm.updatePrescriptionButton') }}</n-button>
+                  <n-button @click="removePrescription(prescription)" type="error" size="small" :loading="pendingDeletePrescriptionId === prescription.id">{{ t('settingsView.prescriptionForm.deletePrescriptionButton') }}</n-button>
                 </div>
               </n-card>
             </div>
           </div>
         </n-tab-pane>
 
-        <n-tab-pane name="permissions" tab="Permissions">
+        <n-tab-pane name="permissions" :tab="t('settingsView.tabs.permissions')">
           <div class="permission-grid">
-            <n-card title="Receptionist" size="small">
+            <n-card :title="t('settingsView.permissionCards.receptionistTitle')" size="small">
               <div class="perm-list">
                 <n-form-item v-for="(_val, key) in receptionistPerms" :key="key" :label="permLabels.rec[key]" label-placement="left">
                   <n-switch v-model:value="formData[key]" />
                 </n-form-item>
               </div>
             </n-card>
-            <n-card title="Doctor" size="small">
+            <n-card :title="t('settingsView.permissionCards.doctorTitle')" size="small">
               <div class="perm-list">
                 <n-form-item v-for="(_val, key) in doctorPerms" :key="key" :label="permLabels.doc[key]" label-placement="left">
                   <n-switch v-model:value="formData[key]" />
@@ -264,20 +264,13 @@
           </div>
         </n-tab-pane>
 
-        <n-tab-pane name="backup" tab="Backup">
+        <n-tab-pane name="backup" :tab="t('settingsView.tabs.backup')">
           <div class="section-stack">
-            <!-- <n-form-item label="Header Template">
-              <n-input v-model:value="formData.prescription_template.header" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
-            </n-form-item>
-            <n-form-item label="Footer Template">
-              <n-input v-model:value="formData.prescription_template.footer" type="textarea" :autosize="{ minRows: 2, maxRows: 5 }" />
-            </n-form-item> -->
-
-            <n-card title="Database Backup" size="small">
-              <p class="backup-copy">Create a full database snapshot or export a monthly archive.</p>
+            <n-card :title="t('settingsView.backupCard.title')" size="small">
+              <p class="backup-copy">{{ t('settingsView.backupCard.description') }}</p>
               <n-space wrap>
-                <n-button attr-type="button" @click="triggerBackup('full')" :loading="backupLoading === 'full'">Full Backup</n-button>
-                <n-button attr-type="button" @click="triggerBackup('monthly')" :loading="backupLoading === 'monthly'">Monthly Data</n-button>
+                <n-button attr-type="button" @click="triggerBackup('full')" :loading="backupLoading === 'full'">{{ t('settingsView.backupCard.fullBackupButton') }}</n-button>
+                <n-button attr-type="button" @click="triggerBackup('monthly')" :loading="backupLoading === 'monthly'">{{ t('settingsView.backupCard.monthlyDataButton') }}</n-button>
               </n-space>
             </n-card>
           </div>
@@ -320,6 +313,7 @@ import { resolveBranchId } from '@/api/utils/branchParams'
 import useUserStore from '@/stores/user'
 import PrescriptionTemplate from '@/components/PrescriptionTemplate.vue'
 import prescriptionApi from '@api/prescription'
+import { useI18n } from 'vue-i18n'
 
 const message = useMessage()
 const dialog = useDialog()
@@ -331,6 +325,7 @@ const pendingProcedureId = ref<number | null>(null)
 const pendingDeleteProcedureId = ref<number | null>(null)
 const activeTab = ref('branch')
 const userStore = useUserStore()
+const { t } = useI18n()
 
 const defaultHours = {
   monday: { start: '09:00', end: '17:00', is_off: false },
@@ -403,9 +398,9 @@ const pendingPrescriptionId = ref<number | null>(null)
 const pendingDeletePrescriptionId = ref<number | null>(null)
 
 const rules = {
-  clinic_name: { required: true, message: 'Clinic name is required', trigger: 'blur' },
-  address: { required: true, message: 'Address is required', trigger: 'blur' },
-  phone: { required: true, message: 'Phone is required', trigger: 'blur' },
+  clinic_name: { required: true, message: computed(() => t('settingsView.validation.clinicNameRequired')).value, trigger: 'blur' },
+  address: { required: true, message: computed(() => t('settingsView.validation.addressRequired')).value, trigger: 'blur' },
+  phone: { required: true, message: computed(() => t('settingsView.validation.phoneRequired')).value, trigger: 'blur' },
 }
 
 const currencyOptions: SelectOption[] = [
@@ -436,26 +431,26 @@ const doctorPerms = computed(() => ({
   doc_issue_prescriptions: formData.doc_issue_prescriptions,
 }))
 
-const permLabels = {
+const permLabels = computed(() => ({
   rec: {
-    rec_can_edit_whatsapp: 'Edit WA Templates',
-    rec_can_view_phones: 'View Bulk Phones',
-    rec_show_kpi: 'View KPI Dashboard',
-    // rec_show_suppliers: 'Access Suppliers',
-    rec_log_actions: 'Log Receptionist Actions',
-    rec_can_void_transactions: 'Void Transactions',
-    rec_can_edit_devices: 'Edit Device Status',
-    rec_can_contact_support: 'Contact Tech Support',
-  } as Record<string, string>,
+    rec_can_edit_whatsapp: t('settingsView.permissionLabels.rec_can_edit_whatsapp'),
+    rec_can_view_phones: t('settingsView.permissionLabels.rec_can_view_phones'),
+    rec_show_kpi: t('settingsView.permissionLabels.rec_show_kpi'),
+    // rec_show_suppliers: t('settingsView.permissionLabels.rec_show_suppliers'),
+    rec_log_actions: t('settingsView.permissionLabels.rec_log_actions'),
+    rec_can_void_transactions: t('settingsView.permissionLabels.rec_can_void_transactions'),
+    rec_can_edit_devices: t('settingsView.permissionLabels.rec_can_edit_devices'),
+    rec_can_contact_support: t('settingsView.permissionLabels.rec_can_contact_support'),
+  },
   doc: {
-    doc_view_appointments: 'View Appointments',
-    // doc_save_xrays: 'Save X-Rays',
-    // doc_view_files: 'View Patient Files',
-    doc_view_contact: 'View Patient\'s Contact Details ',
-    doc_edit_assets: 'Edit Clinic Assets',
-    doc_issue_prescriptions: 'Issue Prescriptions',
-  } as Record<string, string>,
-}
+    doc_view_appointments: t('settingsView.permissionLabels.doc_view_appointments'),
+    // doc_save_xrays: t('settingsView.permissionLabels.doc_save_xrays'),
+    // doc_view_files: t('settingsView.permissionLabels.doc_view_files'),
+    doc_view_contact: t('settingsView.permissionLabels.doc_view_contact'),
+    doc_edit_assets: t('settingsView.permissionLabels.doc_edit_assets'),
+    doc_issue_prescriptions: t('settingsView.permissionLabels.doc_issue_prescriptions'),
+  },
+}))
 
 function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1)

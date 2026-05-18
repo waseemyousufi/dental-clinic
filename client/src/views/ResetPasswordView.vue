@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { NCard, NForm, NFormItem, NInput, NButton, NH2, NP, useMessage } from 'naive-ui'
 
 import userApi from '@api/user'
@@ -9,6 +10,7 @@ import type UserData from '@api/interfaces/User'
 const route = useRoute()
 const router = useRouter()
 const message = useMessage()
+const { t } = useI18n()
 
 const loading = ref(false)
 
@@ -25,17 +27,17 @@ const token = computed(() => {
 
 async function handleSubmit() {
   if (!token.value) {
-    message.error('Reset token is missing or invalid.')
+    message.error(t('resetPasswordView.missingTokenError'))
     return
   }
 
   if (!form.value.email || !form.value.password || !form.value.confirmPassword) {
-    message.warning('Please fill in all fields.')
+    message.warning(t('resetPasswordView.requiredFieldsError'))
     return
   }
 
   if (form.value.password !== form.value.confirmPassword) {
-    message.error('Passwords do not match.')
+    message.error(t('resetPasswordView.passwordMismatchError'))
     return
   }
 
@@ -48,11 +50,11 @@ async function handleSubmit() {
       token: token.value,
     } as UserData)
 
-    message.success('Password has been reset. You can now log in.')
+    message.success(t('resetPasswordView.successMessage'))
     router.push('/login')
   } catch (error) {
     console.error(error)
-    message.error('Failed to reset password. The link may be invalid or expired.')
+    message.error(t('resetPasswordView.failureMessage'))
   } finally {
     loading.value = false
   }
@@ -63,36 +65,36 @@ async function handleSubmit() {
   <div class="reset-view">
     <n-card class="reset-card" size="small" bordered>
       <div class="reset-card__header">
-        <n-h2>Set a new password</n-h2>
-        <n-p depth="3"> Enter your email and a new password for your account. </n-p>
+        <n-h2>{{ t('resetPasswordView.title') }}</n-h2>
+        <n-p depth="3"> {{ t('resetPasswordView.description') }} </n-p>
       </div>
 
       <n-form class="reset-form" @submit.prevent="handleSubmit">
-        <n-form-item label="Email">
-          <n-input v-model:value="form.email" type="email" placeholder="you@example.com" />
+        <n-form-item :label="t('resetPasswordView.emailLabel')">
+          <n-input v-model:value="form.email" type="email" :placeholder="t('resetPasswordView.emailPlaceholder')" />
         </n-form-item>
 
-        <n-form-item label="New password">
+        <n-form-item :label="t('resetPasswordView.newPasswordLabel')">
           <n-input
             v-model:value="form.password"
             type="password"
-            placeholder="••••••••"
+            :placeholder="t('resetPasswordView.newPasswordPlaceholder')"
             show-password-on="click"
           />
         </n-form-item>
 
-        <n-form-item label="Confirm password">
+        <n-form-item :label="t('resetPasswordView.confirmPasswordLabel')">
           <n-input
             v-model:value="form.confirmPassword"
             type="password"
-            placeholder="Repeat new password"
+            :placeholder="t('resetPasswordView.confirmPasswordPlaceholder')"
             show-password-on="click"
           />
         </n-form-item>
 
         <div class="reset-form__actions">
           <n-button type="primary" attr-type="submit" :loading="loading" block>
-            Reset password
+            {{ t('resetPasswordView.resetButtonText') }}
           </n-button>
         </div>
       </n-form>

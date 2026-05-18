@@ -7,18 +7,18 @@
             <n-icon size="18" class="eyebrow__icon">
               <Icon icon="mdi:calendar-star" />
             </n-icon>
-            <span>Appointments</span>
+            <span>{{ t('appointmentsList.eyebrow') }}</span>
           </div>
-          <h2 class="title">Appointment overview</h2>
+          <h2 class="title">{{ t('appointmentsList.title') }}</h2>
           <p class="subtitle" v-if="userStore.isReceptionist">
-            Search, Filter, Add appointments etc.
+            {{ t('appointmentsList.subtitle') }}
           </p>
         </div>
 
         <div class="hero__stats">
-          <n-statistic label="Total" :value="filteredAppointments.length" />
-          <n-statistic label="Today" :value="todayCount" />
-          <n-statistic label="Upcoming" :value="upcomingCount" />
+          <n-statistic :label="t('appointmentsList.stats.total')" :value="filteredAppointments.length" />
+          <n-statistic :label="t('appointmentsList.stats.today')" :value="todayCount" />
+          <n-statistic :label="t('appointmentsList.stats.upcoming')" :value="upcomingCount" />
         </div>
       </div>
 
@@ -29,7 +29,7 @@
             clearable
             round
             size="large"
-            placeholder="Search patient, employee, service, status..."
+            :placeholder="t('appointmentsList.searchPlaceholder')"
           >
             <template #prefix>
               <n-icon size="18"><Icon icon="mdi:magnify" /></n-icon>
@@ -40,14 +40,14 @@
             v-model:value="statusFilter"
             :options="statusOptions"
             clearable
-            placeholder="All statuses"
+            :placeholder="t('appointmentsList.statusFilterPlaceholder')"
             size="large"
             class="status-select"
           />
         </div>
       </n-space>
 
-      <n-empty v-if="!filteredAppointments.length" description="No appointments found">
+      <n-empty v-if="!filteredAppointments.length" :description="t('appointmentsList.emptyDescription')">
         <template #icon>
           <n-icon size="44" class="empty-icon">
             <Icon icon="mdi:calendar-remove" />
@@ -73,7 +73,9 @@
                 </div>
                 <div class="card-title-block">
                   <div class="card-title">{{ getPatientName(apt) }}</div>
-                  <div class="card-subtitle">with {{ getEmployeeName(apt) }}</div>
+                  <div class="card-subtitle">
+                    {{ t('appointmentsList.cardSubtitle', { name: getEmployeeName(apt) }) }}
+                  </div>
                 </div>
                 <n-tag :type="getStatusType(apt)" round size="small">
                   {{ getStatusLabel(apt) }}
@@ -153,11 +155,11 @@
 
               <div class="row-side">
                 <div class="side-block">
-                  <span class="side-label">Patient</span>
+                  <span class="side-label">{{ t('appointmentsList.patientLabel') }}</span>
                   <span class="side-value">{{ getPatientName(apt) }}</span>
                 </div>
                 <div class="side-block">
-                  <span class="side-label">Doctor</span>
+                  <span class="side-label">{{ t('appointmentsList.doctorLabel') }}</span>
                   <span class="side-value">{{ getEmployeeName(apt) }}</span>
                 </div>
               </div>
@@ -173,6 +175,7 @@
 import { computed, ref } from 'vue'
 import { NBadge, NButton, NCard, NEmpty, NIcon, NInput, NSelect, NSpace, NStatistic, NTag } from 'naive-ui'
 import { Icon } from '@iconify/vue'
+import { useI18n } from 'vue-i18n'
 import useUserStore from '@/stores/user'
 
 export type AppointmentStatus =
@@ -207,18 +210,19 @@ const props = defineProps<{
   appointments: AppointmentData[]
 }>()
 
+const { t } = useI18n()
 const query = ref('')
 const statusFilter = ref<string | null>(null)
 const userStore = useUserStore()
 
-const statusOptions = [
-  { label: 'Pending', value: 'pending' },
-  { label: 'Confirmed', value: 'confirmed' },
-  { label: 'Completed', value: 'completed' },
-  { label: 'Cancelled', value: 'cancelled' },
-  { label: 'Rescheduled', value: 'rescheduled' },
-  { label: 'No show', value: 'no-show' }
-]
+const statusOptions = computed(() => [
+  { label: t('appointmentsList.statusLabels.pending'), value: 'pending' },
+  { label: t('appointmentsList.statusLabels.confirmed'), value: 'confirmed' },
+  { label: t('appointmentsList.statusLabels.completed'), value: 'completed' },
+  { label: t('appointmentsList.statusLabels.cancelled'), value: 'cancelled' },
+  { label: t('appointmentsList.statusLabels.rescheduled'), value: 'rescheduled' },
+  { label: t('appointmentsList.statusLabels.no-show'), value: 'no-show' }
+])
 
 const normalized = computed(() =>
   (props.appointments ?? []).map((apt) => ({
@@ -267,11 +271,11 @@ function getKey(apt: AppointmentData): string {
 }
 
 function getPatientName(apt: AppointmentData): string {
-  return apt.patientName || apt.patient || apt.customerName || apt.clientName || 'N/A'
+  return apt.patientName || apt.patient || apt.customerName || apt.clientName || t('common.noDataAvailable')
 }
 
 function getEmployeeName(apt: AppointmentData): string {
-  return apt.employeeName || apt.employee || apt.staffName || apt.providerName || 'N/A'
+  return apt.employeeName || apt.employee || apt.staffName || apt.providerName || t('common.noDataAvailable')
 }
 
 function getService(apt: AppointmentData): string {
@@ -292,10 +296,14 @@ function getStatusValue(apt: AppointmentData): string {
 
 function getStatusLabel(apt: AppointmentData): string {
   const value = getStatusValue(apt)
-  if (!value) return 'Unknown'
-  return value
-    .replace(/[-_]/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase())
+  if (!value) return t('appointmentsList.statusLabels.unknown')
+
+  const key = `appointmentsList.statusLabels.${value}`
+  const translation = t(key)
+
+  return translation === key
+    ? value.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+    : translation
 }
 
 function getStatusType(apt: AppointmentData): 'success' | 'warning' | 'error' | 'info' | 'default' {
@@ -325,7 +333,7 @@ function getAppointmentDate(apt: AppointmentData): Date | null {
 
 function formatDateTime(apt: AppointmentData): string {
   const date = getAppointmentDate(apt)
-  if (!date) return 'No date set'
+  if (!date) return t('appointmentsList.noDateSet')
 
   return new Intl.DateTimeFormat(undefined, {
     weekday: 'short',

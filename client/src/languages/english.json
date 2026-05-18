@@ -79,12 +79,81 @@
       "savePatientError": "Failed to save patient"
     }
   },
+  "treatmentView": {
+    "headerTitle": "Treatment Plans",
+    "headerCopy": "Track and manage treatment plans for your patients.",
+    "newPlanButtonText": "New Treatment Plan",
+    "searchPlaceholder": "Search by patient or procedure...",
+    "stats": {
+      "totalPlans": "Total Plans",
+      "completed": "Completed",
+      "accepted": "Accepted",
+      "revenue": "Est. Revenue"
+    },
+    "columns": {
+      "patient": "Patient",
+      "procedure": "Procedure",
+      "status": "Status",
+      "date": "Date",
+      "cost": "Cost",
+      "actions": "Actions"
+    },
+    "modal": {
+      "editTitle": "Edit Treatment Plan",
+      "newTitle": "New Treatment Plan"
+    },
+    "form": {
+      "patientLabel": "Patient",
+      "patientPlaceholder": "Select Patient",
+      "procedureLabel": "Procedure",
+      "procedurePlaceholder": "Select Procedure",
+      "estimatedCostLabel": "Estimated Cost",
+      "estimatedCostPlaceholder": "0.00",
+      "statusLabel": "Status",
+      "startDateLabel": "Start Date",
+      "appointmentsNeededLabel": "Appointments needed"
+    },
+    "statusOptions": {
+      "proposed": "Proposed",
+      "accepted": "Accepted",
+      "partially_accepted": "Partially Accepted",
+      "rejected": "Rejected",
+      "completed": "Completed"
+    },
+    "messages": {
+      "loadDataError": "Failed to load data",
+      "requiredFieldsWarning": "Please fill in required fields",
+      "planUpdatedSuccess": "Treatment plan updated",
+      "planCreatedSuccess": "Treatment plan created",
+      "operationFailed": "Operation failed",
+      "planDeletedSuccess": "Treatment plan deleted",
+      "deleteFailed": "Delete failed",
+      "executionSuccess": "Treatment executed successfully",
+      "executionFailed": "Execution failed",
+      "deleteConfirmMessage": "Are you sure you want to delete this treatment plan?"
+    },
+    "executeDialog": {
+      "title": "Execute Treatment",
+      "content": "Are you sure you want to execute {{ procedure }} for {{ patient }}? This will update inventory.",
+      "positiveText": "Execute"
+    }
+  },
   "accountView": {
+    "accountsHeaderTitle": "Accounts",
+    "accountsHeaderCopy": "Manage account balances and statuses.",
+    "transactionsHeaderTitle": "Transactions",
+    "transactionsHeaderCopy": "View and manage all transactions.",
     "searchPlaceholder": "Search by name, type or status",
+    "transactionSearchPlaceholder": "Search by type, description or account",
     "newAccountButtonText": "New Account",
+    "newTransactionButtonText": "New Transaction",
     "modal": {
       "editTitle": "Edit Account",
       "newTitle": "New Account"
+    },
+    "transactionModal": {
+      "editTitle": "Edit Transaction",
+      "newTitle": "New Transaction"
     },
     "columns": {
       "accountName": "Account name",
@@ -93,9 +162,24 @@
       "status": "Status",
       "actions": "Actions"
     },
+    "transactionColumns": {
+      "type": "Type",
+      "transactionType": "Type",
+      "amount": "Amount",
+      "date": "Date",
+      "transactionDate": "Date",
+      "referenceType": "Reference type",
+      "description": "Description",
+      "recordedBy": "Recorded by",
+      "account": "Account"
+    },
     "actions": {
       "editTooltip": "Edit",
       "deleteTooltip": "Delete"
+    },
+    "balanceActions": {
+      "charge": "Charge",
+      "withdraw": "Withdraw"
     },
     "form": {
       "accountNameLabel": "Account name",
@@ -107,6 +191,30 @@
       "statusLabel": "Status",
       "statusPlaceholder": "Select status"
     },
+    "transactionForm": {
+      "transactionTypeLabel": "Transaction type",
+      "transactionTypePlaceholder": "Select type",
+      "amountLabel": "Amount",
+      "amountPlaceholder": "e.g. 2500",
+      "transactionDateLabel": "Transaction date",
+      "referenceTypeLabel": "Reference type",
+      "referenceTypePlaceholder": "e.g. Invoice, Receipt",
+      "recordedByLabel": "Recorded by",
+      "accountLabel": "Account",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Short description of the transaction"
+    },
+    "balanceModal": {
+      "chargeTitle": "Charge Account",
+      "withdrawTitle": "Withdraw From Account",
+      "accountLabel": "Account",
+      "currentBalanceLabel": "Current balance",
+      "amountLabel": "Amount",
+      "amountPlaceholder": "Enter amount",
+      "descriptionLabel": "Description",
+      "chargeDescriptionPlaceholder": "Optional note for this charge",
+      "withdrawDescriptionPlaceholder": "Optional note for this withdrawal"
+    },
     "accountTypeOptions": {
       "asset": "Asset",
       "income": "Income",
@@ -116,15 +224,35 @@
       "active": "Active",
       "inactive": "Inactive"
     },
+    "transactionTypeOptions": {
+      "in": "In",
+      "out": "Out"
+    },
     "messages": {
       "loadAccountsError": "Failed to load accounts",
+      "loadTransactionsError": "Failed to load transactions",
+      "loadEmployeesError": "Failed to load employees",
       "missingAccountIdError": "Missing account id",
+      "missingTransactionIdError": "Missing transaction id",
       "accountDeletedSuccess": "Account deleted",
       "deleteAccountError": "Failed to delete account",
       "accountUpdatedSuccess": "Account updated",
       "accountCreatedSuccess": "Account created",
-      "saveAccountError": "Failed to save account"
-    }
+      "saveAccountError": "Failed to save account",
+      "transactionVoidedSuccess": "Transaction voided",
+      "deleteTransactionError": "Failed to delete transaction",
+      "transactionUpdatedSuccess": "Transaction updated",
+      "transactionCreatedSuccess": "Transaction created",
+      "saveTransactionError": "Failed to save transaction",
+      "enterValidAmountError": "Enter a valid amount",
+      "withdrawAmountExceedsBalance": "Withdraw amount cannot exceed the current balance",
+      "accountChargedSuccess": "Account charged",
+      "accountWithdrawnSuccess": "Account withdrawn",
+      "failedBalanceAction": "Failed to {{ action }} account",
+      "onlyIncomeAccountDelete": "The only income account cannot be deleted.",
+      "creditAccountDelete": "Accounts with credit cannot be deleted."
+    },
+    "fallbackValue": "N/A"
   },
   "appointmentView": {
     "searchPlaceholder": "Search patient, employee or date...",
@@ -156,8 +284,15 @@
         "datetimePlaceholder": "Select Date & Time",
         "statusLabel": "Status",
         "statusPlaceholder": "Select Status",
+        "treatmentPlanLabel": "Treatment Plan",
+        "treatmentPlanPlaceholder": "Select treatment plan",
+        "procedureLabel": "Procedure",
+        "procedurePlaceholder": "Select procedure",
+        "appointmentCostLabel": "Appointment Cost",
+        "clinicalNotesLabel": "Clinical Notes",
         "descriptionLabel": "Description",
-        "descriptionPlaceholder": "Details…"
+        "descriptionPlaceholder": "Details…",
+        "detailsPlaceholder": "Details..."
       },
       "validation": {
         "requiredFields": "Please fill in all required fields"
@@ -167,11 +302,13 @@
       "pending": "Pending",
       "confirmed": "Confirmed",
       "completed": "Completed",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "noShow": "No Show"
     },
     "messages": {
       "initializeDataError": "Failed to initialize data",
       "fetchAppointmentsError": "Failed to fetch appointments",
+      "loadOptionsError": "Failed to load appointment options",
       "saveError": "Operation failed",
       "updateSuccess": "Appointment updated successfully",
       "createSuccess": "Appointment created successfully",
@@ -203,6 +340,7 @@
     "form": {
       "emailLabel": "Email",
       "emailPlaceholder": "Email",
+      "phoneLabel": "Phone",
       "firstNameLabel": "First name",
       "firstNamePlaceholder": "First name",
       "lastNameLabel": "Last name",
@@ -237,18 +375,445 @@
       "doctorAssistant": "Doctor Assisstant",
       "receptionist": "receptionist"
     },
+    "actions": {
+      "viewTooltip": "View",
+      "paySalary": "Pay Salary"
+    },
+    "hero": {
+      "title": "Employees",
+      "subtitle": "Manage staff records, payroll, and branch assignments."
+    },
+    "stats": {
+      "total": "Total"
+    },
+    "salaryPanel": {
+      "title": "Employee Salaries",
+      "subtitle": "Payroll history for the current branch",
+      "records": "Records",
+      "basePay": "Base Pay",
+      "totalBonus": "Total Bonus",
+      "totalPaid": "Total Paid: {amount}",
+      "payments": "{count} payments"
+    },
+    "salaryColumns": {
+      "salaryMonth": "Salary Month",
+      "paidTo": "Paid To",
+      "total": "Total",
+      "remark": "Remark",
+      "account": "Account"
+    },
+    "payModal": {
+      "title": "Pay Salary",
+      "salaryMonthLabel": "Salary Month",
+      "amountLabel": "Amount",
+      "bonusLabel": "Bonus",
+      "payFromAccountLabel": "Pay From Account",
+      "remarksLabel": "Remarks",
+      "payButton": "Pay"
+    },
+    "inviteModal": {
+      "title": "Employee Invitation",
+      "sentTitle": "Invitation Sent",
+      "sentCopy": "Share the reset password link with the employee",
+      "emailLabel": "Email",
+      "linkLabel": "Reset Password Link",
+      "copyButton": "Copy",
+      "note": "The employee can use this link to set their password and access the system."
+    },
     "messages": {
       "loadEmployeesError": "Failed to load employees",
+      "loadAccountsError": "Failed to load accounts",
+      "salaryPaidSuccess": "Salary paid successfully",
+      "paySalaryError": "Failed to pay salary",
+      "loadSalariesError": "Failed to load salaries",
       "employeeDeletedSuccess": "Employee deleted",
       "missingEmployeeIdError": "Missing employee id",
       "deleteEmployeeError": "Failed to delete employee",
       "employeeUpdatedSuccess": "Employee updated",
       "employeeCreatedSuccess": "Employee created",
       "saveEmployeeError": "Failed to save employee",
+      "profilePictureFailed": "Employee saved, but profile picture failed",
       "inviteEmailSentSuccess": "Invitation email sent",
       "sendEmailError": "Failed to send email",
       "copyLinkSuccess": "Link copied to clipboard",
       "copyLinkError": "Failed to copy link"
+    }
+  },
+  "clinicAssetsView": {
+    "hero": {
+      "eyebrow": "Clinic assets",
+      "title": "Assets inventory",
+      "description": "Manage clinic assets with a polished, responsive workspace built for mobile, tablet, and desktop.",
+      "refreshButtonText": "Refresh",
+      "newAssetButtonText": "New asset"
+    },
+    "metrics": {
+      "totalAssets": "Total assets",
+      "active": "Active",
+      "maintenance": "Maintenance",
+      "totalValue": "Total value"
+    },
+    "toolbar": {
+      "searchPlaceholder": "Search by name, asset name, description, category, or status",
+      "categoryPlaceholder": "Category",
+      "statusPlaceholder": "Status"
+    },
+    "emptyDescription": "No description provided.",
+    "meta": {
+      "category": "Category",
+      "price": "Price",
+      "amount": "Amount",
+      "purchased": "Purchased"
+    },
+    "footer": {
+      "showingAssets": "Showing {shown} of {total} assets"
+    },
+    "modal": {
+      "createTitle": "Create clinic asset",
+      "editTitle": "Edit clinic asset",
+      "createActionButtonText": "Create asset",
+      "saveActionButtonText": "Save changes"
+    },
+    "deleteModal": {
+      "title": "Delete asset",
+      "body": "Delete {assetName}? This action cannot be undone."
+    },
+    "columns": {
+      "asset": "Asset",
+      "category": "Category",
+      "status": "Status",
+      "amount": "Amount",
+      "price": "Price",
+      "totalAmount": "Total amount",
+      "purchaseDate": "Purchase date",
+      "actions": "Actions"
+    },
+    "form": {
+      "nameLabel": "Name",
+      "namePlaceholder": "General surgery bed",
+      "assetNameLabel": "Asset name",
+      "assetNamePlaceholder": "Asset label used in inventory",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Optional notes about the asset",
+      "categoryLabel": "Category",
+      "categoryPlaceholder": "Select category",
+      "statusLabel": "Status",
+      "statusPlaceholder": "Select status",
+      "amountLabel": "Amount",
+      "priceLabel": "Price",
+      "totalAmountLabel": "Total amount",
+      "dateOfPurchaseLabel": "Date of purchase"
+    },
+    "categoryOptions": {
+      "device": "Device",
+      "furniture": "Furniture"
+    },
+    "statusOptions": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "maintenance": "Maintenance"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "assetNameRequired": "Asset name is required",
+      "categoryRequired": "Category is required",
+      "amountRequired": "Amount is required",
+      "priceRequired": "Price is required",
+      "totalAmountRequired": "Total amount is required",
+      "dateOfPurchaseRequired": "Date of purchase is required",
+      "statusRequired": "Status is required"
+    },
+    "messages": {
+      "loadAssetsError": "Failed to load clinic assets",
+      "saveAssetError": "Failed to save clinic asset",
+      "assetCreatedSuccess": "Asset created",
+      "assetUpdatedSuccess": "Asset updated",
+      "assetDeletedSuccess": "Asset deleted",
+      "deleteAssetError": "Failed to delete asset"
+    }
+  },
+  "loginView": {
+    "title": "Sign in to dashboard",
+    "description": "Enter your credentials to access the clinic management panel.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "••••••••",
+    "signInButtonText": "Sign in",
+    "missingCredentials": "Please enter your email and password",
+    "loginSuccess": "Logged in successfully",
+    "loginFailed": "Login failed. Please check your credentials."
+  },
+  "resetPasswordView": {
+    "title": "Set a new password",
+    "description": "Enter your email and a new password for your account.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "newPasswordLabel": "New password",
+    "newPasswordPlaceholder": "••••••••",
+    "confirmPasswordLabel": "Confirm password",
+    "confirmPasswordPlaceholder": "Repeat new password",
+    "resetButtonText": "Reset password",
+    "missingTokenError": "Reset token is missing or invalid.",
+    "requiredFieldsError": "Please fill in all fields.",
+    "passwordMismatchError": "Passwords do not match.",
+    "successMessage": "Password has been reset. You can now log in.",
+    "failureMessage": "Failed to reset password. The link may be invalid or expired."
+  },
+  "app": {
+    "navigation": {
+      "patients": "Patients",
+      "appointments": "Appointments",
+      "clinicAssets": "Clinic Assets",
+      "treatments": "Treatments",
+      "expenses": "Expenses",
+      "accounts": "Accounts",
+      "dashboard": "Dashboard",
+      "employees": "Employees",
+      "settings": "Settings",
+      "reports": "Reports",
+      "overview": "Overview"
+    },
+    "branches": {
+      "title": "Branches",
+      "loading": "Loading branches...",
+      "empty": "No branches found"
+    },
+    "user": {
+      "guest": "Guest",
+      "guestEmail": "guest@example.com"
+    },
+    "userMenu": {
+      "logout": "Logout"
+    }
+  },
+  "reportsView": {
+    "periodLabels": {
+      "today": "Today",
+      "last7Days": "Last 7 days",
+      "last30Days": "Last 30 days",
+      "last90Days": "Last 90 days",
+      "customRange": "Custom range"
+    },
+    "scopeLabel": "Current branch",
+    "controlHeader": {
+      "dateRange": "Date Range",
+      "customWindow": "Custom Window",
+      "applyButton": "Apply",
+      "scopeLabel": "Scope"
+    },
+    "notAvailable": "n/a",
+    "rangeNotAvailable": "Range not available",
+    "selectDates": "Select dates",
+    "loadError": "Unable to load reports. Please try again.",
+    "syncing": "Syncing",
+    "liveData": "Live data",
+    "financialOverview": {
+      "title": "Financial Overview",
+      "description": "Key revenue signals, receivables, collections and treatment yield for the selected period."
+    },
+    "cards": {
+      "netProfit": "Net Profit",
+      "netProfitDescription": "Total profit generated during the selected reporting period.",
+      "income": "Income",
+      "incomeDescription": "Collected cash and realized payments across the reporting period.",
+      "receivableAmount": "Receivable Amount",
+      "receivableAmountDescription": "Outstanding balances pending collection from patients or insurers.",
+      "collectionRate": "Collection Rate",
+      "collectionRateDescription": "Collection efficiency across the selected reporting window."
+    },
+    "treatmentYield": {
+      "title": "Treatment Yield",
+      "description": "Revenue mix by treatment category, shown as readable cards for faster scanning.",
+      "emptyState": "Treatment yield data is not available for this period.",
+      "ofYield": "of treatment yield"
+    },
+    "providerProductivity": {
+      "title": "Provider Productivity",
+      "description": "Performance output, treatment efficiency and collections by provider."
+    }
+  },
+  "appointmentsList": {
+    "eyebrow": "Appointments",
+    "title": "Appointment overview",
+    "subtitle": "Search, Filter, Add appointments etc.",
+    "stats": {
+      "total": "Total",
+      "today": "Today",
+      "upcoming": "Upcoming"
+    },
+    "searchPlaceholder": "Search patient, employee, service, status...",
+    "statusFilterPlaceholder": "All statuses",
+    "emptyDescription": "No appointments found",
+    "cardSubtitle": "with {name}",
+    "noDateSet": "No date set",
+    "patientLabel": "Patient",
+    "doctorLabel": "Doctor",
+    "statusLabels": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "rescheduled": "Rescheduled",
+      "no-show": "No show",
+      "unknown": "Unknown"
+    }
+  },
+  "expenseView": {
+    "title": "Clinical Expenses",
+    "subtitle": "Add and track daily clinic expenses like fuel, supplies, and operations costs.",
+    "addExpenseButton": "Add Expense",
+    "stats": {
+      "totalExpenses": "Total expenses",
+      "today": "Today",
+      "records": "Records"
+    },
+    "searchPlaceholder": "Search by category, date, description, payer...",
+    "columns": {
+      "date": "Date",
+      "category": "Category",
+      "description": "Description",
+      "unit": "Unit",
+      "amount": "Amount",
+      "paidBy": "Paid by",
+      "actions": "Actions"
+    },
+    "paidById": "ID: {id}",
+    "deleteConfirm": "Delete this expense?",
+    "mobilePaidBy": "Employee #{id}",
+    "mobileEditButton": "Edit",
+    "mobileDeleteButton": "Delete",
+    "modal": {
+      "editTitle": "Edit Expense",
+      "addTitle": "Add Expense",
+      "form": {
+        "categoryLabel": "Expense category",
+        "categoryPlaceholder": "e.g. Gas Tank, Medical Supplies",
+        "unitLabel": "Unit",
+        "unitPlaceholder": "e.g. liter, item, service",
+        "amountLabel": "Amount",
+        "amountPlaceholder": "e.g. 50",
+        "dateLabel": "Expense date",
+        "accountLabel": "Account",
+        "accountPlaceholder": "Select account",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "Add details for accounting and audit trail"
+      },
+      "cancelButton": "Cancel",
+      "saveButton": "Save Expense"
+    },
+    "messages": {
+      "loadExpensesError": "Failed to load expenses",
+      "missingExpenseId": "Missing expense id",
+      "expenseDeleted": "Expense deleted",
+      "deleteExpenseError": "Failed to delete expense",
+      "expenseUpdated": "Expense updated",
+      "expenseCreated": "Expense created",
+      "saveExpenseError": "Failed to save expense"
+    }
+  },
+  "settingsView": {
+    "pageTitle": "Branch Settings",
+    "pageSubtitle": "Manage clinic details, templates, permissions, and procedures.",
+    "resetButton": "Reset",
+    "saveChangesButton": "Save Changes",
+    "tabs": {
+      "branch": "Branch",
+      "procedures": "Procedures",
+      "prescriptions": "Prescriptions",
+      "permissions": "Permissions",
+      "backup": "Backup"
+    },
+    "branchForm": {
+      "clinicNameLabel": "Clinic Name",
+      "clinicNamePlaceholder": "e.g., SmileCare Dental",
+      "addressLabel": "Address",
+      "addressPlaceholder": "Full clinic address",
+      "phoneLabel": "Phone",
+      "phonePlaceholder": "+1 234 567 8900",
+      "receptionFeeLabel": "Reception Fee"
+    },
+    "procedureForm": {
+      "addProcedureTitle": "Add Procedure",
+      "procedureNameLabel": "Procedure Name",
+      "procedureNamePlaceholder": "Procedure name",
+      "categoryLabel": "Category",
+      "categoryPlaceholder": "Category",
+      "basePriceLabel": "Base Price",
+      "basePricePlaceholder": "Base price",
+      "appointmentsNeededLabel": "Appointments Needed",
+      "appointmentsNeededPlaceholder": "Appointments needed",
+      "activeStatusLabel": "Active Status",
+      "activeStatusChecked": "Active",
+      "activeStatusUnchecked": "Inactive",
+      "addProcedureButton": "Add Procedure",
+      "saveProcedureButton": "Save",
+      "deleteProcedureButton": "Delete"
+    },
+    "prescriptionForm": {
+      "addPrescriptionTitle": "Add Prescription",
+      "medicineNameLabel": "Medicine Name",
+      "medicineNamePlaceholder": "Medicine name",
+      "addPrescriptionButton": "Add Prescription",
+      "updatePrescriptionButton": "Update",
+      "deletePrescriptionButton": "Delete"
+    },
+    "permissionCards": {
+      "receptionistTitle": "Receptionist",
+      "doctorTitle": "Doctor"
+    },
+    "permissionLabels": {
+      "rec_can_edit_whatsapp": "Edit WA Templates",
+      "rec_can_view_phones": "View Bulk Phones",
+      "rec_show_kpi": "View KPI Dashboard",
+      "rec_log_actions": "Log Receptionist Actions",
+      "rec_can_void_transactions": "Void Transactions",
+      "rec_can_edit_devices": "Edit Device Status",
+      "rec_can_contact_support": "Contact Tech Support",
+      "doc_view_appointments": "View Appointments",
+      "doc_view_contact": "View Patient's Contact Details",
+      "doc_edit_assets": "Edit Clinic Assets",
+      "doc_issue_prescriptions": "Issue Prescriptions"
+    },
+    "backupCard": {
+      "title": "Database Backup",
+      "description": "Create a full database snapshot or export a monthly archive.",
+      "fullBackupButton": "Full Backup",
+      "monthlyDataButton": "Monthly Data"
+    },
+    "validation": {
+      "clinicNameRequired": "Clinic name is required",
+      "addressRequired": "Address is required",
+      "phoneRequired": "Phone is required"
+    },
+    "dialogs": {
+      "deleteProcedureTitle": "Delete procedure?",
+      "deleteProcedureContent": "Delete {name} or this procedure?",
+      "deletePrescriptionTitle": "Delete prescription?",
+      "deletePrescriptionContent": "Delete {name} or this prescription?",
+      "resetChangesTitle": "Reset changes?",
+      "resetChangesContent": "All unsaved settings changes will be discarded.",
+      "startBackupTitle": "Start {type} backup?",
+      "startBackupContent": "This will generate and download the SQL backup."
+    },
+    "messages": {
+      "settingsSavedSuccess": "Settings saved successfully",
+      "failedToSaveSettings": "Failed to save settings",
+      "procedureCreated": "Procedure created",
+      "failedToCreateProcedure": "Failed to create procedure",
+      "procedureUpdated": "Procedure updated",
+      "failedToUpdateProcedure": "Failed to update procedure",
+      "procedureDeleted": "Procedure deleted",
+      "failedToDeleteProcedure": "Failed to delete procedure",
+      "prescriptionCreated": "Prescription created",
+      "failedToCreatePrescription": "Failed to create prescription",
+      "prescriptionUpdated": "Prescription updated",
+      "failedToUpdatePrescription": "Failed to update prescription",
+      "prescriptionDeleted": "Prescription deleted",
+      "failedToDeletePrescription": "Failed to delete prescription",
+      "backupDownloadedSuccess": "Backup downloaded successfully",
+      "failedToDownloadBackup": "Failed to download backup",
+      "failedToLoadSettingsData": "Failed to load settings data"
     }
   }
 }

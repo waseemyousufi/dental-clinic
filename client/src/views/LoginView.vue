@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { NCard, NForm, NFormItem, NInput, NButton, NH2, NP, useMessage } from 'naive-ui'
 
 import userApi from '@api/user'
@@ -8,6 +9,7 @@ import type UserData from '@api/interfaces/User'
 
 const router = useRouter()
 const message = useMessage()
+const { t } = useI18n()
 
 const loading = ref(false)
 const form = ref<Pick<UserData, 'email' | 'password'>>({
@@ -17,7 +19,7 @@ const form = ref<Pick<UserData, 'email' | 'password'>>({
 
 async function handleSubmit() {
   if (!form.value.email || !form.value.password) {
-    message.warning('Please enter your email and password')
+    message.warning(t('loginView.missingCredentials'))
     return
   }
 
@@ -36,11 +38,11 @@ async function handleSubmit() {
       // ignore storage errors
     }
 
-    message.success('Logged in successfully')
+    message.success(t('loginView.loginSuccess'))
     router.push('/patients')
   } catch (error) {
     console.error(error)
-    message.error('Login failed. Please check your credentials.')
+    message.error(t('loginView.loginFailed'))
   } finally {
     loading.value = false
   }
@@ -51,21 +53,21 @@ async function handleSubmit() {
   <div class="login-view">
     <n-card class="login-card" size="small" bordered>
       <div class="login-card__header">
-        <n-h2>Sign in to dashboard</n-h2>
-        <n-p depth="3"> Enter your credentials to access the clinic management panel. </n-p>
+        <n-h2>{{ t('loginView.title') }}</n-h2>
+        <n-p depth="3"> {{ t('loginView.description') }} </n-p>
       </div>
 
       <n-form class="login-form" @submit.prevent="handleSubmit">
-        <n-form-item label="Email">
-          <n-input v-model:value="form.email" type="text" placeholder="you@example.com" autofocus />
+        <n-form-item :label="t('loginView.emailLabel')">
+          <n-input v-model:value="form.email" type="text" :placeholder="t('loginView.emailPlaceholder')" autofocus />
         </n-form-item>
 
-        <n-form-item label="Password">
-          <n-input v-model:value="form.password" type="password" placeholder="••••••••" show-password-on="click" />
+        <n-form-item :label="t('loginView.passwordLabel')">
+          <n-input v-model:value="form.password" type="password" :placeholder="t('loginView.passwordPlaceholder')" show-password-on="click" />
         </n-form-item>
 
         <div class="login-form__actions">
-          <n-button type="primary" attr-type="submit" :loading="loading" block> Sign in </n-button>
+          <n-button type="primary" attr-type="submit" :loading="loading" block> {{ t('loginView.signInButtonText') }} </n-button>
         </div>
       </n-form>
     </n-card>

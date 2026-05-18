@@ -1,61 +1,61 @@
 <template>
   <n-modal v-model:show="visible" class="appointment-add-edit-modal" transform-origin="center" :mask-closable="true">
-    <n-card :title="isEditMode ? 'Edit Appointment' : 'New Appointment'" class="appointment-form-card" bordered
+    <n-card :title="isEditMode ? t('appointmentView.addEditModal.editTitle') : t('appointmentView.addEditModal.newTitle')" class="appointment-form-card" bordered
       size="medium" style="max-width: 600px;" role="dialog" aria-modal="true" closable @close="visible = false">
       <n-form :model="formModel" class="appointment-form" size="small" :show-require-mark="false">
         <div class="appointment-form__rows">
           <div class="appointment-form__pair">
-            <n-form-item label="Patient" path="patientId" class="appointment-form__field">
+            <n-form-item :label="t('appointmentView.addEditModal.form.patientLabel')" path="patientId" class="appointment-form__field">
               <n-select v-model:value="formModel.patientId" :options="patientOptions" :disabled="lockPatient"
-                placeholder="Patient" filterable size="small" />
+                :placeholder="t('appointmentView.addEditModal.form.patientPlaceholder')" filterable size="small" />
             </n-form-item>
 
-            <n-form-item label="Doctor" path="employeeId" class="appointment-form__field">
-              <n-select v-model:value="formModel.employeeId" :options="employeeOptions" placeholder="Employee"
+            <n-form-item :label="t('appointmentView.addEditModal.form.employeeLabel')" path="employeeId" class="appointment-form__field">
+              <n-select v-model:value="formModel.employeeId" :options="employeeOptions" :placeholder="t('appointmentView.addEditModal.form.employeePlaceholder')"
                 filterable size="small" />
             </n-form-item>
           </div>
 
           <div class="appointment-form__pair">
-            <n-form-item label="Date & time" path="appointment_timestamp" class="appointment-form__field">
+            <n-form-item :label="t('appointmentView.addEditModal.form.datetimeLabel')" path="appointment_timestamp" class="appointment-form__field">
               <n-date-picker v-model:value="formModel.appointment_timestamp" type="datetime" clearable size="small"
                 style="width: 100%" />
             </n-form-item>
 
-            <n-form-item label="Status" path="status" class="appointment-form__field">
-              <n-select v-model:value="formModel.status" :options="statusOptions" size="small" />
+            <n-form-item :label="t('appointmentView.addEditModal.form.statusLabel')" path="status" class="appointment-form__field">
+              <n-select v-model:value="formModel.status" :options="statusOptions" :placeholder="t('appointmentView.addEditModal.form.statusPlaceholder')" size="small" />
             </n-form-item>
           </div>
 
           <div class="appointment-form__pair">
-            <n-form-item label="Treatment Plan" path="treatment_plan_id" class="appointment-form__field">
+            <n-form-item :label="t('appointmentView.addEditModal.form.treatmentPlanLabel')" path="treatment_plan_id" class="appointment-form__field">
               <n-select v-model:value="formModel.treatment_plan_id" :options="treatmentPlanOptions"
-                placeholder="Select treatment plan" filterable clearable size="small" />
+                :placeholder="t('appointmentView.addEditModal.form.treatmentPlanPlaceholder')" filterable clearable size="small" />
             </n-form-item>
 
-            <n-form-item label="Procedure" path="procedure_id" class="appointment-form__field">
+            <n-form-item :label="t('appointmentView.addEditModal.form.procedureLabel')" path="procedure_id" class="appointment-form__field">
               <n-select v-model:value="formModel.procedure_id" :options="procedureOptions"
-                placeholder="Select procedure" filterable clearable :disabled="Boolean(props.appointment?.id)"
+                :placeholder="t('appointmentView.addEditModal.form.procedurePlaceholder')" filterable clearable :disabled="Boolean(props.appointment?.id)"
                 size="small" />
             </n-form-item>
           </div>
 
           <div class="appointment-form__pair">
-            <n-form-item label="Appointment Cost" path="appointment_cost" class="appointment-form__field">
+            <n-form-item :label="t('appointmentView.addEditModal.form.appointmentCostLabel')" path="appointment_cost" class="appointment-form__field">
               <n-input-number v-model:value="formModel.appointment_cost" :min="0" size="small"
                 :disabled="Boolean(props.appointment?.id) || hasTreatmentPlan" style="width: 100%" />
             </n-form-item>
 
-            <n-form-item v-if="isDoctorUsing" label="Clinical Notes" path="clinical_notes"
+            <n-form-item v-if="isDoctorUsing" :label="t('appointmentView.addEditModal.form.clinicalNotesLabel')" path="clinical_notes"
               class="appointment-form__field">
-              <n-input v-model:value="formModel.clinical_notes" type="textarea" placeholder="Details..." size="small"
+              <n-input v-model:value="formModel.clinical_notes" type="textarea" :placeholder="t('appointmentView.addEditModal.form.detailsPlaceholder')" size="small"
                 :autosize="{ minRows: 2, maxRows: 6 }" />
             </n-form-item>
           </div>
 
-          <n-form-item v-if="!isDoctorUsing" label="Description" path="description"
+          <n-form-item v-if="!isDoctorUsing" :label="t('appointmentView.addEditModal.form.descriptionLabel')" path="description"
             class="appointment-form__field appointment-form__field--full">
-            <n-input v-model:value="formModel.description" type="textarea" placeholder="Details..." size="small"
+            <n-input v-model:value="formModel.description" type="textarea" :placeholder="t('appointmentView.addEditModal.form.detailsPlaceholder')" size="small"
               :autosize="{ minRows: 2, maxRows: 6 }" />
           </n-form-item>
         </div>
@@ -64,11 +64,11 @@
       <template #footer>
         <n-space justify="end" size="small">
           <n-button size="small" @click="visible = false">
-            Cancel
+            {{ t('common.cancelButtonText') }}
           </n-button>
 
           <n-button size="small" type="primary" :loading="loading" @click="submit">
-            {{ isEditMode ? 'Update' : 'Save' }}
+            {{ isEditMode ? t('common.updateButtonText') : t('common.saveButtonText') }}
           </n-button>
         </n-space>
       </template>
@@ -79,6 +79,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   NModal,
   NCard,
@@ -165,6 +166,7 @@ const emit = defineEmits<{
 }>()
 
 const message = useMessage()
+const { t } = useI18n()
 
 const employeeOptions = ref<SelectOption[]>([])
 const patientOptions = ref<SelectOption[]>([])
@@ -174,13 +176,13 @@ const procedureOptions = ref<SelectOption[]>([])
 const procedureRecords = ref<ProcedureRecord[]>([])
 const treatmentPlanRecords = ref<TreatmentPlanRecord[]>([])
 
-const statusOptions = [
-  { label: 'Pending', value: 'pending' },
-  { label: 'Confirmed', value: 'confirmed' },
-  { label: 'Completed', value: 'completed' },
-  { label: 'Cancelled', value: 'cancelled' },
-  { label: 'No Show', value: 'no_show' },
-]
+const statusOptions = computed(() => [
+  { label: t('appointmentView.statusOptions.pending'), value: 'pending' },
+  { label: t('appointmentView.statusOptions.confirmed'), value: 'confirmed' },
+  { label: t('appointmentView.statusOptions.completed'), value: 'completed' },
+  { label: t('appointmentView.statusOptions.cancelled'), value: 'cancelled' },
+  { label: t('appointmentView.statusOptions.noShow'), value: 'no_show' },
+])
 
 const visible = computed({
   get: () => props.show,
@@ -204,7 +206,7 @@ const formModel = ref({
 
 const formatName = (obj: EmployeeAbbr | PatientAbbr) => {
   if (obj.name) return obj.name
-  return '#'+obj.id + ` - ${obj.fName || ''} ${obj.lName || ''}`.trim()  || 'Unknown'
+  return '#'+obj.id + ` - ${obj.fName || ''} ${obj.lName || ''}`.trim()  || t('appointmentView.fallbackName')
 }
 
 function normalizeId(value: unknown): number | null {
@@ -372,7 +374,7 @@ async function loadOptions() {
       .filter(item => item.id !== 0 || item.name)
 
     procedureOptions.value = procedureRecords.value.map((procedure) => ({
-      label: procedure.name || 'Unknown',
+      label: procedure.name || t('appointmentView.fallbackName'),
       value: procedure.id,
     }))
 
@@ -398,12 +400,12 @@ async function loadOptions() {
     console.log(procedureOptions.value)
 
     treatmentPlanOptions.value = treatmentPlanRecords.value.map((plan) => ({
-      label: procedureOptions.value[plan.procedure_id - 1]?.label || 'Unknown',
+      label: procedureOptions.value[plan.procedure_id - 1]?.label || t('appointmentView.fallbackName'),
       value: plan.id,
     }))
   } catch (error) {
     console.log(error)
-    message.error('Failed to load appointment options')
+    message.error(t('appointmentView.messages.loadOptionsError'))
   }
 }
 
@@ -418,7 +420,7 @@ function submit() {
     formModel.value.employeeId == null ||
     formModel.value.patientId == null
   ) {
-    message.warning('Please fill in all required fields')
+    message.warning(t('appointmentView.addEditModal.validation.requiredFields'))
     return
   }
 
@@ -504,7 +506,7 @@ watch(
         label:
           procedureOptions.value.find(
             p => p.value === plan.procedure_id
-          )?.label || 'Unknown',
+          )?.label || t('appointmentView.fallbackName'),
         value: plan.id,
       }))
 

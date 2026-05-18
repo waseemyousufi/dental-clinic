@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 interface CustomDateRange {
   start: string | null
@@ -23,18 +24,20 @@ const props = defineProps<{
   printTarget?: string
 }>()
 
+const { t } = useI18n()
+
 const emit = defineEmits<{
   (e: 'period-change', period: Period): void
   (e: 'custom-date-range-change', range: { start: string; end: string }): void
 }>()
 
-const periodOptions = [
-  { key: '1D', label: 'Today' },
-  { key: '7D', label: '7 Days' },
-  { key: '30D', label: '30 Days' },
-  { key: '90D', label: '90 Days' },
-  { key: 'CUSTOM', label: 'Custom' },
-] as const
+const periodOptions = computed(() => [
+  { key: '1D', label: t('reportsView.periodLabels.today') },
+  { key: '7D', label: t('reportsView.periodLabels.last7Days') },
+  { key: '30D', label: t('reportsView.periodLabels.last30Days') },
+  { key: '90D', label: t('reportsView.periodLabels.last90Days') },
+  { key: 'CUSTOM', label: t('reportsView.periodLabels.customRange') },
+]) as const
 
 const hasCustomRange = computed(() => {
   return !!props.customDateRange.start && !!props.customDateRange.end
@@ -107,7 +110,7 @@ const printReport = () => {
     <div class="top-row">
       <div class="left-content">
         <div class="control-group grow">
-          <label class="control-label">Date Range</label>
+          <label class="control-label">{{ t('reportsView.controlHeader.dateRange') }}</label>
 
           <div class="period-pills">
             <button
@@ -127,7 +130,7 @@ const printReport = () => {
             v-if="selectedPeriod === 'CUSTOM'"
             class="control-group custom-range"
           >
-            <label class="control-label">Custom Window</label>
+            <label class="control-label">{{ t('reportsView.controlHeader.customWindow') }}</label>
 
             <div class="date-row">
               <input
@@ -165,7 +168,7 @@ const printReport = () => {
                 :disabled="!hasCustomRange || loading"
                 @click="onApplyRange"
               >
-                Apply
+                {{ t('reportsView.controlHeader.applyButton') }}
               </button>
             </div>
           </div>
@@ -177,9 +180,9 @@ const printReport = () => {
           <span class="scope-dot"></span>
 
           <div class="scope-content">
-            <span class="scope-label">Scope</span>
+            <span class="scope-label">{{ t('reportsView.controlHeader.scopeLabel') }}</span>
             <span class="scope-value">
-              {{ scopeLabel || 'Current branch' }}
+              {{ scopeLabel || t('reportsView.scopeLabel') }}
             </span>
           </div>
         </div>

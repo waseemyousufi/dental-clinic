@@ -4,17 +4,20 @@
       <n-card class="hero-card" :bordered="false">
         <div class="hero">
           <div>
-            <div class="eyebrow">Clinic assets</div>
-            <h1>Assets inventory</h1>
+            <div class="eyebrow">{{ t('clinicAssetsView.hero.eyebrow') }}</div>
+            <h1>{{ t('clinicAssetsView.hero.title') }}</h1>
             <p>
-              Manage clinic assets with a polished, responsive workspace built for mobile, tablet,
-              and desktop.
+              {{ t('clinicAssetsView.hero.description') }}
             </p>
           </div>
 
           <div class="hero-actions">
-            <n-button tertiary @click="handleRefresh" :loading="loading">Refresh</n-button>
-            <n-button type="primary" @click="openCreate">New asset</n-button>
+            <n-button tertiary @click="handleRefresh" :loading="loading">
+              {{ t('clinicAssetsView.hero.refreshButtonText') }}
+            </n-button>
+            <n-button type="primary" @click="openCreate">
+              {{ t('clinicAssetsView.hero.newAssetButtonText') }}
+            </n-button>
           </div>
         </div>
       </n-card>
@@ -22,25 +25,25 @@
       <n-grid :x-gap="16" :y-gap="16" cols="1 s:2 m:4">
         <n-grid-item>
           <n-card class="metric-card" :bordered="false">
-            <div class="metric-label">Total assets</div>
+            <div class="metric-label">{{ t('clinicAssetsView.metrics.totalAssets') }}</div>
             <div class="metric-value">{{ filteredAssets.length }}</div>
           </n-card>
         </n-grid-item>
         <n-grid-item>
           <n-card class="metric-card" :bordered="false">
-            <div class="metric-label">Active</div>
+            <div class="metric-label">{{ t('clinicAssetsView.metrics.active') }}</div>
             <div class="metric-value">{{ statusCount.active }}</div>
           </n-card>
         </n-grid-item>
         <n-grid-item>
           <n-card class="metric-card" :bordered="false">
-            <div class="metric-label">Maintenance</div>
+            <div class="metric-label">{{ t('clinicAssetsView.metrics.maintenance') }}</div>
             <div class="metric-value">{{ statusCount.maintenance }}</div>
           </n-card>
         </n-grid-item>
         <n-grid-item>
           <n-card class="metric-card" :bordered="false">
-            <div class="metric-label">Total value</div>
+            <div class="metric-label">{{ t('clinicAssetsView.metrics.totalValue') }}</div>
             <div class="metric-value">{{ formatMoney(totalValue) }}</div>
           </n-card>
         </n-grid-item>
@@ -52,7 +55,7 @@
             <n-input
               v-model:value="query"
               clearable
-              placeholder="Search by name, asset name, description, category, or status"
+              :placeholder="t('clinicAssetsView.toolbar.searchPlaceholder')"
               class="search-input"
             >
               <template #prefix>
@@ -65,14 +68,14 @@
                 v-model:value="categoryFilter"
                 :options="categoryOptionsFilter"
                 clearable
-                placeholder="Category"
+                :placeholder="t('clinicAssetsView.toolbar.categoryPlaceholder')"
                 class="filter-select"
               />
               <n-select
                 v-model:value="statusFilter"
                 :options="statusOptionsFilter"
                 clearable
-                placeholder="Status"
+                :placeholder="t('clinicAssetsView.toolbar.statusPlaceholder')"
                 class="filter-select"
               />
             </n-space>
@@ -94,36 +97,38 @@
                   <div class="asset-title">{{ asset.assetName }}</div>
                   <div class="asset-subtitle">{{ asset.name }}</div>
                 </div>
-                <n-tag :type="statusTagType(asset.status)" round>{{ asset.status }}</n-tag>
+                <n-tag :type="statusTagType(asset.status)" round>{{ translateStatus(asset.status) }}</n-tag>
               </div>
 
               <p class="asset-description">
-                {{ asset.description || 'No description provided.' }}
+                {{ asset.description || t('clinicAssetsView.emptyDescription') }}
               </p>
 
               <div class="asset-meta-grid">
                 <div>
-                  <span class="meta-label">Category</span>
-                  <span class="meta-value">{{ asset.category }}</span>
+                  <span class="meta-label">{{ t('clinicAssetsView.meta.category') }}</span>
+                  <span class="meta-value">{{ translateCategory(asset.category) }}</span>
                 </div>
                 <div>
-                  <span class="meta-label">Price</span>
+                  <span class="meta-label">{{ t('clinicAssetsView.meta.price') }}</span>
                   <span class="meta-value">{{ formatMoney(asset.price) }}</span>
                 </div>
                 <div>
-                  <span class="meta-label">Amount</span>
+                  <span class="meta-label">{{ t('clinicAssetsView.meta.amount') }}</span>
                   <span class="meta-value">{{ asset.amount }}</span>
                 </div>
                 <div>
-                  <span class="meta-label">Purchased</span>
+                  <span class="meta-label">{{ t('clinicAssetsView.meta.purchased') }}</span>
                   <span class="meta-value">{{ formatDate(asset.dateOfPurchase) }}</span>
                 </div>
               </div>
 
               <n-space justify="end" class="asset-actions" wrap>
-                <n-button secondary size="small" @click="openEdit(asset)">Edit</n-button>
+                <n-button secondary size="small" @click="openEdit(asset)">
+                  {{ t('common.editButtonText') }}
+                </n-button>
                 <n-button tertiary size="small" type="error" @click="confirmDelete(asset)">
-                  Delete
+                  {{ t('common.deleteButtonText') }}
                 </n-button>
               </n-space>
             </n-card>
@@ -148,7 +153,7 @@
       <n-card class="footer-card" :bordered="false">
         <n-space align="center" justify="space-between" wrap>
           <div class="footer-text">
-            Showing {{ pagedAssets.length }} of {{ filteredAssets.length }} assets
+            {{ t('clinicAssetsView.footer.showingAssets', { shown: pagedAssets.length, total: filteredAssets.length }) }}
           </div>
           <n-pagination
             v-model:page="page"
@@ -178,48 +183,48 @@
       >
         <n-grid :x-gap="16" :y-gap="8" cols="1 s:2 m:2">
           <n-grid-item>
-            <n-form-item label="Name" path="name">
-              <n-input v-model:value="formModel.name" placeholder="General surgery bed" />
+            <n-form-item :label="t('clinicAssetsView.form.nameLabel')" path="name">
+              <n-input v-model:value="formModel.name" :placeholder="t('clinicAssetsView.form.namePlaceholder')" />
             </n-form-item>
           </n-grid-item>
 
           <n-grid-item>
-            <n-form-item label="Asset name" path="assetName">
-              <n-input v-model:value="formModel.assetName" placeholder="Asset label used in inventory" />
+            <n-form-item :label="t('clinicAssetsView.form.assetNameLabel')" path="assetName">
+              <n-input v-model:value="formModel.assetName" :placeholder="t('clinicAssetsView.form.assetNamePlaceholder')" />
             </n-form-item>
           </n-grid-item>
 
           <n-grid-item :span="2">
-            <n-form-item label="Description" path="description">
+            <n-form-item :label="t('clinicAssetsView.form.descriptionLabel')" path="description">
               <n-input
                 v-model:value="formModel.description"
                 type="textarea"
-                placeholder="Optional notes about the asset"
+                :placeholder="t('clinicAssetsView.form.descriptionPlaceholder')"
                 :autosize="{ minRows: 3, maxRows: 6 }"
               />
             </n-form-item>
           </n-grid-item>
 
           <n-grid-item>
-            <n-form-item label="Category" path="category">
-              <n-select v-model:value="formModel.category" :options="categoryOptions" />
+            <n-form-item :label="t('clinicAssetsView.form.categoryLabel')" path="category">
+              <n-select v-model:value="formModel.category" :options="categoryOptions" :placeholder="t('clinicAssetsView.form.categoryPlaceholder')" />
             </n-form-item>
           </n-grid-item>
 
           <n-grid-item>
-            <n-form-item label="Status" path="status">
-              <n-select v-model:value="formModel.status" :options="statusOptions" />
+            <n-form-item :label="t('clinicAssetsView.form.statusLabel')" path="status">
+              <n-select v-model:value="formModel.status" :options="statusOptions" :placeholder="t('clinicAssetsView.form.statusPlaceholder')" />
             </n-form-item>
           </n-grid-item>
 
           <n-grid-item>
-            <n-form-item label="Amount" path="amount">
+            <n-form-item :label="t('clinicAssetsView.form.amountLabel')" path="amount">
               <n-input-number v-model:value="formModel.amount" :min="0" :precision="0" />
             </n-form-item>
           </n-grid-item>
 
           <n-grid-item>
-            <n-form-item label="Price" path="price">
+            <n-form-item :label="t('clinicAssetsView.form.priceLabel')" path="price">
               <n-input-number v-model:value="formModel.price" :min="0" :precision="2" />
             </n-form-item>
           </n-grid-item>
@@ -231,13 +236,13 @@
           </n-grid-item> -->
 
           <n-grid-item>
-            <n-form-item label="Total amount" path="totalAmount">
+            <n-form-item :label="t('clinicAssetsView.form.totalAmountLabel')" path="totalAmount">
               <n-input-number v-model:value="formModel.totalAmount" :min="0" :precision="2" />
             </n-form-item>
           </n-grid-item>
 
           <n-grid-item>
-            <n-form-item label="Date of purchase" path="dateOfPurchase">
+            <n-form-item :label="t('clinicAssetsView.form.dateOfPurchaseLabel')" path="dateOfPurchase">
               <n-date-picker
                 v-model:value="purchaseDateValue"
                 type="date"
@@ -263,22 +268,24 @@
 
       <template #footer>
         <n-space justify="end">
-          <n-button @click="formVisible = false">Cancel</n-button>
+          <n-button @click="formVisible = false">{{ t('common.cancelButtonText') }}</n-button>
           <n-button type="primary" :loading="submitting" @click="submitForm">
-            {{ editingAssetId == null ? 'Create asset' : 'Save changes' }}
+            {{ dialogActionLabel }}
           </n-button>
         </n-space>
       </template>
     </n-modal>
 
-    <n-modal v-model:show="deleteVisible" preset="dialog" title="Delete asset">
+    <n-modal v-model:show="deleteVisible" preset="dialog" :title="t('clinicAssetsView.deleteModal.title')">
       <div class="delete-body">
-        Delete <strong>{{ deletingAsset?.assetName }}</strong>? This action cannot be undone.
+        {{ t('clinicAssetsView.deleteModal.body', { assetName: deletingAsset?.assetName ?? '' }) }}
       </div>
       <template #action>
         <n-space justify="end">
-          <n-button @click="deleteVisible = false">Cancel</n-button>
-          <n-button type="error" :loading="submitting" @click="deleteAsset">Delete</n-button>
+          <n-button @click="deleteVisible = false">{{ t('common.cancelButtonText') }}</n-button>
+          <n-button type="error" :loading="submitting" @click="deleteAsset">
+            {{ t('common.deleteButtonText') }}
+          </n-button>
         </n-space>
       </template>
     </n-modal>
@@ -287,6 +294,7 @@
 
 <script setup lang="ts">
 import { computed, h, onMounted, onBeforeUnmount, reactive, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   NButton,
   NCard,
@@ -312,13 +320,14 @@ import {
 } from 'naive-ui'
 import { Icon } from '@iconify/vue'
 import clinicAssetsApi from '@api/clinicAsset.ts'
-import type ClinicAssetData from '@api/interfaces/clinicAsset.ts'
+import type ClinicAssetData from '@api/interfaces/ClinicAsset'
 
 type ClinicAssetFormData = ClinicAssetData & {
   discountPercentage?: number | null
   currencyExchangeRate?: number | null
 }
 
+const { t } = useI18n()
 const message = useMessage()
 const viewportWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1280)
 
@@ -374,38 +383,38 @@ const emptyForm = (): ClinicAssetFormData => ({
 
 const formModel = reactive<ClinicAssetFormData>(emptyForm())
 
-const categoryOptions = [
-  { label: 'Device', value: 'device' },
-  { label: 'Furniture', value: 'furniture' },
-]
+const categoryOptions = computed(() => [
+  { label: t('clinicAssetsView.categoryOptions.device'), value: 'device' },
+  { label: t('clinicAssetsView.categoryOptions.furniture'), value: 'furniture' },
+])
 
-const statusOptions = [
-  { label: 'Active', value: 'active' },
-  { label: 'Inactive', value: 'inactive' },
-  { label: 'Maintenance', value: 'maintenance' },
-]
+const statusOptions = computed(() => [
+  { label: t('clinicAssetsView.statusOptions.active'), value: 'active' },
+  { label: t('clinicAssetsView.statusOptions.inactive'), value: 'inactive' },
+  { label: t('clinicAssetsView.statusOptions.maintenance'), value: 'maintenance' },
+])
 
-const categoryOptionsFilter = [
-  { label: 'Device', value: 'device' },
-  { label: 'Furniture', value: 'furniture' },
-]
+const categoryOptionsFilter = computed(() => [
+  { label: t('clinicAssetsView.categoryOptions.device'), value: 'device' },
+  { label: t('clinicAssetsView.categoryOptions.furniture'), value: 'furniture' },
+])
 
-const statusOptionsFilter = [
-  { label: 'Active', value: 'active' },
-  { label: 'Inactive', value: 'inactive' },
-  { label: 'Maintenance', value: 'maintenance' },
-]
+const statusOptionsFilter = computed(() => [
+  { label: t('clinicAssetsView.statusOptions.active'), value: 'active' },
+  { label: t('clinicAssetsView.statusOptions.inactive'), value: 'inactive' },
+  { label: t('clinicAssetsView.statusOptions.maintenance'), value: 'maintenance' },
+])
 
-const rules: FormRules = {
-  name: [{ required: true, message: 'Name is required', trigger: ['input', 'blur'] }],
-  assetName: [{ required: true, message: 'Asset name is required', trigger: ['input', 'blur'] }],
-  category: [{ required: true, message: 'Category is required', trigger: ['change', 'blur'] }],
-  amount: [{ required: true, type: 'number', message: 'Amount is required', trigger: ['blur', 'change'] }],
-  price: [{ required: true, type: 'number', message: 'Price is required', trigger: ['blur', 'change'] }],
-  totalAmount: [{ required: true, type: 'number', message: 'Total amount is required', trigger: ['blur', 'change'] }],
-  dateOfPurchase: [{ required: true, message: 'Date of purchase is required', trigger: ['change', 'blur'] }],
-  status: [{ required: true, message: 'Status is required', trigger: ['change', 'blur'] }],
-}
+const rules = computed<FormRules>(() => ({
+  name: [{ required: true, message: t('clinicAssetsView.validation.nameRequired'), trigger: ['input', 'blur'] }],
+  assetName: [{ required: true, message: t('clinicAssetsView.validation.assetNameRequired'), trigger: ['input', 'blur'] }],
+  category: [{ required: true, message: t('clinicAssetsView.validation.categoryRequired'), trigger: ['change', 'blur'] }],
+  amount: [{ required: true, type: 'number', message: t('clinicAssetsView.validation.amountRequired'), trigger: ['blur', 'change'] }],
+  price: [{ required: true, type: 'number', message: t('clinicAssetsView.validation.priceRequired'), trigger: ['blur', 'change'] }],
+  totalAmount: [{ required: true, type: 'number', message: t('clinicAssetsView.validation.totalAmountRequired'), trigger: ['blur', 'change'] }],
+  dateOfPurchase: [{ required: true, message: t('clinicAssetsView.validation.dateOfPurchaseRequired'), trigger: ['change', 'blur'] }],
+  status: [{ required: true, message: t('clinicAssetsView.validation.statusRequired'), trigger: ['change', 'blur'] }],
+}))
 
 const formatMoney = (value?: number | null) => {
   const numberValue = Number(value ?? 0)
@@ -417,6 +426,30 @@ const formatDate = (value?: string | null) => {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
   return new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric' }).format(date)
+}
+
+const translateCategory = (category?: string | null) => {
+  switch (category) {
+    case 'device':
+      return t('clinicAssetsView.categoryOptions.device')
+    case 'furniture':
+      return t('clinicAssetsView.categoryOptions.furniture')
+    default:
+      return category ?? t('common.noDataAvailable')
+  }
+}
+
+const translateStatus = (status?: string | null) => {
+  switch (status) {
+    case 'active':
+      return t('clinicAssetsView.statusOptions.active')
+    case 'inactive':
+      return t('clinicAssetsView.statusOptions.inactive')
+    case 'maintenance':
+      return t('clinicAssetsView.statusOptions.maintenance')
+    default:
+      return status ?? t('common.noDataAvailable')
+  }
 }
 
 const statusTagType = (status?: string) => {
@@ -462,7 +495,7 @@ const loadAssets = async () => {
     const response = await clinicAssetsApi.getBranchClinicAssets()
     assets.value = Array.isArray(response.data) ? response.data : response.data?.data ?? []
   } catch {
-    message.error('Failed to load clinic assets')
+    message.error(t('clinicAssetsView.messages.loadAssetsError'))
   } finally {
     loading.value = false
   }
@@ -522,7 +555,17 @@ const pagedAssets = computed(() => {
   return filteredAssets.value.slice(start, start + pageSize.value)
 })
 
-const dialogTitle = computed(() => (editingAssetId.value == null ? 'Create clinic asset' : 'Edit clinic asset'))
+const dialogTitle = computed(() =>
+  editingAssetId.value == null
+    ? t('clinicAssetsView.modal.createTitle')
+    : t('clinicAssetsView.modal.editTitle')
+)
+
+const dialogActionLabel = computed(() =>
+  editingAssetId.value == null
+    ? t('clinicAssetsView.modal.createActionButtonText')
+    : t('clinicAssetsView.modal.saveActionButtonText')
+)
 
 const openCreate = () => {
   editingAssetId.value = null
@@ -567,22 +610,22 @@ const buildPayload = (): Record<string, unknown> => {
 }
 
 const submitForm = async () => {
-  const payload = buildPayload()
+  const payload = buildPayload() as unknown as ClinicAssetData
 
   try {
     await formRef.value?.validate()
     if (!payload.dateOfPurchase) {
-      message.error('Date of purchase is required')
+      message.error(t('clinicAssetsView.validation.dateOfPurchaseRequired'))
       return
     }
 
     submitting.value = true
     if (editingAssetId.value == null) {
-      await clinicAssetsApi.postClinicAsset(payload as ClinicAssetData)
-      message.success('Asset created')
+      await clinicAssetsApi.postClinicAsset(payload)
+      message.success(t('clinicAssetsView.messages.assetCreatedSuccess'))
     } else {
-      await clinicAssetsApi.updateClinicAsset(editingAssetId.value, payload as ClinicAssetData)
-      message.success('Asset updated')
+      await clinicAssetsApi.updateClinicAsset(editingAssetId.value, payload)
+      message.success(t('clinicAssetsView.messages.assetUpdatedSuccess'))
     }
 
     formVisible.value = false
@@ -604,7 +647,7 @@ const submitForm = async () => {
     if (error instanceof Error && error.message) {
       message.error(error.message)
     } else {
-      message.error('Failed to save clinic asset')
+      message.error(t('clinicAssetsView.messages.saveAssetError'))
     }
   } finally {
     submitting.value = false
@@ -622,20 +665,20 @@ const deleteAsset = async () => {
   try {
     submitting.value = true
     await clinicAssetsApi.deleteClinicAsset(deletingAsset.value.id)
-    message.success('Asset deleted')
+    message.success(t('clinicAssetsView.messages.assetDeletedSuccess'))
     deleteVisible.value = false
     deletingAsset.value = null
     await loadAssets()
   } catch {
-    message.error('Failed to delete asset')
+    message.error(t('clinicAssetsView.messages.deleteAssetError'))
   } finally {
     submitting.value = false
   }
 }
 
-const columns: DataTableColumns<ClinicAssetData> = [
+const columns = computed<DataTableColumns<ClinicAssetData>>(() => [
   {
-    title: 'Asset',
+    title: t('clinicAssetsView.columns.asset'),
     key: 'assetName',
     width: 220,
     render(row) {
@@ -646,28 +689,28 @@ const columns: DataTableColumns<ClinicAssetData> = [
     },
   },
   {
-    title: 'Category',
+    title: t('clinicAssetsView.columns.category'),
     key: 'category',
     width: 120,
     render(row) {
-      return h(NTag, { size: 'small', round: true }, { default: () => row.category })
+      return h(NTag, { size: 'small', round: true }, { default: () => translateCategory(row.category) })
     },
   },
   {
-    title: 'Status',
+    title: t('clinicAssetsView.columns.status'),
     key: 'status',
     width: 140,
     render(row) {
-      return h(NTag, { size: 'small', round: true, type: statusTagType(row.status) as any }, { default: () => row.status })
+      return h(NTag, { size: 'small', round: true, type: statusTagType(row.status) as any }, { default: () => translateStatus(row.status) })
     },
   },
   {
-    title: 'Amount',
+    title: t('clinicAssetsView.columns.amount'),
     key: 'amount',
     width: 90,
   },
   {
-    title: 'Price',
+    title: t('clinicAssetsView.columns.price'),
     key: 'price',
     width: 120,
     render(row) {
@@ -675,7 +718,7 @@ const columns: DataTableColumns<ClinicAssetData> = [
     },
   },
   {
-    title: 'Total amount',
+    title: t('clinicAssetsView.columns.totalAmount'),
     key: 'totalAmount',
     width: 130,
     render(row) {
@@ -683,7 +726,7 @@ const columns: DataTableColumns<ClinicAssetData> = [
     },
   },
   {
-    title: 'Purchase date',
+    title: t('clinicAssetsView.columns.purchaseDate'),
     key: 'dateOfPurchase',
     width: 140,
     render(row) {
@@ -691,7 +734,7 @@ const columns: DataTableColumns<ClinicAssetData> = [
     },
   },
   // {
-  //   title: 'Sterile',
+  //   title: t('clinicAssetsView.columns.sterile'),
   //   key: 'isSterile',
   //   width: 90,
   //   render(row) {
@@ -699,7 +742,7 @@ const columns: DataTableColumns<ClinicAssetData> = [
   //   },
   // },
   {
-    title: 'Actions',
+    title: t('clinicAssetsView.columns.actions'),
     key: 'actions',
     width: 160,
     fixed: 'right',
@@ -712,19 +755,19 @@ const columns: DataTableColumns<ClinicAssetData> = [
             h(
               NButton,
               { size: 'small', tertiary: true, onClick: () => openEdit(row) },
-              { default: () => 'Edit', icon: () => h(Icon, { icon: 'solar:pen-2-linear' }) }
+              { default: () => t('common.editButtonText'), icon: () => h(Icon, { icon: 'solar:pen-2-linear' }) }
             ),
             h(
               NButton,
               { size: 'small', tertiary: true, type: 'error', onClick: () => confirmDelete(row) },
-              { default: () => 'Delete', icon: () => h(Icon, { icon: 'solar:trash-bin-trash-linear' }) }
+              { default: () => t('common.deleteButtonText'), icon: () => h(Icon, { icon: 'solar:trash-bin-trash-linear' }) }
             ),
           ],
         }
       )
     },
   },
-]
+])
 </script>
 
 <style scoped>

@@ -1,0 +1,625 @@
+{
+  "common": {
+    "saveButtonText": "ذخیره",
+    "cancelButtonText": "لغو",
+    "deleteButtonText": "حذف",
+    "editButtonText": "ویرایش",
+    "updateButtonText": "بروزرسانی",
+    "closeButtonText": "بستن",
+    "addButtonText": "افزودن نوبت",
+    "searchButtonText": "جستجو",
+    "noDataAvailable": "نامشخص",
+    "paySalaryTooltip": "پرداخت معاش",
+    "editTooltip": "ویرایش",
+    "deleteTooltip": "حذف",
+    "viewEmployeeTooltip": "مشاهده کارمند",
+    "copyLinkButtonText": "کاپی در حافظه",
+    "sendEmailButtonText": "ارسال از طریق ایمیل"
+  },
+  "patientView": {
+    "searchPlaceholder": "جستجو بر اساس نام یا تلیفون",
+    "newPatientButtonText": "مریض جدید",
+    "columns": {
+      "firstName": "نام",
+      "lastName": "تخلص",
+      "gender": "جنسیت",
+      "bloodType": "گروپ خون",
+      "phone": "ت تلیفون",
+      "emergencyContact": "تماس اضطراری",
+      "registrationDate": "تاریخ ثبت",
+      "actions": "اقدامات"
+    },
+    "actions": {
+      "viewTooltip": "مشاهده",
+      "dentistViewTooltip": "معاینه دندان",
+      "editTooltip": "ویرایش",
+      "deleteTooltip": "حذف",
+      "deleteConfirmMessage": "آیا این مریض حذف شود؟"
+    },
+    "modal": {
+      "editTitle": "ویرایش معلومات مریض",
+      "newTitle": "مریض جدید"
+    },
+    "form": {
+      "firstNameLabel": "نام",
+      "firstNamePlaceholder": "نام",
+      "lastNameLabel": "تخلص",
+      "lastNamePlaceholder": "تخلص",
+      "genderLabel": "جنسیت",
+      "genderPlaceholder": "انتخاب جنسیت",
+      "bloodTypeLabel": "گروپ خون",
+      "bloodTypePlaceholder": "انتخاب گروپ خون",
+      "phoneLabel": "تلفن",
+      "phonePlaceholder": "تلیفون همراه",
+      "emergencyContactLabel": "تماس اضطراری",
+      "emergencyContactPlaceholder": "شخص تماس اضطراری",
+      "registeredAtLabel": "ثبت شده در"
+    },
+    "genderOptions": {
+      "male": "مرد",
+      "female": "زن"
+    },
+    "bloodTypeOptions": {
+      "A+": "A+",
+      "A-": "A-",
+      "B+": "B+",
+      "B-": "B-",
+      "AB+": "AB+",
+      "AB-": "AB-",
+      "O+": "O+",
+      "O-": "O-"
+    },
+    "messages": {
+      "loadPatientsError": "خطا در بارگذاری مریضان",
+      "patientDeletedSuccess": "مریض با موفقیت حذف شد",
+      "missingPatientIdError": "آی‌دی مریض موجود نیست",
+      "deletePatientError": "خطا در حذف مریض",
+      "patientUpdatedSuccess": "معلومات مریض بروزرسانی شد",
+      "patientCreatedSuccess": "مریض جدید ایجاد شد",
+      "savePatientError": "خطا در ذخیره معلومات مریض"
+    }
+  },
+  "accountView": {
+    "searchPlaceholder": "جستجو بر اساس نام، نوعیت یا حالت",
+    "newAccountButtonText": "حساب جدید",
+    "modal": {
+      "editTitle": "ویرایش حساب",
+      "newTitle": "حساب جدید"
+    },
+    "columns": {
+      "accountName": "نام حساب",
+      "accountType": "نوعیت",
+      "totalAmount": "مبلغ کلی",
+      "status": "حالت",
+      "actions": "اقدامات"
+    },
+    "actions": {
+      "editTooltip": "ویرایش",
+      "deleteTooltip": "حذف"
+    },
+    "form": {
+      "accountNameLabel": "نام حساب",
+      "accountNamePlaceholder": "طور مثال: پول نقد در دست",
+      "accountTypeLabel": "نوعیت حساب",
+      "accountTypePlaceholder": "انتخاب نوعیت",
+      "totalAmountLabel": "مبلغ کلی",
+      "totalAmountPlaceholder": "طور مثال: 100000",
+      "statusLabel": "حالت",
+      "statusPlaceholder": "انتخاب حالت"
+    },
+    "accountTypeOptions": {
+      "asset": "دارایی",
+      "income": "عواید",
+      "expense": "مصارف"
+    },
+    "statusOptions": {
+      "active": "فعال",
+      "inactive": "غیرفعال"
+    },
+    "messages": {
+      "loadAccountsError": "خطا در بارگذاری حساب‌ها",
+      "missingAccountIdError": "آی‌دی حساب موجود نیست",
+      "accountDeletedSuccess": "حساب حذف شد",
+      "deleteAccountError": "خطا در حذف حساب",
+      "accountUpdatedSuccess": "حساب بروزرسانی شد",
+      "accountCreatedSuccess": "حساب ایجاد شد",
+      "saveAccountError": "خطا در ذخیره حساب"
+    }
+  },
+  "appointmentView": {
+    "searchPlaceholder": "جستجو مریض، کارمند یا تاریخ...",
+    "headerTitle": "وقت‌های ملاقات",
+    "calendar": {
+      "title": "جزئیات ملاقات",
+      "tooltipView": "مشاهده ملاقات",
+      "tooltipEdit": "ویرایش ملاقات",
+      "tooltipDelete": "حذف ملاقات",
+      "businessHoursLabel": "ساعات کاری:",
+      "businessHoursValue": "شنبه الی پنجشنبه: ۸ صبح الی ۵ عصر",
+      "statusTagTooltip": "حالت ملاقات",
+      "detailsSection": {
+        "patientLabel": "مریض",
+        "assignedToLabel": "موظف شده به",
+        "timeLabel": "وقت",
+        "descriptionLabel": "توضیحات"
+      }
+    },
+    "addEditModal": {
+      "editTitle": "ویرایش ملاقات",
+      "newTitle": "ملاقات جدید",
+      "form": {
+        "patientLabel": "مریض",
+        "patientPlaceholder": "انتخاب مریض",
+        "employeeLabel": "کارمند",
+        "employeePlaceholder": "انتخاب کارمند",
+        "datetimeLabel": "تاریخ و وقت",
+        "datetimePlaceholder": "انتخاب تاریخ و وقت",
+        "statusLabel": "حالت",
+        "statusPlaceholder": "انتخاب حالت",
+        "descriptionLabel": "توضیحات",
+        "descriptionPlaceholder": "جزئیات…"
+      },
+      "validation": {
+        "requiredFields": "لطفاً تمام خانه‌های ضروری را پر کنید"
+      }
+    },
+    "statusOptions": {
+      "pending": "در حال انتظار",
+      "confirmed": "تایید شده",
+      "completed": "تکمیل شده",
+      "cancelled": "لغو شده"
+    },
+    "messages": {
+      "initializeDataError": "خطا در آماده‌سازی داده‌ها",
+      "fetchAppointmentsError": "خطا در دریافت لیست ملاقات‌ها",
+      "saveError": "عملیات ناموفق بود",
+      "updateSuccess": "ملاقات با موفقیت بروزرسانی شد",
+      "createSuccess": "ملاقات با موفقیت ایجاد شد",
+      "deleteSuccess": "ملاقات با موفقیت حذف شد",
+      "deleteError": "خطا در حذف ملاقات",
+      "deleteConfirmMessage": "آیا مطمئن هستید که می‌خواهید این ملاقات را حذف کنید؟"
+    },
+    "fallbackName": "نامشخص"
+  },
+  "employeeView": {
+    "searchPlaceholder": "جستجو بر اساس نام، ایمیل یا تخصص",
+    "newEmployeeButtonText": "کارمند جدید",
+    "modal": {
+      "editTitle": "ویرایش معلومات کارمند",
+      "newTitle": "کارمند جدید"
+    },
+    "employeeModal": {
+      "title": "کارمند ایجاد شد",
+      "message": "کارمند ایجاد شد، لطفاً این لینک را برای شروع کار با نرم‌افزار مدیریت کلینیک به او ارسال کنید:"
+    },
+    "columns": {
+      "name": "نام",
+      "email": "ایمیل",
+      "position": "بست کاری",
+      "workStartTime": "شروع کار",
+      "workEndTime": "ختم کار",
+      "actions": "اقدامات"
+    },
+    "form": {
+      "emailLabel": "ایمیل",
+      "emailPlaceholder": "ایمیل",
+      "firstNameLabel": "نام",
+      "firstNamePlaceholder": "نام",
+      "lastNameLabel": "تخلص",
+      "lastNamePlaceholder": "تخلص",
+      "genderLabel": "جنسیت",
+      "genderPlaceholder": "انتخاب جنسیت",
+      "specialityLabel": "تخصص",
+      "specialityPlaceholder": "طور مثال: داکتر دندان",
+      "qualificationLabel": "سند تحصیلی",
+      "qualificationPlaceholder": "سند تحصیلی",
+      "medicalLicenseNumberLabel": "نمبر جواز طبی",
+      "medicalLicenseNumberPlaceholder": "نمبر جواز",
+      "workStartTimeLabel": "وقت شروع کار",
+      "workStartTimePlaceholder": "طور مثال: 09:00",
+      "workEndTimeLabel": "وقت ختم کار",
+      "workEndTimePlaceholder": "طور مثال: 17:00",
+      "hireDateLabel": "تاریخ استخدام",
+      "positionLabel": "بست",
+      "experienceWorkplaceLabel": "محل کار قبلی",
+      "experienceWorkplacePlaceholder": "محل کار قبلی",
+      "experiencePositionLabel": "بست قبلی",
+      "experiencePositionPlaceholder": "بست قبلی",
+      "experienceAmountLabel": "مدت تجربه",
+      "experienceAmountPlaceholder": "مجموع تجربه (طور مثال: به ماه)"
+    },
+    "genderOptions": {
+      "male": "مرد",
+      "female": "زن"
+    },
+    "positionOptions": {
+      "doctor": "داکتر",
+      "doctorAssistant": "دستیار داکتر",
+      "receptionist": "مسئول پذیرش"
+    },
+    "messages": {
+      "loadEmployeesError": "خطا در بارگذاری کارمندان",
+      "employeeDeletedSuccess": "کارمند حذف شد",
+      "missingEmployeeIdError": "آی‌دی کارمند موجود نیست",
+      "deleteEmployeeError": "خطا در حذف کارمند",
+      "employeeUpdatedSuccess": "معلومات کارمند بروزرسانی شد",
+      "employeeCreatedSuccess": "کارمند ایجاد شد",
+      "saveEmployeeError": "خطا در ذخیره کارمند",
+      "inviteEmailSentSuccess": "ایمیل دعوت ارسال شد",
+      "sendEmailError": "خطا در ارسال ایمیل",
+      "copyLinkSuccess": "لینک در حافظه کاپی شد",
+      "copyLinkError": "خطا در کاپی کردن لینک"
+    }
+  },
+  "clinicAssetsView": {
+    "hero": {
+      "eyebrow": "دارایی‌های کلینیک",
+      "title": "موجودی دارایی‌ها",
+      "description": "مدیریت دارایی‌های کلینیک در یک فضای کاری منظم و ریسپانسیو برای موبایل، تبلت و دسکتاپ.",
+      "refreshButtonText": "بروزرسانی لست",
+      "newAssetButtonText": "دارایی جدید"
+    },
+    "metrics": {
+      "totalAssets": "مجموع دارایی‌ها",
+      "active": "فعال",
+      "maintenance": "حفظ و مراقبت",
+      "totalValue": "ارزش کلی"
+    },
+    "toolbar": {
+      "searchPlaceholder": "جستجو بر اساس نام، نام دارایی، توضیحات، کتگوری یا حالت",
+      "categoryPlaceholder": "کتگوری",
+      "statusPlaceholder": "حالت"
+    },
+    "emptyDescription": "هیچ توضیحی ارائه نشده است.",
+    "meta": {
+      "category": "کتگوری",
+      "price": "قیمت",
+      "amount": "تعداد",
+      "purchased": "خریداری شده"
+    },
+    "footer": {
+      "showingAssets": "نمایش {shown} از {total} دارایی"
+    },
+    "modal": {
+      "createTitle": "ثبت دارایی جدید کلینیک",
+      "editTitle": "ویرایش دارایی کلینیک",
+      "createActionButtonText": "ایجاد دارایی",
+      "saveActionButtonText": "ذخیره تغییرات"
+    },
+    "deleteModal": {
+      "title": "حذف دارایی",
+      "body": "آیا {assetName} حذف شود؟ این عملیات قابل برگشت نیست."
+    },
+    "columns": {
+      "asset": "دارایی",
+      "category": "کتگوری",
+      "status": "حالت",
+      "amount": "تعداد",
+      "price": "قیمت",
+      "totalAmount": "ارزش کلی",
+      "purchaseDate": "تاریخ خریداری",
+      "actions": "اقدامات"
+    },
+    "form": {
+      "nameLabel": "نام",
+      "namePlaceholder": "تخت جراحی عمومی",
+      "assetNameLabel": "نام دارایی",
+      "assetNamePlaceholder": "برچسب دارایی مورد استفاده در موجودی",
+      "descriptionLabel": "توضیحات",
+      "descriptionPlaceholder": "یادداشت‌های اختیاری درباره دارایی",
+      "categoryLabel": "کتگوری",
+      "categoryPlaceholder": "انتخاب کتگوری",
+      "statusLabel": "حالت",
+      "statusPlaceholder": "انتخاب حالت",
+      "amountLabel": "تعداد",
+      "priceLabel": "قیمت",
+      "totalAmountLabel": "ارزش کلی",
+      "dateOfPurchaseLabel": "تاریخ خریداری"
+    },
+    "categoryOptions": {
+      "device": "تجهیزات / دستگاه",
+      "furniture": "فرنیچر"
+    },
+    "statusOptions": {
+      "active": "فعال",
+      "inactive": "غیرفعال",
+      "maintenance": "تحت ترمیم"
+    },
+    "validation": {
+      "nameRequired": "نام ضروری است",
+      "assetNameRequired": "نام دارایی ضروری است",
+      "categoryRequired": "کتگوری ضروری است",
+      "amountRequired": "تعداد ضروری است",
+      "priceRequired": "قیمت ضروری است",
+      "totalAmountRequired": "ارزش کلی ضروری است",
+      "dateOfPurchaseRequired": "تاریخ خریداری ضروری است",
+      "statusRequired": "حالت ضروری است"
+    },
+    "messages": {
+      "loadAssetsError": "خطا در بارگذاری دارایی‌های کلینیک",
+      "saveAssetError": "خطا در ذخیره دارایی کلینیک",
+      "assetCreatedSuccess": "دارایی ایجاد شد",
+      "assetUpdatedSuccess": "دارایی بروزرسانی شد",
+      "assetDeletedSuccess": "دارایی حذف شد",
+      "deleteAssetError": "خطا در حذف دارایی"
+    }
+  },
+  "loginView": {
+    "title": "ورود به سیستم",
+    "description": "معلومات خود را برای ورود به پنل مدیریت کلینیک وارد کنید.",
+    "emailLabel": "ایمیل",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "رمز عبور",
+    "passwordPlaceholder": "••••••••",
+    "signInButtonText": "ورود به سیستم",
+    "missingCredentials": "لطفاً ایمیل و رمز عبور خود را وارد کنید",
+    "loginSuccess": "ورود با موفقیت انجام شد",
+    "loginFailed": "ورود ناموفق بود. لطفاً معلومات خود را چک کنید."
+  },
+  "resetPasswordView": {
+    "title": "تنظیم رمز عبور جدید",
+    "description": "ایمیل و رمز عبور جدید خود را برای حسابتان وارد کنید.",
+    "emailLabel": "ایمیل",
+    "emailPlaceholder": "you@example.com",
+    "newPasswordLabel": "رمز عبور جدید",
+    "newPasswordPlaceholder": "••••••••",
+    "confirmPasswordLabel": "تایید رمز عبور",
+    "confirmPasswordPlaceholder": "تکرار رمز عبور جدید",
+    "resetButtonText": "بازنشانی رمز عبور",
+    "missingTokenError": "توکن بازنشانی موجود نیست یا نامعتبر است.",
+    "requiredFieldsError": "لطفاً تمام خانه‌ها را پر کنید.",
+    "passwordMismatchError": "رمزهای عبور مطابقت ندارند.",
+    "successMessage": "رمز عبور بازنشانی شد. اکنون می‌توانید وارد شوید.",
+    "failureMessage": "خطا در بازنشانی رمز عبور. ممکن است لینک نامعتبر یا منقضی شده باشد."
+  },
+  "app": {
+    "navigation": {
+      "patients": "مریضان",
+      "appointments": "ملاقات‌ها",
+      "clinicAssets": "دارایی‌های کلینیک",
+      "treatments": "تداوی‌ها",
+      "expenses": "مصارف",
+      "accounts": "حساب‌ها",
+      "dashboard": "داشبورد",
+      "employees": "کارمندان",
+      "settings": "تنظیمات",
+      "reports": "گزارشات",
+      "overview": "مرور کلی"
+    },
+    "branches": {
+      "title": "نمایندگی‌ها",
+      "loading": "در حال بارگذاری نمایندگی‌ها...",
+      "empty": "هیچ نمایندگی یافت نشد"
+    },
+    "user": {
+      "guest": "مهمان",
+      "guestEmail": "guest@example.com"
+    },
+    "userMenu": {
+      "logout": "خروج از سیستم"
+    }
+  },
+  "reportsView": {
+    "periodLabels": {
+      "today": "امروز",
+      "last7Days": "۷ روز گذشته",
+      "last30Days": "۳۰ روز گذشته",
+      "last90Days": "۹۰ روز گذشته",
+      "customRange": "تاریخ دلخواه"
+    },
+    "scopeLabel": "نمایندگی فعلی",
+    "notAvailable": "نامشخص",
+    "rangeNotAvailable": "محدوده نامشخص",
+    "selectDates": "انتخاب تاریخ‌ها",
+    "loadError": "امکان بارگذاری گزارشات نیست. لطفاً دوباره تلاش کنید.",
+    "syncing": "در حال همگام‌سازی",
+    "liveData": "داده‌های زنده",
+    "financialOverview": {
+      "title": "مرور مالی",
+      "description": "سیگنال‌های کلیدی عواید، مبالغ قابل دریافت، جمع‌آوری‌ها و بازدهی تداوی برای دوره انتخاب شده."
+    },
+    "cards": {
+      "netProfit": "سود خالص",
+      "netProfitDescription": "مجموع سود ایجاد شده در طول دوره گزارش‌دهی انتخاب شده.",
+      "income": "عواید",
+      "incomeDescription": "پول نقد جمع‌آوری شده و تادیات انجام شده در طول دوره گزارش‌دهی.",
+      "receivableAmount": "مبلغ قابل دریافت",
+      "receivableAmountDescription": "مبالغ باقیمانده که باید از مریضان یا شرکت‌های بیمه جمع‌آوری شوند.",
+      "collectionRate": "نرخ جمع‌آوری",
+      "collectionRateDescription": "کارایی جمع‌آوری پول در محدوده گزارش‌دهی انتخاب شده."
+    },
+    "treatmentYield": {
+      "title": "بازدهی تداوی",
+      "description": "ترکیب عواید بر اساس کتگوری تداوی، که به شکل کارت‌های خوانا برای بررسی سریع نشان داده شده است.",
+      "emptyState": "داده‌های بازدهی تداوی برای این دوره موجود نیست.",
+      "ofYield": "از بازدهی تداوی"
+    },
+    "providerProductivity": {
+      "title": "بهره‌وری داکتر",
+      "description": "خروجی عملکرد، کارایی تداوی و جمع‌آوری پول توسط هر داکتر ارائه‌دهنده خدمات."
+    }
+  },
+  "appointmentsList": {
+    "eyebrow": "ملاقات‌ها",
+    "title": "مرور ملاقات‌ها",
+    "subtitle": "جستجو، فیلتر، افزودن ملاقات و غیره.",
+    "stats": {
+      "total": "مجموع کل",
+      "today": "امروز",
+      "upcoming": "آینده"
+    },
+    "searchPlaceholder": "جستجو بر اساس مریض، کارمند، خدمت، حالت...",
+    "statusFilterPlaceholder": "همه حالت‌ها",
+    "emptyDescription": "هیچ ملاقاتی یافت نشد",
+    "cardSubtitle": "با {name}",
+    "noDateSet": "هیچ تاریخی تنظیم نشده",
+    "patientLabel": "مریض",
+    "doctorLabel": "داکتر",
+    "statusLabels": {
+      "pending": "در حال انتظار",
+      "confirmed": "تایید شده",
+      "completed": "تکمیل شده",
+      "cancelled": "لغو شده",
+      "rescheduled": "زمان‌بندی مجدد",
+      "no-show": "عدم حضور",
+      "unknown": "نامعلوم"
+    }
+  },
+  "expenseView": {
+    "title": "مصارف کلینیک",
+    "subtitle": "افزودن و پیگیری مصارف روزانه کلینیک مانند تیل، مواد مصرفی و هزینه‌های عملیاتی.",
+    "addExpenseButton": "افزودن مصرف",
+    "stats": {
+      "totalExpenses": "مجموع مصارف",
+      "today": "امروز",
+      "records": "سوابق"
+    },
+    "searchPlaceholder": "جستجو بر اساس کتگوری، تاریخ، توضیحات، پرداخت‌کننده...",
+    "columns": {
+      "date": "تاریخ",
+      "category": "کتگوری",
+      "description": "توضیحات",
+      "unit": "واحد",
+      "amount": "مبلغ",
+      "paidBy": "پرداخت شده توسط",
+      "actions": "اقدامات"
+    },
+    "paidById": "آی‌دی: {id}",
+    "deleteConfirm": "آیا این مصرف حذف شود؟",
+    "mobilePaidBy": "کارمند نمبر {id}",
+    "mobileEditButton": "ویرایش",
+    "mobileDeleteButton": "حذف",
+    "modal": {
+      "editTitle": "ویرایش مصرف",
+      "addTitle": "افزودن مصرف",
+      "form": {
+        "categoryLabel": "کتگوری مصرف",
+        "categoryPlaceholder": "طور مثال: تانک تیل، لوازم طبی",
+        "unitLabel": "واحد",
+        "unitPlaceholder": "طور مثال: لیتر، عدد، خدمت",
+        "amountLabel": "مبلغ",
+        "amountPlaceholder": "طور مثال: ۵۰",
+        "dateLabel": "تاریخ مصرف",
+        "accountLabel": "حساب",
+        "accountPlaceholder": "انتخاب حساب",
+        "descriptionLabel": "توضیحات",
+        "descriptionPlaceholder": "افزودن جزئیات برای حسابداری و بررسی"
+      },
+      "cancelButton": "لغو",
+      "saveButton": "ذخیره مصرف"
+    },
+    "messages": {
+      "loadExpensesError": "خطا در بارگذاری مصارف",
+      "missingExpenseId": "آی‌دی مصرف موجود نیست",
+      "expenseDeleted": "مصرف حذف شد",
+      "deleteExpenseError": "خطا در حذف مصرف",
+      "expenseUpdated": "مصرف بروزرسانی شد",
+      "expenseCreated": "مصرف ثبت شد",
+      "saveExpenseError": "خطا در ذخیره مصرف"
+    }
+  },
+  "settingsView": {
+    "pageTitle": "تنظیمات نمایندگی",
+    "pageSubtitle": "مدیریت جزئیات کلینیک، قالب‌ها، صلاحیت‌ها و پروسجرها.",
+    "resetButton": "تنظیم مجدد",
+    "saveChangesButton": "ذخیره تغییرات",
+    "tabs": {
+      "branch": "نمایندگی",
+      "procedures": "پروسجرها",
+      "prescriptions": "نسخه‌ها",
+      "permissions": "صلاحیت‌ها",
+      "backup": "پشتیبان‌گیری"
+    },
+    "branchForm": {
+      "clinicNameLabel": "نام کلینیک",
+      "clinicNamePlaceholder": "طور مثال: کلینیک دندان سمایل‌کیر",
+      "addressLabel": "آدرس",
+      "addressPlaceholder": "آدرس مکمل کلینیک",
+      "phoneLabel": "تلیفون",
+      "phonePlaceholder": "+1 234 567 8900",
+      "receptionFeeLabel": "فیس پذیرش"
+    },
+    "procedureForm": {
+      "addProcedureTitle": "افزودن پروسجر",
+      "procedureNameLabel": "نام پروسجر",
+      "procedureNamePlaceholder": "نام پروسجر",
+      "categoryLabel": "کتگوری",
+      "categoryPlaceholder": "کتگوری",
+      "basePriceLabel": "قیمت پایه",
+      "basePricePlaceholder": "قیمت پایه",
+      "appointmentsNeededLabel": "تعداد ملاقات‌های مورد نیاز",
+      "appointmentsNeededPlaceholder": "ملاقات‌های مورد نیاز",
+      "activeStatusLabel": "حالت فعال",
+      "activeStatusChecked": "فعال",
+      "activeStatusUnchecked": "غیرفعال",
+      "addProcedureButton": "افزودن پروسجر",
+      "saveProcedureButton": "ذخیره",
+      "deleteProcedureButton": "حذف"
+    },
+    "prescriptionForm": {
+      "addPrescriptionTitle": "افزودن نسخه",
+      "medicineNameLabel": "نام دوا",
+      "medicineNamePlaceholder": "نام دوا",
+      "addPrescriptionButton": "افزودن نسخه",
+      "updatePrescriptionButton": "بروزرسانی",
+      "deletePrescriptionButton": "حذف"
+    },
+    "permissionCards": {
+      "receptionistTitle": "مسئول پذیرش",
+      "doctorTitle": "داکتر"
+    },
+    "permissionLabels": {
+      "rec_can_edit_whatsapp": "ویرایش قالب‌های واتساپ",
+      "rec_can_view_phones": "مشاهده شماره‌های دسته‌جمعی",
+      "rec_show_kpi": "مشاهده داشبورد KPI",
+      "rec_log_actions": "ثبت اقدامات مسئول پذیرش",
+      "rec_can_void_transactions": "باطل کردن تراکنش‌ها",
+      "rec_can_edit_devices": "ویرایش وضعیت دستگاه‌ها",
+      "rec_can_contact_support": "تماس با پشتیبانی فنی",
+      "doc_view_appointments": "مشاهده ملاقات‌ها",
+      "doc_view_contact": "مشاهده جزئیات تماس مریض",
+      "doc_edit_assets": "ویرایش دارایی‌های کلینیک",
+      "doc_issue_prescriptions": "صدور نسخه"
+    },
+    "backupCard": {
+      "title": "پشتیبان‌گیری از دیتابیس",
+      "description": "ایجاد یک نسخه کامل از دیتابیس یا اکسپورت آرشیف ماهانه.",
+      "fullBackupButton": "بکاپ کامل",
+      "monthlyDataButton": "داده‌های ماهانه"
+    },
+    "validation": {
+      "clinicNameRequired": "نام کلینیک ضروری است",
+      "addressRequired": "آدرس ضروری است",
+      "phoneRequired": "نمبر تلیفون ضروری است"
+    },
+    "dialogs": {
+      "deleteProcedureTitle": "پروسجر حذف شود؟",
+      "deleteProcedureContent": "آیا {name} یا این پروسجر حذف شود؟",
+      "deletePrescriptionTitle": "نسخه حذف شود؟",
+      "deletePrescriptionContent": "آیا {name} یا این نسخه حذف شود؟",
+      "resetChangesTitle": "لغو تغییرات؟",
+      "resetChangesContent": "تمام تغییرات ذخیره نشده از بین خواهند رفت.",
+      "startBackupTitle": "شروع پشتیبان‌گیری {type}؟",
+      "startBackupContent": "این کار باعث ایجاد و دانلود نسخه پشتیبان SQL می‌شود."
+    },
+    "messages": {
+      "settingsSavedSuccess": "تنظیمات با موفقیت ذخیره شد",
+      "failedToSaveSettings": "خطا در ذخیره تنظیمات",
+      "procedureCreated": "پروسجر ایجاد شد",
+      "failedToCreateProcedure": "خطا در ایجاد پروسجر",
+      "procedureUpdated": "پروسجر بروزرسانی شد",
+      "failedToUpdateProcedure": "خطا در بروزرسانی پروسجر",
+      "procedureDeleted": "پروسجر حذف شد",
+      "failedToDeleteProcedure": "خطا در حذف پروسجر",
+      "prescriptionCreated": "نسخه ایجاد شد",
+      "failedToCreatePrescription": "خطا در ایجاد نسخه",
+      "prescriptionUpdated": "نسخه بروزرسانی شد",
+      "failedToUpdatePrescription": "خطا در بروزرسانی نسخه",
+      "prescriptionDeleted": "نسخه حذف شد",
+      "failedToDeletePrescription": "خطا در حذف نسخه",
+      "backupDownloadedSuccess": "نسخه پشتیبان با موفقیت دانلود شد",
+      "failedToDownloadBackup": "خطا در دانلود نسخه پشتیبان",
+      "failedToLoadSettingsData": "خطا در بارگذاری داده‌های تنظیمات"
+    }
+  }
+}

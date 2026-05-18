@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, h } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   NCard,
   NButton,
@@ -32,6 +33,7 @@ type TransactionRow = TransactionData & { id?: number }
 
 const message = useMessage()
 const route = useRoute()
+const { t } = useI18n()
 
 const getEffectiveBranchId = (): number | undefined => {
   const usr = JSON.parse(localStorage.getItem('user') || 'null')
@@ -91,19 +93,19 @@ const balanceFormModel = reactive({
 })
 
 const accountTypeOptions = [
-  { label: 'Asset', value: 'asset' },
-  { label: 'Income', value: 'income' },
-  { label: 'Expense', value: 'expense' },
+  { label: t('accountView.accountTypeOptions.asset'), value: 'asset' },
+  { label: t('accountView.accountTypeOptions.income'), value: 'income' },
+  { label: t('accountView.accountTypeOptions.expense'), value: 'expense' },
 ]
 
 const statusOptions = [
-  { label: 'Active', value: 'active' },
-  { label: 'Inactive', value: 'inactive' },
+  { label: t('accountView.statusOptions.active'), value: 'active' },
+  { label: t('accountView.statusOptions.inactive'), value: 'inactive' },
 ]
 
 const transactionTypeOptions = [
-  { label: 'In', value: 'in' },
-  { label: 'Out', value: 'out' },
+  { label: t('accountView.transactionTypeOptions.in'), value: 'in' },
+  { label: t('accountView.transactionTypeOptions.out'), value: 'out' },
 ]
 
 const filteredAccounts = computed(() => {
@@ -163,23 +165,23 @@ function isAccountDeleteDisabled(row: AccountRow) {
 }
 
 function getAccountDeleteReason(row: AccountRow) {
-  if (isOnlyIncomeAccount(row)) return 'The only income account cannot be deleted.'
-  if (hasAccountCredit(row)) return 'Accounts with credit cannot be deleted.'
-  return 'Delete'
+  if (isOnlyIncomeAccount(row)) return t('accountView.messages.onlyIncomeAccountDelete')
+  if (hasAccountCredit(row)) return t('accountView.messages.creditAccountDelete')
+  return t('accountView.actions.deleteTooltip')
 }
 
 const accountColumns = [
   {
-    title: 'Account name',
+    title: t('accountView.columns.accountName'),
     key: 'accountName',
     ellipsis: { tooltip: true },
   },
   {
-    title: 'Type',
+    title: t('accountView.columns.accountType'),
     key: 'accountType',
   },
   {
-    title: 'Total amount',
+    title: t('accountView.columns.totalAmount'),
     key: 'totalAmount',
     width: 140,
     render(row: AccountRow) {
@@ -188,7 +190,7 @@ const accountColumns = [
     },
   },
   {
-    title: 'Status',
+    title: t('accountView.columns.status'),
     key: 'status',
     render(row: AccountRow) {
       const status = String(row.status || '').toLowerCase()
@@ -200,19 +202,19 @@ const accountColumns = [
           round: true,
           size: 'small',
         },
-        { default: () => row.status || 'N/A' },
+        { default: () => row.status || t('accountView.fallbackValue') },
       )
     },
   },
   {
-    title: 'Actions',
+    title: t('accountView.columns.actions'),
     key: 'actions',
     render(row: AccountRow) {
       const deleteDisabled = isAccountDeleteDisabled(row)
       return h('div', { style: 'display: flex; gap: 8px; align-items: center;' }, [
         h(Icon, {
           icon: 'akar-icons:edit',
-          title: 'Edit',
+          title: t('accountView.actions.editTooltip'),
           width: 20,
           height: 20,
           color: '#4f46e5',
@@ -221,7 +223,7 @@ const accountColumns = [
         }),
         h(Icon, {
           icon: 'material-symbols:download-rounded',
-          title: 'Charge',
+          title: t('accountView.balanceActions.charge'),
           width: 20,
           height: 20,
           color: '#0f766e',
@@ -230,7 +232,7 @@ const accountColumns = [
         }),
         h(Icon, {
           icon: 'material-symbols:upload-rounded',
-          title: 'Withdraw',
+          title: t('accountView.balanceActions.withdraw'),
           width: 20,
           height: 20,
           color: '#ea580c',
@@ -244,7 +246,7 @@ const accountColumns = [
             trigger: () =>
               h(Icon, {
                 icon: 'fluent:delete-16-filled',
-                title: deleteDisabled ? undefined : 'Delete',
+                title: deleteDisabled ? undefined : t('accountView.actions.deleteTooltip'),
                 width: 20,
                 height: 20,
                 color: deleteDisabled ? '#94a3b8' : '#dc2626',
@@ -266,7 +268,7 @@ const accountColumns = [
 
 const transactionColumns = [
   {
-    title: 'Type',
+    title: t('accountView.transactionColumns.type'),
     key: 'transactionType',
     render(row: TransactionRow) {
       return h(NHighlight, {
@@ -282,7 +284,7 @@ const transactionColumns = [
     },
   },
   {
-    title: 'Amount',
+    title: t('accountView.transactionColumns.amount'),
     key: 'amount',
     width: 120,
     render(row: TransactionRow) {
@@ -291,26 +293,26 @@ const transactionColumns = [
     },
   },
   {
-    title: 'Date',
+    title: t('accountView.transactionColumns.date'),
     key: 'transactionDate',
   },
   {
-    title: 'Reference type',
+    title: t('accountView.transactionColumns.referenceType'),
     key: 'referenceType',
     ellipsis: { tooltip: true },
   },
   {
-    title: 'Description',
+    title: t('accountView.transactionColumns.description'),
     key: 'description',
     ellipsis: { tooltip: true },
   },
   {
-    title: 'Recorded by',
+    title: t('accountView.transactionColumns.recordedBy'),
     key: 'recordedByEmployee',
     width: 160,
   },
   {
-    title: 'Account',
+    title: t('accountView.transactionColumns.account'),
     key: 'account',
     width: 120,
   },
@@ -349,7 +351,7 @@ async function fetchAccounts() {
     accounts.value = data.data as AccountRow[]
   } catch (error) {
     console.error(error)
-    message.error('Failed to load accounts')
+    message.error(t('accountView.messages.loadAccountsError'))
   } finally {
     accountsLoading.value = false
   }
@@ -362,7 +364,7 @@ async function fetchTransactions() {
     transactions.value = data.data as TransactionRow[]
   } catch (error) {
     console.error(error)
-    message.error('Failed to load transactions')
+    message.error(t('accountView.messages.loadTransactionsError'))
   } finally {
     transactionsLoading.value = false
   }
@@ -377,7 +379,7 @@ async function fetchEmployees() {
     }))
   } catch (error) {
     console.error(error)
-    message.error('Failed to load employees')
+    message.error(t('accountView.messages.loadEmployeesError'))
   }
 }
 
@@ -390,7 +392,7 @@ async function fetchAccountOptions() {
     }))
   } catch (error) {
     console.error(error)
-    message.error('Failed to load accounts')
+    message.error(t('accountView.messages.loadAccountsError'))
   }
 }
 
@@ -471,34 +473,34 @@ async function handleAccountDelete(row: AccountRow) {
 
   const id = row.id
   if (!id) {
-    message.error('Missing account id')
+    message.error(t('accountView.messages.missingAccountIdError'))
     return
   }
 
   try {
     await accountApi.deleteAccount(id)
-    message.success('Account deleted')
+    message.success(t('accountView.messages.accountDeletedSuccess'))
     await Promise.all([fetchAccounts(), fetchAccountOptions()])
   } catch (error) {
     console.error(error)
-    message.error('Failed to delete account')
+    message.error(t('accountView.messages.deleteAccountError'))
   }
 }
 
 async function handleTransactionDelete(row: TransactionRow) {
   const id = row.id
   if (!id) {
-    message.error('Missing transaction id')
+    message.error(t('accountView.messages.missingTransactionIdError'))
     return
   }
 
   try {
     await transactionApi.deleteTransaction(id)
-    message.success('Transaction Voided')
+    message.success(t('accountView.messages.transactionVoidedSuccess'))
     await Promise.all([fetchTransactions(), fetchAccounts(), fetchAccountOptions()])
   } catch (error) {
     console.error(error)
-    message.error('Failed to delete transaction')
+    message.error(t('accountView.messages.deleteTransactionError'))
   }
 }
 
@@ -513,17 +515,17 @@ async function handleAccountSubmit() {
 
     if (isEditingAccount.value && editingAccountId.value != null) {
       await accountApi.updateAccount(editingAccountId.value, payload)
-      message.success('Account updated')
+      message.success(t('accountView.messages.accountUpdatedSuccess'))
     } else {
       await accountApi.postAccount(payload)
-      message.success('Account created')
+      message.success(t('accountView.messages.accountCreatedSuccess'))
     }
 
     showAccountEditor.value = false
     await Promise.all([fetchAccounts(), fetchAccountOptions()])
   } catch (error) {
     console.error(error)
-    message.error('Failed to save account')
+    message.error(t('accountView.messages.saveAccountError'))
   } finally {
     submittingAccount.value = false
   }
@@ -535,17 +537,17 @@ async function handleBalanceSubmit() {
   const amount = Number(balanceFormModel.amount)
 
   if (!accountId) {
-    message.error('Missing account id')
+    message.error(t('accountView.messages.missingAccountIdError'))
     return
   }
 
   if (!Number.isFinite(amount) || amount <= 0) {
-    message.error('Enter a valid amount')
+    message.error(t('accountView.messages.enterValidAmountError'))
     return
   }
 
   if (balanceActionType.value === 'withdraw' && amount > getAccountBalance(account)) {
-    message.error('Withdraw amount cannot exceed the current balance')
+    message.error(t('accountView.messages.withdrawAmountExceedsBalance'))
     return
   }
 
@@ -553,17 +555,17 @@ async function handleBalanceSubmit() {
   try {
     if (balanceActionType.value === 'charge') {
       await accountApi.charge(accountId, amount, balanceFormModel.description || undefined)
-      message.success('Account charged')
+      message.success(t('accountView.messages.accountChargedSuccess'))
     } else {
       await accountApi.withdraw(accountId, amount, balanceFormModel.description || undefined)
-      message.success('Account withdrawn')
+      message.success(t('accountView.messages.accountWithdrawnSuccess'))
     }
 
     showBalanceEditor.value = false
     await Promise.all([fetchAccounts(), fetchTransactions(), fetchAccountOptions()])
   } catch (error) {
     console.error(error)
-    message.error(`Failed to ${balanceActionType.value} account`)
+    message.error(t('accountView.messages.failedBalanceAction', { action: balanceActionType.value }))
   } finally {
     submittingBalance.value = false
   }
@@ -584,17 +586,17 @@ async function handleTransactionSubmit() {
 
     if (isEditingTransaction.value && editingTransactionId.value != null) {
       await transactionApi.updateTransaction(editingTransactionId.value, payload)
-      message.success('Transaction updated')
+      message.success(t('accountView.messages.transactionUpdatedSuccess'))
     } else {
       await transactionApi.postTransaction(payload)
-      message.success('Transaction created')
+      message.success(t('accountView.messages.transactionCreatedSuccess'))
     }
 
     showTransactionEditor.value = false
     await Promise.all([fetchTransactions(), fetchAccounts(), fetchAccountOptions()])
   } catch (error) {
     console.error(error)
-    message.error('Failed to save transaction')
+    message.error(t('accountView.messages.saveTransactionError'))
   } finally {
     submittingTransaction.value = false
   }
@@ -625,8 +627,8 @@ onMounted(() => {
     <n-card size="small" class="panel">
       <div class="section-header">
         <div>
-          <h2 class="section-title">Accounts</h2>
-          <p class="section-copy">Manage account balances and statuses.</p>
+          <h2 class="section-title">{{ t('accountView.accountsHeaderTitle') }}</h2>
+          <p class="section-copy">{{ t('accountView.accountsHeaderCopy') }}</p>
         </div>
       </div>
 
@@ -634,10 +636,10 @@ onMounted(() => {
         <n-input
           v-model:value="accountKeyword"
           clearable
-          placeholder="Search by name, type or status"
+          :placeholder="t('accountView.searchPlaceholder')"
           size="small"
         />
-        <n-button type="primary" size="small" @click="openAccountCreate">New Account</n-button>
+        <n-button type="primary" size="small" @click="openAccountCreate">{{ t('accountView.newAccountButtonText') }}</n-button>
       </div>
 
       <div class="table-wrapper">
@@ -657,8 +659,8 @@ onMounted(() => {
     <n-card size="small" class="panel">
       <div class="section-header">
         <div>
-          <h2 class="section-title">Transactions</h2>
-          <p class="section-copy">View and manage all transactions.</p>
+          <h2 class="section-title">{{ t('accountView.transactionsHeaderTitle') }}</h2>
+          <p class="section-copy">{{ t('accountView.transactionsHeaderCopy') }}</p>
         </div>
       </div>
 
@@ -666,10 +668,10 @@ onMounted(() => {
         <n-input
           v-model:value="transactionKeyword"
           clearable
-          placeholder="Search by type, description or account"
+          :placeholder="t('accountView.transactionSearchPlaceholder')"
           size="small"
         />
-        <!-- <n-button type="primary" size="small" @click="openTransactionCreate">New Transaction</n-button> -->
+        <!-- <n-button type="primary" size="small" @click="openTransactionCreate">{{ t('accountView.newTransactionButtonText') }}</n-button> -->
       </div>
 
       <div class="table-wrapper">
@@ -690,34 +692,34 @@ onMounted(() => {
       v-model:show="showAccountEditor"
       preset="card"
       style="max-width: 600px;"
-      :title="isEditingAccount ? 'Edit Account' : 'New Account'"
+      :title="isEditingAccount ? t('accountView.modal.editTitle') : t('accountView.modal.newTitle')"
       class="account-modal"
     >
       <n-form label-width="120">
         <div class="form-row">
-          <n-form-item label="Account name">
-            <n-input v-model:value="accountFormModel.accountName as string" placeholder="e.g. Cash on hand" />
+          <n-form-item :label="t('accountView.form.accountNameLabel')">
+            <n-input v-model:value="accountFormModel.accountName as string" :placeholder="t('accountView.form.accountNamePlaceholder')" />
           </n-form-item>
-          <n-form-item label="Account type">
+          <n-form-item :label="t('accountView.form.accountTypeLabel')">
             <n-select
               v-model:value="accountFormModel.accountType as string"
               :options="accountTypeOptions"
-              placeholder="Select type"
+              :placeholder="t('accountView.form.accountTypePlaceholder')"
             />
           </n-form-item>
-          <n-form-item label="Status">
+          <n-form-item :label="t('accountView.form.statusLabel')">
             <n-select
               v-model:value="accountFormModel.status as string"
               :options="statusOptions"
-              placeholder="Select status"
+              :placeholder="t('accountView.form.statusPlaceholder')"
             />
           </n-form-item>
         </div>
 
-        <div class="form-actions">
-          <n-button size="small" @click="showAccountEditor = false">Cancel</n-button>
+   <div class="form-actions">
+          <n-button size="small" @click="showAccountEditor = false">{{ t('common.cancelButtonText') }}</n-button>
           <n-button type="primary" size="small" :loading="submittingAccount" @click="handleAccountSubmit">
-            Save
+            {{ t('common.saveButtonText') }}
           </n-button>
         </div>
       </n-form>
@@ -727,45 +729,45 @@ onMounted(() => {
       v-model:show="showBalanceEditor"
       preset="card"
       style="max-width: 560px;"
-      :title="balanceActionType === 'charge' ? 'Charge Account' : 'Withdraw From Account'"
+      :title="balanceActionType === 'charge' ? t('accountView.balanceModal.chargeTitle') : t('accountView.balanceModal.withdrawTitle')"
       class="balance-modal"
     >
       <n-form label-width="140">
         <div class="form-row">
-          <n-form-item label="Account">
+          <n-form-item :label="t('accountView.balanceModal.accountLabel')">
             <n-input :value="selectedAccountForBalance?.accountName as string" disabled />
           </n-form-item>
-          <n-form-item label="Current balance">
+          <n-form-item :label="t('accountView.balanceModal.currentBalanceLabel')">
             <n-input :value="String(selectedAccountBalance)" disabled />
           </n-form-item>
         </div>
 
         <div class="form-row">
-          <n-form-item label="Amount">
+          <n-form-item :label="t('accountView.balanceModal.amountLabel')">
             <n-input-number
               v-model:value="balanceFormModel.amount"
               :min="1"
               :precision="0"
               style="width: 100%"
-              placeholder="Enter amount"
+              :placeholder="t('accountView.balanceModal.amountPlaceholder')"
             />
           </n-form-item>
-          <n-form-item label="Description">
+          <n-form-item :label="t('accountView.balanceModal.descriptionLabel')">
             <n-input
               v-model:value="balanceFormModel.description"
               :placeholder="
                 balanceActionType === 'charge'
-                  ? 'Optional note for this charge'
-                  : 'Optional note for this withdrawal'
+                  ? t('accountView.balanceModal.chargeDescriptionPlaceholder')
+                  : t('accountView.balanceModal.withdrawDescriptionPlaceholder')
               "
             />
           </n-form-item>
         </div>
 
         <div class="form-actions">
-          <n-button size="small" @click="showBalanceEditor = false">Cancel</n-button>
+          <n-button size="small" @click="showBalanceEditor = false">{{ t('common.cancelButtonText') }}</n-button>
           <n-button type="primary" size="small" :loading="submittingBalance" @click="handleBalanceSubmit">
-            Save
+            {{ t('common.saveButtonText') }}
           </n-button>
         </div>
       </n-form>
@@ -775,25 +777,25 @@ onMounted(() => {
       v-model:show="showTransactionEditor"
       preset="card"
       style="max-width: 600px; max-height: 90vh; overflow: auto;"
-      :title="isEditingTransaction ? 'Edit Transaction' : 'New Transaction'"
+      :title="isEditingTransaction ? t('accountView.transactionModal.editTitle') : t('accountView.transactionModal.newTitle')"
       class="transaction-modal"
     >
       <n-form label-width="160">
         <div class="form-row">
-          <n-form-item label="Transaction type">
+          <n-form-item :label="t('accountView.transactionForm.transactionTypeLabel')">
             <n-select
               v-model:value="transactionFormModel.transactionType as string"
               :options="transactionTypeOptions"
-              placeholder="Select type"
+              :placeholder="t('accountView.transactionForm.transactionTypePlaceholder')"
             />
           </n-form-item>
-          <n-form-item label="Amount">
-            <n-input v-model:value="transactionFormModel.amount as any" placeholder="e.g. 2500" />
+          <n-form-item :label="t('accountView.transactionForm.amountLabel')">
+            <n-input v-model:value="transactionFormModel.amount as any" :placeholder="t('accountView.transactionForm.amountPlaceholder')" />
           </n-form-item>
         </div>
 
         <div class="form-row">
-          <n-form-item label="Transaction date">
+          <n-form-item :label="t('accountView.transactionForm.transactionDateLabel')">
             <n-date-picker
               type="date"
               size="small"
@@ -806,23 +808,23 @@ onMounted(() => {
               @update:value="handleDateChange"
             />
           </n-form-item>
-          <n-form-item label="Reference type">
+          <n-form-item :label="t('accountView.transactionForm.referenceTypeLabel')">
             <n-input
               v-model:value="transactionFormModel.referenceType as string"
-              placeholder="e.g. Invoice, Receipt"
+              :placeholder="t('accountView.transactionForm.referenceTypePlaceholder')"
             />
           </n-form-item>
         </div>
 
         <div class="form-row">
-          <n-form-item label="Recorded By">
+          <n-form-item :label="t('accountView.transactionForm.recordedByLabel')">
             <n-select
               :options="employeeOptions"
               :value="transactionFormModel.recordedByEmployeeId as number"
               @update:value="handleEmployeeChange"
             />
           </n-form-item>
-          <n-form-item label="Account">
+          <n-form-item :label="t('accountView.transactionForm.accountLabel')">
             <n-select
               :options="accountOptions"
               :value="transactionFormModel.accountId as number"
@@ -832,24 +834,24 @@ onMounted(() => {
         </div>
 
         <div class="form-row single-column">
-          <n-form-item label="Description">
+          <n-form-item :label="t('accountView.transactionForm.descriptionLabel')">
             <n-input
               v-model:value="transactionFormModel.description as string"
               type="textarea"
-              placeholder="Short description of the transaction"
+              :placeholder="t('accountView.transactionForm.descriptionPlaceholder')"
             />
           </n-form-item>
         </div>
 
         <div class="form-actions">
-          <n-button size="small" @click="showTransactionEditor = false">Cancel</n-button>
+          <n-button size="small" @click="showTransactionEditor = false">{{ t('common.cancelButtonText') }}</n-button>
           <n-button
             type="primary"
             size="small"
             :loading="submittingTransaction"
             @click="handleTransactionSubmit"
           >
-            Save
+            {{ t('common.saveButtonText') }}
           </n-button>
         </div>
       </n-form>
