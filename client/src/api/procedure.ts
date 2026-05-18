@@ -5,8 +5,9 @@ import type ProcedureData from './interfaces/Procedure'
 export default new class {
   constructor () {}
 
-  getProcedures() {
-    return api.get('/procedure')
+  getProcedures(includeInactive = false) {
+    const params = includeInactive ? { include_inactive: 'true' } : {}
+    return api.get('/procedure', { params })
   }
 
   postProcedure(data: ProcedureData) {
@@ -15,6 +16,7 @@ export default new class {
   }
 
   putProcedure(id: number,data: ProcedureData) {
+    console.log(data)
     return api.put(`/procedure/${id}`, data)
   }
 

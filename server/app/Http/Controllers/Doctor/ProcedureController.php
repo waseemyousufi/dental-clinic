@@ -13,13 +13,18 @@ class ProcedureController extends Controller
     /**
      * Get all active procedures with their inventory requirements.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return ProcedureResource::collection(
-            Procedure::with('inventoryRequirements.stock')
-                ->orderBy('name')
-                ->get()
-        );
+            if($request->query('include_inactive') === 'true') {
+                return ProcedureResource::collection(Procedure::with('inventoryRequirements.stock')
+                    ->orderBy('name')
+                    ->get());
+            } else {
+                return ProcedureResource::collection(Procedure::where('is_active', true)
+                    ->with('inventoryRequirements.stock')
+                    ->orderBy('name')
+                    ->get());
+            }
     }
 
     /**

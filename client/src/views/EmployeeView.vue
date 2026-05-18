@@ -506,7 +506,7 @@ async function handleSubmit() {
       if (created.token && created.email) {
         inviteEmail.value = String(created.email)
         inviteToken.value = String(created.token)
-        inviteLink.value = `http://localhost:1235/reset-password/?token=${encodeURIComponent(inviteToken.value)}`
+        inviteLink.value = `http://localhost:1234/reset-password/?token=${encodeURIComponent(inviteToken.value)}`
         showInvite.value = true
       }
     }
@@ -528,17 +528,22 @@ async function handleSubmit() {
   }
 }
 
-function handleHireDateChange(value) {
-  console.log("hire date value: ", value)
+function handleHireDateChange(value: number | null) {
+  console.log('hire date value:', value)
+
   if (!value) {
-    formModel.hireDate = null;
-    return;
+    formModel.hireDate = null
+    return
   }
-  const date = new Date(value);
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDay())
-  formModel.hireDate = `${y}-${m}-${d}`;
+
+  const date = new Date(value)
+
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+
+  formModel.hireDate = `${y}-${m}-${d}`
+
   console.log(formModel.hireDate)
 }
 
@@ -721,9 +726,10 @@ onMounted(() => {
         <div class="form-row dual">
           <n-form-item label="Hire date">
 
-            <n-date-picker type="date" size="small" style="width: 100%"
-              :value="formModel.hireDate ? Date.parse(formModel.hireDate as string) : null"
-              @update:value="handleHireDateChange" />
+            <n-date-picker type="date" size="small" style="width: 100%" :value="formModel.hireDate
+                ? new Date(formModel.hireDate + 'T00:00:00').getTime()
+                : null
+              " @update:value="handleHireDateChange" />
 
           </n-form-item>
           <n-form-item label="First name"><n-input v-model:value="formModel.fName" /></n-form-item>
@@ -765,7 +771,8 @@ onMounted(() => {
       </n-form>
     </n-modal>
 
-    <n-modal v-model:show="showPayModal" style="max-width: 600px;" preset="card" title="Pay Salary" class="responsive-modal small">
+    <n-modal v-model:show="showPayModal" style="max-width: 600px;" preset="card" title="Pay Salary"
+      class="responsive-modal small">
       <div class="payroll-container">
         <div class="payroll-header">
           <Icon icon="mdi:account-cash" width="22" /><strong>{{ payingEmployee?.name }}</strong>
@@ -786,7 +793,8 @@ onMounted(() => {
       </div>
     </n-modal>
 
-    <n-modal v-model:show="showInvite" style="max-width: 600px;" preset="card" title="Employee Invitation" class="responsive-modal">
+    <n-modal v-model:show="showInvite" style="max-width: 600px;" preset="card" title="Employee Invitation"
+      class="responsive-modal">
       <div class="invite-container">
         <div class="invite-header">
           <Icon icon="mdi:mail-send" width="24" />

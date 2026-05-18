@@ -70,6 +70,7 @@ const financialSummary = computed(
     reportData.value?.financial_summary ?? {
       grossRevenue: 0,
       netCollected: 0,
+      netProfit: 0,
       accountsReceivable: 0,
       treatmentYield: [],
       grossRevenueTrend: undefined,
@@ -187,7 +188,7 @@ onMounted(loadReports)
 <template>
   <div class="reports-shell">
     <div class="reports-workspace">
-      <section class="hero-card">
+      <!-- <section class="hero-card">
         <div class="hero-copy">
           <div class="hero-eyebrow">Clinic intelligence</div>
 
@@ -229,7 +230,7 @@ onMounted(loadReports)
             <strong>{{ percent(operationalSummary.collection_rate) }}</strong>
           </div>
         </div>
-      </section>
+      </section> -->
 
       <section class="controls-wrapper">
         <ReportControlHeader
@@ -260,41 +261,41 @@ onMounted(loadReports)
         <div class="financial-grid">
           <div class="financial-card revenue-card">
             <div class="card-top">
-              <span class="card-label">Gross Revenue</span>
+              <span class="card-label">Net Profit</span>
               <div class="card-indicator positive" />
             </div>
-            <h3>{{ currency(financialSummary.grossRevenue) }}</h3>
-            <p>Total invoiced revenue generated during the selected reporting period.</p>
-            <div class="trend-chip" :class="signedTrendClass(financialSummary.grossRevenueTrend)">
+            <h3>{{ currency(financialSummary.netProfit) }}</h3>
+            <p>Total profit generated during the selected reporting period.</p>
+            <!-- <div class="trend-chip" :class="signedTrendClass(financialSummary.grossRevenueTrend)">
               <span>Trend</span>
               <strong>{{ financialSummary.grossRevenueTrend || '—' }}</strong>
-            </div>
+            </div> -->
           </div>
 
           <div class="financial-card collected-card">
             <div class="card-top">
-              <span class="card-label">Net Collected</span>
+              <span class="card-label">Income</span>
               <div class="card-indicator success" />
             </div>
             <h3>{{ currency(financialSummary.netCollected) }}</h3>
             <p>Collected cash and realized payments across the reporting period.</p>
-            <div class="trend-chip" :class="signedTrendClass(financialSummary.netCollectedTrend)">
+            <!-- <div class="trend-chip" :class="signedTrendClass(financialSummary.netCollectedTrend)">
               <span>Trend</span>
               <strong>{{ financialSummary.netCollectedTrend || '—' }}</strong>
-            </div>
+            </div> -->
           </div>
 
           <div class="financial-card ar-card">
             <div class="card-top">
-              <span class="card-label">Accounts Receivable</span>
+              <span class="card-label">Receivable Amount</span>
               <div class="card-indicator warning" />
             </div>
             <h3>{{ currency(financialSummary.accountsReceivable) }}</h3>
             <p>Outstanding balances pending collection from patients or insurers.</p>
-            <div class="trend-chip" :class="signedTrendClass(financialSummary.accountsReceivableTrend)">
+            <!-- <div class="trend-chip" :class="signedTrendClass(financialSummary.accountsReceivableTrend)">
               <span>Trend</span>
               <strong>{{ financialSummary.accountsReceivableTrend || '—' }}</strong>
-            </div>
+            </div> -->
           </div>
 
           <div class="financial-card operations-card">
@@ -304,10 +305,10 @@ onMounted(loadReports)
             </div>
             <h3>{{ percent(operationalSummary.collection_rate) }}</h3>
             <p>Collection efficiency across the selected reporting window.</p>
-            <div class="trend-chip trend-neutral">
+            <!-- <div class="trend-chip trend-neutral">
               <span>Volume</span>
               <strong>{{ operationalSummary.appointments_completed }} completed</strong>
-            </div>
+            </div> -->
           </div>
         </div>
 

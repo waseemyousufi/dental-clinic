@@ -77,7 +77,10 @@ class ReportsController extends Controller
 
         $grossRevenue = (float) (clone $appointmentQuery)->sum('appointment_cost') + (float) (clone $treatments)->sum('total_estimated_cost');
         $netCollected = (float) (clone $transactionQuery)->where('transaction_type', 'in')->sum('amount');
+        $netSpent = (float) (clone $transactionQuery)->where('transaction_type', 'out')->sum('amount');
         $outstandingAR = round($this->creditBalances($branchId)->sum('balance'), 2);
+
+        $netProfit = $netCollected - $netSpent;
 
         $appointmentsForMix = (clone $appointmentQuery)->get(['id', 'procedure_id', 'appointment_cost']);
         $treatmentYield = $this->treatmentYieldFromAppointments($appointmentsForMix);
@@ -85,6 +88,8 @@ class ReportsController extends Controller
         return [
             'grossRevenue' => $grossRevenue,
             'netCollected' => $netCollected,
+            'netSpent' => $netSpent,
+            'netProfit' => $netProfit,
             'accountsReceivable' => $outstandingAR,
             'treatmentYield' => $treatmentYield,
             // Placeholder for trends - real implementation would need previous period data
@@ -275,7 +280,7 @@ class ReportsController extends Controller
         $treatments = $this->treatmentPlanQuery($branchId, $start, $end);
         $completed = (clone $appointments)->where('status', 'completed')->count();
         $cancelled = (clone $appointments)->where('status', 'cancelled')->count();
-        $noShow = (clone $appointments)->where('status', 'No Show')->count();
+        $noShow = (clone $appointments)->where('status', 'no_show')->count();
         $totalAppointments = (clone $appointments)->count();
         $newPatients = (int) (clone $this->patientQuery($branchId, $start, $end))->count();
 

@@ -556,7 +556,7 @@ function buildSettingsPayload(): Record<string, unknown> {
 async function loadData() {
   const [settingsResponse, proceduresResponse, prescriptionsResponse] = await Promise.all([
     settingsApi.getSettings(resolveBranchId()),
-    procedureApi.getProcedures(),
+    procedureApi.getProcedures(true),
     prescriptionApi.getBranchPrescriptions(),
   ])
 

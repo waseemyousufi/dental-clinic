@@ -84,11 +84,11 @@ const navLinks = [
   //   label: 'Suppliers',
   //   icon: () => h(Icon, { icon: 'mdi:truck-delivery', style: 'font-size: 1.45em;' })
   // },
-    {
-      path: '/clinic-assets',
-      label: 'Clinic Assets',
-      icon: () => h(Icon, { icon: 'mdi:package-variant-closed', style: 'font-size: 1.45em;' })
-    },
+  {
+    path: '/clinic-assets',
+    label: 'Clinic Assets',
+    icon: () => h(Icon, { icon: 'mdi:package-variant-closed', style: 'font-size: 1.45em;' })
+  },
   {
     path: '/treatments',
     label: 'Treatments',
@@ -134,8 +134,8 @@ if (userStore.isAdmin) {
   )
 }
 
-if(!userStore.isAdmin && (userStore.settings && userStore.settings.rec_show_kpi))
-    navLinks.push({
+if (!userStore.isAdmin && (userStore.settings && userStore.settings.rec_show_kpi))
+  navLinks.push({
     path: '/dashboard',
     label: 'Overview',
     icon: () => h(Icon, { icon: 'mdi:view-dashboard-variant', style: 'font-size: 1.45em;' })
@@ -278,13 +278,15 @@ provide('selectedBranchId', computed(() =>
   isAdmin.value ? branchStore.selectedBranchId : userBranchId.value
 ))
 
-
 </script>
 
 <template>
   <n-dialog-provider>
     <n-message-provider>
-      <div id="app" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
+      <div id="app" :class="{
+        'sidebar-collapsed': isSidebarCollapsed,
+        'has-sidebar': authStore.isLoggedIn
+      }">
         <n-button v-if="isSidebarCollapsed" circle class="floating-menu-btn" @click="toggleSidebar">
           <Icon icon="mdi:menu" style="font-size: 1.8em;" />
         </n-button>
@@ -345,7 +347,7 @@ provide('selectedBranchId', computed(() =>
             <hr style="opacity: .3; margin: .3em 1.45em;" />
 
             <!-- <sidebar-dropdown v-if="userStore.isAdmin" icon="ph:gear-six" title="Settings"> -->
-              <!-- <RouterLink to="/profile">Profile</RouterLink> -->
+            <!-- <RouterLink to="/profile">Profile</RouterLink> -->
             <!-- </sidebar-dropdown> -->
 
             <!-- <hr v-if="userStore.isAdmin" style="opacity: .3; margin: .3em 1.45em;" /> -->

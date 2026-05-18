@@ -179,6 +179,7 @@ const statusOptions = [
   { label: 'Confirmed', value: 'confirmed' },
   { label: 'Completed', value: 'completed' },
   { label: 'Cancelled', value: 'cancelled' },
+  { label: 'No Show', value: 'no_show' },
 ]
 
 const visible = computed({

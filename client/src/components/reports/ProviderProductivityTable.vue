@@ -18,25 +18,25 @@ const formatCurrency = (value: number) => {
 
 <template>
   <div class="provider-productivity-table">
-    <div class="table-title">Provider Productivity</div>
+    <div class="table-title">Doctor Productivity</div>
     <table>
       <thead>
         <tr>
           <th scope="col">
-            Provider Name
+            Doctor Name
           </th>
           <th scope="col">
             Patients Treated
           </th>
-          <th scope="col">
+          <!-- <th scope="col">
             Hours Logged
-          </th>
+          </th> -->
           <th scope="col">
             Revenue Invoiced
           </th>
-          <th scope="col">
+          <!-- <th scope="col">
             Cash Collected
-          </th>
+          </th> -->
         </tr>
       </thead>
       <tbody>
@@ -47,15 +47,15 @@ const formatCurrency = (value: number) => {
           <td data-label="Patients Treated">
             {{ provider.patientsTreated }}
           </td>
-          <td data-label="Hours Logged">
+          <!-- <td data-label="Hours Logged">
             {{ provider.hoursLogged }}h
-          </td>
+          </td> -->
           <td data-label="Revenue Invoiced">
             {{ formatCurrency(provider.revenueInvoiced) }}
           </td>
-          <td data-label="Cash Collected">
+          <!-- <td data-label="Cash Collected">
             {{ formatCurrency(provider.cashCollected) }}
-          </td>
+          </td> -->
         </tr>
         <tr v-if="!data.length">
           <td colspan="5" class="empty">No provider data for this range.</td>

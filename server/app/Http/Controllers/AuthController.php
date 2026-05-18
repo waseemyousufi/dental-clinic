@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Models\Employee;
@@ -56,6 +58,35 @@ class AuthController extends Controller
             'user' => new UserResource($user),
             'token' => $token,
         ], 201);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string',
+            'email' => 'required|email',
+            'password' => 'required|string|min:6',
+        ]);
+
+        $status = Password::reset(
+            [
+                'email' => $request->email,
+                'password' => $request->password,
+                // 'password_confirmation' => $request->password_confirmation,
+                'token' => $request->token,
+            ],
+            function ($user, $password) {
+                $user->password = Hash::make($password);
+                $user->setRememberToken(Str::random(60));
+                $user->save();
+            }
+        );
+
+        if ($status == Password::PASSWORD_RESET) {
+            return response()->json(['message' => 'Password reset successful']);
+        }
+
+        return response()->json(['message' => __($status)], 400);
     }
 
     /**

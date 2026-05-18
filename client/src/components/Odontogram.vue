@@ -91,7 +91,7 @@ const triggerPrint = (mode: 'portrait' | 'landscape') => {
 
             @media (max-width: 30cm) {
               .odontogram-wrapper {
-                transform: ${rotation} ${rotation ? 'scale(1)' : 'scale(.8)'}  !important;
+                transform: ${rotation} ${rotation ? 'scale(2)' : 'scale(.8)'}  !important;
                 display: none;
               }
             }

@@ -84,7 +84,8 @@ const statusOptions = [
   { label: 'Pending', value: 'pending' },
   { label: 'Confirmed', value: 'confirmed' },
   { label: 'Completed', value: 'completed' },
-  { label: 'Cancelled', value: 'cancelled' }
+  { label: 'Cancelled', value: 'cancelled' },
+  { label: 'No Show', value: 'no_show' },
 ]
 
 // --- Helper Functions ---
@@ -99,6 +100,7 @@ const getStatusType = (status: string) => {
     case 'confirmed': return 'success'
     case 'completed': return 'default'
     case 'cancelled': return 'error'
+    case 'no_show': return 'warning'
     default: return 'info'
   }
 }
@@ -109,6 +111,7 @@ const getStatusColor = (status: string) => {
     case 'confirmed': return '#52c41a'
     case 'completed': return '#8c8c8c'
     case 'cancelled': return '#f5222d'
+    case 'no_show': return '#faad14'
     default: return '#1890ff'
   }
 }
@@ -246,14 +249,31 @@ const calendarOptions = computed(() => ({
 
 const handleDateClick = (info: DateClickArg) => {
   isEditMode.value = false
+
+  // Create LOCAL date safely (prevents timezone shifting)
+  const clickedDate = new Date(info.date)
+
+  // Optional default hour
+  clickedDate.setHours(8, 0, 0, 0)
+
+  // Convert to local ISO without UTC shift
+  const year = clickedDate.getFullYear()
+  const month = String(clickedDate.getMonth() + 1).padStart(2, '0')
+  const day = String(clickedDate.getDate()).padStart(2, '0')
+  const hours = String(clickedDate.getHours()).padStart(2, '0')
+  const minutes = String(clickedDate.getMinutes()).padStart(2, '0')
+
+  const localDateTime =
+    `${year}-${month}-${day}T${hours}:${minutes}`
+
   formModel.value = {
     description: '',
-    appointment_timestamp: info.dateStr, // Default to 8 AM on the selected date
+    appointment_timestamp: localDateTime,
     status: 'pending',
   }
+
   showAddEditModal.value = true
 }
-
 // --- Actions ---
 const openAddModal = () => {
   isEditMode.value = false
