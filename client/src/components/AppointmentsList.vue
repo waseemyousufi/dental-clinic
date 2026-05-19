@@ -37,6 +37,7 @@
           </n-input>
 
           <n-select
+            :to="false"
             v-model:value="statusFilter"
             :options="statusOptions"
             clearable

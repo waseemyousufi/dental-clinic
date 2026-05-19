@@ -53,7 +53,7 @@
           </template>
         </n-input>
         <div class="toolbar-actions">
-          <n-select v-model:value="filterStatus" :options="statusOptions" class="status-select" size="small" />
+          <n-select :to="false" v-model:value="filterStatus" :options="statusOptions" class="status-select" size="small" />
           <n-button quaternary :loading="isRefreshing" @click="refreshData">
             <template #icon>
               <n-icon>

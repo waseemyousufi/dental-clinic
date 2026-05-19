@@ -77,6 +77,146 @@
       "patientUpdatedSuccess": "Patient updated",
       "patientCreatedSuccess": "Patient created",
       "savePatientError": "Failed to save patient"
+    },
+    "profilePopup": {
+      "title": "Patient Profile",
+      "addAppointmentTooltip": "Add appointment",
+      "printBillTooltip": "Print bill",
+      "patientTag": "Patient",
+      "subtitle": "Review patient details and billing.",
+      "totalAmountDueLabel": "Total Amount Due",
+      "contactNumberLabel": "Contact Number",
+      "genderLabel": "Gender",
+      "chargeCard": {
+        "title": "Charge patient",
+        "description": "Enter an amount and submit the charge.",
+        "dueLabel": "Due:",
+        "amountPlaceholder": "Enter amount",
+        "chargeButton": "Charge Patient"
+      },
+      "emptyState": "No patient data to display.",
+      "format": {
+        "noDebit": "No Debit",
+        "none": "None"
+      },
+      "billTemplate": {
+        "appointmentFallback": "Appointment",
+        "clinicPrimaryFallback": "Clinic",
+        "clinicSecondary": "Patient Billing Statement",
+        "currencyLabel": "Currency: {currency}",
+        "addressUnavailable": "Address unavailable",
+        "phoneUnavailable": "Phone unavailable",
+        "notes": "Outstanding balance for this patient is {balance}."
+      },
+      "messages": {
+        "prepareBillError": "Failed to prepare patient bill",
+        "appointmentCreatedSuccess": "Appointment created successfully",
+        "createAppointmentError": "Failed to create appointment",
+        "chargePatientError": "Failed to charge patient. Amount is not chargeable."
+      }
+    }
+  },
+  "dentistPatientView": {
+    "loadingState": "Loading Dental Records...",
+    "emptyState": "No patient data available",
+    "patientIdLabel": "Patient ID: {id}",
+    "common": {
+      "yes": "Yes",
+      "no": "No",
+      "edit": "Edit"
+    },
+    "statusLabels": {
+      "accepted": "Accepted",
+      "proposed": "Proposed",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "pending": "Pending",
+      "unknown": "Unknown"
+    },
+    "messages": {
+      "loadTreatmentPlansError": "Failed to load treatment plans",
+      "loadPrescriptionsError": "Failed to load prescriptions",
+      "selectPrescriptionWarning": "Select at least one prescription",
+      "preparePrescriptionPrintError": "Failed to prepare prescription print",
+      "selectAppointmentWarning": "Select an appointment first",
+      "appointmentLinkedSuccess": "Appointment linked to treatment plan",
+      "linkAppointmentError": "Failed to link appointment",
+      "planStatusUpdated": "Plan marked as {status}",
+      "updatePlanError": "Update failed",
+      "planDeletedSuccess": "Plan deleted",
+      "deletePlanError": "Delete failed",
+      "treatmentUpdatedSuccess": "Treatment updated",
+      "treatmentPlanCreatedSuccess": "Treatment plan created",
+      "saveTreatmentError": "Failed to save treatment",
+      "appointmentCreatedSuccess": "Appointment created successfully",
+      "createAppointmentError": "Failed to create appointment",
+      "invalidConditionError": "Invalid condition",
+      "toolDeselected": "Tool deselected",
+      "conditionSelected": "Selected: {label}",
+      "conditionRemoved": "Condition removed",
+      "removeConditionError": "Failed to remove condition",
+      "selectConditionWarning": "Select a condition first",
+      "conditionSaved": "Condition saved",
+      "saveConditionError": "Failed to save condition"
+    },
+    "profile": {
+      "title": "Patient Profile",
+      "subtitle": "Lightweight patient details",
+      "bloodType": "Blood Type",
+      "gender": "Gender",
+      "phone": "Phone",
+      "emergencyContact": "Emergency Contact",
+      "registrationDate": "Registration Date"
+    },
+    "odontogram": {
+      "title": "Tooth Conditions",
+      "subtitle": "Select a condition, then tap a tooth",
+      "emptyConditions": "No conditions available",
+      "permanentTeeth": "Permanent Teeth"
+    },
+    "treatmentPlan": {
+      "kicker": "Clinical planning",
+      "title": "Treatment Plans",
+      "subtitle": "Review the patient’s active and historical plans, then create a new appointment directly from the plan you want to continue.",
+      "newPlanButton": "Propose New Plan",
+      "loading": "Loading treatment plans...",
+      "empty": "No treatment plans yet",
+      "procedureFallback": "Procedure #{id}",
+      "uncategorized": "Uncategorized",
+      "startDate": "Start date",
+      "appointments": "Appointments",
+      "accepted": "Accepted",
+      "paid": "Paid",
+      "readyForScheduling": "Ready for scheduling and execution.",
+      "pendingReview": "Pending approval or clinical review.",
+      "linkedAppointments": "Linked appointments: {count}",
+      "unassigned": "Unassigned",
+      "paidButton": "Paid",
+      "deleteConfirm": "Delete this plan?",
+      "stats": {
+        "plans": "Plans",
+        "accepted": "Accepted",
+        "proposed": "Proposed"
+      }
+    },
+    "prescription": {
+      "kicker": "Medication",
+      "title": "Prescription",
+      "subtitle": "Select one or more saved prescriptions, then print a patient-ready prescription sheet.",
+      "placeholder": "Select medications",
+      "button": "Prescribe",
+      "empty": "No saved prescriptions available",
+      "templateSecondary": "Dental Prescription",
+      "addressUnavailable": "Address unavailable",
+      "phoneUnavailable": "Phone unavailable"
+    },
+    "print": {
+      "noMedications": "No medications selected",
+      "selectBeforePrinting": "Select one or more prescriptions before printing.",
+      "patientName": "Patient Name",
+      "date": "Date",
+      "legalNotice": "This document is electronically generated for clinical records. Valid only with an authorized signature.",
+      "signatureLabel": "Medical Practitioner Signature"
     }
   },
   "treatmentView": {
@@ -112,6 +252,19 @@
       "statusLabel": "Status",
       "startDateLabel": "Start Date",
       "appointmentsNeededLabel": "Appointments needed"
+    },
+    "editTreatment": {
+      "subtitle": {
+        "edit": "Update the treatment details below and save your changes.",
+        "new": "Fill treatment details to create a new plan."
+      },
+      "summary": {
+        "planId": "Plan ID",
+        "procedure": "Procedure",
+        "status": "Status"
+      },
+      "procedureFallback": "Procedure #{id}",
+      "createButton": "Create Plan"
     },
     "statusOptions": {
       "proposed": "Proposed",
@@ -332,6 +485,7 @@
     "columns": {
       "name": "Name",
       "email": "Email",
+      "phone": "Phone",
       "position": "Position",
       "workStartTime": "Work start",
       "workEndTime": "Work end",
@@ -341,6 +495,7 @@
       "emailLabel": "Email",
       "emailPlaceholder": "Email",
       "phoneLabel": "Phone",
+      "phonePlaceholder": "Mobile phone",
       "firstNameLabel": "First name",
       "firstNamePlaceholder": "First name",
       "lastNameLabel": "Last name",
@@ -359,6 +514,7 @@
       "workEndTimePlaceholder": "e.g. 17:00",
       "hireDateLabel": "Hire date",
       "positionLabel": "Position",
+      "positionPlaceholder": "Select position",
       "experienceWorkplaceLabel": "Experience workplace",
       "experienceWorkplacePlaceholder": "Previous workplace",
       "experiencePositionLabel": "Experience position",
@@ -536,7 +692,7 @@
     "title": "Sign in to dashboard",
     "description": "Enter your credentials to access the clinic management panel.",
     "emailLabel": "Email",
-    "emailPlaceholder": "you@example.com",
+    "emailPlaceholder": "Enter your email",
     "passwordLabel": "Password",
     "passwordPlaceholder": "••••••••",
     "signInButtonText": "Sign in",
@@ -814,6 +970,206 @@
       "backupDownloadedSuccess": "Backup downloaded successfully",
       "failedToDownloadBackup": "Failed to download backup",
       "failedToLoadSettingsData": "Failed to load settings data"
+    }
+  },
+  "dashboardView": {
+    "hero": {
+      "eyebrow": "Dental Clinic",
+      "title": "Dashboard.",
+      "description": "View overall Clinic performance",
+      "meta": {
+        "branchLabel": "Branch",
+        "periodLabel": "Period",
+        "updatedLabel": "Updated",
+        "statusLabel": "Status",
+        "loading": "Loading…",
+        "ready": "Ready",
+        "allBranches": "All branches"
+      }
+    },
+    "dataScope": {
+      "title": "Data scope",
+      "description": "Branch filter metadata returned by the backend."
+    },
+    "errorMessage": "Failed to load dashboard data from the backend.",
+    "charts": {
+      "cashFlow": {
+        "title": "Cash flow",
+        "description": "Collected money versus patient dues across the selected period.",
+        "badge": "Daily trend",
+        "emptyState": "No cash flow data returned.",
+        "cashInLabel": "Cash in",
+        "appointmentChargesLabel": "Appointment charges"
+      },
+      "creditAging": {
+        "title": "Credit aging",
+        "description": "Outstanding balances grouped by age bucket.",
+        "badge": "A/R monitoring",
+        "emptyState": "No credit aging data returned.",
+        "outstandingBalanceLabel": "Outstanding balance"
+      },
+      "treatmentMix": {
+        "title": "Treatment mix",
+        "description": "Procedure categories by count.",
+        "badge": "Clinical mix",
+        "emptyState": "No treatment mix data returned.",
+        "treatmentsLabel": "Treatments"
+      },
+      "patientBehavior": {
+        "title": "Patient behavior",
+        "description": "Appointments, treatments, and new patients over time.",
+        "badge": "Retention",
+        "emptyState": "No patient behavior data returned.",
+        "appointmentsLabel": "Appointments",
+        "treatmentsAcceptedLabel": "Treatments Accepted",
+        "newPatientsLabel": "New patients"
+      },
+      "pricingDiscipline": {
+        "title": "Pricing discipline",
+        "description": "How often prices stay inside the procedure range.",
+        "badge": "Range control",
+        "emptyState": "No pricing audit data returned.",
+        "pricingAuditLabel": "Pricing audit"
+      },
+      "referralSource": {
+        "title": "Referral source",
+        "description": "Where new patients are coming from.",
+        "badge": "Source mix",
+        "emptyState": "No referral source data returned.",
+        "patientsLabel": "Patients"
+      },
+      "visitType": {
+        "title": "Visit type",
+        "description": "How visits are distributed.",
+        "badge": "Visit mix",
+        "emptyState": "No visit type data returned.",
+        "visitsLabel": "Visits"
+      }
+    },
+    "kpis": {
+      "cash_collectedLabel": "Cash Collected",
+      "cash_collectedHelp": "Actual money received in the selected period.",
+      "outstanding_arLabel": "Outstanding Credit",
+      "outstanding_arHelp": "Balances still owed by patients.",
+      "collection_rateLabel": "Collection Rate",
+      "collection_rateHelp": "Cash collected versus appointment charges.",
+      "avg_ppvLabel": "Avg Production / Visit",
+      "avg_ppvHelp": "Useful for judging chair-time value.",
+      "no_show_rateLabel": "No-Show Rate",
+      "no_show_rateHelp": "Missed appointments within the period.",
+      "new_patientsLabel": "New Patients",
+      "new_patientsHelp": "Registered patients in the selected period.",
+      "same_day_collectionLabel": "Same-Day Collection",
+      "same_day_collectionHelp": "Appointments that were collected on the same day.",
+      "pricing_disciplineLabel": "Pricing Discipline",
+      "pricing_disciplineHelp": "Share of appointments priced exactly at procedure base.",
+      "patient_retentionLabel": "Patient Retention",
+      "patient_retentionHelp": "Repeat patients over active patients.",
+      "repeat_patient_rateLabel": "Repeat Patient Rate",
+      "repeat_patient_rateHelp": "Patients with more than one appointment.",
+      "plan_acceptanceLabel": "Case Acceptance",
+      "plan_acceptanceHelp": "Accepted treatment plans versus all created plans.",
+      "plan_completionLabel": "Treatment Completion",
+      "plan_completionHelp": "Completed work against accepted treatment plans.",
+      "cashCollectedLabel": "Cash Collected",
+      "cashCollectedHelp": "Actual money received in the selected period.",
+      "cashCollectedTrendFlat": "Flat",
+      "outstandingCreditLabel": "Outstanding Credit",
+      "outstandingCreditHelp": "Balances still owed by patients.",
+      "outstandingCreditTrendClean": "Clean",
+      "collectionRateLabel": "Collection Rate",
+      "collectionRateHelp": "Cash collected versus appointment charges.",
+      "collectionRateTrendHealthy": "Healthy",
+      "avgProductionPerVisitLabel": "Avg Production / Visit",
+      "avgProductionPerVisitHelp": "Useful for judging chair-time value.",
+      "avgProductionPerVisitTrend": "Per appointment",
+      "noShowRateLabel": "No-Show Rate",
+      "noShowRateHelp": "Missed appointments within the period.",
+      "noShowRateTrendGood": "Good",
+      "newPatientsLabel": "New Patients",
+      "newPatientsHelp": "Registered patients in the selected period.",
+      "newPatientsTrendFlat": "Flat",
+      "sameDayCollectionLabel": "Same-Day Collection",
+      "sameDayCollectionHelp": "Appointments that were collected on the same day.",
+      "sameDayCollectionTrendLocalStrength": "Local strength",
+      "pricingDisciplineLabel": "Pricing Discipline",
+      "pricingDisciplineHelp": "Share of appointments priced exactly at procedure base.",
+      "pricingDisciplineTrend": "0/0 matched",
+      "patientRetentionLabel": "Patient Retention",
+      "patientRetentionHelp": "Repeat patients over active patients.",
+      "patientRetentionTrend": "Return behavior",
+      "repeatPatientRateLabel": "Repeat Patient Rate",
+      "repeatPatientRateHelp": "Patients with more than one appointment.",
+      "repeatPatientRateTrend": "Repeat behavior",
+      "planAcceptanceLabel": "Case Acceptance",
+      "planAcceptanceHelp": "Accepted treatment plans versus all created plans.",
+      "planAcceptanceTrend": "Plans accepted",
+      "planCompletionLabel": "Treatment Completion",
+      "planCompletionHelp": "Completed work against accepted treatment plans.",
+      "planCompletionTrend": "Plans completed",
+      "trendGood": "Good",
+      "trendWarn": "Warn",
+      "trendBad": "Bad",
+      "trendNeutral": "Neutral",
+      "trendUp": "Up",
+      "trendDown": "Down"
+    },
+    "operationalSnapshot": {
+      "title": "Operational snapshot",
+      "description": "Fast summary for branch leadership.",
+      "badge": "Summary",
+      "cashCollectedLabel": "Cash collected",
+      "cashCollectedHelp": "Actual money received in the selected period.",
+      "outstandingCreditLabel": "Outstanding credit",
+      "outstandingCreditHelp": "Balances still owed by patients.",
+      "collectionRateLabel": "Collection rate",
+      "collectionRateHelp": "Cash collected versus total patient dues.",
+      "noShowRateLabel": "No-show rate",
+      "noShowRateHelp": "Missed appointments within the period.",
+      "newPatientsLabel": "New patients",
+      "newPatientsHelp": "Registered patients in the selected period.",
+      "pricingDisciplineLabel": "Pricing discipline",
+      "pricingDisciplineHelp": "Share of treatments priced inside range.",
+      "sameDayCollectionLabel": "Same-day collection",
+      "sameDayCollectionHelp": "Treatments collected on the same day.",
+      "caseAcceptanceLabel": "Case acceptance",
+      "caseAcceptanceHelp": "Accepted treatment plans versus proposals."
+    },
+    "actionAlerts": {
+      "title": "Action alerts",
+      "description": "Warnings surfaced from the backend payload.",
+      "badge": "Attention",
+      "actionPrefix": "Suggested action:",
+      "defaultAction": "Review dashboard"
+    },
+    "recentActivity": {
+      "title": "Recent activity",
+      "description": "Latest treatments and transactions from the backend.",
+      "badge": "Latest records",
+      "treatmentsButton": "Treatments",
+      "transactionsButton": "Transactions",
+      "treatmentsTable": {
+        "patient": "Patient",
+        "date": "Date",
+        "treatment": "Treatment",
+        "status": "Status",
+        "balance": "Balance",
+        "priceFit": "Price fit",
+        "empty": "No recent treatments returned."
+      },
+      "transactionsTable": {
+        "branch": "Branch",
+        "date": "Date",
+        "type": "Type",
+        "amount": "Amount",
+        "description": "Description",
+        "empty": "No recent transactions returned."
+      }
+    },
+    "common": {
+      "branch": "branch",
+      "branches": "branches",
+      "days": "days"
     }
   }
 }

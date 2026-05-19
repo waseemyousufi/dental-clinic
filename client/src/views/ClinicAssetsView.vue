@@ -52,32 +52,18 @@
       <n-card class="toolbar-card" :bordered="false">
         <n-space vertical :size="12">
           <n-space wrap align="center" justify="space-between">
-            <n-input
-              v-model:value="query"
-              clearable
-              :placeholder="t('clinicAssetsView.toolbar.searchPlaceholder')"
-              class="search-input"
-            >
+            <n-input v-model:value="query" clearable :placeholder="t('clinicAssetsView.toolbar.searchPlaceholder')"
+              class="search-input">
               <template #prefix>
                 <Icon icon="solar:magnifer-linear" />
               </template>
             </n-input>
 
             <n-space wrap>
-              <n-select
-                v-model:value="categoryFilter"
-                :options="categoryOptionsFilter"
-                clearable
-                :placeholder="t('clinicAssetsView.toolbar.categoryPlaceholder')"
-                class="filter-select"
-              />
-              <n-select
-                v-model:value="statusFilter"
-                :options="statusOptionsFilter"
-                clearable
-                :placeholder="t('clinicAssetsView.toolbar.statusPlaceholder')"
-                class="filter-select"
-              />
+              <n-select :to="false" v-model:value="categoryFilter" :options="categoryOptionsFilter" clearable
+                :placeholder="t('clinicAssetsView.toolbar.categoryPlaceholder')" class="filter-select" />
+              <n-select :to="false" v-model:value="statusFilter" :options="statusOptionsFilter" clearable
+                :placeholder="t('clinicAssetsView.toolbar.statusPlaceholder')" class="filter-select" />
             </n-space>
           </n-space>
         </n-space>
@@ -86,12 +72,8 @@
       <n-spin :show="loading">
         <template v-if="isMobile">
           <n-space vertical size="medium">
-            <n-card
-              v-for="asset in pagedAssets"
-              :key="asset.id ?? `${asset.name}-${asset.assetName}`"
-              class="asset-card"
-              :bordered="false"
-            >
+            <n-card v-for="asset in pagedAssets" :key="asset.id ?? `${asset.name}-${asset.assetName}`"
+              class="asset-card" :bordered="false">
               <div class="asset-card-top">
                 <div>
                   <div class="asset-title">{{ asset.assetName }}</div>
@@ -137,15 +119,8 @@
 
         <template v-else>
           <n-card class="table-card" :bordered="false">
-            <n-data-table
-              :columns="columns"
-              :data="pagedAssets"
-              :loading="loading"
-              :pagination="false"
-              :bordered="false"
-              :single-line="false"
-              :scroll-x="1200"
-            />
+            <n-data-table :columns="columns" :data="pagedAssets" :loading="loading" :pagination="false"
+              :bordered="false" :single-line="false" :scroll-x="1200" />
           </n-card>
         </template>
       </n-spin>
@@ -153,34 +128,18 @@
       <n-card class="footer-card" :bordered="false">
         <n-space align="center" justify="space-between" wrap>
           <div class="footer-text">
-            {{ t('clinicAssetsView.footer.showingAssets', { shown: pagedAssets.length, total: filteredAssets.length }) }}
+            {{ t('clinicAssetsView.footer.showingAssets', { shown: pagedAssets.length, total: filteredAssets.length })
+            }}
           </div>
-          <n-pagination
-            v-model:page="page"
-            v-model:page-size="pageSize"
-            :item-count="filteredAssets.length"
-            :page-sizes="[5, 10, 20, 50]"
-            show-size-picker
-            :disabled="loading"
-          />
+          <n-pagination v-model:page="page" v-model:page-size="pageSize" :item-count="filteredAssets.length"
+            :page-sizes="[5, 10, 20, 50]" show-size-picker :disabled="loading" />
         </n-space>
       </n-card>
     </n-space>
 
-    <n-modal
-      v-model:show="formVisible"
-      preset="card"
-      :title="dialogTitle"
-      style="width: min(920px, calc(100vw - 24px)); height:80vh"
-      content-scrollable
-    >
-      <n-form
-        ref="formRef"
-        :model="formModel"
-        :rules="rules"
-        label-placement="top"
-        size="large"
-      >
+    <n-modal v-model:show="formVisible" preset="card" :title="dialogTitle"
+      style="width: min(920px, calc(100vw - 24px)); height:80vh" content-scrollable>
+      <n-form ref="formRef" :model="formModel" :rules="rules" label-placement="top" size="large">
         <n-grid :x-gap="16" :y-gap="8" cols="1 s:2 m:2">
           <n-grid-item>
             <n-form-item :label="t('clinicAssetsView.form.nameLabel')" path="name">
@@ -190,30 +149,30 @@
 
           <n-grid-item>
             <n-form-item :label="t('clinicAssetsView.form.assetNameLabel')" path="assetName">
-              <n-input v-model:value="formModel.assetName" :placeholder="t('clinicAssetsView.form.assetNamePlaceholder')" />
+              <n-input v-model:value="formModel.assetName"
+                :placeholder="t('clinicAssetsView.form.assetNamePlaceholder')" />
             </n-form-item>
           </n-grid-item>
 
           <n-grid-item :span="2">
             <n-form-item :label="t('clinicAssetsView.form.descriptionLabel')" path="description">
-              <n-input
-                v-model:value="formModel.description"
-                type="textarea"
+              <n-input v-model:value="formModel.description" type="textarea"
                 :placeholder="t('clinicAssetsView.form.descriptionPlaceholder')"
-                :autosize="{ minRows: 3, maxRows: 6 }"
-              />
+                :autosize="{ minRows: 3, maxRows: 6 }" />
             </n-form-item>
           </n-grid-item>
 
           <n-grid-item>
             <n-form-item :label="t('clinicAssetsView.form.categoryLabel')" path="category">
-              <n-select v-model:value="formModel.category" :options="categoryOptions" :placeholder="t('clinicAssetsView.form.categoryPlaceholder')" />
+              <n-select :to="false" v-model:value="formModel.category" :options="categoryOptions"
+                :placeholder="t('clinicAssetsView.form.categoryPlaceholder')" />
             </n-form-item>
           </n-grid-item>
 
           <n-grid-item>
             <n-form-item :label="t('clinicAssetsView.form.statusLabel')" path="status">
-              <n-select v-model:value="formModel.status" :options="statusOptions" :placeholder="t('clinicAssetsView.form.statusPlaceholder')" />
+              <n-select :to="false" v-model:value="formModel.status" :options="statusOptions"
+                :placeholder="t('clinicAssetsView.form.statusPlaceholder')" />
             </n-form-item>
           </n-grid-item>
 
@@ -243,12 +202,7 @@
 
           <n-grid-item>
             <n-form-item :label="t('clinicAssetsView.form.dateOfPurchaseLabel')" path="dateOfPurchase">
-              <n-date-picker
-                v-model:value="purchaseDateValue"
-                type="date"
-                clearable
-                style="width: 100%"
-              />
+              <n-date-picker :to="false" v-model:value="purchaseDateValue" type="date" clearable style="width: 100%" />
             </n-form-item>
           </n-grid-item>
 
@@ -634,9 +588,9 @@ const submitForm = async () => {
     const errors = error?.response?.data?.errors
     const apiMessage = errors
       ? Object.values(errors)
-          .flat()
-          .filter(Boolean)
-          .join(' ')
+        .flat()
+        .filter(Boolean)
+        .join(' ')
       : error?.response?.data?.message || error?.response?.data?.error || null
 
     if (apiMessage) {

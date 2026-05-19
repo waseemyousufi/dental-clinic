@@ -108,85 +108,86 @@ const todayTotal = computed(() => {
     .reduce((sum, e) => sum + (Number(e.amount) || 0), 0)
 })
 
-const columns = computed(() => [  {    title: t('expenseView.columns.date'),    key: 'expenseDate',    width: 120,  },  {    title: t('expenseView.columns.category'),    key: 'expenseCategory',    width: 150,    render(row: ExpenseRow) {
-      return h(
-        NTag,
+const columns = computed(() => [{ title: t('expenseView.columns.date'), key: 'expenseDate', width: 120, }, {
+  title: t('expenseView.columns.category'), key: 'expenseCategory', width: 150, render(row: ExpenseRow) {
+    return h(
+      NTag,
+      {
+        round: true,
+        size: 'small',
+        type: 'info',
+      },
+      { default: () => row.expenseCategory || t('common.noDataAvailable') },
+    )
+  },
+},
+{
+  title: t('expenseView.columns.description'),
+  key: 'description',
+  ellipsis: { tooltip: true },
+},
+{
+  title: t('expenseView.columns.unit'),
+  key: 'unit',
+  width: 120,
+},
+{
+  title: t('expenseView.columns.amount'),
+  key: 'amount',
+  width: 120,
+  render(row: ExpenseRow) {
+    const value = Number(row.amount) || 0
+    return `${value.toLocaleString()}`
+  },
+},
+{
+  title: t('expenseView.columns.paidBy'),
+  key: 'paidByEmployeeName',
+  width: 160,
+  render(row: ExpenseRow) {
+    return row.paidByEmployeeName || t('expenseView.paidById', { id: row.paidByEmployeeId || '-' })
+  },
+},
+{
+  title: t('expenseView.columns.actions'),
+  key: 'actions',
+  width: 120,
+  render(row: ExpenseRow) {
+    return h('div', { class: 'row-actions' }, [
+      h(
+        NButton,
         {
-          round: true,
-          size: 'small',
-          type: 'info',
+          text: true,
+          type: 'primary',
+          onClick: () => handleEdit(row),
         },
-        { default: () => row.expenseCategory || t('common.noDataAvailable') },
-      )
-    },
+        {
+          icon: () => h(Icon, { icon: 'akar-icons:edit' }),
+        },
+      ),
+      h(
+        NPopconfirm,
+        {
+          onPositiveClick: () => handleDelete(row),
+          negativeText: t('common.cancelButtonText'),
+          positiveText: t('common.deleteButtonText'),
+        },
+        {
+          trigger: () =>
+            h(
+              NButton,
+              {
+                text: true,
+                type: 'error',
+              },
+              { icon: () => h(Icon, { icon: 'fluent:delete-16-filled' }) },
+            ),
+          default: () => t('expenseView.deleteConfirm'),
+        },
+      ),
+    ])
   },
-  {
-    title: t('expenseView.columns.description'),
-    key: 'description',
-    ellipsis: { tooltip: true },
-  },
-  {
-    title: t('expenseView.columns.unit'),
-    key: 'unit',
-    width: 120,
-  },
-  {
-    title: t('expenseView.columns.amount'),
-    key: 'amount',
-    width: 120,
-    render(row: ExpenseRow) {
-      const value = Number(row.amount) || 0
-      return `${value.toLocaleString()}`
-    },
-  },
-  {
-    title: t('expenseView.columns.paidBy'),
-    key: 'paidByEmployeeName',
-    width: 160,
-    render(row: ExpenseRow) {
-      return row.paidByEmployeeName || t('expenseView.paidById', { id: row.paidByEmployeeId || '-' })
-    },
-  },
-  {
-    title: t('expenseView.columns.actions'),
-    key: 'actions',
-    width: 120,
-    render(row: ExpenseRow) {
-      return h('div', { class: 'row-actions' }, [
-        h(
-          NButton,
-          {
-            text: true,
-            type: 'primary',
-            onClick: () => handleEdit(row),
-          },
-          {
-            icon: () => h(Icon, { icon: 'akar-icons:edit' }),
-          },
-        ),
-        h(
-          NPopconfirm,
-          {
-            onPositiveClick: () => handleDelete(row),
-            negativeText: t('common.cancelButtonText'),
-            positiveText: t('common.deleteButtonText'),
-          },
-          {
-            trigger: () =>
-              h(
-                NButton,
-                {
-                  text: true,
-                  type: 'error',
-                },
-                { icon: () => h(Icon, { icon: 'fluent:delete-16-filled' }) },
-              ),
-            default: () => t('expenseView.deleteConfirm'),
-          },
-        ),
-      ])
-    },
-  },
+},
 ])
 
 async function fetchExpenses() {
@@ -330,7 +331,9 @@ onMounted(() => {
     <div class="view-header">
       <div>
         <h2 class="view-title">
-          <n-icon size="24"><Icon icon="mdi:cash-multiple" /></n-icon>
+          <n-icon size="24">
+            <Icon icon="mdi:cash-multiple" />
+          </n-icon>
           {{ t('expenseView.title') }}
         </h2>
         <p class="view-subtitle">
@@ -339,7 +342,9 @@ onMounted(() => {
       </div>
       <n-button type="primary" class="add-btn" @click="openCreate">
         <template #icon>
-          <n-icon><Icon icon="mdi:plus" /></n-icon>
+          <n-icon>
+            <Icon icon="mdi:plus" />
+          </n-icon>
         </template>
         {{ t('expenseView.addExpenseButton') }}
       </n-button>
@@ -368,9 +373,12 @@ onMounted(() => {
 
     <n-card size="small" class="toolbar-card">
       <div class="toolbar">
-        <n-input v-model:value="keyword" clearable :placeholder="t('expenseView.searchPlaceholder')" class="search-input">
+        <n-input v-model:value="keyword" clearable :placeholder="t('expenseView.searchPlaceholder')"
+          class="search-input">
           <template #prefix>
-            <n-icon><Icon icon="mdi:magnify" /></n-icon>
+            <n-icon>
+              <Icon icon="mdi:magnify" />
+            </n-icon>
           </template>
         </n-input>
       </div>
@@ -378,20 +386,15 @@ onMounted(() => {
 
     <n-card size="small" class="table-card">
       <div class="table-wrapper desktop-table">
-        <n-data-table
-          :columns="columns"
-          :data="filteredExpenses"
-          :loading="loading"
+        <n-data-table :columns="columns" :data="filteredExpenses" :loading="loading"
           :pagination="{ pageSize: 10, simple: true }"
-          :row-key="(row: ExpenseRow) => row.id ?? `${row.expenseDate}-${row.description}`"
-          :scroll-x="1000"
-          size="small"
-          bordered
-        />
+          :row-key="(row: ExpenseRow) => row.id ?? `${row.expenseDate}-${row.description}`" :scroll-x="1000"
+          size="small" bordered />
       </div>
 
       <div class="mobile-list">
-        <n-card v-for="row in filteredExpenses" :key="row.id ?? `${row.expenseDate}-${row.description}`" size="small" class="mobile-item">
+        <n-card v-for="row in filteredExpenses" :key="row.id ?? `${row.expenseDate}-${row.description}`" size="small"
+          class="mobile-item">
           <div class="mobile-top">
             <n-tag type="info" round>{{ row.expenseCategory }}</n-tag>
             <strong>{{ (Number(row.amount) || 0).toLocaleString() }}</strong>
@@ -406,13 +409,18 @@ onMounted(() => {
           </div>
           <div class="mobile-actions">
             <n-button size="tiny" type="primary" ghost @click="handleEdit(row)">
-              <template #icon><Icon icon="akar-icons:edit" /></template>
+              <template #icon>
+                <Icon icon="akar-icons:edit" />
+              </template>
               {{ t('expenseView.mobileEditButton') }}
             </n-button>
-            <n-popconfirm @positive-click="handleDelete(row)" :negative-text="t('common.cancelButtonText')" :positive-text="t('common.deleteButtonText')">
+            <n-popconfirm @positive-click="handleDelete(row)" :negative-text="t('common.cancelButtonText')"
+              :positive-text="t('common.deleteButtonText')">
               <template #trigger>
                 <n-button size="tiny" type="error" ghost>
-                  <template #icon><Icon icon="fluent:delete-16-filled" /></template>
+                  <template #icon>
+                    <Icon icon="fluent:delete-16-filled" />
+                  </template>
                   {{ t('expenseView.mobileDeleteButton') }}
                 </n-button>
               </template>
@@ -423,40 +431,37 @@ onMounted(() => {
       </div>
     </n-card>
 
-    <n-modal
-      v-model:show="showEditor"
-      preset="card"
-      class="expense-modal"
+    <n-modal v-model:show="showEditor" preset="card" class="expense-modal"
       style="max-width: 700px; max-height: 90vh; overflow: auto"
-      :title="isEditing ? t('expenseView.modal.editTitle') : t('expenseView.modal.addTitle')"
-    >
+      :title="isEditing ? t('expenseView.modal.editTitle') : t('expenseView.modal.addTitle')">
       <n-form label-placement="top">
         <div class="form-row">
           <n-form-item :label="t('expenseView.modal.form.categoryLabel')">
-            <n-input v-model:value="formModel.expenseCategory as string" :placeholder="t('expenseView.modal.form.categoryPlaceholder')" />
+            <n-input v-model:value="formModel.expenseCategory as string"
+              :placeholder="t('expenseView.modal.form.categoryPlaceholder')" />
           </n-form-item>
           <n-form-item :label="t('expenseView.modal.form.unitLabel')">
-            <n-input v-model:value="formModel.unit as string" :placeholder="t('expenseView.modal.form.unitPlaceholder')" />
+            <n-input v-model:value="formModel.unit as string"
+              :placeholder="t('expenseView.modal.form.unitPlaceholder')" />
           </n-form-item>
         </div>
 
         <div class="form-row">
           <n-form-item :label="t('expenseView.modal.form.amountLabel')">
-            <n-input v-model:value="formModel.amount as string" :placeholder="t('expenseView.modal.form.amountPlaceholder')" />
+            <n-input v-model:value="formModel.amount as string"
+              :placeholder="t('expenseView.modal.form.amountPlaceholder')" />
           </n-form-item>
           <n-form-item :label="t('expenseView.modal.form.dateLabel')">
-            <n-date-picker
-              type="date"
-              style="width: 100%"
+            <n-date-picker :to="false" type="date" style="width: 100%"
               :value="formModel.expenseDate ? Date.parse(formModel.expenseDate as string) : null"
-              @update:value="handleDateChange"
-            />
+              @update:value="handleDateChange" />
           </n-form-item>
         </div>
 
         <div class="form-row">
           <!-- <n-form-item :label="t('expenseView.modal.form.paidByEmployeeLabel')">
             <n-select
+              :to="false"
               v-model:value="formModel.paidByEmployeeId as any"
               :options="employeeOptions"
               :placeholder="t('expenseView.modal.form.paidByEmployeePlaceholder')"
@@ -464,30 +469,24 @@ onMounted(() => {
             />
           </n-form-item> -->
           <n-form-item :label="t('expenseView.modal.form.accountLabel')">
-            <n-select
-              :options="accountOptions"
-              v-model:value="formModel.accountId as any"
-              @update:value="handleAccountChange"
-              :placeholder="t('expenseView.modal.form.accountPlaceholder')"
-              filterable
-            />
+            <n-select :to="false" :options="accountOptions" v-model:value="formModel.accountId as any"
+              @update:value="handleAccountChange" :placeholder="t('expenseView.modal.form.accountPlaceholder')"
+              filterable />
           </n-form-item>
         </div>
 
         <div class="form-row single">
           <n-form-item :label="t('expenseView.modal.form.descriptionLabel')">
-            <n-input
-              v-model:value="formModel.description as string"
-              type="textarea"
+            <n-input v-model:value="formModel.description as string" type="textarea"
               :autosize="{ minRows: 3, maxRows: 5 }"
-              :placeholder="t('expenseView.modal.form.descriptionPlaceholder')"
-            />
+              :placeholder="t('expenseView.modal.form.descriptionPlaceholder')" />
           </n-form-item>
         </div>
 
         <div class="form-actions">
           <n-button @click="showEditor = false">{{ t('expenseView.modal.cancelButton') }}</n-button>
-          <n-button type="primary" :loading="submitting" @click="handleSubmit">{{ t('expenseView.modal.saveButton') }}</n-button>
+          <n-button type="primary" :loading="submitting" @click="handleSubmit">{{ t('expenseView.modal.saveButton')
+            }}</n-button>
         </div>
       </n-form>
     </n-modal>

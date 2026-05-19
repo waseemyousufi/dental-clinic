@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch, inject, type Ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { EventClickArg, DateClickArg } from '@fullcalendar/core'
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -30,6 +31,7 @@ import AppointmentsList from '@/components/AppointmentsList.vue'
 import useUserStore from '@/stores/user'
 
 const message = useMessage()
+const { t } = useI18n()
 const calendarRef = ref<InstanceType<typeof FullCalendar> | null>(null)
 const isSidebarCollapsed = inject<Ref<boolean>>('isSidebarCollapsed', ref(false))
 const route = useRoute()
@@ -81,17 +83,34 @@ const selectedAppointment = ref<AppointmentWithNames | null>(null)
 const formModel = ref<Partial<AppointmentData> | null>(null)
 
 const statusOptions = [
-  { label: 'Pending', value: 'pending' },
-  { label: 'Confirmed', value: 'confirmed' },
-  { label: 'Completed', value: 'completed' },
-  { label: 'Cancelled', value: 'cancelled' },
-  { label: 'No Show', value: 'no_show' },
+  { label: t('appointmentView.statusOptions.pending'), value: 'pending' },
+  { label: t('appointmentView.statusOptions.confirmed'), value: 'confirmed' },
+  { label: t('appointmentView.statusOptions.completed'), value: 'completed' },
+  { label: t('appointmentView.statusOptions.cancelled'), value: 'cancelled' },
+  { label: t('appointmentView.statusOptions.noShow'), value: 'no_show' },
 ]
+
+const formatStatusLabel = (status: string) => {
+  switch (status) {
+    case 'pending':
+      return t('appointmentView.statusOptions.pending')
+    case 'confirmed':
+      return t('appointmentView.statusOptions.confirmed')
+    case 'completed':
+      return t('appointmentView.statusOptions.completed')
+    case 'cancelled':
+      return t('appointmentView.statusOptions.cancelled')
+    case 'no_show':
+      return t('appointmentView.statusOptions.noShow')
+    default:
+      return t('appointmentView.fallbackName')
+  }
+}
 
 // --- Helper Functions ---
 const formatName = (obj: EmployeeAbbr | PatientAbbr) => {
   if (obj.name) return obj.name
-  return `${obj.fName || ''} ${obj.lName || ''}`.trim() || 'Unknown'
+  return `${obj.fName || ''} ${obj.lName || ''}`.trim() || t('appointmentView.fallbackName')
 }
 
 const getStatusType = (status: string) => {
@@ -140,7 +159,7 @@ const loadData = async () => {
     await fetchAppointments()
   } catch (error) {
     console.error(error)
-    message.error('Failed to initialize data')
+    message.error(t('appointmentView.messages.initializeDataError'))
   }
 }
 
@@ -160,7 +179,7 @@ const fetchAppointments = async () => {
       })
     }
   } catch (error) {
-    message.error('Failed to fetch appointments')
+    message.error(t('appointmentView.messages.fetchAppointmentsError'))
   }
 }
 
@@ -308,15 +327,15 @@ const handleSave = async (payload: AppointmentData) => {
   try {
     if (isEditMode.value && payload.id) {
       await appointmentApi.updateAppointment(payload.id, payload)
-      message.success('Appointment updated successfully')
+      message.success(t('appointmentView.messages.updateSuccess'))
     } else {
       await appointmentApi.postAppointment(payload)
-      message.success('Appointment created successfully')
+      message.success(t('appointmentView.messages.createSuccess'))
     }
     showAddEditModal.value = false
     await fetchAppointments()
   } catch (error) {
-    message.error('Operation failed')
+    message.error(t('appointmentView.messages.saveError'))
   }
 }
 
@@ -324,11 +343,11 @@ const handleDelete = async () => {
   if (!selectedAppointment.value) return
   try {
     await appointmentApi.deleteAppointment(selectedAppointment.value.id)
-    message.success('Appointment deleted successfully')
+    message.success(t('appointmentView.messages.deleteSuccess'))
     showViewModal.value = false
     await fetchAppointments()
   } catch (error) {
-    message.error('Failed to delete appointment')
+    message.error(t('appointmentView.messages.deleteError'))
   }
 }
 
@@ -347,11 +366,11 @@ onMounted(loadData)
     <div class="header" v-if="userStore.isReceptionist || userStore.isAdmin">
       <n-space justify="space-between" align="center">
         <n-space>
-          <n-input v-model:value="searchQuery" placeholder="Search patient, employee or date..."
+          <n-input v-model:value="searchQuery" :placeholder="t('appointmentView.searchPlaceholder')"
             style="max-width: 300px; flex-grow: 1;" clearable @keyup.enter="handleSearch" />
-          <n-button type="primary" secondary @click="handleSearch">Search</n-button>
+          <n-button type="primary" secondary @click="handleSearch">{{ t('common.searchButtonText') }}</n-button>
         </n-space>
-        <n-button type="primary" @click="openAddModal">Add Appointment</n-button>
+        <n-button type="primary" @click="openAddModal">{{ t('common.addButtonText') }}</n-button>
       </n-space>
     </div>
 
@@ -363,32 +382,32 @@ onMounted(loadData)
 
     <!-- View Modal -->
     <n-modal v-model:show="showViewModal" transform-origin="center">
-      <n-card title="Appointment Details" bordered size="small" style="max-width: 600px;" role="dialog"
+      <n-card :title="t('appointmentView.calendar.title')" bordered size="small" style="max-width: 600px;" role="dialog"
         aria-modal="true">
         <template #header-extra>
           <n-tag :type="getStatusType(selectedAppointment?.status || '')" round>
-            {{ selectedAppointment?.status.toUpperCase() }}
+            {{ formatStatusLabel(selectedAppointment?.status || '') }}
           </n-tag>
         </template>
 
         <div v-if="selectedAppointment" class="details">
           <n-space vertical size="large">
             <div>
-              <n-text depth="3">Patient</n-text>
+              <n-text depth="3">{{ t('appointmentView.calendar.detailsSection.patientLabel') }}</n-text>
               <n-h3 style="margin: 0">{{ selectedAppointment.patientName }}</n-h3>
             </div>
             <div>
-              <n-text depth="3">Assigned To</n-text>
+              <n-text depth="3">{{ t('appointmentView.calendar.detailsSection.assignedToLabel') }}</n-text>
               <div>{{ selectedAppointment.employeeName }}</div>
             </div>
             <div>
-              <n-text depth="3">Time</n-text>
+              <n-text depth="3">{{ t('appointmentView.calendar.detailsSection.timeLabel') }}</n-text>
               <div>{{ new Date(selectedAppointment.appointment_timestamp).toLocaleString() }}</div>
             </div>
             <n-divider style="margin: 8px 0" />
             <div>
-              <n-text depth="3">Description</n-text>
-              <div style="white-space: pre-wrap">{{ selectedAppointment.description }}</div>
+              <n-text depth="3">{{ t('appointmentView.calendar.detailsSection.descriptionLabel') }}</n-text>
+              <div style="white-space: pre-wrap">{{ selectedAppointment.description || t('common.noDataAvailable') }}</div>
             </div>
           </n-space>
         </div>
@@ -397,16 +416,16 @@ onMounted(loadData)
           <n-space justify="space-between">
             <n-popconfirm @positive-click="handleDelete">
               <template #trigger>
-                <n-button type="error" ghost title="Delete">
-                  Delete
+                <n-button type="error" ghost :title="t('appointmentView.messages.deleteConfirmMessage')">
+                  {{ t('common.deleteButtonText') }}
                 </n-button>
               </template>
-              Are you sure you want to delete this appointment?
+              {{ t('appointmentView.messages.deleteConfirmMessage') }}
             </n-popconfirm>
             <n-space>
-              <n-button @click="showViewModal = false">Close</n-button>
-              <n-button type="primary" title="Edit" @click="openEditModal">
-                Edit
+              <n-button @click="showViewModal = false">{{ t('common.closeButtonText') }}</n-button>
+              <n-button type="primary" :title="t('common.editTooltip')" @click="openEditModal">
+                {{ t('common.editButtonText') }}
               </n-button>
             </n-space>
           </n-space>

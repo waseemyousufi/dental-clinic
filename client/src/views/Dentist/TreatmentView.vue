@@ -394,7 +394,7 @@ onMounted(loadData)
       >
         <n-form :model="formModel" label-placement="left" label-width="140">
           <n-form-item :label="t('treatmentView.form.patientLabel')" path="patient_id" required>
-            <n-select
+            <n-select :to="false"
               v-model:value="formModel.patient_id"
               :options="patientOptions"
               :placeholder="t('treatmentView.form.patientPlaceholder')"
@@ -403,7 +403,7 @@ onMounted(loadData)
           </n-form-item>
 
           <n-form-item :label="t('treatmentView.form.procedureLabel')" path="procedure_id" required>
-            <n-select
+            <n-select :to="false"
               v-model:value="formModel.procedure_id"
               :options="procedureOptions"
               :placeholder="t('treatmentView.form.procedurePlaceholder')"
@@ -424,11 +424,12 @@ onMounted(loadData)
           </n-form-item>
 
           <n-form-item :label="t('treatmentView.form.statusLabel')" path="status">
-            <n-select v-model:value="formModel.status" :options="statusOptions" />
+            <n-select :to="false" v-model:value="formModel.status" :options="statusOptions" />
           </n-form-item>
 
           <n-form-item :label="t('treatmentView.form.startDateLabel')" path="start_date">
             <n-date-picker
+              :to="false"
               v-model:value="formModel.start_date"
               type="date"
               style="width: 100%"

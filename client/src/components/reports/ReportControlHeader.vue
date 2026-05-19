@@ -186,7 +186,7 @@ const printReport = () => {
             </span>
           </div>
         </div>
-<!-- 
+<!--
         <button
           class="print-btn"
           :disabled="loading"

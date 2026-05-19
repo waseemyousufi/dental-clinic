@@ -2,7 +2,18 @@
 import { ref, provide, h, computed, onMounted, watch } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { NMessageProvider, NDialogProvider, NButton, NIcon, NDropdown } from 'naive-ui'
+import {
+  NConfigProvider,
+  NMessageProvider,
+  NDialogProvider,
+  NButton,
+  NIcon,
+  unstableDialogRtl,
+  unstableMessageRtl,
+  unstablePopoverRtl,
+  unstableSelectRtl,
+  unstableTreeSelectRtl,
+} from 'naive-ui'
 import { Icon } from '@iconify/vue'
 import userApi from './api/user'
 import { useAuthStore } from './stores/authStore'
@@ -35,6 +46,17 @@ const showUserMenu = ref(false)
 const showLanguageMenu = ref(false)
 
 const isRtl = computed(() => RTL_LOCALES.has(locale.value as AppLocale))
+const naiveRtl = computed(() =>
+  isRtl.value
+    ? [
+        unstableSelectRtl,
+        unstableTreeSelectRtl,
+        unstablePopoverRtl,
+        unstableDialogRtl,
+        unstableMessageRtl,
+      ]
+    : undefined,
+)
 
 function normalizeLocale(value: string | null | undefined): AppLocale {
   if (value === 'en' || value === 'dr' || value === 'ps') return value
@@ -44,8 +66,11 @@ function normalizeLocale(value: string | null | undefined): AppLocale {
 
 function applyLocaleSideEffects(value: AppLocale) {
   if (typeof document === 'undefined') return
+  const dir = RTL_LOCALES.has(value) ? 'rtl' : 'ltr'
   document.documentElement.lang = value
-  document.documentElement.dir = RTL_LOCALES.has(value) ? 'rtl' : 'ltr'
+  document.documentElement.dir = dir
+  document.body.dir = dir
+  document.body.setAttribute('dir', dir)
 }
 
 const initialLocale = normalizeLocale(localStorage.getItem(LOCALE_STORAGE_KEY))
@@ -89,6 +114,11 @@ const isAdmin = computed(() => {
 const userSettings = computed(() => (userStore.settings ?? {}) as AppSettings)
 
 const navLinks = [
+  userStore.isAdmin && {
+    path: '/dashboard',
+    labelKey: 'app.navigation.dashboard',
+    icon: () => h(Icon, { icon: 'mdi:view-dashboard-variant', style: 'font-size: 1.45em;' }),
+  },
   {
     path: '/patients',
     labelKey: 'app.navigation.patients',
@@ -129,11 +159,6 @@ if (userStore.isReceptionist || userStore.isAdmin) {
 if (userStore.isAdmin) {
   navLinks.push(
     {
-      path: '/dashboard',
-      labelKey: 'app.navigation.dashboard',
-      icon: () => h(Icon, { icon: 'mdi:view-dashboard-variant', style: 'font-size: 1.45em;' }),
-    },
-    {
       path: '/employees',
       labelKey: 'app.navigation.employees',
       icon: () => h(Icon, { icon: 'mdi:badge-account-outline', style: 'font-size: 1.45em;' }),
@@ -159,6 +184,7 @@ if (!userStore.isAdmin && userSettings.value.rec_show_kpi) {
   })
 }
 
+
 const languageOptions = [
   { label: 'English', key: 'en' },
   { label: 'دری', key: 'dr' },
@@ -171,7 +197,6 @@ const currentLanguageLabel = computed(() => {
   return 'English'
 })
 
-const userDropdownPlacement = computed(() => (isRtl.value ? 'top-end' : 'top-start'))
 const backButtonIcon = computed(() => (isRtl.value ? 'mdi:arrow-right' : 'mdi:arrow-left'))
 const closedBranchIcon = computed(() => (isRtl.value ? 'mdi:chevron-left' : 'mdi:chevron-right'))
 
@@ -299,10 +324,12 @@ provide(
 </script>
 
 <template>
-  <n-dialog-provider>
-    <n-message-provider>
+  <n-config-provider abstract :rtl="naiveRtl">
+    <n-dialog-provider>
+      <n-message-provider>
       <div
         id="app"
+        :dir="isRtl ? 'rtl' : 'ltr'"
         :class="{
           'sidebar-collapsed': isSidebarCollapsed,
           'has-sidebar': authStore.isLoggedIn,
@@ -412,16 +439,8 @@ provide(
             <hr class="sidebar-divider" />
 
             <div class="sidebar-footer">
-              <n-dropdown
-                trigger="click"
-                :options="userMenuOptions"
-                @select="handleUserSelect"
-                :placement="userDropdownPlacement"
-                :show-arrow="true"
-                :z-index="9999"
-                to="body"
-              >
-                <div class="user-info">
+              <div class="user-menu-wrapper" @keydown.escape="showUserMenu = false">
+                <button type="button" class="user-info user-info-button" @click="toggleUserMenu">
                   <Icon icon="gg:profile" style="font-size: 1.9em" />
                   <div class="details">
                     <p>
@@ -431,8 +450,28 @@ provide(
                     </p>
                     <p class="gmail">{{ user ? user.email : t('app.user.guestEmail') }}</p>
                   </div>
+                  <Icon
+                    :icon="showUserMenu ? 'mdi:chevron-up' : 'mdi:chevron-down'"
+                    class="user-info-button__chevron"
+                  />
+                </button>
+
+                <div v-if="showUserMenu" class="user-menu" role="menu">
+                  <button
+                    v-for="option in userMenuOptions"
+                    :key="option.key"
+                    type="button"
+                    class="user-menu__item"
+                    role="menuitem"
+                    @click="handleUserSelect(option.key)"
+                  >
+                    <span class="user-menu__item-icon">
+                      <component :is="option.icon" />
+                    </span>
+                    <span>{{ option.label }}</span>
+                  </button>
                 </div>
-              </n-dropdown>
+              </div>
             </div>
           </div>
         </div>
@@ -452,8 +491,9 @@ provide(
           <Icon :icon="backButtonIcon" style="font-size: 1.5em" />
         </n-button>
       </div>
-    </n-message-provider>
-  </n-dialog-provider>
+      </n-message-provider>
+    </n-dialog-provider>
+  </n-config-provider>
 </template>
 
 <style scoped>
@@ -612,6 +652,11 @@ provide(
   background: #f1f5f9;
 }
 
+.user-menu-wrapper {
+  position: relative;
+  width: 100%;
+}
+
 .user-info {
   display: flex;
   align-items: center;
@@ -619,6 +664,22 @@ provide(
   justify-content: flex-start;
   width: 100%;
   min-width: 0;
+}
+
+.user-info-button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: start;
+  color: inherit;
+  cursor: pointer;
+}
+
+.user-info-button__chevron {
+  flex: 0 0 auto;
+  font-size: 1.1rem;
+  opacity: 0.7;
 }
 
 .details {
@@ -648,6 +709,51 @@ provide(
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 160px;
+}
+
+.user-menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 10030;
+  width: min(220px, calc(100vw - 28px));
+  padding: 6px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.2);
+}
+
+#app.is-rtl .user-menu {
+  right: 0;
+  left: auto;
+}
+
+.user-menu__item {
+  width: 100%;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--sidebar-text);
+  cursor: pointer;
+  font: inherit;
+  text-align: start;
+}
+
+.user-menu__item:hover {
+  background: var(--sidebar-hover);
+}
+
+.user-menu__item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
 }
 
 .content {
@@ -834,6 +940,31 @@ provide(
 
 :global(.n-dropdown) {
   z-index: 9999 !important;
+}
+
+:global(.n-popover),
+:global(.n-tooltip),
+:global(.n-select-menu),
+:global(.n-tree-select-menu),
+:global(.n-dropdown-menu),
+:global(.n-date-panel),
+:global(.n-time-picker-panel) {
+  direction: inherit;
+}
+
+:global([dir='rtl'] .n-select-menu),
+:global([dir='rtl'] .n-tree-select-menu),
+:global([dir='rtl'] .n-dropdown-menu),
+:global([dir='rtl'] .n-popover),
+:global([dir='rtl'] .n-tooltip) {
+  text-align: right;
+}
+
+:global([dir='rtl'] .n-base-select-menu__option),
+:global([dir='rtl'] .n-dropdown-menu .n-dropdown-menu-option),
+:global([dir='rtl'] .n-tooltip__content),
+:global([dir='rtl'] .n-popover__content) {
+  direction: rtl;
 }
 
 .floating-menu-btn {

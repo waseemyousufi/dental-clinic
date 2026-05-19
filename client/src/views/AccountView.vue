@@ -275,7 +275,7 @@ const transactionColumns = [
         text: row.transactionType as string,
         patterns: [row.transactionType as string],
         highlightStyle: {
-          backgroundColor: row.transactionType === 'in' ? '#16ff4a77' : row.transactionType === 'voided' ? '#f59e0b77' : row.transactionType === 'charge' ? '#16ff4a77' : row.transactionType === 'withdraw' ? '#e30e0eaa' : '#e30e0eaa' ,
+          backgroundColor: row.transactionType === 'in' ? '#16ff4a77' : row.transactionType === 'voided' ? '#f59e0b77' : row.transactionType === 'charge' ? '#16ff4a77' : row.transactionType === 'withdraw' ? '#e30e0eaa' : '#e30e0eaa',
           padding: '2px 4px',
           borderRadius: '4px',
           textTransform: 'uppercase',
@@ -633,26 +633,15 @@ onMounted(() => {
       </div>
 
       <div class="toolbar">
-        <n-input
-          v-model:value="accountKeyword"
-          clearable
-          :placeholder="t('accountView.searchPlaceholder')"
-          size="small"
-        />
-        <n-button type="primary" size="small" @click="openAccountCreate">{{ t('accountView.newAccountButtonText') }}</n-button>
+        <n-input v-model:value="accountKeyword" clearable :placeholder="t('accountView.searchPlaceholder')"
+          size="small" />
+        <n-button type="primary" size="small" @click="openAccountCreate">{{ t('accountView.newAccountButtonText')
+          }}</n-button>
       </div>
 
       <div class="table-wrapper">
-        <n-data-table
-          class="data-table"
-          :columns="accountColumns"
-          :data="filteredAccounts"
-          :loading="accountsLoading"
-          :pagination="{ pageSize: 10, simple: true }"
-          :scroll-x="800"
-          size="small"
-          bordered
-        />
+        <n-data-table class="data-table" :columns="accountColumns" :data="filteredAccounts" :loading="accountsLoading"
+          :pagination="{ pageSize: 10, simple: true }" :scroll-x="800" size="small" bordered />
       </div>
     </n-card>
 
@@ -665,58 +654,38 @@ onMounted(() => {
       </div>
 
       <div class="toolbar">
-        <n-input
-          v-model:value="transactionKeyword"
-          clearable
-          :placeholder="t('accountView.transactionSearchPlaceholder')"
-          size="small"
-        />
+        <n-input v-model:value="transactionKeyword" clearable
+          :placeholder="t('accountView.transactionSearchPlaceholder')" size="small" />
         <!-- <n-button type="primary" size="small" @click="openTransactionCreate">{{ t('accountView.newTransactionButtonText') }}</n-button> -->
       </div>
 
       <div class="table-wrapper">
-        <n-data-table
-          class="data-table"
-          :columns="transactionColumns"
-          :data="filteredTransactions"
-          :loading="transactionsLoading"
-          :pagination="{ pageSize: 10, simple: true }"
-          :scroll-x="1000"
-          size="small"
-          bordered
-        />
+        <n-data-table class="data-table" :columns="transactionColumns" :data="filteredTransactions"
+          :loading="transactionsLoading" :pagination="{ pageSize: 10, simple: true }" :scroll-x="1000" size="small"
+          bordered />
       </div>
     </n-card>
 
-    <n-modal
-      v-model:show="showAccountEditor"
-      preset="card"
-      style="max-width: 600px;"
+    <n-modal v-model:show="showAccountEditor" preset="card" style="max-width: 600px;"
       :title="isEditingAccount ? t('accountView.modal.editTitle') : t('accountView.modal.newTitle')"
-      class="account-modal"
-    >
+      class="account-modal">
       <n-form label-width="120">
         <div class="form-row">
           <n-form-item :label="t('accountView.form.accountNameLabel')">
-            <n-input v-model:value="accountFormModel.accountName as string" :placeholder="t('accountView.form.accountNamePlaceholder')" />
+            <n-input v-model:value="accountFormModel.accountName as string"
+              :placeholder="t('accountView.form.accountNamePlaceholder')" />
           </n-form-item>
           <n-form-item :label="t('accountView.form.accountTypeLabel')">
-            <n-select
-              v-model:value="accountFormModel.accountType as string"
-              :options="accountTypeOptions"
-              :placeholder="t('accountView.form.accountTypePlaceholder')"
-            />
+            <n-select :to="false" v-model:value="accountFormModel.accountType as string" :options="accountTypeOptions"
+              :placeholder="t('accountView.form.accountTypePlaceholder')" />
           </n-form-item>
           <n-form-item :label="t('accountView.form.statusLabel')">
-            <n-select
-              v-model:value="accountFormModel.status as string"
-              :options="statusOptions"
-              :placeholder="t('accountView.form.statusPlaceholder')"
-            />
+            <n-select :to="false" v-model:value="accountFormModel.status as string" :options="statusOptions"
+              :placeholder="t('accountView.form.statusPlaceholder')" />
           </n-form-item>
         </div>
 
-   <div class="form-actions">
+        <div class="form-actions">
           <n-button size="small" @click="showAccountEditor = false">{{ t('common.cancelButtonText') }}</n-button>
           <n-button type="primary" size="small" :loading="submittingAccount" @click="handleAccountSubmit">
             {{ t('common.saveButtonText') }}
@@ -725,13 +694,9 @@ onMounted(() => {
       </n-form>
     </n-modal>
 
-    <n-modal
-      v-model:show="showBalanceEditor"
-      preset="card"
-      style="max-width: 560px;"
+    <n-modal v-model:show="showBalanceEditor" preset="card" style="max-width: 560px;"
       :title="balanceActionType === 'charge' ? t('accountView.balanceModal.chargeTitle') : t('accountView.balanceModal.withdrawTitle')"
-      class="balance-modal"
-    >
+      class="balance-modal">
       <n-form label-width="140">
         <div class="form-row">
           <n-form-item :label="t('accountView.balanceModal.accountLabel')">
@@ -744,23 +709,14 @@ onMounted(() => {
 
         <div class="form-row">
           <n-form-item :label="t('accountView.balanceModal.amountLabel')">
-            <n-input-number
-              v-model:value="balanceFormModel.amount"
-              :min="1"
-              :precision="0"
-              style="width: 100%"
-              :placeholder="t('accountView.balanceModal.amountPlaceholder')"
-            />
+            <n-input-number v-model:value="balanceFormModel.amount" :min="1" :precision="0" style="width: 100%"
+              :placeholder="t('accountView.balanceModal.amountPlaceholder')" />
           </n-form-item>
           <n-form-item :label="t('accountView.balanceModal.descriptionLabel')">
-            <n-input
-              v-model:value="balanceFormModel.description"
-              :placeholder="
-                balanceActionType === 'charge'
-                  ? t('accountView.balanceModal.chargeDescriptionPlaceholder')
-                  : t('accountView.balanceModal.withdrawDescriptionPlaceholder')
-              "
-            />
+            <n-input v-model:value="balanceFormModel.description" :placeholder="balanceActionType === 'charge'
+                ? t('accountView.balanceModal.chargeDescriptionPlaceholder')
+                : t('accountView.balanceModal.withdrawDescriptionPlaceholder')
+              " />
           </n-form-item>
         </div>
 
@@ -773,84 +729,58 @@ onMounted(() => {
       </n-form>
     </n-modal>
 
-    <n-modal
-      v-model:show="showTransactionEditor"
-      preset="card"
+    <n-modal v-model:show="showTransactionEditor" preset="card"
       style="max-width: 600px; max-height: 90vh; overflow: auto;"
       :title="isEditingTransaction ? t('accountView.transactionModal.editTitle') : t('accountView.transactionModal.newTitle')"
-      class="transaction-modal"
-    >
+      class="transaction-modal">
       <n-form label-width="160">
         <div class="form-row">
           <n-form-item :label="t('accountView.transactionForm.transactionTypeLabel')">
-            <n-select
-              v-model:value="transactionFormModel.transactionType as string"
+            <n-select :to="false" v-model:value="transactionFormModel.transactionType as string"
               :options="transactionTypeOptions"
-              :placeholder="t('accountView.transactionForm.transactionTypePlaceholder')"
-            />
+              :placeholder="t('accountView.transactionForm.transactionTypePlaceholder')" />
           </n-form-item>
           <n-form-item :label="t('accountView.transactionForm.amountLabel')">
-            <n-input v-model:value="transactionFormModel.amount as any" :placeholder="t('accountView.transactionForm.amountPlaceholder')" />
+            <n-input v-model:value="transactionFormModel.amount as any"
+              :placeholder="t('accountView.transactionForm.amountPlaceholder')" />
           </n-form-item>
         </div>
 
         <div class="form-row">
           <n-form-item :label="t('accountView.transactionForm.transactionDateLabel')">
-            <n-date-picker
-              type="date"
-              size="small"
-              style="width: 100%"
-              :value="
-                transactionFormModel.transactionDate
-                  ? Date.parse(transactionFormModel.transactionDate as string)
-                  : null
-              "
-              @update:value="handleDateChange"
-            />
+            <n-date-picker :to="false" type="date" size="small" style="width: 100%" :value="transactionFormModel.transactionDate
+                ? Date.parse(transactionFormModel.transactionDate as string)
+                : null
+              " @update:value="handleDateChange" />
           </n-form-item>
           <n-form-item :label="t('accountView.transactionForm.referenceTypeLabel')">
-            <n-input
-              v-model:value="transactionFormModel.referenceType as string"
-              :placeholder="t('accountView.transactionForm.referenceTypePlaceholder')"
-            />
+            <n-input v-model:value="transactionFormModel.referenceType as string"
+              :placeholder="t('accountView.transactionForm.referenceTypePlaceholder')" />
           </n-form-item>
         </div>
 
         <div class="form-row">
           <n-form-item :label="t('accountView.transactionForm.recordedByLabel')">
-            <n-select
-              :options="employeeOptions"
-              :value="transactionFormModel.recordedByEmployeeId as number"
-              @update:value="handleEmployeeChange"
-            />
+            <n-select :to="false" :options="employeeOptions"
+              :value="transactionFormModel.recordedByEmployeeId as number" @update:value="handleEmployeeChange" />
           </n-form-item>
           <n-form-item :label="t('accountView.transactionForm.accountLabel')">
-            <n-select
-              :options="accountOptions"
-              :value="transactionFormModel.accountId as number"
-              @update:value="handleAccountChange"
-            />
+
+            <n-select :to="false" :options="accountOptions" :value="transactionFormModel.accountId as number"
+              @update:value="handleAccountChange" />
           </n-form-item>
         </div>
 
         <div class="form-row single-column">
           <n-form-item :label="t('accountView.transactionForm.descriptionLabel')">
-            <n-input
-              v-model:value="transactionFormModel.description as string"
-              type="textarea"
-              :placeholder="t('accountView.transactionForm.descriptionPlaceholder')"
-            />
+            <n-input v-model:value="transactionFormModel.description as string" type="textarea"
+              :placeholder="t('accountView.transactionForm.descriptionPlaceholder')" />
           </n-form-item>
         </div>
 
         <div class="form-actions">
           <n-button size="small" @click="showTransactionEditor = false">{{ t('common.cancelButtonText') }}</n-button>
-          <n-button
-            type="primary"
-            size="small"
-            :loading="submittingTransaction"
-            @click="handleTransactionSubmit"
-          >
+          <n-button type="primary" size="small" :loading="submittingTransaction" @click="handleTransactionSubmit">
             {{ t('common.saveButtonText') }}
           </n-button>
         </div>

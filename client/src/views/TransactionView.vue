@@ -319,7 +319,7 @@ onMounted(() => {
       <n-form label-width="160">
         <div class="form-row">
           <n-form-item label="Transaction type">
-            <n-select v-model:value="formModel.transactionType as string" :options="transactionTypeOptions"
+            <n-select :to="false" v-model:value="formModel.transactionType as string" :options="transactionTypeOptions"
               placeholder="Select type" />
           </n-form-item>
           <n-form-item label="Amount">
@@ -329,7 +329,7 @@ onMounted(() => {
 
         <div class="form-row">
           <n-form-item label="Transaction date">
-            <n-date-picker type="date" size="small" style="width: 100%" :value="formModel.transactionDate ? Date.parse(formModel.transactionDate as string) : null
+            <n-date-picker :to="false" type="date" size="small" style="width: 100%" :value="formModel.transactionDate ? Date.parse(formModel.transactionDate as string) : null
               " @update:value="handleDateChange" />
           </n-form-item>
           <n-form-item label="Reference type">
@@ -345,11 +345,11 @@ onMounted(() => {
             <n-input v-model:value="(formModel.accountId as any)" placeholder="Account id" />
           </n-form-item> -->
           <n-form-item label="Recorded By">
-            <n-select :options="employeeOptions" @update:value="handleEmployeeChange" :value="employeeOptions.filter(e => e.value === formModel.recordedByEmployeeId)[0]?.label as string
+            <n-select :to="false" :options="employeeOptions" @update:value="handleEmployeeChange" :value="employeeOptions.filter(e => e.value === formModel.recordedByEmployeeId)[0]?.label as string
               " />
           </n-form-item>
           <n-form-item label="Account">
-            <n-select :options="accountOptions" @update:value="handleAccountChange"
+            <n-select :to="false" :options="accountOptions" @update:value="handleAccountChange"
               :value="accountOptions.filter(a => a.value === formModel.accountId)[0]?.label as string" />
           </n-form-item>
         </div>
@@ -440,7 +440,7 @@ onMounted(() => {
 
 .transaction-view {
   margin-bottom: 2em;
-overflow: visible !important;
+  overflow: visible !important;
 }
 
 .transaction-panal {

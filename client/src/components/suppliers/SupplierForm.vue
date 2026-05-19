@@ -50,7 +50,7 @@
 
         <!-- Items Supplied - Full Width -->
         <n-form-item-gi :span="2" label="Products">
-          <n-select v-model:value="form.itemIds" :options="itemOptions" multiple filterable
+          <n-select :to="false" v-model:value="form.itemIds" :options="itemOptions" multiple filterable
             placeholder="Select items this supplier provides" :loading="loadingItems"
             :render-tag="renderItemTag" />
         </n-form-item-gi>

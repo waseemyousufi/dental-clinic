@@ -23,7 +23,7 @@
                 <n-input v-model:value="formData.clinic_name" :placeholder="t('settingsView.branchForm.clinicNamePlaceholder')" />
               </n-form-item>
               <!-- <n-form-item label="Currency" path="currency">
-                <n-select v-model:value="formData.currency" :options="currencyOptions" />
+                <n-select :to="false" v-model:value="formData.currency" :options="currencyOptions" />
               </n-form-item> -->
               <n-form-item class="full-span" :label="t('settingsView.branchForm.addressLabel')" path="address">
                 <n-input v-model:value="formData.address" type="textarea" :placeholder="t('settingsView.branchForm.addressPlaceholder')" :autosize="{ minRows: 3, maxRows: 5 }" />

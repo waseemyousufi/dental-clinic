@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watchEffect } from 'vue';
+import { useI18n } from 'vue-i18n';
 import {
   NModal,
   NCard,
@@ -68,6 +69,7 @@ const emit = defineEmits<{
 }>();
 
 const message = useMessage();
+const { t } = useI18n();
 const userStore = useUserStore();
 
 const showModal = computed({
@@ -86,15 +88,15 @@ const billPrintData = ref<BillPrintPayload | null>(null);
 let billCleanupTimer: ReturnType<typeof setTimeout> | null = null;
 
 const patientFullName = computed(() => {
-  if (!props.patientData) return 'N/A';
+  if (!props.patientData) return t('common.noDataAvailable');
 
-  return `${props.patientData.fName ?? ''} ${props.patientData.lName ?? ''}`.trim();
+  return `${props.patientData.fName ?? ''} ${props.patientData.lName ?? ''}`.trim() || t('common.noDataAvailable');
 });
 
 const genderLabel = computed(() => {
   const gender = props.patientData?.gender;
 
-  if (!gender) return 'N/A';
+  if (!gender) return t('common.noDataAvailable');
 
   return gender.charAt(0).toUpperCase() + gender.slice(1);
 });
@@ -104,7 +106,7 @@ const allergiesLabel = computed(() => {
 
   return allergies && allergies.length > 0
     ? allergies.join(', ')
-    : 'None';
+    : t('patientView.profilePopup.format.none');
 });
 
 /**
@@ -118,11 +120,11 @@ watchEffect(() => {
 function formatCurrency(value: number) {
   if (value)
     return `${value.toLocaleString()} AFN`;
-  return 'No Debit';
+  return t('patientView.profilePopup.format.noDebit');
 }
 
 function formatDisplayDate(dateValue: string | null | undefined) {
-  if (!dateValue) return 'N/A';
+  if (!dateValue) return t('common.noDataAvailable');
 
   const date = new Date(dateValue);
   if (Number.isNaN(date.getTime())) return 'N/A';
@@ -131,7 +133,7 @@ function formatDisplayDate(dateValue: string | null | undefined) {
 }
 
 function formatDisplayTime(dateValue: string | null | undefined) {
-  if (!dateValue) return 'N/A';
+  if (!dateValue) return t('common.noDataAvailable');
 
   const date = new Date(dateValue);
   if (Number.isNaN(date.getTime())) return 'N/A';
@@ -210,7 +212,7 @@ async function handlePrintBill() {
     const appointmentItems: BillAppointmentItem[] = patientAppointments.map(appointment => ({
       date: formatDisplayDate(appointment?.appointment_timestamp),
       time: formatDisplayTime(appointment?.appointment_timestamp),
-      procedure: appointment?.description || appointment?.status || 'Appointment',
+      procedure: appointment?.description || appointment?.status || t('patientView.profilePopup.billTemplate.appointmentFallback'),
     }));
 
     const totalAmount = treatmentPlanItems.reduce((sum, item) => sum + Number(item.cost || 0), 0);
@@ -219,11 +221,11 @@ async function handlePrintBill() {
     const today = new Date();
 
     billPrintData.value = {
-      clinicPrimary: userStore.clinicName || settings?.clinic_name || 'Clinic',
-      clinicSecondary: 'Patient Billing Statement',
-      clinicTertiary: settings?.currency ? `Currency: ${settings.currency}` : undefined,
-      address: settings?.address || 'Address unavailable',
-      phone: userStore.clinicPhone || settings?.phone || 'Phone unavailable',
+      clinicPrimary: userStore.clinicName || settings?.clinic_name || t('patientView.profilePopup.billTemplate.clinicPrimaryFallback'),
+      clinicSecondary: t('patientView.profilePopup.billTemplate.clinicSecondary'),
+      clinicTertiary: settings?.currency ? t('patientView.profilePopup.billTemplate.currencyLabel', { currency: settings.currency }) : undefined,
+      address: settings?.address || t('patientView.profilePopup.billTemplate.addressUnavailable'),
+      phone: userStore.clinicPhone || settings?.phone || t('patientView.profilePopup.billTemplate.phoneUnavailable'),
       currency: settings?.currency || 'AFN',
       patientName: patientFullName.value,
       invoiceDate: today.toLocaleDateString(),
@@ -233,7 +235,7 @@ async function handlePrintBill() {
       amountPaid,
       totalAmount,
       balanceAmount,
-      notes: `Outstanding balance for this patient is ${formatCurrency(balanceAmount)}.`,
+      notes: t('patientView.profilePopup.billTemplate.notes', { balance: formatCurrency(balanceAmount) }),
     };
 
     await nextTick();
@@ -245,7 +247,7 @@ async function handlePrintBill() {
   catch (error) {
     console.error('Error printing patient bill:', error);
     cleanupPrintedBill();
-    message.error('Failed to prepare patient bill.');
+    message.error(t('patientView.profilePopup.messages.prepareBillError'));
   }
   finally {
     billPreparing.value = false;
@@ -256,12 +258,12 @@ async function handleAppointmentSave(payload: AppointmentData) {
   try {
     appointmentSaving.value = true;
     await appointmentApi.postAppointment(payload);
-    message.success('Appointment created successfully.');
+    message.success(t('patientView.profilePopup.messages.appointmentCreatedSuccess'));
     showAppointmentModal.value = false;
   }
   catch (error) {
     console.error('Error creating appointment:', error);
-    message.error('Failed to create appointment.');
+    message.error(t('patientView.profilePopup.messages.createAppointmentError'));
   }
   finally {
     appointmentSaving.value = false;
@@ -294,7 +296,7 @@ async function handleChargePatient() {
   }
   catch (error) {
     console.error('Error charging patient:', error);
-    message.error('Failed to charge patient. Amount is uncapable of being charged.');
+    message.error(t('patientView.profilePopup.messages.chargePatientError'));
   } finally {
     isCharging.value = false;
   }
@@ -307,7 +309,7 @@ onBeforeUnmount(() => {
 
 <template>
   <n-modal v-model:show="showModal" closable :mask-closable="true" class="patient-profile-modal" content-scrollable>
-    <n-card class="profile-card" title="Patient Profile" :bordered="false" size="huge" style="
+    <n-card class="profile-card" :title="t('patientView.profilePopup.title')" :bordered="false" size="huge" style="
         width: min(760px, calc(100vw - 20px));
         max-height: 90vh;
       ">
@@ -320,7 +322,7 @@ onBeforeUnmount(() => {
               </template>
             </n-button>
           </template>
-          Add appointment
+          {{ t('patientView.profilePopup.addAppointmentTooltip') }}
         </n-tooltip>
 
         <n-tooltip trigger="hover">
@@ -332,7 +334,7 @@ onBeforeUnmount(() => {
             </n-button>
           </template>
 
-          Print bill
+          {{ t('patientView.profilePopup.printBillTooltip') }}
         </n-tooltip>
 
         <n-button style="margin-left: .4em;" quaternary circle @click="showModal = false">
@@ -349,17 +351,17 @@ onBeforeUnmount(() => {
               <h2>{{ patientFullName }}</h2>
 
               <n-tag round size="small" type="info">
-                Patient
+                {{ t('patientView.profilePopup.patientTag') }}
               </n-tag>
             </div>
 
             <p class="subtle">
-              Review patient details and billing.
+              {{ t('patientView.profilePopup.subtitle') }}
             </p>
           </div>
 
           <div class="amount-badge">
-            <span>Total Amount Due</span>
+            <span>{{ t('patientView.profilePopup.totalAmountDueLabel') }}</span>
             <strong>
               {{ formatCurrency(amountDue) }}
             </strong>
@@ -373,12 +375,12 @@ onBeforeUnmount(() => {
             <template #label>
               <n-space align="center" size="small">
                 <Icon :size="16" icon="solar:phone-broken" />
-                Contact Number
+                {{ t('patientView.profilePopup.contactNumberLabel') }}
               </n-space>
             </template>
 
             <p class="indented">
-              {{ patientData.phone || 'N/A' }}
+              {{ patientData.phone || t('common.noDataAvailable') }}
             </p>
           </n-descriptions-item>
 
@@ -386,7 +388,7 @@ onBeforeUnmount(() => {
             <template #label>
               <n-space align="center" size="small">
                 <Icon :size="16" icon="streamline-ultimate:gender-hetero" />
-                Gender
+                {{ t('patientView.profilePopup.genderLabel') }}
               </n-space>
             </template>
 
@@ -427,22 +429,22 @@ onBeforeUnmount(() => {
         <n-card size="small" class="charge-card" :bordered="true">
           <div class="charge-card__header">
             <div>
-              <h3>Charge patient</h3>
+              <h3>{{ t('patientView.profilePopup.chargeCard.title') }}</h3>
 
               <p>
-                Enter an amount and submit the charge.
+                {{ t('patientView.profilePopup.chargeCard.description') }}
               </p>
             </div>
 
             <n-tag round size="small" type="warning">
-              Due:
+              {{ t('patientView.profilePopup.chargeCard.dueLabel') }}
               {{ formatCurrency(amountDue) }}
             </n-tag>
           </div>
 
           <div class="charge-card__actions">
             <n-input-number :value="chargeAmount" @update:value="handleChargeInput" class="charge-input" :min="1"
-              :step="50" placeholder="Enter amount" clearable>
+              :step="50" :placeholder="t('patientView.profilePopup.chargeCard.amountPlaceholder')" clearable>
               <template #suffix>
                 AFN
               </template>
@@ -454,14 +456,14 @@ onBeforeUnmount(() => {
                 <Icon icon="solar:wallet-money-bold-duotone" />
               </template>
 
-              Charge Patient
+              {{ t('patientView.profilePopup.chargeCard.chargeButton') }}
             </n-button>
           </div>
         </n-card>
       </div>
 
       <div v-else class="empty-state">
-        No patient data to display.
+        {{ t('patientView.profilePopup.emptyState') }}
       </div>
     </n-card>
   </n-modal>

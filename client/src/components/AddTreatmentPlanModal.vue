@@ -123,7 +123,7 @@ onMounted(loadProcedures)
 
       <n-form :model="formModel">
         <n-form-item label="Select Procedure" path="procedure_id">
-          <n-select v-model:value="formModel.procedure_id" :options="procedureOptions" placeholder="Search procedure..."
+          <n-select v-model:value="formModel.procedure_id" :to="false" :options="procedureOptions" placeholder="Search procedure..."
             filterable>
             <template #prefix>
               <Icon icon="healthicons:tooth-outline" />

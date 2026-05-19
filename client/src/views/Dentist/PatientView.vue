@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useMessage } from 'naive-ui'
 import { ref, computed, nextTick, onBeforeUnmount, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import Odontogram from '@/components/Odontogram.vue'
 import PrimaryOdontogram from '@/components/PrimaryOdontogram.vue'
@@ -66,6 +67,7 @@ const userStore = useUserStore()
 const odontogramData = ref<OdontogramState>({})
 
 const message = useMessage()
+const { t } = useI18n()
 
 // treatment plan state
 const treatmentPlans = ref<any[]>([])
@@ -107,16 +109,16 @@ const treatmentPlanStats = computed(() => {
 function getStatusMeta(status: string) {
   switch (status) {
     case 'accepted':
-      return { type: 'success' as const, label: 'Accepted' }
+      return { type: 'success' as const, label: t('dentistPatientView.statusLabels.accepted') }
     case 'proposed':
-      return { type: 'warning' as const, label: 'Proposed' }
+      return { type: 'warning' as const, label: t('dentistPatientView.statusLabels.proposed') }
     case 'completed':
-      return { type: 'info' as const, label: 'Completed' }
+      return { type: 'info' as const, label: t('dentistPatientView.statusLabels.completed') }
     case 'cancelled':
     case 'rejected':
-      return { type: 'error' as const, label: 'Cancelled' }
+      return { type: 'error' as const, label: t('dentistPatientView.statusLabels.cancelled') }
     default:
-      return { type: 'default' as const, label: status || 'Unknown' }
+      return { type: 'default' as const, label: status || t('dentistPatientView.statusLabels.unknown') }
   }
 }
 
@@ -135,7 +137,7 @@ function formatMoney(value: any) {
 
 function createAppointment(plan: any) {
   editingAppointment.value = {
-    description: plan.procedure?.name ? `Follow-up: ${plan.procedure.name}` : 'Treatment plan appointment',
+    description: plan.procedure?.name ? t('dentistPatientView.treatmentPlan.followUp', { name: plan.procedure.name }) : t('dentistPatientView.treatmentPlan.appointmentFallback'),
     appointment_timestamp: new Date().toISOString(),
     status: 'pending',
     patientId: patientId.value,
@@ -204,8 +206,8 @@ function printPrescriptionFromHost() {
       .join('')
     : `
       <div class="med-item">
-        <div class="name">No medications selected</div>
-        <div class="dosage">Select one or more prescriptions before printing.</div>
+        <div class="name">${t('dentistPatientView.print.noMedications')}</div>
+        <div class="dosage">${t('dentistPatientView.print.selectBeforePrinting')}</div>
       </div>
     `
 
@@ -343,11 +345,11 @@ function printPrescriptionFromHost() {
 
             <section class="patient-section">
               <div class="field-box">
-                <label>Patient Name</label>
+                <label>${t('dentistPatientView.print.patientName')}</label>
                 <div class="field-value">${data.patientName}</div>
               </div>
               <div class="field-box">
-                <label>Date</label>
+                <label>${t('dentistPatientView.print.date')}</label>
                 <div class="field-value">${data.date}</div>
               </div>
             </section>
@@ -361,12 +363,11 @@ function printPrescriptionFromHost() {
 
             <footer class="prescription-footer">
               <div class="legal-notice">
-                This document is electronically generated for clinical records.
-                Valid only with an authorized signature.
+                ${t('dentistPatientView.print.legalNotice')}
               </div>
               <div class="signature-column">
                 <div class="signature-line"></div>
-                <div class="signature-label">Medical Practitioner Signature</div>
+                <div class="signature-label">${t('dentistPatientView.print.signatureLabel')}</div>
               </div>
             </footer>
           </article>
@@ -405,7 +406,7 @@ async function fetchTreatmentData() {
     appointments.value = allAppointments.filter((a: any) => Number(a.patientId) === patientId.value)
   } catch (err) {
     console.log(err)
-    message.error('Failed to load treatment plans')
+      message.error(t('dentistPatientView.messages.loadTreatmentPlansError'))
   } finally {
     planLoading.value = false
   }
@@ -431,14 +432,14 @@ async function fetchPrescriptionData() {
     }))
   } catch (error) {
     console.error(error)
-    message.error('Failed to load prescriptions')
+    message.error(t('dentistPatientView.messages.loadPrescriptionsError'))
   }
 }
 
 async function handlePrescribe() {
   if (!patient.value) return
   if (!selectedPrescriptionIds.value.length) {
-    message.warning('Select at least one prescription')
+    message.warning(t('dentistPatientView.messages.selectPrescriptionWarning'))
     return
   }
 
@@ -455,10 +456,10 @@ async function handlePrescribe() {
 
     prescriptionPrintData.value = {
       clinicPrimary: userStore.settings.clinic_name || clinicSettings.value?.clinic_name || 'Clinic',
-      clinicSecondary: 'Dental Prescription',
+      clinicSecondary: t('dentistPatientView.prescription.templateSecondary'),
       clinicTertiary: clinicSettings.value?.prescription_template?.footer || undefined,
-      address: clinicSettings.value?.address || 'Address unavailable',
-      phone: userStore.settings.clinic_phone || clinicSettings.value?.phone || 'Phone unavailable',
+      address: clinicSettings.value?.address || t('dentistPatientView.prescription.addressUnavailable'),
+      phone: userStore.settings.clinic_phone || clinicSettings.value?.phone || t('dentistPatientView.prescription.phoneUnavailable'),
       patientName: `${patient.value.fName || patient.value.f_name || ''} ${patient.value.lName || patient.value.l_name || ''}`.trim(),
       date: new Date().toLocaleDateString(),
       medications,
@@ -471,7 +472,7 @@ async function handlePrescribe() {
   } catch (error) {
     console.error(error)
     cleanupPrintedPrescription()
-    message.error('Failed to prepare prescription print')
+    message.error(t('dentistPatientView.messages.preparePrescriptionPrintError'))
   } finally {
     prescribing.value = false
   }
@@ -484,7 +485,7 @@ function appointmentOptionsForPlan(plan: any) {
       return !linkedPlanId || Number(linkedPlanId) === Number(plan.id)
     })
     .map((appointment: any) => ({
-      label: `${formatDate(appointment.appointment_timestamp)} - ${appointment.status || 'Pending'}`,
+      label: `${formatDate(appointment.appointment_timestamp)} - ${appointment.status || t('dentistPatientView.statusLabels.pending')}`,
       value: Number(appointment.id),
     }))
 }
@@ -492,18 +493,18 @@ function appointmentOptionsForPlan(plan: any) {
 async function addAppointmentToPlan(planId: number) {
   const appointmentId = selectedAppointmentByPlan.value[planId]
   if (!appointmentId) {
-    message.warning('Select an appointment first')
+    message.warning(t('dentistPatientView.messages.selectAppointmentWarning'))
     return
   }
 
   linkingPlanId.value = planId
   try {
     await TreatmentPlanApi.addAppointment(planId, appointmentId)
-    message.success('Appointment linked to treatment plan')
+    message.success(t('dentistPatientView.messages.appointmentLinkedSuccess'))
     selectedAppointmentByPlan.value[planId] = null
     await fetchTreatmentData()
   } catch (error) {
-    message.error('Failed to link appointment')
+    message.error(t('dentistPatientView.messages.linkAppointmentError'))
   } finally {
     linkingPlanId.value = null
   }
@@ -512,20 +513,20 @@ async function addAppointmentToPlan(planId: number) {
 async function updatePlanStatus(planId: number, newStatus: string) {
   try {
     await TreatmentPlanApi.updateStatus(planId, { status: newStatus })
-    message.success(`Plan marked as ${newStatus}`)
+    message.success(t('dentistPatientView.messages.planStatusUpdated', { status: newStatus }))
     await fetchTreatmentData()
   } catch (err) {
-    message.error('Update failed')
+    message.error(t('dentistPatientView.messages.updatePlanError'))
   }
 }
 
 async function deletePlan(planId: number) {
   try {
     await TreatmentPlanApi.deleteTreatmentPlan(planId)
-    message.success('Plan deleted')
+    message.success(t('dentistPatientView.messages.planDeletedSuccess'))
     await fetchTreatmentData()
   } catch (err) {
-    message.error('Delete failed')
+    message.error(t('dentistPatientView.messages.deletePlanError'))
   }
 }
 
@@ -550,17 +551,17 @@ async function saveTreatmentPlan(payload: any) {
 
     if (editingPlan.value?.id) {
       await TreatmentPlanApi.updateTreatmentPlan(editingPlan.value.id, body)
-      message.success('Treatment updated')
+      message.success(t('dentistPatientView.messages.treatmentUpdatedSuccess'))
     } else {
       await TreatmentPlanApi.postTreatmentPlan(body)
-      message.success('Treatment plan created')
+      message.success(t('dentistPatientView.messages.treatmentPlanCreatedSuccess'))
     }
 
     isTreatmentModalVisible.value = false
     editingPlan.value = null
     await fetchTreatmentData()
   } catch (err) {
-    message.error('Failed to save treatment')
+    message.error(t('dentistPatientView.messages.saveTreatmentError'))
   } finally {
     editPlanLoading.value = false
   }
@@ -570,12 +571,12 @@ async function handleAppointmentSave(payload: AppointmentData) {
   appointmentSaving.value = true
   try {
     await appointmentApi.postAppointment(payload)
-    message.success('Appointment created successfully')
+    message.success(t('dentistPatientView.messages.appointmentCreatedSuccess'))
     isAppointmentModalVisible.value = false
     editingAppointment.value = null
     await fetchTreatmentData()
   } catch (error) {
-    message.error('Failed to create appointment')
+    message.error(t('dentistPatientView.messages.createAppointmentError'))
   } finally {
     appointmentSaving.value = false
   }
@@ -765,18 +766,18 @@ async function loadPatientData() {
 
 function selectCondition(condition: ConditionLibrary) {
   if (!condition?.id) {
-    message.error('Invalid condition')
+    message.error(t('dentistPatientView.messages.invalidConditionError'))
     return
   }
 
   if (activeFinding.value?.id === condition.id) {
     activeFinding.value = null
-    message.info('Tool deselected')
+    message.info(t('dentistPatientView.messages.toolDeselected'))
     return
   }
 
   activeFinding.value = condition
-  message.success(`Selected: ${condition.label}`)
+  message.success(t('dentistPatientView.messages.conditionSelected', { label: condition.label }))
 }
 
 async function handleToothClick(toothFdi: number, surface: string) {
@@ -800,12 +801,12 @@ async function handleToothClick(toothFdi: number, surface: string) {
 
       await OdontogramService.deleteToothCondition(symbolToDelete.id)
 
-      message.success('Condition removed')
+      message.success(t('dentistPatientView.messages.conditionRemoved'))
       await refreshOdontogram()
       return
     } catch (err) {
       console.error('Symbol delete failed', err)
-      message.error('Failed to remove condition')
+      message.error(t('dentistPatientView.messages.removeConditionError'))
       await refreshOdontogram()
       return
     }
@@ -817,19 +818,19 @@ async function handleToothClick(toothFdi: number, surface: string) {
 
       await OdontogramService.deleteToothCondition(existingSurface.id)
 
-      message.success('Condition removed')
+      message.success(t('dentistPatientView.messages.conditionRemoved'))
       await refreshOdontogram()
       return
     } catch (err) {
       console.error('Surface delete failed', err)
-      message.error('Failed to remove condition')
+      message.error(t('dentistPatientView.messages.removeConditionError'))
       await refreshOdontogram()
       return
     }
   }
 
   if (!activeFinding.value?.id) {
-    message.warning('Select a condition first')
+    message.warning(t('dentistPatientView.messages.selectConditionWarning'))
     return
   }
 
@@ -862,11 +863,11 @@ async function handleToothClick(toothFdi: number, surface: string) {
         payload
       )
 
-      message.success('Condition saved')
+      message.success(t('dentistPatientView.messages.conditionSaved'))
       await refreshOdontogram()
     } catch (err) {
       console.error('Symbol save failed', err)
-      message.error('Failed to save condition')
+      message.error(t('dentistPatientView.messages.saveConditionError'))
       await refreshOdontogram()
     }
 
@@ -890,11 +891,11 @@ async function handleToothClick(toothFdi: number, surface: string) {
       payload
     )
 
-    message.success('Condition saved')
+    message.success(t('dentistPatientView.messages.conditionSaved'))
     await refreshOdontogram()
   } catch (err) {
     console.error('Surface save failed', err)
-    message.error('Failed to save condition')
+    message.error(t('dentistPatientView.messages.saveConditionError'))
     await refreshOdontogram()
   }
 }
@@ -912,28 +913,28 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="view-patient-container">
-    <div v-if="loading" class="loading-state">Loading Dental Records...</div>
+    <div v-if="loading" class="loading-state">{{ t('dentistPatientView.loadingState') }}</div>
 
     <template v-else-if="patient">
       <header class="patient-header">
         <div class="patient-info">
           <div class="patient-name-block">
             <h1>{{ patient.fName || patient.f_name }} {{ patient.lName || patient.l_name }}</h1>
-            <span class="patient-badge">Patient ID: {{ patient.id }}</span>
+              <span class="patient-badge">{{ t('dentistPatientView.patientIdLabel', { id: patient.id }) }}</span>
           </div>
 
           <div class="patient-summary">
             <div class="summary-chip">
               <Icon icon="mdi:gender-male-female" />
-              <span>{{ patient.gender || '—' }}</span>
+            <span>{{ patient.gender || '—' }}</span>
             </div>
             <div class="summary-chip">
               <Icon icon="healthicons:blood-ab-p" />
-              <span>{{ patient.bloodType || '—' }}</span>
+            <span>{{ patient.bloodType || '—' }}</span>
             </div>
             <div class="summary-chip">
               <Icon icon="tabler:phone" />
-              <span>{{ patient.phone || '—' }}</span>
+            <span>{{ patient.phone || '—' }}</span>
             </div>
           </div>
         </div>
@@ -942,9 +943,9 @@ onBeforeUnmount(() => {
           <div class="profile-card-header">
             <div class="profile-card-title">
               <Icon icon="mdi:account-heart-outline" />
-              <span>Patient Profile</span>
+              <span>{{ t('dentistPatientView.profile.title') }}</span>
             </div>
-            <span class="profile-card-subtitle">Lightweight patient details</span>
+            <span class="profile-card-subtitle">{{ t('dentistPatientView.profile.subtitle') }}</span>
           </div>
 
           <div class="profile-grid">
@@ -953,7 +954,7 @@ onBeforeUnmount(() => {
                 <Icon icon="healthicons:blood-ab-p" />
               </div>
               <div class="profile-content">
-                <span>Blood Type</span>
+                <span>{{ t('dentistPatientView.profile.bloodType') }}</span>
                 <strong>{{ patient.bloodType || '—' }}</strong>
               </div>
             </div>
@@ -963,7 +964,7 @@ onBeforeUnmount(() => {
                 <Icon icon="mdi:gender-male-female" />
               </div>
               <div class="profile-content">
-                <span>Gender</span>
+                <span>{{ t('dentistPatientView.profile.gender') }}</span>
                 <strong>{{ patient.gender || '—' }}</strong>
               </div>
             </div>
@@ -973,7 +974,7 @@ onBeforeUnmount(() => {
                 <Icon icon="tabler:phone" />
               </div>
               <div class="profile-content">
-                <span>Phone</span>
+                <span>{{ t('dentistPatientView.profile.phone') }}</span>
                 <strong>{{ patient.phone || '—' }}</strong>
               </div>
             </div>
@@ -983,7 +984,7 @@ onBeforeUnmount(() => {
                 <Icon icon="mdi:ambulance" />
               </div>
               <div class="profile-content">
-                <span>Emergency Contact</span>
+                <span>{{ t('dentistPatientView.profile.emergencyContact') }}</span>
                 <strong>{{ patient.emgContact || '—' }}</strong>
               </div>
             </div>
@@ -993,7 +994,7 @@ onBeforeUnmount(() => {
                 <Icon icon="tabler:calendar-stats" />
               </div>
               <div class="profile-content">
-                <span>Registration Date</span>
+                <span>{{ t('dentistPatientView.profile.registrationDate') }}</span>
                 <strong>
                   {{
                     patient.registerationDate
@@ -1013,14 +1014,14 @@ onBeforeUnmount(() => {
             <div class="legend-panel">
               <div class="legend-panel-header">
                 <div>
-                  <span class="legend-panel-title">Tooth Conditions</span>
-                  <span class="legend-panel-subtitle">Select a condition, then tap a tooth</span>
+                  <span class="legend-panel-title">{{ t('dentistPatientView.odontogram.title') }}</span>
+                  <span class="legend-panel-subtitle">{{ t('dentistPatientView.odontogram.subtitle') }}</span>
                 </div>
               </div>
 
               <div class="legend">
                 <div v-if="conditionLibrary.length === 0" class="legend-hint">
-                  No conditions available
+                  {{ t('dentistPatientView.odontogram.emptyConditions') }}
                 </div>
 
                 <div v-for="(f, idx) in conditionLibrary" :key="f.id || idx" class="legend-pill"
@@ -1033,7 +1034,7 @@ onBeforeUnmount(() => {
             </div>
 
             <div class="chart-box">
-              <span class="chart-label">Permanent Teeth</span>
+              <span class="chart-label">{{ t('dentistPatientView.odontogram.permanentTeeth') }}</span>
 
               <div class="odontogram-shell">
                 <Odontogram v-model="odontogramData" ref="odontogramRef" :slug="activeFinding?.slug || ''"
@@ -1054,11 +1055,10 @@ onBeforeUnmount(() => {
               <template #header>
                 <div class="treatment-board__header">
                   <div class="treatment-board__title-block">
-                    <p class="section-kicker">Clinical planning</p>
-                    <h3>Treatment Plans</h3>
+                    <p class="section-kicker">{{ t('dentistPatientView.treatmentPlan.kicker') }}</p>
+                    <h3>{{ t('dentistPatientView.treatmentPlan.title') }}</h3>
                     <p class="section-subtitle">
-                      Review the patient’s active and historical plans, then create a new appointment directly from the
-                      plan you want to continue.
+                      {{ t('dentistPatientView.treatmentPlan.subtitle') }}
                     </p>
                   </div>
 
@@ -1067,7 +1067,7 @@ onBeforeUnmount(() => {
                       <template #icon>
                         <Icon icon="material-symbols:add-notes-outline" />
                       </template>
-                      Propose New Plan
+                      {{ t('dentistPatientView.treatmentPlan.newPlanButton') }}
                     </n-button>
                   </n-space>
                 </div>
@@ -1075,17 +1075,17 @@ onBeforeUnmount(() => {
 
               <div class="treatment-stats">
                 <div class="stat-card">
-                  <span class="stat-label">Plans</span>
+                  <span class="stat-label">{{ t('dentistPatientView.treatmentPlan.stats.plans') }}</span>
                   <strong>{{ treatmentPlanStats.total }}</strong>
                 </div>
 
                 <div class="stat-card">
-                  <span class="stat-label">Accepted</span>
+                  <span class="stat-label">{{ t('dentistPatientView.treatmentPlan.stats.accepted') }}</span>
                   <strong>{{ treatmentPlanStats.accepted }}</strong>
                 </div>
 
                 <div class="stat-card">
-                  <span class="stat-label">Proposed</span>
+                  <span class="stat-label">{{ t('dentistPatientView.treatmentPlan.stats.proposed') }}</span>
                   <strong>{{ treatmentPlanStats.proposed }}</strong>
                 </div>
 
@@ -1098,11 +1098,11 @@ onBeforeUnmount(() => {
               <n-divider />
 
               <div v-if="planLoading" class="plan-loading">
-                Loading treatment plans...
+                {{ t('dentistPatientView.treatmentPlan.loading') }}
               </div>
 
               <div v-else-if="treatmentPlans.length === 0" class="empty-state-mini">
-                <n-empty description="No treatment plans yet" />
+                <n-empty :description="t('dentistPatientView.treatmentPlan.empty')" />
               </div>
 
               <div v-else class="plan-grid">
@@ -1110,8 +1110,8 @@ onBeforeUnmount(() => {
                   <template #header>
                     <div class="plan-card__header">
                       <div class="plan-card__heading">
-                        <h4>{{ plan.procedure?.name || `Procedure #${plan.procedure_id}` }}</h4>
-                        <p>{{ plan.procedure?.category || 'Uncategorized' }}</p>
+                        <h4>{{ plan.procedure?.name || t('dentistPatientView.treatmentPlan.procedureFallback', { id: plan.procedure_id }) }}</h4>
+                        <p>{{ plan.procedure?.category || t('dentistPatientView.treatmentPlan.uncategorized') }}</p>
                       </div>
 
                       <n-tag round size="small" :type="getStatusMeta(plan.status).type">
@@ -1123,19 +1123,19 @@ onBeforeUnmount(() => {
                   <div class="plan-card__body">
                      <div class="plan-pill-row">
                       <div class="plan-pill">
-                        <span class="plan-pill__label">Start date</span>
+                        <span class="plan-pill__label">{{ t('dentistPatientView.treatmentPlan.startDate') }}</span>
                         <span class="plan-pill__value">{{ formatDate(plan.start_date) }}</span>
                       </div>
 
                       <div class="plan-pill">
-                        <span class="plan-pill__label">Appointments</span>
+                        <span class="plan-pill__label">{{ t('dentistPatientView.treatmentPlan.appointments') }}</span>
                         <span class="plan-pill__value">{{ plan.appointments.length }}/{{ plan.appointments_needed ?? '—' }}</span>
                       </div>
 
                       <div class="plan-pill">
-                        <span class="plan-pill__label">Accepted</span>
+                        <span class="plan-pill__label">{{ t('dentistPatientView.treatmentPlan.accepted') }}</span>
                         <span class="plan-pill__value">
-                          {{ plan.is_accepted ? 'Yes' : 'No' }}
+                          {{ plan.is_accepted ? t('dentistPatientView.common.yes') : t('dentistPatientView.common.no') }}
                         </span>
                       </div>
                     </div>
@@ -1149,7 +1149,7 @@ onBeforeUnmount(() => {
                       </div>
 
                       <div class="billing-box">
-                        <span class="billing-box__label">Paid</span>
+                        <span class="billing-box__label">{{ t('dentistPatientView.treatmentPlan.paid') }}</span>
                         <strong class="billing-box__value">
                           {{ formatMoney(plan.total_amount_paid) }}
                         </strong>
@@ -1166,14 +1166,14 @@ onBeforeUnmount(() => {
                     <div class="plan-note">
                       <Icon icon="ph:stethoscope-light" />
                       <span>
-                        {{ plan.is_accepted ? 'Ready for scheduling and execution.' : 'Pending approval or clinical review.' }}
+                        {{ plan.is_accepted ? t('dentistPatientView.treatmentPlan.readyForScheduling') : t('dentistPatientView.treatmentPlan.pendingReview') }}
                       </span>
                     </div>
 
                     <div class="plan-note">
                       <Icon icon="mdi:calendar-check-outline" />
                       <span>
-                        Linked appointments: {{ Array.isArray(plan.appointments) ? plan.appointments.length : 0 }}
+                        {{ t('dentistPatientView.treatmentPlan.linkedAppointments', { count: Array.isArray(plan.appointments) ? plan.appointments.length : 0 }) }}
                       </span>
                     </div>
 
@@ -1184,9 +1184,9 @@ onBeforeUnmount(() => {
                         <div class="appp">
                           <span>{{ formatDate(appointment.appointment_timestamp) }}</span>
                           <div>
-                            <span>{{ appointment.status || 'pending' }}</span>
+                            <span>{{ appointment.status || t('dentistPatientView.statusLabels.pending') }}</span>
                             <span> / </span>
-                            <span>{{ appointment.employee || 'Unassigned' }}</span>
+                            <span>{{ appointment.employee || t('dentistPatientView.treatmentPlan.unassigned') }}</span>
                           </div>
                         </div>
 
@@ -1195,7 +1195,7 @@ onBeforeUnmount(() => {
                         </div>
 
                         <div class="app-actions" v-if="userStore.isReceptionist">
-                          <n-button>Paid</n-button>
+                          <n-button>{{ t('dentistPatientView.treatmentPlan.paidButton') }}</n-button>
                         </div>
 
                       </div>
@@ -1204,7 +1204,7 @@ onBeforeUnmount(() => {
 
                   <template #footer>
                     <div class="plan-actions">
-                      <!-- <n-select v-model:value="selectedAppointmentByPlan[plan.id]" size="small" clearable filterable
+                      <!-- <n-select :to="false" v-model:value="selectedAppointmentByPlan[plan.id]" size="small" clearable filterable
                         placeholder="Link existing appointment" :options="appointmentOptionsForPlan(plan)"
                         style="min-width: 220px" /> -->
 <!--
@@ -1217,7 +1217,7 @@ onBeforeUnmount(() => {
                         <template #icon>
                           <Icon icon="tabler:pencil" />
                         </template>
-                        Edit
+                        {{ t('dentistPatientView.common.edit') }}
                       </n-button>
 <!--
                       <n-button size="small" type="primary" @click.stop="createAppointment(plan)">
@@ -1235,7 +1235,7 @@ onBeforeUnmount(() => {
                             </template>
                           </n-button>
                         </template>
-                        Delete this plan?
+                        {{ t('dentistPatientView.treatmentPlan.deleteConfirm') }}
                       </n-popconfirm>
                     </div>
                   </template>
@@ -1249,10 +1249,10 @@ onBeforeUnmount(() => {
               <template #header>
                 <div class="treatment-board__header">
                   <div class="treatment-board__title-block">
-                    <p class="section-kicker">Medication</p>
-                    <h3>Prescription</h3>
+                    <p class="section-kicker">{{ t('dentistPatientView.prescription.kicker') }}</p>
+                    <h3>{{ t('dentistPatientView.prescription.title') }}</h3>
                     <p class="section-subtitle">
-                      Select one or more saved prescriptions, then print a patient-ready prescription sheet.
+                      {{ t('dentistPatientView.prescription.subtitle') }}
                     </p>
                   </div>
                 </div>
@@ -1264,7 +1264,7 @@ onBeforeUnmount(() => {
                   multiple
                   filterable
                   clearable
-                  placeholder="Select medications"
+                  :placeholder="t('dentistPatientView.prescription.placeholder')"
                   :options="prescriptionOptions"
                   class="prescription-select"
                 />
@@ -1273,12 +1273,12 @@ onBeforeUnmount(() => {
                   <template #icon>
                     <Icon icon="mdi:printer-outline" />
                   </template>
-                  Prescribe
+                  {{ t('dentistPatientView.prescription.button') }}
                 </n-button>
               </div>
 
               <div v-if="!prescriptionOptions.length" class="empty-state-mini">
-                <n-empty description="No saved prescriptions available" />
+                <n-empty :description="t('dentistPatientView.prescription.empty')" />
               </div>
             </n-card>
           </section>
@@ -1308,7 +1308,7 @@ onBeforeUnmount(() => {
     </template>
 
     <div v-else-if="!loading" class="empty-state">
-      <p>No patient data available</p>
+      <p>{{ t('dentistPatientView.emptyState') }}</p>
     </div>
   </div>
 </template>

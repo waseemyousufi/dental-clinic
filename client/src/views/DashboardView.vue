@@ -2,29 +2,29 @@
   <div class="dashboard-shell">
     <section class="hero-card">
       <div class="hero-copy">
-        <div class="eyebrow">Dental Clinic</div>
-        <h1>Dashboard.</h1>
+        <div class="eyebrow">{{ t('dashboardView.hero.eyebrow') }}</div>
+        <h1>{{ t('dashboardView.hero.title') }}</h1>
         <p>
-          View overall Clinic performance
+          {{ t('dashboardView.hero.description') }}
         </p>
       </div>
 
       <div class="hero-meta">
         <div class="meta-pill">
-          <span class="meta-label">Branch</span>
+          <span class="meta-label">{{ t('dashboardView.hero.meta.branchLabel') }}</span>
           <span class="meta-value">{{ selectedBranchLabel }}</span>
         </div>
         <div class="meta-pill">
-          <span class="meta-label">Period</span>
+          <span class="meta-label">{{ t('dashboardView.hero.meta.periodLabel') }}</span>
           <span class="meta-value">{{ periodLabel }}</span>
         </div>
         <div class="meta-pill">
-          <span class="meta-label">Updated</span>
+          <span class="meta-label">{{ t('dashboardView.hero.meta.updatedLabel') }}</span>
           <span class="meta-value">{{ updatedLabel }}</span>
         </div>
         <div class="meta-pill" :class="loading ? 'tone-warn' : 'tone-good'">
-          <span class="meta-label">Status</span>
-          <span class="meta-value">{{ loading ? 'Loading…' : 'Ready' }}</span>
+          <span class="meta-label">{{ t('dashboardView.hero.meta.statusLabel') }}</span>
+          <span class="meta-value">{{ loading ? t('dashboardView.hero.meta.loading') : t('dashboardView.hero.meta.ready') }}</span>
         </div>
       </div>
     </section>
@@ -75,28 +75,28 @@
       <div class="surface-panel chart-card span-2">
         <div class="panel-header">
           <div>
-            <h2>Cash flow</h2>
-            <p>Collected money versus patient dues across the selected period.</p>
+          <h2>{{ t('dashboardView.charts.cashFlow.title') }}</h2>
+            <p>{{ t('dashboardView.charts.cashFlow.description') }}</p>
           </div>
-          <div class="badge tone-brand">Daily trend</div>
+          <div class="badge tone-brand">{{ t('dashboardView.charts.cashFlow.badge') }}</div>
         </div>
         <div class="chart-box chart-tall">
           <canvas v-if="hasChartData('cash_flow')" ref="cashChartRef"></canvas>
-          <div v-else class="empty-state">No cash flow data returned.</div>
+          <div v-else class="empty-state">{{ t('dashboardView.charts.cashFlow.emptyState') }}</div>
         </div>
       </div>
 
       <div class="surface-panel chart-card">
         <div class="panel-header">
           <div>
-            <h2>Credit aging</h2>
-            <p>Outstanding balances grouped by age bucket.</p>
+            <h2>{{ t('dashboardView.charts.creditAging.title') }}</h2>
+            <p>{{ t('dashboardView.charts.creditAging.description') }}</p>
           </div>
-          <div class="badge tone-warn">A/R monitoring</div>
+          <div class="badge tone-warn">{{ t('dashboardView.charts.creditAging.badge') }}</div>
         </div>
         <div class="chart-box chart-tall">
           <canvas v-if="hasChartData('credit_aging')" ref="agingChartRef"></canvas>
-          <div v-else class="empty-state">No credit aging data returned.</div>
+          <div v-else class="empty-state">{{ t('dashboardView.charts.creditAging.emptyState') }}</div>
         </div>
       </div>
     </section>
@@ -105,42 +105,42 @@
       <div class="surface-panel chart-card">
         <div class="panel-header">
           <div>
-            <h2>Treatment mix</h2>
-            <p>Procedure categories by count.</p>
+            <h2>{{ t('dashboardView.charts.treatmentMix.title') }}</h2>
+            <p>{{ t('dashboardView.charts.treatmentMix.description') }}</p>
           </div>
-          <div class="badge tone-good">Clinical mix</div>
+          <div class="badge tone-good">{{ t('dashboardView.charts.treatmentMix.badge') }}</div>
         </div>
         <div class="chart-box chart-short">
           <canvas v-if="hasChartData('treatment_mix')" ref="mixChartRef"></canvas>
-          <div v-else class="empty-state">No treatment mix data returned.</div>
+          <div v-else class="empty-state">{{ t('dashboardView.charts.treatmentMix.emptyState') }}</div>
         </div>
       </div>
 
       <div class="surface-panel chart-card">
         <div class="panel-header">
           <div>
-            <h2>Patient behavior</h2>
-            <p>Appointments, treatments, and new patients over time.</p>
+            <h2>{{ t('dashboardView.charts.patientBehavior.title') }}</h2>
+            <p>{{ t('dashboardView.charts.patientBehavior.description') }}</p>
           </div>
-          <div class="badge tone-brand">Retention</div>
+          <div class="badge tone-brand">{{ t('dashboardView.charts.patientBehavior.badge') }}</div>
         </div>
         <div class="chart-box chart-short">
           <canvas v-if="hasChartData('patient_behavior')" ref="behaviorChartRef"></canvas>
-          <div v-else class="empty-state">No patient behavior data returned.</div>
+          <div v-else class="empty-state">{{ t('dashboardView.charts.patientBehavior.emptyState') }}</div>
         </div>
       </div>
 
       <div class="surface-panel chart-card">
         <div class="panel-header">
           <div>
-            <h2>Pricing discipline</h2>
-            <p>How often prices stay inside the procedure range.</p>
+            <h2>{{ t('dashboardView.charts.pricingDiscipline.title') }}</h2>
+            <p>{{ t('dashboardView.charts.pricingDiscipline.description') }}</p>
           </div>
-          <div class="badge tone-warn">Range control</div>
+          <div class="badge tone-warn">{{ t('dashboardView.charts.pricingDiscipline.badge') }}</div>
         </div>
         <div class="chart-box chart-short">
           <canvas v-if="hasChartData('pricing_discipline')" ref="pricingChartRef"></canvas>
-          <div v-else class="empty-state">No pricing audit data returned.</div>
+          <div v-else class="empty-state">{{ t('dashboardView.charts.pricingDiscipline.emptyState') }}</div>
         </div>
       </div>
     </section>
@@ -292,6 +292,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Chart, registerables } from 'chart.js'
 import dashboardApi from '@api/dashboard'
 
@@ -388,6 +389,8 @@ const pricingChartRef = ref<HTMLCanvasElement | null>(null)
 const referralChartRef = ref<HTMLCanvasElement | null>(null)
 const visitChartRef = ref<HTMLCanvasElement | null>(null)
 
+const { t } = useI18n()
+
 let cashChart: Chart | null = null
 let agingChart: Chart | null = null
 let mixChart: Chart | null = null
@@ -421,7 +424,7 @@ const branchId = computed(() => dashboardMeta.value.branch_id ?? null)
 const selectedBranchLabel = computed(() => {
   const branchName = dashboardMeta.value.branch_name?.trim()
   if (branchName) return branchName
-  if (branchId.value == null) return 'All branches'
+  if (branchId.value == null) return t('dashboardView.hero.meta.allBranches')
   const branch = branchChips.value.find(b => b.id === branchId.value)
   return branch?.name ?? `Branch #${branchId.value}`
 })
@@ -449,7 +452,14 @@ const branchCountLabel = computed(() => {
   return total === 1 ? '1 branch' : `${total} branches`
 })
 
-const kpisToRender = computed(() => dashboard.value?.kpis ?? [])
+const kpisToRender = computed(() =>
+  (dashboard.value?.kpis ?? []).map(kpi => ({
+    ...kpi,
+    label: t(`dashboardView.kpis.${kpi.key}Label`) || kpi.label,
+    help: t(`dashboardView.kpis.${kpi.key}Help`) || kpi.help,
+    trend_label: kpiTrendLabel(kpi.trend_label),
+  })),
+)
 const recentTreatments = computed<TreatmentRow[]>(() => dashboard.value?.recent?.treatments ?? [])
 const recentTransactions = computed<TransactionRow[]>(() => dashboard.value?.recent?.transactions ?? [])
 
@@ -457,7 +467,7 @@ const alertsToRender = computed<AlertItem[]>(() =>
   (dashboard.value?.alerts ?? []).map(alert => ({
     title: alert.title,
     message: alert.message,
-    action: alert.meta?.action ?? 'Review dashboard',
+    action: alert.meta?.action ?? t('dashboardView.actionAlerts.defaultAction'),
     tone: alert.tone ?? 'warn',
   })),
 )
@@ -467,16 +477,34 @@ const operationalStats = computed(() => {
   const find = (key: string) => items.find(k => k.key === key)
 
   return [
-    { label: 'Cash collected', value: find('cash_collected')?.formatted ?? '0', help: 'Actual money received in the selected period.' },
-    { label: 'Outstanding credit', value: find('outstanding_ar')?.formatted ?? '0', help: 'Balances still owed by patients.' },
-    { label: 'Collection rate', value: find('collection_rate')?.formatted ?? '0%', help: 'Cash collected versus total patient dues.' },
-    { label: 'No-show rate', value: find('no_show_rate')?.formatted ?? '0%', help: 'Missed appointments within the period.' },
-    { label: 'New patients', value: find('new_patients')?.formatted ?? '0', help: 'Registered patients in the selected period.' },
-    { label: 'Pricing discipline', value: find('pricing_discipline')?.formatted ?? '0%', help: 'Share of treatments priced inside range.' },
-    { label: 'Same-day collection', value: find('same_day_collection')?.formatted ?? '0%', help: 'Treatments collected on the same day.' },
-    { label: 'Case acceptance', value: find('plan_acceptance')?.formatted ?? '0%', help: 'Accepted treatment plans versus proposals.' },
+    { label: t('dashboardView.operationalSnapshot.cashCollectedLabel'), value: find('cash_collected')?.formatted ?? '0', help: t('dashboardView.operationalSnapshot.cashCollectedHelp') },
+    { label: t('dashboardView.operationalSnapshot.outstandingCreditLabel'), value: find('outstanding_ar')?.formatted ?? '0', help: t('dashboardView.operationalSnapshot.outstandingCreditHelp') },
+    { label: t('dashboardView.operationalSnapshot.collectionRateLabel'), value: find('collection_rate')?.formatted ?? '0%', help: t('dashboardView.operationalSnapshot.collectionRateHelp') },
+    { label: t('dashboardView.operationalSnapshot.noShowRateLabel'), value: find('no_show_rate')?.formatted ?? '0%', help: t('dashboardView.operationalSnapshot.noShowRateHelp') },
+    { label: t('dashboardView.operationalSnapshot.newPatientsLabel'), value: find('new_patients')?.formatted ?? '0', help: t('dashboardView.operationalSnapshot.newPatientsHelp') },
+    { label: t('dashboardView.operationalSnapshot.pricingDisciplineLabel'), value: find('pricing_discipline')?.formatted ?? '0%', help: t('dashboardView.operationalSnapshot.pricingDisciplineHelp') },
+    { label: t('dashboardView.operationalSnapshot.sameDayCollectionLabel'), value: find('same_day_collection')?.formatted ?? '0%', help: t('dashboardView.operationalSnapshot.sameDayCollectionHelp') },
+    { label: t('dashboardView.operationalSnapshot.caseAcceptanceLabel'), value: find('plan_acceptance')?.formatted ?? '0%', help: t('dashboardView.operationalSnapshot.caseAcceptanceHelp') },
   ]
 })
+
+function kpiTrendLabel(value: string): string {
+  const normalized = String(value ?? '').toLowerCase()
+  const map: Record<string, string> = {
+    flat: t('dashboardView.kpis.cashCollectedTrendFlat'),
+    clean: t('dashboardView.kpis.outstandingCreditTrendClean'),
+    healthy: t('dashboardView.kpis.collectionRateTrendHealthy'),
+    'per appointment': t('dashboardView.kpis.avgProductionPerVisitTrend'),
+    good: t('dashboardView.kpis.noShowRateTrendGood'),
+    'local strength': t('dashboardView.kpis.sameDayCollectionTrendLocalStrength'),
+    '0/0 matched': t('dashboardView.kpis.pricingDisciplineTrend'),
+    'return behavior': t('dashboardView.kpis.patientRetentionTrend'),
+    'repeat behavior': t('dashboardView.kpis.repeatPatientRateTrend'),
+    'plans accepted': t('dashboardView.kpis.planAcceptanceTrend'),
+    'plans completed': t('dashboardView.kpis.planCompletionTrend'),
+  }
+  return map[normalized] ?? value
+}
 
 function toneClass(tone: Tone): string {
   return tone
@@ -589,7 +617,7 @@ function renderCharts() {
       data: {
         labels: charts.cash_flow.labels,
         datasets: (charts.cash_flow.datasets ?? []).map((dataset, index) => ({
-          label: dataset.label,
+          label: dataset.label === 'Cash in' ? t('dashboardView.charts.cashFlow.cashInLabel') : dataset.label === 'Appointment charges' ? t('dashboardView.charts.cashFlow.appointmentChargesLabel') : dataset.label,
           data: dataset.data ?? [],
           tension: 0.35,
           borderWidth: 3,
@@ -619,7 +647,7 @@ function renderCharts() {
         labels: charts.credit_aging.labels,
         datasets: [
           {
-            label: charts.credit_aging.datasets?.[0]?.label ?? 'Outstanding balance',
+          label: t('dashboardView.charts.creditAging.outstandingBalanceLabel') || (charts.credit_aging.datasets?.[0]?.label ?? 'Outstanding balance'),
             data: charts.credit_aging.datasets?.[0]?.data ?? [],
             borderWidth: 1,
             ...buildDatasetStyle(1),
@@ -647,7 +675,7 @@ function renderCharts() {
         labels: charts.treatment_mix.labels,
         datasets: [
           {
-            label: charts.treatment_mix.datasets?.[0]?.label ?? 'Treatments',
+            label: t('dashboardView.charts.treatmentMix.treatmentsLabel') || (charts.treatment_mix.datasets?.[0]?.label ?? 'Treatments'),
             data: charts.treatment_mix.datasets?.[0]?.data ?? [],
             borderWidth: 0,
             backgroundColor: charts.treatment_mix.labels.map((_, index) => palette[index % palette.length]),
@@ -667,7 +695,7 @@ function renderCharts() {
       data: {
         labels: charts.patient_behavior.labels,
         datasets: (charts.patient_behavior.datasets ?? []).map((dataset, index) => ({
-          label: dataset.label,
+          label: dataset.label === 'Appointments' ? t('dashboardView.charts.patientBehavior.appointmentsLabel') : dataset.label === 'Treatments Accepted' ? t('dashboardView.charts.patientBehavior.treatmentsAcceptedLabel') : dataset.label === 'New patients' ? t('dashboardView.charts.patientBehavior.newPatientsLabel') : dataset.label,
           data: dataset.data ?? [],
           tension: 0.35,
           borderWidth: 2,
@@ -696,7 +724,7 @@ function renderCharts() {
         labels: charts.pricing_discipline.labels,
         datasets: [
           {
-            label: charts.pricing_discipline.datasets?.[0]?.label ?? 'Pricing audit',
+            label: t('dashboardView.charts.pricingDiscipline.pricingAuditLabel') || (charts.pricing_discipline.datasets?.[0]?.label ?? 'Pricing audit'),
             data: charts.pricing_discipline.datasets?.[0]?.data ?? [],
             borderWidth: 0,
             backgroundColor: charts.pricing_discipline.labels.map((_, index) => palette[index % palette.length]),
@@ -714,7 +742,7 @@ function renderCharts() {
         labels: charts.referral_source.labels,
         datasets: [
           {
-            label: charts.referral_source.datasets?.[0]?.label ?? 'Patients',
+            label: t('dashboardView.charts.referralSource.patientsLabel') || (charts.referral_source.datasets?.[0]?.label ?? 'Patients'),
             data: charts.referral_source.datasets?.[0]?.data ?? [],
             borderWidth: 0,
             backgroundColor: charts.referral_source.labels.map((_, index) => palette[index % palette.length]),
@@ -735,7 +763,7 @@ function renderCharts() {
         labels: charts.visit_type.labels,
         datasets: [
           {
-            label: charts.visit_type.datasets?.[0]?.label ?? 'Visits',
+            label: t('dashboardView.charts.visitType.visitsLabel') || (charts.visit_type.datasets?.[0]?.label ?? 'Visits'),
             data: charts.visit_type.datasets?.[0]?.data ?? [],
             borderWidth: 0,
             backgroundColor: charts.visit_type.labels.map((_, index) => palette[index % palette.length]),

@@ -6,12 +6,12 @@
         <div class="appointment-form__rows">
           <div class="appointment-form__pair">
             <n-form-item :label="t('appointmentView.addEditModal.form.patientLabel')" path="patientId" class="appointment-form__field">
-              <n-select v-model:value="formModel.patientId" :options="patientOptions" :disabled="lockPatient"
-                :placeholder="t('appointmentView.addEditModal.form.patientPlaceholder')" filterable size="small" />
+              <n-select :to="false" v-model:value="formModel.patientId" :options="patientOptions" :disabled="lockPatient"
+                :placeholder="t('appointmentView.addEditModal.form.patientPlaceholder')" filterable size="small"  />
             </n-form-item>
 
             <n-form-item :label="t('appointmentView.addEditModal.form.employeeLabel')" path="employeeId" class="appointment-form__field">
-              <n-select v-model:value="formModel.employeeId" :options="employeeOptions" :placeholder="t('appointmentView.addEditModal.form.employeePlaceholder')"
+              <n-select :to="false" v-model:value="formModel.employeeId" :options="employeeOptions" :placeholder="t('appointmentView.addEditModal.form.employeePlaceholder')"
                 filterable size="small" />
             </n-form-item>
           </div>
@@ -19,22 +19,22 @@
           <div class="appointment-form__pair">
             <n-form-item :label="t('appointmentView.addEditModal.form.datetimeLabel')" path="appointment_timestamp" class="appointment-form__field">
               <n-date-picker v-model:value="formModel.appointment_timestamp" type="datetime" clearable size="small"
-                style="width: 100%" />
+                style="width: 100%" :to="false" />
             </n-form-item>
 
             <n-form-item :label="t('appointmentView.addEditModal.form.statusLabel')" path="status" class="appointment-form__field">
-              <n-select v-model:value="formModel.status" :options="statusOptions" :placeholder="t('appointmentView.addEditModal.form.statusPlaceholder')" size="small" />
+              <n-select :to="false" v-model:value="formModel.status" :options="statusOptions" :placeholder="t('appointmentView.addEditModal.form.statusPlaceholder')" size="small" />
             </n-form-item>
           </div>
 
           <div class="appointment-form__pair">
             <n-form-item :label="t('appointmentView.addEditModal.form.treatmentPlanLabel')" path="treatment_plan_id" class="appointment-form__field">
-              <n-select v-model:value="formModel.treatment_plan_id" :options="treatmentPlanOptions"
+              <n-select :to="false" v-model:value="formModel.treatment_plan_id" :options="treatmentPlanOptions"
                 :placeholder="t('appointmentView.addEditModal.form.treatmentPlanPlaceholder')" filterable clearable size="small" />
             </n-form-item>
 
             <n-form-item :label="t('appointmentView.addEditModal.form.procedureLabel')" path="procedure_id" class="appointment-form__field">
-              <n-select v-model:value="formModel.procedure_id" :options="procedureOptions"
+              <n-select :to="false" v-model:value="formModel.procedure_id" :options="procedureOptions"
                 :placeholder="t('appointmentView.addEditModal.form.procedurePlaceholder')" filterable clearable :disabled="Boolean(props.appointment?.id)"
                 size="small" />
             </n-form-item>

@@ -69,7 +69,7 @@ const handleSubmit = () => {
       ]"
     ></n-tree-select>
     <br />
-    <n-date-picker required v-model:value="form.hireDate" placeholder="hire date"></n-date-picker>
+    <n-date-picker :to="false" required v-model:value="form.hireDate" placeholder="hire date"></n-date-picker>
     <n-p>specialty</n-p>
     <n-input required v-model:value="form.speciality" placeholder="e.g. Dental Doctor"></n-input>
     <n-p>qualification</n-p>

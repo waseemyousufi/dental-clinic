@@ -393,10 +393,10 @@ onMounted(fetchPatients)
 
         <div class="form-row">
           <n-form-item :label="$t('patientView.form.genderLabel')">
-            <n-select v-model:value="formModel.gender" :options="genderOptions" :placeholder="$t('patientView.form.genderPlaceholder')" />
+            <n-select :to="false" v-model:value="formModel.gender" :options="genderOptions" :placeholder="$t('patientView.form.genderPlaceholder')" />
           </n-form-item>
           <n-form-item :label="$t('patientView.form.bloodTypeLabel')">
-            <n-select v-model:value="formModel.bloodType" :options="bloodTypeOptions" :placeholder="$t('patientView.form.bloodTypePlaceholder')" />
+            <n-select :to="false" v-model:value="formModel.bloodType" :options="bloodTypeOptions" :placeholder="$t('patientView.form.bloodTypePlaceholder')" />
           </n-form-item>
         </div>
 
@@ -411,7 +411,7 @@ onMounted(fetchPatients)
 
         <div class="form-row">
           <n-form-item :label="$t('patientView.form.registeredAtLabel')">
-            <n-date-picker type="date" size="small" style="width: 100%"
+            <n-date-picker :to="false" type="date" size="small" style="width: 100%"
               :value="formModel.registerationDate ? Date.parse(formModel.registerationDate) : null"
               @update:value="handleDateChange" />
           </n-form-item>

@@ -5,62 +5,58 @@
     :closable="true"
     :mask-closable="false"
     class="edit-treatment-modal"
-    :title="isEditMode ? 'Edit Treatment Plan' : 'New Treatment Plan'"
+    :title="isEditMode ? t('treatmentView.modal.editTitle') : t('treatmentView.modal.newTitle')"
     style="width: min(760px, calc(100vw - 2rem))"
   >
     <div class="modal-subtitle">
-      {{ isEditMode ? 'Update the treatment details below and save your changes.' : 'Fill treatment details to create a new plan.' }}
+      {{ isEditMode ? t('treatmentView.editTreatment.subtitle.edit') : t('treatmentView.editTreatment.subtitle.new') }}
     </div>
 
     <div class="modal-grid">
       <div class="summary-panel">
         <div class="summary-row">
-          <span>Plan ID</span>
+          <span>{{ t('treatmentView.editTreatment.summary.planId') }}</span>
           <strong>#{{ plan?.id ?? '—' }}</strong>
         </div>
 
         <div class="summary-row">
-          <span>Procedure</span>
+          <span>{{ t('treatmentView.editTreatment.summary.procedure') }}</span>
           <strong>{{ selectedProcedureLabel }}</strong>
         </div>
 
         <div class="summary-row">
-          <span>Status</span>
+          <span>{{ t('treatmentView.editTreatment.summary.status') }}</span>
           <strong class="status-pill" :data-status="form.status">
-            {{ form.status || '—' }}
+            {{ formatStatusLabel(form.status) }}
           </strong>
         </div>
       </div>
 
       <n-form :model="form" label-placement="top" class="edit-form">
         <div class="form-grid">
-          <n-form-item label="Procedure">
+          <n-form-item :label="t('treatmentView.form.procedureLabel')">
             <n-select
+              :to="false"
               v-model:value="form.procedure_id"
               :options="procedureOptions"
               @update:value="handleProcedureChange"
-              placeholder="Select a procedure"
+              :placeholder="t('treatmentView.form.procedurePlaceholder')"
               filterable
               clearable
               class="full"
             />
           </n-form-item>
 
-          <n-form-item label="Status">
+          <n-form-item :label="t('treatmentView.form.statusLabel')">
             <n-select
+              :to="false"
               v-model:value="form.status"
-              :options="[
-                { label: 'Proposed', value: 'proposed' },
-                { label: 'Accepted', value: 'accepted' },
-                { label: 'Partially Accepted', value: 'partially_accepted' },
-                { label: 'Rejected', value: 'rejected' },
-                { label: 'Completed', value: 'completed' }
-              ]"
+              :options="statusOptions"
               class="full"
             />
           </n-form-item>
 
-          <n-form-item label="Estimated Cost">
+          <n-form-item :label="t('treatmentView.form.estimatedCostLabel')">
             <n-input-number v-model:value="form.total_estimated_cost" :min="0" class="full" />
           </n-form-item>
 
@@ -68,12 +64,13 @@
             <n-input-number v-model:value="form.total_amount_paid" :min="0" clearable class="full" />
           </n-form-item> -->
 
-          <n-form-item label="Appointments Needed">
+          <n-form-item :label="t('treatmentView.form.appointmentsNeededLabel')">
             <n-input-number v-model:value="form.appointments_needed" :min="0" clearable class="full" />
           </n-form-item>
 
-          <n-form-item label="Start Date">
+          <n-form-item :label="t('treatmentView.form.startDateLabel')">
             <n-date-picker
+              :to="false"
               v-model:value="form.start_date"
               type="date"
               class="full"
@@ -86,9 +83,9 @@
 
     <template #footer>
       <div class="modal-actions">
-        <n-button @click="close" tertiary>Cancel</n-button>
+        <n-button @click="close" tertiary>{{ t('common.cancelButtonText') }}</n-button>
         <n-button type="primary" :loading="loading" @click="submit">
-          {{ isEditMode ? 'Save Changes' : 'Create Plan' }}
+          {{ isEditMode ? t('common.saveButtonText') : t('treatmentView.editTreatment.createButton') }}
         </n-button>
       </div>
     </template>
@@ -97,6 +94,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   NModal,
   NForm,
@@ -136,12 +134,39 @@ const emit = defineEmits<{
   }): void
 }>()
 
+const { t } = useI18n()
+
 const visible = computed({
   get: () => props.show,
   set: (value: boolean) => emit('update:show', value)
 })
 
 const isEditMode = computed(() => !!props.plan?.id)
+
+const statusOptions = [
+  { label: t('treatmentView.statusOptions.proposed'), value: 'proposed' },
+  { label: t('treatmentView.statusOptions.accepted'), value: 'accepted' },
+  { label: t('treatmentView.statusOptions.partially_accepted'), value: 'partially_accepted' },
+  { label: t('treatmentView.statusOptions.rejected'), value: 'rejected' },
+  { label: t('treatmentView.statusOptions.completed'), value: 'completed' },
+]
+
+const formatStatusLabel = (status: string | undefined) => {
+  switch (status) {
+    case 'proposed':
+      return t('treatmentView.statusOptions.proposed')
+    case 'accepted':
+      return t('treatmentView.statusOptions.accepted')
+    case 'partially_accepted':
+      return t('treatmentView.statusOptions.partially_accepted')
+    case 'rejected':
+      return t('treatmentView.statusOptions.rejected')
+    case 'completed':
+      return t('treatmentView.statusOptions.completed')
+    default:
+      return '—'
+  }
+}
 
 const form = reactive({
   procedure_id: null as number | null,
@@ -222,14 +247,14 @@ watch(
 
 const procedureOptions = computed(() =>
   (props.procedures || []).map((p: any) => ({
-    label: p.name || p.title || `Procedure #${p.id}`,
+    label: p.name || p.title || t('treatmentView.editTreatment.procedureFallback', { id: p.id }),
     value: p.id
   }))
 )
 
 const selectedProcedureLabel = computed(() => {
   const found = (props.procedures || []).find((p: any) => p.id === form.procedure_id)
-  return found?.name || found?.title || `Procedure #${form.procedure_id ?? '—'}`
+  return found?.name || found?.title || t('treatmentView.editTreatment.procedureFallback', { id: form.procedure_id ?? '—' })
 })
 
 function close() {
