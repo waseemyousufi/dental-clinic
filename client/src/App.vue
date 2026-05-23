@@ -37,6 +37,7 @@ const { t, locale } = useI18n({ useScope: 'global' })
 
 const storedUser = localStorage.getItem('user')
 const parsedUser = storedUser ? JSON.parse(storedUser) : null
+const token = parsedUser?.token
 const user = parsedUser?.user || null
 
 const expandedBranchIds = ref<number[]>([])
@@ -49,12 +50,12 @@ const isRtl = computed(() => RTL_LOCALES.has(locale.value as AppLocale))
 const naiveRtl = computed(() =>
   isRtl.value
     ? [
-        unstableSelectRtl,
-        unstableTreeSelectRtl,
-        unstablePopoverRtl,
-        unstableDialogRtl,
-        unstableMessageRtl,
-      ]
+      unstableSelectRtl,
+      unstableTreeSelectRtl,
+      unstablePopoverRtl,
+      unstableDialogRtl,
+      unstableMessageRtl,
+    ]
     : undefined,
 )
 
@@ -120,11 +121,6 @@ const navLinks = [
     icon: () => h(Icon, { icon: 'mdi:view-dashboard-variant', style: 'font-size: 1.45em;' }),
   },
   {
-    path: '/patients',
-    labelKey: 'app.navigation.patients',
-    icon: () => h(Icon, { icon: 'mdi:account-multiple', style: 'font-size: 1.45em;' }),
-  },
-  {
     path: '/appointments',
     labelKey: 'app.navigation.appointments',
     icon: () => h(Icon, { icon: 'mdi:calendar-clock', style: 'font-size: 1.45em;' }),
@@ -139,10 +135,15 @@ const navLinks = [
     labelKey: 'app.navigation.treatments',
     icon: () => h(Icon, { icon: 'fluent:patient-24-filled', style: 'font-size: 1.45em;' }),
   },
-]
+].filter(Boolean)
 
 if (userStore.isReceptionist || userStore.isAdmin) {
   navLinks.push(
+    {
+      path: '/patients',
+      labelKey: 'app.navigation.patients',
+      icon: () => h(Icon, { icon: 'mdi:account-multiple', style: 'font-size: 1.45em;' }),
+    },
     {
       path: '/expenses',
       labelKey: 'app.navigation.expenses',
@@ -281,8 +282,10 @@ onMounted(async () => {
     }
   }
 
-  const settings = await userApi.getSettings()
-  localStorage.setItem('settings', JSON.stringify(settings.data.data))
+  if (token) {
+    const settings = await userApi.getSettings()
+    localStorage.setItem('settings', JSON.stringify(settings.data.data))
+  }
 })
 
 watch(
@@ -327,170 +330,126 @@ provide(
   <n-config-provider abstract :rtl="naiveRtl">
     <n-dialog-provider>
       <n-message-provider>
-      <div
-        id="app"
-        :dir="isRtl ? 'rtl' : 'ltr'"
-        :class="{
+        <div id="app" :dir="isRtl ? 'rtl' : 'ltr'" :class="{
           'sidebar-collapsed': isSidebarCollapsed,
           'has-sidebar': authStore.isLoggedIn,
           'is-rtl': isRtl,
           'is-ltr': !isRtl,
-        }"
-      >
-        <n-button
-          v-if="isSidebarCollapsed && authStore.isLoggedIn"
-          circle
-          class="floating-menu-btn"
-          @click="toggleSidebar"
-        >
-          <Icon icon="mdi:menu" style="font-size: 1.8em" />
-        </n-button>
+        }">
+          <n-button v-if="isSidebarCollapsed && authStore.isLoggedIn" circle class="floating-menu-btn"
+            @click="toggleSidebar">
+            <Icon icon="mdi:menu" style="font-size: 1.8em" />
+          </n-button>
 
-        <div class="sidebar" v-if="authStore.isLoggedIn">
-          <div class="sidebar-header">
-            <div class="language-menu-wrapper" @keydown.escape="showLanguageMenu = false">
-              <n-button text class="lang-switch-button" @click="toggleLanguageMenu">
-                <Icon icon="mdi:translate" style="font-size: 1.35em" />
-                <span>{{ currentLanguageLabel }}</span>
-                <Icon
-                  :icon="showLanguageMenu ? 'mdi:chevron-up' : 'mdi:chevron-down'"
-                  class="lang-switch-button__chevron"
-                />
-              </n-button>
+          <div class="sidebar" v-if="authStore.isLoggedIn">
+            <div class="sidebar-header">
+              <div class="language-menu-wrapper" @keydown.escape="showLanguageMenu = false">
+                <n-button text class="lang-switch-button" @click="toggleLanguageMenu">
+                  <Icon icon="mdi:translate" style="font-size: 1.35em" />
+                  <span>{{ currentLanguageLabel }}</span>
+                  <Icon :icon="showLanguageMenu ? 'mdi:chevron-up' : 'mdi:chevron-down'"
+                    class="lang-switch-button__chevron" />
+                </n-button>
 
-              <div v-if="showLanguageMenu" class="language-menu" role="menu">
-                <button
-                  v-for="option in languageOptions"
-                  :key="option.key"
-                  type="button"
-                  class="language-menu__item"
-                  :class="{ 'language-menu__item--active': locale === option.key }"
-                  role="menuitem"
-                  @click="switchLanguage(option.key)"
-                >
-                  <span>{{ option.label }}</span>
-                  <Icon v-if="locale === option.key" icon="mdi:check" />
-                </button>
-              </div>
-            </div>
-
-            <n-button text @click="toggleSidebar" class="sidebar-toggle-button">
-              <Icon icon="mdi:menu-open" style="font-size: 2em" />
-            </n-button>
-          </div>
-
-          <div class="sidebar-content" v-show="!isSidebarCollapsed">
-            <div v-if="isAdmin" class="branches-panel">
-              <div v-if="branchStore.loading" class="branches-loading">
-                {{ t('app.branches.loading') }}
-              </div>
-              <div v-else-if="branchStore.branches.length === 0" class="branches-empty">
-                {{ t('app.branches.empty') }}
-              </div>
-
-              <div v-else class="branches-list">
-                <div v-for="b in branchStore.branches" :key="b.id" class="branch-item">
-                  <button
-                    type="button"
-                    class="branch-item__header"
-                    :class="{
-                      'branch-item__header--active': branchStore.selectedBranchId === b.id,
-                    }"
-                    @click.stop="toggleBranchExpansion(b.id)"
-                  >
-                    <Icon icon="proicons:branch" class="branch-item__branch-icon" />
-                    <span class="branch-item__name">{{ b.branchName }}</span>
-                    <Icon
-                      :icon="isBranchExpanded(b.id) ? 'mdi:chevron-down' : closedBranchIcon"
-                      class="branch-item__chevron"
-                    />
-                  </button>
-
-                  <div v-show="isBranchExpanded(b.id)" class="branch-item__links">
-                    <RouterLink
-                      v-for="link in navLinks"
-                      :key="link.path"
-                      :to="{ path: link.path, query: { ...route.query, branchId: String(b.id) } }"
-                      @click="branchStore.setSelectedBranchId(b.id)"
-                      :class="[
-                        'branch-link-item',
-                        { 'is-active-branch-link': branchStore.selectedBranchId === b.id },
-                      ]"
-                    >
-                      <component :is="link.icon" />
-                      <span>{{ t(link.labelKey) }}</span>
-                    </RouterLink>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div v-else-if="userBranchId" class="single-branch-nav">
-              <RouterLink
-                v-for="link in navLinks"
-                :key="link.path"
-                :to="{ path: link.path, query: { ...route.query, branchId: String(userBranchId) } }"
-              >
-                <component :is="link.icon" />
-                <span>{{ t(link.labelKey) }}</span>
-              </RouterLink>
-            </div>
-
-            <hr class="sidebar-divider" />
-
-            <div class="sidebar-footer">
-              <div class="user-menu-wrapper" @keydown.escape="showUserMenu = false">
-                <button type="button" class="user-info user-info-button" @click="toggleUserMenu">
-                  <Icon icon="gg:profile" style="font-size: 1.9em" />
-                  <div class="details">
-                    <p>
-                      {{
-                        user ? `${user.employee.fName} ${user.employee.lName}` : t('app.user.guest')
-                      }}
-                    </p>
-                    <p class="gmail">{{ user ? user.email : t('app.user.guestEmail') }}</p>
-                  </div>
-                  <Icon
-                    :icon="showUserMenu ? 'mdi:chevron-up' : 'mdi:chevron-down'"
-                    class="user-info-button__chevron"
-                  />
-                </button>
-
-                <div v-if="showUserMenu" class="user-menu" role="menu">
-                  <button
-                    v-for="option in userMenuOptions"
-                    :key="option.key"
-                    type="button"
-                    class="user-menu__item"
-                    role="menuitem"
-                    @click="handleUserSelect(option.key)"
-                  >
-                    <span class="user-menu__item-icon">
-                      <component :is="option.icon" />
-                    </span>
+                <div v-if="showLanguageMenu" class="language-menu" role="menu">
+                  <button v-for="option in languageOptions" :key="option.key" type="button" class="language-menu__item"
+                    :class="{ 'language-menu__item--active': locale === option.key }" role="menuitem"
+                    @click="switchLanguage(option.key)">
                     <span>{{ option.label }}</span>
+                    <Icon v-if="locale === option.key" icon="mdi:check" />
                   </button>
+                </div>
+              </div>
+
+              <n-button text @click="toggleSidebar" class="sidebar-toggle-button">
+                <Icon icon="mdi:menu-open" style="font-size: 2em" />
+              </n-button>
+            </div>
+
+            <div class="sidebar-content" v-show="!isSidebarCollapsed">
+              <div v-if="isAdmin" class="branches-panel">
+                <div v-if="branchStore.loading" class="branches-loading">
+                  {{ t('app.branches.loading') }}
+                </div>
+                <div v-else-if="branchStore.branches.length === 0" class="branches-empty">
+                  {{ t('app.branches.empty') }}
+                </div>
+
+                <div v-else class="branches-list">
+                  <div v-for="b in branchStore.branches" :key="b.id" class="branch-item">
+                    <button type="button" class="branch-item__header" :class="{
+                      'branch-item__header--active': branchStore.selectedBranchId === b.id,
+                    }" @click.stop="toggleBranchExpansion(b.id)">
+                      <Icon icon="proicons:branch" class="branch-item__branch-icon" />
+                      <span class="branch-item__name">{{ b.branchName }}</span>
+                      <Icon :icon="isBranchExpanded(b.id) ? 'mdi:chevron-down' : closedBranchIcon"
+                        class="branch-item__chevron" />
+                    </button>
+
+                    <div v-show="isBranchExpanded(b.id)" class="branch-item__links">
+                      <RouterLink v-for="link in navLinks" :key="link.path"
+                        :to="{ path: link.path, query: { ...route.query, branchId: String(b.id) } }"
+                        @click="branchStore.setSelectedBranchId(b.id)" :class="[
+                          'branch-link-item',
+                          { 'is-active-branch-link': branchStore.selectedBranchId === b.id },
+                        ]">
+                        <component :is="link.icon" />
+                        <span>{{ t(link.labelKey) }}</span>
+                      </RouterLink>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div v-else-if="userBranchId" class="single-branch-nav">
+                <RouterLink v-for="link in navLinks" :key="link.path"
+                  :to="{ path: link.path, query: { ...route.query, branchId: String(userBranchId) } }">
+                  <component :is="link.icon" />
+                  <span>{{ t(link.labelKey) }}</span>
+                </RouterLink>
+              </div>
+
+              <hr class="sidebar-divider" />
+
+              <div class="sidebar-footer">
+                <div class="user-menu-wrapper" @keydown.escape="showUserMenu = false">
+                  <button type="button" class="user-info user-info-button" @click="toggleUserMenu">
+                    <Icon icon="gg:profile" style="font-size: 1.9em" />
+                    <div class="details">
+                      <p>
+                        {{
+                          user ? `${user.employee.fName} ${user.employee.lName}` : t('app.user.guest')
+                        }}
+                      </p>
+                      <p class="gmail">{{ user ? user.email : t('app.user.guestEmail') }}</p>
+                    </div>
+                    <Icon :icon="showUserMenu ? 'mdi:chevron-up' : 'mdi:chevron-down'"
+                      class="user-info-button__chevron" />
+                  </button>
+
+                  <div v-if="showUserMenu" class="user-menu" role="menu">
+                    <button v-for="option in userMenuOptions" :key="option.key" type="button" class="user-menu__item"
+                      role="menuitem" @click="handleUserSelect(option.key)">
+                      <span class="user-menu__item-icon">
+                        <component :is="option.icon" />
+                      </span>
+                      <span>{{ option.label }}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="content">
-          <RouterView :key="$route.fullPath" />
-        </div>
+          <div class="content">
+            <RouterView :key="$route.fullPath" />
+          </div>
 
-        <n-button
-          v-if="authStore.isLoggedIn"
-          circle
-          size="large"
-          class="floating-back-btn"
-          :disabled="!canGoBack"
-          @click="goBack"
-        >
-          <Icon :icon="backButtonIcon" style="font-size: 1.5em" />
-        </n-button>
-      </div>
+          <!-- <n-button v-if="authStore.isLoggedIn" circle size="large" class="floating-back-btn" :disabled="!canGoBack"
+            @click="goBack">
+            <Icon :icon="backButtonIcon" style="font-size: 1.5em" />
+          </n-button> -->
+        </div>
       </n-message-provider>
     </n-dialog-provider>
   </n-config-provider>

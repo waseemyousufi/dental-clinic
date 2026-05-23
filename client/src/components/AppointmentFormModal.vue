@@ -23,7 +23,14 @@
             </n-form-item>
 
             <n-form-item :label="t('appointmentView.addEditModal.form.statusLabel')" path="status" class="appointment-form__field">
-              <n-select :to="false" v-model:value="formModel.status" :options="statusOptions" :placeholder="t('appointmentView.addEditModal.form.statusPlaceholder')" size="small" />
+              <n-select
+                :to="false"
+                v-model:value="formModel.status"
+                :options="statusOptions"
+                :placeholder="t('appointmentView.addEditModal.form.statusPlaceholder')"
+                :disabled="!isEditMode"
+                size="small"
+              />
             </n-form-item>
           </div>
 
@@ -292,7 +299,7 @@ function resetForm() {
     appointment_timestamp:
       toTimestamp(appt?.appointment_timestamp) ?? Date.now(),
 
-    status: appt?.status || 'pending',
+    status: isEditMode.value ? (appt?.status || 'pending') : 'pending',
 
     employeeId: normalizeId(appt?.employeeId),
 

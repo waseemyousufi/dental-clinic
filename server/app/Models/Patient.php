@@ -60,4 +60,32 @@ class Patient extends Model
     {
         return $this->hasMany(Allergy::class);
     }
+
+    protected static function booted()
+    {
+        static::deleting(function (Patient $patient) {
+            // 1. Find all appointments linked to this patient
+            $appointments = $patient->appointments()->get();
+
+            foreach ($appointments as $appointment) {
+                // Check if this appointment is linked to ANY OTHER patients
+                // (Just in case it's a family/multi-patient slot)
+                $otherPatientsCount = $appointment->patients()->where('patient_id', '!=', $patient->id)->count();
+
+                if ($otherPatientsCount === 0) {
+                    // 2. Detach relationships belonging to the appointment to prevent constraint errors
+                    $appointment->employees()->detach();
+                    $appointment->procedures()->detach();
+
+                    // Delete connected physical media files if they exist
+                    if ($appointment->PatientFile) {
+                        $appointment->PatientFile()->delete();
+                    }
+
+                    // 3. Delete the actual appointment record
+                    $appointment->delete();
+                }
+            }
+        });
+    }
 }

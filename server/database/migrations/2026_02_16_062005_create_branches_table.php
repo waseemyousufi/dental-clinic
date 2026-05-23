@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('branch_name', 20);
             $table->string('region', 100);
             $table->string('phone', 10);
+            $table->foreignId('clinic_owner_id')->constrained()->onDelete('cascade');
         });
     }
 

@@ -1260,6 +1260,7 @@ onBeforeUnmount(() => {
 
               <div class="prescription-board__controls">
                 <n-select
+                  :to="false"
                   v-model:value="selectedPrescriptionIds"
                   multiple
                   filterable
@@ -1277,9 +1278,9 @@ onBeforeUnmount(() => {
                 </n-button>
               </div>
 
-              <div v-if="!prescriptionOptions.length" class="empty-state-mini">
+              <!-- <div v-if="!prescriptionOptions.length" class="empty-state-mini">
                 <n-empty :description="t('dentistPatientView.prescription.empty')" />
-              </div>
+              </div> -->
             </n-card>
           </section>
         </section>

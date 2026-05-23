@@ -3,4 +3,6 @@ export default interface BranchData {
   branchName: string,
   region: string,
   phone: string,
+  ownerName?: string,
+  ownerId: number
 }

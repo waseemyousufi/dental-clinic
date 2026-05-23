@@ -41,7 +41,8 @@ class ClinicAssetController extends Controller
 
         $clinicAsset = DB::transaction(function () use ($data, $branchId) {
             $clinicAsset = ClinicAsset::create([
-                'name' => $data['name'],
+                // 'name' => $data['name'],
+                'name' => $data['assetName'], // Using assetName as the main name field for now
                 'asset_name' => $data['assetName'],
                 // 'description' => $data['description'] ?? null,
                 'category' => $data['category'],
@@ -74,7 +75,7 @@ class ClinicAssetController extends Controller
 
         DB::transaction(function () use ($clinicAsset, $data, $branchId) {
             $clinicAsset->update([
-                'name' => $data['name'] ?? $clinicAsset->name,
+                'name' => $data['assetName'] ?? $clinicAsset->name,
                 'asset_name' => $data['assetName'] ?? $clinicAsset->asset_name,
                 // 'description' => array_key_exists('description', $data) ? $data['description'] : $clinicAsset->description,
                 'category' => $data['category'] ?? $clinicAsset->category,

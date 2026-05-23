@@ -20,6 +20,7 @@ import {
   type SelectOption,
 } from 'naive-ui'
 import { Icon } from '@iconify/vue'
+import useUserStore from '@/stores/user'
 
 import accountApi from '@api/account'
 import type AccountData from '@api/interfaces/Account'
@@ -34,6 +35,7 @@ type TransactionRow = TransactionData & { id?: number }
 const message = useMessage()
 const route = useRoute()
 const { t } = useI18n()
+const userStore = useUserStore()
 
 const getEffectiveBranchId = (): number | undefined => {
   const usr = JSON.parse(localStorage.getItem('user') || 'null')
@@ -212,7 +214,7 @@ const accountColumns = [
     render(row: AccountRow) {
       const deleteDisabled = isAccountDeleteDisabled(row)
       return h('div', { style: 'display: flex; gap: 8px; align-items: center;' }, [
-        h(Icon, {
+        userStore.isAdmin && h(Icon, {
           icon: 'akar-icons:edit',
           title: t('accountView.actions.editTooltip'),
           width: 20,
@@ -239,7 +241,7 @@ const accountColumns = [
           style: { cursor: 'pointer' },
           onClick: () => openBalanceEditor('withdraw', row),
         }),
-        h(
+        userStore.isAdmin && h(
           NTooltip,
           { disabled: !deleteDisabled },
           {
@@ -635,7 +637,7 @@ onMounted(() => {
       <div class="toolbar">
         <n-input v-model:value="accountKeyword" clearable :placeholder="t('accountView.searchPlaceholder')"
           size="small" />
-        <n-button type="primary" size="small" @click="openAccountCreate">{{ t('accountView.newAccountButtonText')
+        <n-button v-if="userStore.isAdmin" type="primary" size="small" @click="openAccountCreate">{{ t('accountView.newAccountButtonText')
           }}</n-button>
       </div>
 

@@ -14,9 +14,15 @@ class Branch extends Model
             'branch_name',
             'region',
             'phone',
+            'clinic_owner_id'
         ];
 
         public $timestamps = false;
+
+    public function clinicOwner(): HasOne
+    {
+        return $this->hasOne(ClinicOwner::class);
+    }
 
     public function Account() : HasMany
     {

@@ -139,7 +139,7 @@ const columns = computed(() => [
     render(row: PatientRow) {
       return h('div', { style: 'display: flex; gap: 8px;' }, [
         // View button with icon
-        h(
+        !userStore.isDoctor && h(
           Icon,
           {
             icon: 'carbon:data-view-alt',
@@ -168,7 +168,7 @@ const columns = computed(() => [
           },
         ),
         // Edit button with icon
-        h(
+       !userStore.isDoctor && h(
           Icon,
           {
             icon: 'akar-icons:edit',
@@ -182,7 +182,7 @@ const columns = computed(() => [
           },
         ),
         // Delete button
-        h(
+        userStore.isAdmin && h(
           NPopconfirm,
           {
             onPositiveClick: () => handleDelete(row),
@@ -418,7 +418,7 @@ onMounted(fetchPatients)
         </div>
 
         <div class="form-actions">
-          <p style="margin-right: auto;" class="reception-fee">Reception Fee: <span class="digit" style="font-weight: bold; color:green"> {{ userStore.settings.reception_cost }} AFN</span></p>
+          <p style="margin-right: auto;" class="reception-fee">Reception Fee: <span class="digit" style="font-weight: bold; color:green"> {{ userStore.settings.reception_cost || 0 }} AFN</span></p>
           <n-button size="small" @click="showEditor = false"> {{ $t('common.cancelButtonText') }} </n-button>
           <n-button type="primary" size="small" :loading="submitting" @click="handleSubmit">
             {{ $t('common.saveButtonText') }}

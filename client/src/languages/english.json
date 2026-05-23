@@ -655,7 +655,7 @@
       "categoryPlaceholder": "Select category",
       "statusLabel": "Status",
       "statusPlaceholder": "Select status",
-      "amountLabel": "Amount",
+      "amountLabel": "Units",
       "priceLabel": "Price",
       "totalAmountLabel": "Total amount",
       "dateOfPurchaseLabel": "Date of purchase"
@@ -704,7 +704,7 @@
     "title": "Set a new password",
     "description": "Enter your email and a new password for your account.",
     "emailLabel": "Email",
-    "emailPlaceholder": "you@example.com",
+    "emailPlaceholder": "Enter your email",
     "newPasswordLabel": "New password",
     "newPasswordPlaceholder": "••••••••",
     "confirmPasswordLabel": "Confirm password",
@@ -737,7 +737,7 @@
     },
     "user": {
       "guest": "Guest",
-      "guestEmail": "guest@example.com"
+      "guestEmail": "mail"
     },
     "userMenu": {
       "logout": "Logout"
@@ -830,7 +830,7 @@
       "category": "Category",
       "description": "Description",
       "unit": "Unit",
-      "amount": "Amount",
+      "amount": "Price",
       "paidBy": "Paid by",
       "actions": "Actions"
     },
@@ -847,7 +847,7 @@
         "categoryPlaceholder": "e.g. Gas Tank, Medical Supplies",
         "unitLabel": "Unit",
         "unitPlaceholder": "e.g. liter, item, service",
-        "amountLabel": "Amount",
+        "amountLabel": "Price",
         "amountPlaceholder": "e.g. 50",
         "dateLabel": "Expense date",
         "accountLabel": "Account",

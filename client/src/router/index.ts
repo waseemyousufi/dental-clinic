@@ -2,23 +2,23 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 const isAuthenticated = () => {
   const user = localStorage.getItem('user')
-  return user
+  const token = localStorage.getItem('token')
+  if (user) return user
+  if (token) return token
+  return false;
 }
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      redirect: isAuthenticated() ? '/patients/?branchId=1' : '/login',
+      redirect: () => isAuthenticated() ? '/patients/?branchId=1' : '/login',
     },
     {
       path: '/overview',
       component: () => import('@views/OverviewView.vue'),
       meta: { requiresAuth: true }
-    },
-    {
-      path: '/:pathMatch(.*)*',
-      redirect: isAuthenticated() ? '/patients/?branchId=1' : '/login',
     },
     {
       path: '/register-user',
@@ -56,27 +56,14 @@ const router = createRouter({
       path: '/appointments',
       component: () => import('@views/AppointmentView.vue'),
     },
-    // {
-    //   path: '/test',
-    //   component: () => import('../components/PrimaryOdontogram.vue'),
-    // },
     {
       path: '/prescriptions',
       component: () => import('../components/PrescriptionAligner.vue'),
     },
-    // {
-    //   path: '/xrays',
-    //   component: () => import('@views/XrayView.vue'),
-    // },
-    // {
-    //   path: '/voice-commands',
-    //   component: () => import('@views/VoiceCommandsView.vue'),
-    // },
     {
       path: '/patient-doctor/:id',
       component: () => import('@views/Dentist/PatientView.vue'),
-    }
-    ,
+    },
     {
       path: '/inventory',
       component: () => import('@views/ShelfView.vue'),
@@ -122,7 +109,27 @@ const router = createRouter({
       name: 'Reports',
       component: () => import('@views/ReportsView.vue'),
       meta: { requiresAuth: true }
-    }
+    },
+
+    // FIX 1: EXPLICIT ROUTE ABOVE CATCH-ALL (REMOVED REQUIRING GENERAL AUTH)
+    {
+      path: '/hyper-controls',
+      name: 'HyperControls',
+      component: () => import('@views/HyperControlsView.vue'),
+      meta: { requiresAuth: false } // Bypasses the global router guard completely!
+    },
+
+    // FIX 2: CATCH-ALL DROPPED TO THE VERY BOTTOM
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: () => {
+        if (isAuthenticated()) {
+          return '/patients/?branchId=1';
+        } else {
+          return '/login';
+        }
+      },
+    },
   ],
 })
 

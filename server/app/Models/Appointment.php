@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Appointment extends Model
 {
-
     public $timestamps = false;
     protected $fillable = ['appointment_timestamp', 'treatment_plan_id', 'procedure_id', 'clinical_notes', 'appointment_cost', 'status', 'description', 'branch_id'];
 
@@ -36,7 +35,7 @@ class Appointment extends Model
 
     public function PatientFile(): HasOne
     {
-        return $this->hasOne(PatientFile::class);
+        return $this->hasOne(PatientFile::class, 'appointmentDate_id');
     }
 
     public function TreatmentPlan()

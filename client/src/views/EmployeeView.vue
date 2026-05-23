@@ -759,7 +759,7 @@ onMounted(() => {
           </n-form-item>
         </div>
 
-        <div class="form-row dual">
+        <!-- <div class="form-row dual">
           <n-form-item :label="t('employeeView.form.workStartTimeLabel')"><n-time-picker v-model:value="formModel.workStartTime"
               format="HH:mm" :placeholder="t('employeeView.form.workStartTimePlaceholder')" /></n-form-item>
           <n-form-item :label="t('employeeView.form.workEndTimeLabel')"><n-time-picker v-model:value="formModel.workEndTime"
@@ -773,7 +773,7 @@ onMounted(() => {
 
         <div class="form-row">
           <n-form-item :label="t('employeeView.form.experienceAmountLabel')"><n-input-number v-model:value="formModel.experience.totalAmount" :min="0" :placeholder="t('employeeView.form.experienceAmountPlaceholder')" /></n-form-item>
-        </div>
+        </div> -->
 
         <div class="form-actions">
           <n-button @click="showEditor = false">{{ t('common.cancelButtonText') }}</n-button>

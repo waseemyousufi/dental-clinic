@@ -274,8 +274,12 @@ async function handleChargePatient() {
   if (
     !canCharge.value ||
     !props.patientData ||
-    chargeAmount.value == null
+    chargeAmount.value == null ||
+    Number(chargeAmount.value) <= 0
   ) {
+    if (chargeAmount.value !== null && Number(chargeAmount.value) <= 0) {
+      message.warning(t('patientView.profilePopup.messages.chargePatientError'))
+    }
     return;
   }
 
@@ -443,7 +447,7 @@ onBeforeUnmount(() => {
           </div>
 
           <div class="charge-card__actions">
-            <n-input-number :value="chargeAmount" @update:value="handleChargeInput" class="charge-input" :min="1"
+            <n-input-number :value="chargeAmount" @update:value="handleChargeInput" class="charge-input"
               :step="50" :placeholder="t('patientView.profilePopup.chargeCard.amountPlaceholder')" clearable>
               <template #suffix>
                 AFN

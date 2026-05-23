@@ -18,12 +18,14 @@ class BranchSeeder extends Seeder
                 [
                     'branch_name' => 'clinic bahar',
                     'region' => 'kabul, Afghanistan',
-                    'phone' => '0735224242'
+                    'phone' => '0735224242',
+                    'clinic_owner_id' => 1
                 ],
                 [
                     'branch_name' => 'dandan clinic',
                     'region' => 'kabul, Afghanistan',
-                    'phone' => '0735244242'
+                    'phone' => '0735244242',
+                    'clinic_owner_id' => 1
                 ]
             ]
         );

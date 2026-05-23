@@ -12,6 +12,14 @@ export default new (class User {
     return api.post('/login', data)
   }
 
+  hyperUserLogin(pass: string) {
+    return api.post('/hyper-user-login', { password: pass })
+  }
+
+  hyperUserLogout() {
+    return api.post('/hyper-user-logout')
+  }
+
   logout() {
     return api.post('/logout')
   }

@@ -9,7 +9,7 @@ api.interceptors.request.use((req) => {
   const bId = (new URLSearchParams(window.location.search)).get('branchId')
   const branchId = bId || usr.user?.employee?.branchId
 
-  // ✅ Safely add branchId to query params
+  const token = localStorage.getItem('token')
   if (branchId) {
     req.params = { ...req.params, branchId }
   }
@@ -17,8 +17,10 @@ api.interceptors.request.use((req) => {
   // Add auth token
   if (usr.token) {
     req.headers.Authorization = `Bearer ${usr.token}`
+  } else if (token) {
+    req.headers.Authorization = `Bearer ${token}`
   }
-
+  
   return req
 })
 

@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(ClinicOwnerSeeder::class);
         $this->call(ProcedureSeeder::class);
         $this->call(PositionSeeder::class);
         $this->call(BranchSeeder::class);

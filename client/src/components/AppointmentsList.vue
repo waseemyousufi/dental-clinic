@@ -73,7 +73,18 @@
                   </n-icon>
                 </div>
                 <div class="card-title-block">
-                  <div class="card-title">{{ getPatientName(apt) }}</div>
+                  <div class="card-title">
+                    <router-link
+                      v-if="shouldLinkPatient(apt)"
+                      class="patient-link"
+                      :to="getPatientLink(apt)"
+                    >
+                      {{ getPatientName(apt) }}
+                    </router-link>
+                    <span v-else>
+                      {{ getPatientName(apt) }}
+                    </span>
+                  </div>
                   <div class="card-subtitle">
                     {{ t('appointmentsList.cardSubtitle', { name: getEmployeeName(apt) }) }}
                   </div>
@@ -157,7 +168,18 @@
               <div class="row-side">
                 <div class="side-block">
                   <span class="side-label">{{ t('appointmentsList.patientLabel') }}</span>
-                  <span class="side-value">{{ getPatientName(apt) }}</span>
+                  <span class="side-value">
+                    <router-link
+                      v-if="shouldLinkPatient(apt)"
+                      class="patient-link"
+                      :to="getPatientLink(apt)"
+                    >
+                      {{ getPatientName(apt) }}
+                    </router-link>
+                    <span v-else>
+                      {{ getPatientName(apt) }}
+                    </span>
+                  </span>
                 </div>
                 <div class="side-block">
                   <span class="side-label">{{ t('appointmentsList.doctorLabel') }}</span>
@@ -174,10 +196,12 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import { NBadge, NButton, NCard, NEmpty, NIcon, NInput, NSelect, NSpace, NStatistic, NTag } from 'naive-ui'
 import { Icon } from '@iconify/vue'
 import { useI18n } from 'vue-i18n'
 import useUserStore from '@/stores/user'
+import { useBranchStore } from '@/stores/branchStore'
 
 export type AppointmentStatus =
   | 'pending'
@@ -215,6 +239,7 @@ const { t } = useI18n()
 const query = ref('')
 const statusFilter = ref<string | null>(null)
 const userStore = useUserStore()
+const branchStore = useBranchStore()
 
 const statusOptions = computed(() => [
   { label: t('appointmentsList.statusLabels.pending'), value: 'pending' },
@@ -273,6 +298,24 @@ function getKey(apt: AppointmentData): string {
 
 function getPatientName(apt: AppointmentData): string {
   return apt.patientName || apt.patient || apt.customerName || apt.clientName || t('common.noDataAvailable')
+}
+
+function getPatientId(apt: AppointmentData): string | number | null {
+  return apt.patientId ?? apt.patient_id ?? apt.patient?.id ?? null
+}
+
+function getPatientLink(apt: AppointmentData) {
+  const patientId = getPatientId(apt)
+  const branchId = branchStore.selectedBranchId
+
+  return {
+    path: `/dentist/patient/${patientId}/`,
+    query: branchId == null ? {} : { branchId: String(branchId) },
+  }
+}
+
+function shouldLinkPatient(apt: AppointmentData): boolean {
+  return !userStore.isReceptionist && getPatientId(apt) != null && branchStore.selectedBranchId != null
 }
 
 function getEmployeeName(apt: AppointmentData): string {
@@ -472,6 +515,15 @@ function isSameDay(a: Date | null, b: Date): boolean {
 
 .card-title {
   font-size: 1.02rem;
+}
+
+.patient-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.patient-link:hover {
+  text-decoration: underline;
 }
 
 .card-subtitle,

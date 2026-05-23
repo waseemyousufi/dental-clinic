@@ -6,10 +6,12 @@ import { NCard, NForm, NFormItem, NInput, NButton, NH2, NP, useMessage } from 'n
 
 import userApi from '@api/user'
 import type UserData from '@api/interfaces/User'
+import { useBranchStore } from '@/stores/branchStore'
 
 const router = useRouter()
 const message = useMessage()
 const { t } = useI18n()
+const branchStore = useBranchStore()
 
 const loading = ref(false)
 const form = ref<Pick<UserData, 'email' | 'password'>>({
@@ -33,13 +35,16 @@ async function handleSubmit() {
 
     try {
       localStorage.setItem('user', JSON.stringify(data))
-      window.location.reload() // Refresh to ensure all components read the new user data
     } catch {
       // ignore storage errors
     }
 
     message.success(t('loginView.loginSuccess'))
-    router.push('/patients')
+    await router.push({
+      path: '/patients/',
+      query: branchStore.selectedBranchId == null ? {} : { branchId: String(branchStore.selectedBranchId) },
+    })
+    window.location.reload()
   } catch (error) {
     console.error(error)
     message.error(t('loginView.loginFailed'))

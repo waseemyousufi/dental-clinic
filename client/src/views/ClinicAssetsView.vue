@@ -22,7 +22,7 @@
         </div>
       </n-card>
 
-      <n-grid :x-gap="16" :y-gap="16" cols="1 s:2 m:4">
+      <n-grid class="stats-grid" :x-gap="16" :y-gap="16" responsive="screen" cols="1 s:2 m:2 l:3">
         <n-grid-item>
           <n-card class="metric-card" :bordered="false">
             <div class="metric-label">{{ t('clinicAssetsView.metrics.totalAssets') }}</div>
@@ -58,13 +58,6 @@
                 <Icon icon="solar:magnifer-linear" />
               </template>
             </n-input>
-
-            <n-space wrap>
-              <n-select :to="false" v-model:value="categoryFilter" :options="categoryOptionsFilter" clearable
-                :placeholder="t('clinicAssetsView.toolbar.categoryPlaceholder')" class="filter-select" />
-              <n-select :to="false" v-model:value="statusFilter" :options="statusOptionsFilter" clearable
-                :placeholder="t('clinicAssetsView.toolbar.statusPlaceholder')" class="filter-select" />
-            </n-space>
           </n-space>
         </n-space>
       </n-card>
@@ -77,7 +70,7 @@
               <div class="asset-card-top">
                 <div>
                   <div class="asset-title">{{ asset.assetName }}</div>
-                  <div class="asset-subtitle">{{ asset.name }}</div>
+                  <!-- <div class="asset-subtitle">{{ asset.name }}</div> -->
                 </div>
                 <n-tag :type="statusTagType(asset.status)" round>{{ translateStatus(asset.status) }}</n-tag>
               </div>
@@ -141,11 +134,11 @@
       style="width: min(920px, calc(100vw - 24px)); height:80vh" content-scrollable>
       <n-form ref="formRef" :model="formModel" :rules="rules" label-placement="top" size="large">
         <n-grid :x-gap="16" :y-gap="8" cols="1 s:2 m:2">
-          <n-grid-item>
+          <!-- <n-grid-item>
             <n-form-item :label="t('clinicAssetsView.form.nameLabel')" path="name">
               <n-input v-model:value="formModel.name" :placeholder="t('clinicAssetsView.form.namePlaceholder')" />
             </n-form-item>
-          </n-grid-item>
+          </n-grid-item> -->
 
           <n-grid-item>
             <n-form-item :label="t('clinicAssetsView.form.assetNameLabel')" path="assetName">
@@ -196,7 +189,7 @@
 
           <n-grid-item>
             <n-form-item :label="t('clinicAssetsView.form.totalAmountLabel')" path="totalAmount">
-              <n-input-number v-model:value="formModel.totalAmount" :min="0" :precision="2" />
+              <n-input-number v-model:value="formModel.totalAmount" :min="0" :precision="2" disabled />
             </n-form-item>
           </n-grid-item>
 
@@ -303,8 +296,6 @@ const loading = ref(false)
 const submitting = ref(false)
 const assets = ref<ClinicAssetData[]>([])
 const query = ref('')
-const categoryFilter = ref<string | null>(null)
-const statusFilter = ref<string | null>(null)
 const page = ref(1)
 const pageSize = ref(10)
 const formVisible = ref(false)
@@ -317,7 +308,6 @@ const purchaseDateValue = ref<number | null>(null)
 const isMobile = computed(() => viewportWidth.value < 768)
 
 const emptyForm = (): ClinicAssetFormData => ({
-  name: '',
   assetName: '',
   description: '',
   category: 'device',
@@ -348,19 +338,7 @@ const statusOptions = computed(() => [
   { label: t('clinicAssetsView.statusOptions.maintenance'), value: 'maintenance' },
 ])
 
-const categoryOptionsFilter = computed(() => [
-  { label: t('clinicAssetsView.categoryOptions.device'), value: 'device' },
-  { label: t('clinicAssetsView.categoryOptions.furniture'), value: 'furniture' },
-])
-
-const statusOptionsFilter = computed(() => [
-  { label: t('clinicAssetsView.statusOptions.active'), value: 'active' },
-  { label: t('clinicAssetsView.statusOptions.inactive'), value: 'inactive' },
-  { label: t('clinicAssetsView.statusOptions.maintenance'), value: 'maintenance' },
-])
-
 const rules = computed<FormRules>(() => ({
-  name: [{ required: true, message: t('clinicAssetsView.validation.nameRequired'), trigger: ['input', 'blur'] }],
   assetName: [{ required: true, message: t('clinicAssetsView.validation.assetNameRequired'), trigger: ['input', 'blur'] }],
   category: [{ required: true, message: t('clinicAssetsView.validation.categoryRequired'), trigger: ['change', 'blur'] }],
   amount: [{ required: true, type: 'number', message: t('clinicAssetsView.validation.amountRequired'), trigger: ['blur', 'change'] }],
@@ -461,7 +439,7 @@ const handleRefresh = async () => {
 
 onMounted(loadAssets)
 
-watch([query, categoryFilter, statusFilter], () => {
+watch([query], () => {
   page.value = 1
 })
 
@@ -469,6 +447,14 @@ watch(
   purchaseDateValue,
   (value) => {
     formModel.dateOfPurchase = value ? new Date(value).toISOString().slice(0, 10) : ''
+  },
+  { immediate: true }
+)
+
+watch(
+  [() => formModel.amount, () => formModel.price],
+  ([amount, price]) => {
+    formModel.totalAmount = Number(amount ?? 0) * Number(price ?? 0)
   },
   { immediate: true }
 )
@@ -482,10 +468,7 @@ const filteredAssets = computed(() => {
         .filter(Boolean)
         .some((item) => String(item).toLowerCase().includes(q))
 
-    const matchesCategory = !categoryFilter.value || asset.category === categoryFilter.value
-    const matchesStatus = !statusFilter.value || asset.status === statusFilter.value
-
-    return matchesQuery && matchesCategory && matchesStatus
+    return matchesQuery
   })
 })
 
@@ -535,7 +518,7 @@ const openEdit = (asset: ClinicAssetData) => {
 
 const buildPayload = (): Record<string, unknown> => {
   return {
-    name: formModel.name.trim(),
+    name: formModel.assetName.trim(),
     assetName: formModel.assetName.trim(),
     description: formModel.description?.trim() || null,
     category: formModel.category,
@@ -726,9 +709,11 @@ const columns = computed<DataTableColumns<ClinicAssetData>>(() => [
 
 <style scoped>
 .clinic-assets-page {
-  padding: 16px;
-  background: linear-gradient(180deg, #f8fbff 0%, #f6f8fc 100%);
+  padding: 20px;
   min-height: 100%;
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 30%),
+    linear-gradient(180deg, #f8fbff 0%, #f5f7fb 100%);
 }
 
 .hero-card,
@@ -738,15 +723,25 @@ const columns = computed<DataTableColumns<ClinicAssetData>>(() => [
 .metric-card,
 .asset-card {
   border-radius: 24px;
-  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 10px 30px rgba(15, 23, 42, 0.06),
+    0 1px 0 rgba(255, 255, 255, 0.7) inset;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.hero-card,
+.toolbar-card,
+.table-card,
+.footer-card {
+  overflow: hidden;
 }
 
 .hero {
   display: flex;
   justify-content: space-between;
-  gap: 20px;
+  gap: 24px;
   align-items: flex-start;
 }
 
@@ -754,56 +749,98 @@ const columns = computed<DataTableColumns<ClinicAssetData>>(() => [
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 12px;
-  color: #6b7280;
+  font-weight: 700;
+  color: #64748b;
   margin-bottom: 10px;
 }
 
 h1 {
   margin: 0;
-  font-size: clamp(1.8rem, 2.5vw, 2.7rem);
-  line-height: 1.1;
-  color: #111827;
+  font-size: clamp(1.75rem, 2.4vw, 2.75rem);
+  line-height: 1.08;
+  color: #0f172a;
 }
 
 p {
-  margin: 10px 0 0;
-  color: #4b5563;
-  max-width: 56ch;
+  margin: 12px 0 0;
+  color: #475569;
+  max-width: 62ch;
+  line-height: 1.7;
 }
 
 .hero-actions {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.hero-actions :deep(.n-button) {
+  border-radius: 14px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.stats-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .metric-card {
-  padding: 6px 0;
+  padding: 10px 0;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 14px 36px rgba(15, 23, 42, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.7) inset;
 }
 
 .metric-label {
   font-size: 13px;
-  color: #6b7280;
+  color: #64748b;
+  font-weight: 600;
 }
 
 .metric-value {
-  margin-top: 6px;
-  font-size: 1.7rem;
-  font-weight: 700;
-  color: #111827;
+  margin-top: 8px;
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.toolbar-card {
+  padding: 2px;
 }
 
 .search-input {
-  min-width: min(520px, 100%);
+  min-width: min(560px, 100%);
   flex: 1;
 }
 
-.filter-select {
-  min-width: 160px;
+.search-input :deep(.n-input__input) {
+  font-size: 14px;
+}
+
+.search-input :deep(.n-input__prefix) {
+  color: #94a3b8;
 }
 
 .asset-card {
-  padding: 4px;
+  padding: 18px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.asset-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 14px 36px rgba(15, 23, 42, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.7) inset;
 }
 
 .asset-card-top {
@@ -814,44 +851,53 @@ p {
 }
 
 .asset-title {
-  font-weight: 700;
-  color: #111827;
+  font-weight: 800;
+  color: #0f172a;
   font-size: 1.02rem;
+  line-height: 1.3;
 }
 
 .asset-subtitle {
-  color: #6b7280;
+  color: #64748b;
   margin-top: 4px;
   font-size: 0.92rem;
 }
 
 .asset-description {
   margin: 14px 0 0;
-  color: #4b5563;
+  color: #475569;
+  line-height: 1.65;
 }
 
 .asset-meta-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 16px;
+  gap: 14px;
+  margin-top: 18px;
 }
 
 .meta-label {
   display: block;
   font-size: 12px;
-  color: #6b7280;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .meta-value {
   display: block;
-  margin-top: 4px;
-  font-weight: 600;
-  color: #111827;
+  margin-top: 5px;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .asset-actions {
-  margin-top: 16px;
+  margin-top: 18px;
+}
+
+.asset-actions :deep(.n-button) {
+  border-radius: 12px;
 }
 
 .footer-card {
@@ -859,23 +905,39 @@ p {
 }
 
 .footer-text {
-  color: #6b7280;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.table-card :deep(.n-data-table) {
+  border-radius: 18px;
+  overflow: hidden;
 }
 
 .table-asset-title {
-  font-weight: 600;
-  color: #111827;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .table-asset-subtitle {
   margin-top: 4px;
   font-size: 12px;
-  color: #6b7280;
+  color: #64748b;
 }
 
 .delete-body {
-  color: #374151;
-  line-height: 1.6;
+  color: #334155;
+  line-height: 1.7;
+}
+
+@media (min-width: 1200px) {
+  .clinic-assets-page {
+    padding: 28px;
+  }
+
+  .stats-grid {
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 768px) {
@@ -889,16 +951,28 @@ p {
 
   .hero-actions {
     width: 100%;
+    justify-content: stretch;
   }
 
-  .hero-actions .n-button {
+  .hero-actions :deep(.n-button) {
     flex: 1;
   }
 
-  .search-input,
-  .filter-select {
+  .search-input {
     width: 100%;
     min-width: 0;
+  }
+
+  .asset-meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .asset-card {
+    padding: 16px;
+  }
+
+  .stats-grid {
+    max-width: none;
   }
 }
 </style>

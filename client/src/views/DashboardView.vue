@@ -812,10 +812,13 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .dashboard-shell {
-  --shell-offset: clamp(260px, 30vw, 380px);
+  --shell-gutter: clamp(14px, 2vw, 24px);
+  --shell-max-width: 1560px;
   width: 100%;
   box-sizing: border-box;
-  padding: 18px 22px 28px var(--shell-offset);
+  max-width: calc(var(--shell-max-width) + (var(--shell-gutter) * 2));
+  margin: 0 auto;
+  padding: 18px var(--shell-gutter) 28px;
   display: grid;
   gap: 18px;
 }
@@ -1333,7 +1336,7 @@ tr:last-child td {
 
 @media (max-width: 1400px) {
   .dashboard-shell {
-    --shell-offset: 18px;
+    --shell-gutter: 18px;
   }
 
   .chart-grid-large,
@@ -1349,7 +1352,7 @@ tr:last-child td {
 
 @media (max-width: 760px) {
   .dashboard-shell {
-    --shell-offset: 14px;
+    --shell-gutter: 14px;
     padding: 14px;
     gap: 14px;
   }

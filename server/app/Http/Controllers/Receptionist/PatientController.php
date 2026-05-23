@@ -171,6 +171,6 @@ class PatientController extends Controller
      */
     public function destroy(string $id)
     {
-        return Patient::delete($id);
+        return Patient::find($id)->delete();
     }
 }

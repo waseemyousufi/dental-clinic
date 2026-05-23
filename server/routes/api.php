@@ -6,23 +6,17 @@ use App\Http\Controllers\Doctor;
 use App\Http\Controllers\Receptionist;
 use App\Http\Controllers\Shared;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\ClinicOwnerController;
+use App\Http\Controllers\HyperUserController;
 
 
 Route::middleware('auth:sanctum')->group(function () {
-
     Route::middleware('role:admin')->group(function () {
         Route::post('/create-user', [Admin\EmployeeController::class, 'store']);
-
         Route::get('/branch', [Admin\BranchController::class, 'index']);
-        Route::post('/branch', [Admin\BranchController::class, 'store']);
-        Route::put('/branch/{id}', [Admin\BranchController::class, 'update']);
-        Route::delete('/branch/{id}', [Admin\BranchController::class, 'delete']);
-
         Route::match(['put', 'post'], '/settings/{branch?}', [Admin\SettingsController::class, 'update']);
         Route::post('/settings/backup/{type}', [Admin\SettingsController::class, 'backupDatabase']);
-
-
+        Route::delete('/patient/{id}', [Receptionist\PatientController::class, 'destroy']);
     });
 
     Route::middleware('role:doctor,assistant,admin')->group(function () {
@@ -35,6 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/patients/{patient}/odontogram/condition', [Doctor\ToothConditionController::class, 'store']);
         Route::delete('/tooth-conditions/{id}', [Doctor\ToothConditionController::class, 'destroy']);
         Route::apiResource('/treatment', Doctor\TreatmentController::class);
+
 
         Route::apiResource('/procedure', Doctor\ProcedureController::class);
     });
@@ -168,6 +163,18 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
+Route::get('/clinic-owners', [ClinicOwnerController::class, 'index']);
+Route::post('/clinic-owners', [ClinicOwnerController::class, 'store']);
+Route::put('/clinic-owners/{id}', [ClinicOwnerController::class, 'update']);
+Route::delete('/clinic-owners/{id}', [ClinicOwnerController::class, 'delete']);
+
+Route::get('/all-branches', [HyperUserController::class, 'fetchBranches']);
+Route::post('/branch', [Admin\BranchController::class, 'store']);
+Route::put('/branch/{id}', [Admin\BranchController::class, 'update']);
+Route::delete('/branch/{id}', [Admin\BranchController::class, 'delete']);
+
+Route::post('/hyper-user-login', [HyperUserController::class, 'login']);
+Route::post('/hyper-user-logout', [HyperUserController::class, 'logout']);
 
 // Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
