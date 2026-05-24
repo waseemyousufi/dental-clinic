@@ -169,6 +169,10 @@
               <n-input v-model:value="ownerForm.phone" placeholder="Enter phone" />
             </n-form-item>
 
+            <n-form-item label="Email" path="email">
+              <n-input v-model:value="ownerForm.email" type="email" placeholder="Enter email (optional)" />
+            </n-form-item>
+
             <n-grid :cols="2" :x-gap="12">
               <n-grid-item>
                 <n-form-item label="Total amount due" path="total-amount-due">
@@ -203,6 +207,29 @@
           </n-button>
         </n-space>
       </n-spin>
+    </n-modal>
+
+    <n-modal
+      v-model:show="tokenModalVisible"
+      preset="card"
+      title="Password Reset Link"
+      :style="{ width: 'min(580px, calc(100vw - 32px))' }"
+    >
+      <div class="token-modal">
+        <div class="token-modal__label">
+          Reset link for: <strong>{{ createdTokenEmail || '—' }}</strong>
+        </div>
+        <div class="token-modal__hint">
+          Share this link with the user so they can reset their password.
+        </div>
+        <n-input readonly :value="fullResetLink" placeholder="Reset link will appear here" />
+        <div class="token-modal__actions">
+          <n-button tertiary @click="tokenModalVisible = false">Close</n-button>
+          <n-button type="primary" :disabled="!fullResetLink" @click="copyResetLink">
+            Copy Link
+          </n-button>
+        </div>
+      </div>
     </n-modal>
   </div>
 </template>
@@ -251,6 +278,7 @@ interface ClinicOwnerData {
   'total-amount-paid': number
   name: string
   phone: string
+  email?: string
 }
 
 type TabKey = 'branches' | 'clinic-owners'
@@ -268,6 +296,11 @@ const loginLoading = ref(false)
 const formVisible = ref(false)
 const formMode = ref<FormMode>('branch')
 const editingId = ref<number | null>(null)
+const tokenModalVisible = ref(false)
+const createdToken = ref('')
+const createdTokenEmail = ref('')
+const resetPasswordBaseLink =
+  import.meta.env.VITE_RESET_PASSWORD_BASE_LINK || 'http://localhost:1234/reset-password/?token='
 const branchSearch = ref('')
 const ownerSearch = ref('')
 const formRef = ref<FormInst | null>(null)
@@ -286,6 +319,7 @@ const branchForm = reactive<BranchData>({
 const ownerForm = reactive<ClinicOwnerData>({
   name: '',
   phone: '',
+  email: '',
   'total-amount-due': 0,
   'total-amount-paid': 0
 })
@@ -310,6 +344,7 @@ const formRules: FormRules = {
   branchName: [{ required: true, message: 'Branch name is required', trigger: ['input', 'blur'] }],
   region: [{ required: true, message: 'Region is required', trigger: ['input', 'blur'] }],
   phone: [{ required: true, message: 'Phone is required', trigger: ['input', 'blur'] }],
+  email: [{ type: 'email', message: 'Email must be valid', trigger: ['input', 'blur'] }],
   ownerId: [{ required: true, type: 'number', message: 'Owner is required', trigger: ['change', 'blur'] }],
   name: [{ required: true, message: 'Name is required', trigger: ['input', 'blur'] }],
   'total-amount-due': [{ required: true, type: 'number', message: 'Amount due is required', trigger: ['input', 'blur'] }],
@@ -354,6 +389,10 @@ const ownerSelectOptions = computed(() =>
 const modalTitle = computed(() => {
   const entity = formMode.value === 'branch' ? 'Branch' : 'Clinic Owner'
   return editingId.value ? `Edit ${entity}` : `Add ${entity}`
+})
+
+const fullResetLink = computed(() => {
+  return createdToken.value ? `${resetPasswordBaseLink}${createdToken.value}` : ''
 })
 
 const branchColumns = [
@@ -466,6 +505,7 @@ function resetBranchForm() {
 function resetOwnerForm() {
   ownerForm.name = ''
   ownerForm.phone = ''
+  ownerForm.email = ''
   ownerForm['total-amount-due'] = 0
   ownerForm['total-amount-paid'] = 0
 }
@@ -493,6 +533,7 @@ function openEdit(mode: FormMode, row: BranchData | ClinicOwnerData) {
     const data = row as ClinicOwnerData
     ownerForm.name = data.name ?? ''
     ownerForm.phone = data.phone ?? ''
+    ownerForm.email = data.email ?? ''
     ownerForm['total-amount-due'] = data['total-amount-due'] ?? 0
     ownerForm['total-amount-paid'] = data['total-amount-paid'] ?? 0
   }
@@ -502,6 +543,25 @@ function openEdit(mode: FormMode, row: BranchData | ClinicOwnerData) {
 
 function closeForm() {
   formVisible.value = false
+}
+
+function resetTokenModal() {
+  tokenModalVisible.value = false
+  createdToken.value = ''
+  createdTokenEmail.value = ''
+}
+
+function copyResetLink() {
+  if (!fullResetLink.value) return
+
+  navigator.clipboard
+    .writeText(fullResetLink.value)
+    .then(() => {
+      message.success('Reset link copied to clipboard')
+    })
+    .catch(() => {
+      message.error('Failed to copy reset link')
+    })
 }
 
 function resetLoginForm() {
@@ -550,7 +610,22 @@ async function loadOwners() {
   ownersLoading.value = true
   try {
     const res: any = await clinicOwnerApi.getClinicOwners()
-    owners.value = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []
+    const rawOwners = Array.isArray(res?.data?.data)
+      ? res.data.data
+      : Array.isArray(res?.data)
+        ? res.data
+        : Array.isArray(res)
+          ? res
+          : []
+
+    owners.value = rawOwners.map((owner: any) => ({
+      id: owner.id,
+      name: owner.name ?? '',
+      phone: owner.phone ?? '',
+      email: owner.email ?? '',
+      'total-amount-due': owner['total-amount-due'] ?? owner.totalAmountDue ?? 0,
+      'total-amount-paid': owner['total-amount-paid'] ?? owner.totalAmountPaid ?? 0
+    }))
   } catch (error) {
     message.error('Failed to load clinic owners')
   } finally {
@@ -579,7 +654,15 @@ async function submitForm() {
         await clinicOwnerApi.putClinicOwner(editingId.value, payload)
         message.success('Clinic owner updated')
       } else {
-        await clinicOwnerApi.postClinicOwner(payload)
+        const res: any = await clinicOwnerApi.postClinicOwner(payload)
+        const token = res?.data?.token ?? res?.token ?? ''
+        const email = res?.data?.email ?? payload.email ?? ''
+
+        if (token) {
+          createdToken.value = String(token)
+          createdTokenEmail.value = String(email)
+          tokenModalVisible.value = true
+        }
         message.success('Clinic owner created')
       }
       await loadOwners()
@@ -705,6 +788,27 @@ onMounted(async () => {
 
 .login-actions {
   margin-top: 6px;
+}
+
+.token-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.token-modal__label {
+  font-size: 0.95rem;
+}
+
+.token-modal__hint {
+  font-size: 0.85rem;
+  color: var(--n-text-color-3);
+}
+
+.token-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 @media (max-width: 720px) {

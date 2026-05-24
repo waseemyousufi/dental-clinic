@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -19,9 +20,9 @@ class Branch extends Model
 
         public $timestamps = false;
 
-    public function clinicOwner(): HasOne
+    public function clinicOwner(): BelongsTo
     {
-        return $this->hasOne(ClinicOwner::class);
+        return $this->belongsTo(ClinicOwner::class, 'clinic_owner_id');
     }
 
     public function Account() : HasMany

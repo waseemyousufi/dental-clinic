@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ClinicOwnerResource;
 use App\Models\ClinicOwner;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
 class ClinicOwnerController extends Controller
 {
@@ -34,13 +38,47 @@ class ClinicOwnerController extends Controller
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'email' => 'nullable|email|max:255',
-            'total_amount_due' => 'required|numeric|min:0',
-            'total_amount_paid' => 'required|numeric|min:0',
+            'total-amount-due' => 'required|numeric|min:0',
+            'total-amount-paid' => 'required|numeric|min:0',
         ]);
 
-        $clinicOwner = ClinicOwner::create($data);
+        return DB::transaction(function () use ($data) {
+            $clinicOwner = ClinicOwner::create([
+                'name' => $data['name'],
+                'phone' => $data['phone'],
+                'email' => $data['email'] ?? null,
+                'total_amount_due' => $data['total-amount-due'],
+                'total_amount_paid' => $data['total-amount-paid'],
+            ]);
 
-        return new ClinicOwnerResource($clinicOwner);
+            // If an email was provided, create (or attach) a User and return a password reset token
+            if (!empty($data['email'])) {
+                $email = $data['email'];
+
+                $user = User::where('email', $email)->first();
+
+                if (!$user) {
+                    $user = User::create([
+                        'name' => $clinicOwner->name,
+                        'email' => $email,
+                        'password' => Hash::make('temp_pass'),
+                        'clinic_owner_id' => $clinicOwner->id,
+                    ]);
+                } else {
+                    // attach clinic_owner_id if missing
+                    if ($user->clinic_owner_id !== $clinicOwner->id) {
+                        $user->clinic_owner_id = $clinicOwner->id;
+                        $user->save();
+                    }
+                }
+
+                $token = Password::createToken($user);
+
+                return response(['token' => $token, 'email' => $user->email, 'clinicOwnerId' => $clinicOwner->id], 201);
+            }
+
+            return (new ClinicOwnerResource($clinicOwner))->response()->setStatusCode(201);
+        });
     }
 
     /**
@@ -63,11 +101,17 @@ class ClinicOwnerController extends Controller
             'name' => 'sometimes|string|max:255',
             'phone' => 'sometimes|string|max:20',
             'email' => 'nullable|email|max:255',
-            'total_amount_due' => 'sometimes|numeric|min:0',
-            'total_amount_paid' => 'sometimes|numeric|min:0',
+            'total-amount-due' => 'sometimes|numeric|min:0',
+            'total-amount-paid' => 'sometimes|numeric|min:0',
         ]);
 
-        $clinicOwner->update($data);
+        $clinicOwner->update([
+            'name' => $data['name'] ?? $clinicOwner->name,
+            'phone' => $data['phone'] ?? $clinicOwner->phone,
+            'email' => $data['email'] ?? $clinicOwner->email,
+            'total_amount_due' => $data['total-amount-due'] ?? $clinicOwner->total_amount_due,
+            'total_amount_paid' => $data['total-amount-paid'] ?? $clinicOwner->total_amount_paid,
+        ]);
 
         return new ClinicOwnerResource($clinicOwner);
     }

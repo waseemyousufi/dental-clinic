@@ -19,8 +19,8 @@ class ClinicOwnerResource extends JsonResource
             'name' => $this->name,
             'phone' => $this->phone,
             'email' => $this->email,
-            'total_amount_due' => $this->total_amount_due,
-            'total_amount_paid' => $this->total_amount_paid
+            'total-amount-due' => $this->total_amount_due,
+            'total-amount-paid' => $this->total_amount_paid
         ];
     }
 }

@@ -6,7 +6,9 @@ export default new (class Branch {
 
   getAllBranches() { return api.get('/all-branches') }
   getBranches() { return api.get('/branch') }
-  postBranch(data: BranchData) { return api.post('/branch', data) }
+  postBranch(data: BranchData) {
+    console.log('Posting branch data:', data) // Debug log
+    return api.post('/branch', data) }
   putBranch(id: number, data: BranchData) { return api.put(`/branch/${id}`, data) }
   deleteBranch(id: number) { return api.delete(`/branch/${id}`) }
 })()

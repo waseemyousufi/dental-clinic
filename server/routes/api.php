@@ -163,15 +163,15 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
-Route::get('/clinic-owners', [ClinicOwnerController::class, 'index']);
-Route::post('/clinic-owners', [ClinicOwnerController::class, 'store']);
-Route::put('/clinic-owners/{id}', [ClinicOwnerController::class, 'update']);
-Route::delete('/clinic-owners/{id}', [ClinicOwnerController::class, 'delete']);
+Route::get('/clinic-owner', [ClinicOwnerController::class, 'index']);
+Route::post('/clinic-owner', [ClinicOwnerController::class, 'store']);
+Route::put('/clinic-owner/{id}', [ClinicOwnerController::class, 'update']);
+Route::delete('/clinic-owner/{id}', [ClinicOwnerController::class, 'destroy']);
 
 Route::get('/all-branches', [HyperUserController::class, 'fetchBranches']);
-Route::post('/branch', [Admin\BranchController::class, 'store']);
-Route::put('/branch/{id}', [Admin\BranchController::class, 'update']);
-Route::delete('/branch/{id}', [Admin\BranchController::class, 'delete']);
+Route::post('/branch', [HyperUserController::class, 'store']);
+Route::put('/branch/{id}', [HyperUserController::class, 'update']);
+Route::delete('/branch/{id}', [HyperUserController::class, 'destroy']);
 
 Route::post('/hyper-user-login', [HyperUserController::class, 'login']);
 Route::post('/hyper-user-logout', [HyperUserController::class, 'logout']);

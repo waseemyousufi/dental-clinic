@@ -19,6 +19,11 @@ class BranchResource extends JsonResource
             'branchName' => $this->branch_name,
             'region' => $this->region,
             'phone' => $this->phone,
+            'ownerName' => $this->clinicOwner->name ?? null,
+            'f_name' => $this->clinicOwner?->name ? (preg_split('/\s+/', trim($this->clinicOwner->name), -1, PREG_SPLIT_NO_EMPTY)[0] ?? '') : '',
+            'l_name' => $this->clinicOwner?->name
+                ? implode(' ', array_slice(preg_split('/\s+/', trim($this->clinicOwner->name), -1, PREG_SPLIT_NO_EMPTY) ?: [], 1))
+                : '',
         ];
     }
 }

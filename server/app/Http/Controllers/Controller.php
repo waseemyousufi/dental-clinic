@@ -16,7 +16,6 @@ abstract class Controller
     // 2. Immediate log - if you don't see this, the method isn't being called
     // Log::info('EffectiveBranchId Debug', ['raw_query' => $raw]);
 
-
     // 3. Logic: URL first, User fallback second
     if (is_numeric($raw)) {
         return (int) $raw;
