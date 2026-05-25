@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Branch; // Assuming this is your Branch model
 use App\Models\ClinicOwner;
 use App\Models\Employee;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -79,22 +80,28 @@ class HyperUserController extends Controller
             'region' => 'required|string|max:100',
             'phone' => 'required|string|max:12',
             'ownerId' => 'required|integer|exists:clinic_owners,id',
-            'email' => 'nullable|email|max:255',
         ]);
 
         $owner = ClinicOwner::find($validatedData['ownerId']);
         $ownerNameParts = $this->splitOwnerName($owner?->name);
 
-        $branchAdminEmail = $validatedData['email'] ?? 'admin_' . Str::of($validatedData['branchName'])->snake('_')->lower() . '@example.com';
+        return DB::transaction(function () use ($validatedData, $ownerNameParts) {
+            $branch = Branch::create([
+                'branch_name' => $validatedData['branchName'],
+                'region' => $validatedData['region'],
+                'phone' => $validatedData['phone'],
+                'clinic_owner_id' => $validatedData['ownerId'],
+            ]);
 
-        $branch = Branch::create([
-            'branch_name' => $validatedData['branchName'],
-            'region' => $validatedData['region'],
-            'phone' => $validatedData['phone'],
-            'clinic_owner_id' => $validatedData['ownerId'],
-        ]);
-
-        return DB::transaction(function () use ($branch, $validatedData, $ownerNameParts, $owner) {
+            Setting::updateOrCreate(
+                ['branch_id' => $branch->id],
+                [
+                    'branch_id' => $branch->id,
+                    'clinic_name' => $validatedData['branchName'],
+                    'address' => $validatedData['region'],
+                    'phone' => $validatedData['phone'],
+                ]
+            );
 
             $branch_admin = User::where('clinic_owner_id', $validatedData['ownerId'])->first();
 

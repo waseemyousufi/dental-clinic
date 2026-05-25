@@ -15,7 +15,8 @@ class ClinicMaterialController extends Controller
     public function index(Request $request)
     {
         $branchId = $this->effectiveBranchId($request);
-        $branch = Branch::findOrFail($branchId);
+        $branch = Branch::where('clinic_owner_id', auth()->user()?->clinic_owner_id)
+            ->findOrFail($branchId);
         $clinicMaterials = $branch->ClinicMaterial()
             ->with(['activePrice', 'inventoryStock.shelf'])
             ->get();
@@ -24,7 +25,9 @@ class ClinicMaterialController extends Controller
 
     public function show($id)
     {
+        $branchId = $this->effectiveBranchId(request());
         $clinicMaterial = ClinicMaterial::with(['activePrice', 'prices', 'inventoryStock.shelf', 'branches', 'accountTransactions'])
+            ->where('branch_id', $branchId)
             ->findOrFail($id);
         return new ClinicMaterialResource($clinicMaterial);
     }
@@ -51,10 +54,11 @@ class ClinicMaterialController extends Controller
             'currencyExchangeRate' => 'nullable|numeric|min:0',
         ]);
 
-        $branch = Branch::findOrFail($branchId);
+        $branch = Branch::where('clinic_owner_id', auth()->user()?->clinic_owner_id)->findOrFail($branchId);
 
         $clinicMaterial = ClinicMaterial::create([
             'name' => $data['name'],
+            'branch_id' => $branchId,
             'material_name' => $data['materialName'],
             'description' => $data['description'] ?? null,
             'category' => $data['category'] ?? null,
@@ -89,7 +93,8 @@ class ClinicMaterialController extends Controller
 
     public function update(Request $request, $id)
     {
-        $clinicMaterial = ClinicMaterial::findOrFail($id);
+        $branchId = $this->effectiveBranchId($request);
+        $clinicMaterial = ClinicMaterial::where('branch_id', $branchId)->findOrFail($id);
 
         $data = $request->validate([
             'name' => 'sometimes|string|max:255',
@@ -151,7 +156,8 @@ class ClinicMaterialController extends Controller
 
     public function delete($id)
     {
-        $clinicMaterial = ClinicMaterial::findOrFail($id);
+        $branchId = $this->effectiveBranchId(request());
+        $clinicMaterial = ClinicMaterial::where('branch_id', $branchId)->findOrFail($id);
         $clinicMaterial->delete();
 
         return response()->json(['message' => 'Clinic material deleted successfully']);

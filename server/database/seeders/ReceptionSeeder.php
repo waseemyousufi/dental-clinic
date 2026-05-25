@@ -14,6 +14,7 @@ class ReceptionSeeder extends Seeder
     {
         Reception::insert([
             [
+                'branch_id' => 1,
                 'status' => 'scheduled',
                 'fee' => 150,
                 'admission_timestamp' => '2024/04/04',
@@ -21,6 +22,7 @@ class ReceptionSeeder extends Seeder
                 'patient_id' =>   1
             ],
             [
+                'branch_id' => 1,
                 'status' => 'scheduled',
                 'fee' => 150,
                 'admission_timestamp' => '2024/04/04',

@@ -71,7 +71,7 @@ class TreatmentController extends Controller
             // 'xrayId' => 'required|integer',
         ]);
 
-        Treatment::find($id)->update([
+        Treatment::where('branch_id', $branchId)->findOrFail($id)->update([
             'treatment_type' => $data['treatmentType'],
             'diagnosis' => $data['diagnosis'],
             'treatment_date' => $data['treatmentDate'],
@@ -89,7 +89,8 @@ class TreatmentController extends Controller
 
     public function delete($id)
     {
-        Treatment::delete($id);
+        $branchId = $this->effectiveBranchId(request());
+        Treatment::where('branch_id', $branchId)->findOrFail($id)->delete();
         return response('deleted');
     }
 }

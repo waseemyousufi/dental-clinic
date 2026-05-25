@@ -9,7 +9,8 @@ class EmployeeExperience extends Model
 {
 
     public $timestamps = false;
-protected $fillable = [
+    protected $fillable = [
+        'branch_id',
         'workplace',
         'position',
         'total_amount',

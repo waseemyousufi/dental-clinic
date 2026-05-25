@@ -16,6 +16,7 @@ class ItemSeeder extends Seeder
         $items = [
             // ================= PROSTHETICS =================
             [
+                'branch_id' => 1,
                 'name' => 'Dental Crown',
                 'description' => 'Tooth cap',
                 'category' => 'prosthetics',
@@ -31,6 +32,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => false,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Dental Bridge',
                 'description' => 'Replace missing teeth',
                 'category' => 'prosthetics',
@@ -46,6 +48,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => false,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Implant Fixture',
                 'description' => 'Implant base',
                 'category' => 'prosthetics',
@@ -61,6 +64,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => true,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Denture',
                 'description' => 'Removable teeth',
                 'category' => 'prosthetics',
@@ -76,6 +80,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => false,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Veneer',
                 'description' => 'Cosmetic tooth covering',
                 'category' => 'prosthetics',
@@ -93,6 +98,7 @@ class ItemSeeder extends Seeder
 
             // ================= DEVICES =================
             [
+                'branch_id' => 1,
                 'name' => 'Dental Chair',
                 'description' => 'Patient chair',
                 'category' => 'devices',
@@ -108,6 +114,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => false,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Compressor',
                 'description' => 'Air supply',
                 'category' => 'devices',
@@ -123,6 +130,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => false,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Autoclave',
                 'description' => 'Sterilizer',
                 'category' => 'devices',
@@ -138,6 +146,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => false,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Ultrasonic Cleaner',
                 'description' => 'Instrument cleaning',
                 'category' => 'devices',
@@ -153,6 +162,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => false,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'X-Ray Unit',
                 'description' => 'Digital x-ray machine',
                 'category' => 'devices',
@@ -170,6 +180,7 @@ class ItemSeeder extends Seeder
 
             // ================= FURNITURE =================
             [
+                'branch_id' => 1,
                 'name' => 'Dental Cabinet',
                 'description' => 'Storage',
                 'category' => 'furniture',
@@ -185,6 +196,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => false,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Dentist Stool',
                 'description' => 'Doctor seating',
                 'category' => 'furniture',
@@ -200,6 +212,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => false,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Patient Waiting Chair',
                 'description' => 'Reception seating',
                 'category' => 'furniture',
@@ -215,6 +228,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => false,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Reception Desk',
                 'description' => 'Front desk',
                 'category' => 'furniture',
@@ -230,6 +244,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => false,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Instrument Tray',
                 'description' => 'Sterile tray for tools',
                 'category' => 'furniture',
@@ -247,6 +262,7 @@ class ItemSeeder extends Seeder
 
             // ================= INSTRUMENTS =================
             [
+                'branch_id' => 1,
                 'name' => 'Mouth Mirror',
                 'description' => 'Oral examination',
                 'category' => 'instruments',
@@ -262,6 +278,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => false,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Explorer Probe',
                 'description' => 'Detect decay',
                 'category' => 'instruments',
@@ -277,6 +294,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => false,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Cotton Pliers',
                 'description' => 'Handle materials',
                 'category' => 'instruments',
@@ -292,6 +310,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => false,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Scaler',
                 'description' => 'Remove calculus',
                 'category' => 'instruments',
@@ -307,6 +326,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => false,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Curette',
                 'description' => 'Periodontal cleaning',
                 'category' => 'instruments',
@@ -324,6 +344,7 @@ class ItemSeeder extends Seeder
 
             // ================= MEDICATIONS =================
             [
+                'branch_id' => 1,
                 'name' => 'Lidocaine Cartridge',
                 'description' => 'Local anesthetic',
                 'category' => 'medications',
@@ -339,6 +360,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => true,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Ibuprofen Tablets',
                 'description' => 'Pain relief',
                 'category' => 'medications',
@@ -354,6 +376,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => true,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Amoxicillin Capsules',
                 'description' => 'Antibiotic',
                 'category' => 'medications',
@@ -369,6 +392,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => true,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Chlorhexidine Mouthwash',
                 'description' => 'Antiseptic rinse',
                 'category' => 'medications',
@@ -384,6 +408,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => true,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Fluoride Gel',
                 'description' => 'Tooth strengthening',
                 'category' => 'medications',
@@ -401,6 +426,7 @@ class ItemSeeder extends Seeder
 
             // ================= CONSUMABLES =================
             [
+                'branch_id' => 1,
                 'name' => 'Gloves',
                 'description' => 'Hand protection',
                 'category' => 'consumables',
@@ -416,6 +442,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => true,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Face Mask',
                 'description' => 'Air protection',
                 'category' => 'consumables',
@@ -431,6 +458,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => true,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Cotton Rolls',
                 'description' => 'Moisture control',
                 'category' => 'consumables',
@@ -446,6 +474,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => true,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Gauze Pads',
                 'description' => 'Wound care',
                 'category' => 'consumables',
@@ -461,6 +490,7 @@ class ItemSeeder extends Seeder
                 'is_consumable' => true,
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Suction Tips',
                 'description' => 'Fluid suction',
                 'category' => 'consumables',

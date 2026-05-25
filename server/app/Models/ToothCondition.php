@@ -12,6 +12,7 @@ class ToothCondition extends Model
         'patient_id',
         'tooth_id',
         'condition_id',
+        'branch_id',
         'surfaces',
         'drawing_data',
         'notes',

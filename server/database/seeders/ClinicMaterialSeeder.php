@@ -24,6 +24,7 @@ class ClinicMaterialSeeder extends Seeder
     {
         $materials = [
             [
+                'branch_id' => 1,
                 'material_name' => 'mask',
                 'amount' => 400,
                 'total_amount' => 2000,
@@ -31,6 +32,7 @@ class ClinicMaterialSeeder extends Seeder
                 'quantity' => 5
             ],
             [
+                'branch_id' => 1,
                 'material_name' => 'clinic gloves',
                 'amount' => 500,
                 'total_amount' => 2500,
@@ -38,6 +40,7 @@ class ClinicMaterialSeeder extends Seeder
                 'quantity' => 5
             ],
             [
+                'branch_id' => 1,
                 'material_name' => 'dental syringe',
                 'amount' => 150,
                 'total_amount' => 1500,
@@ -45,6 +48,7 @@ class ClinicMaterialSeeder extends Seeder
                 'quantity' => 5
             ],
             [
+                'branch_id' => 1,
                 'material_name' => 'anesthetic',
                 'amount' => 250,
                 'total_amount' => 5000,
@@ -52,6 +56,7 @@ class ClinicMaterialSeeder extends Seeder
                 'quantity' => 5
             ],
             [
+                'branch_id' => 1,
                 'material_name' => 'drill bit',
                 'amount' => 300,
                 'total_amount' => 2400,
@@ -76,8 +81,10 @@ class ClinicMaterialSeeder extends Seeder
         }
 
         // Sync with account transactions and branches
-        $transaction = AccountTransaction::find(3);
         $branch = Branch::find(1);
+        $transaction = $branch
+            ? AccountTransaction::where('branch_id', $branch->id)->first()
+            : null;
 
         foreach ($createdMaterials as $material) {
             if ($transaction) {

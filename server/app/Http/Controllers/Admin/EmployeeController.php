@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\EmployeeResource;
+use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +21,13 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        //
+        $employees = Employee::with(['user', 'Position'])
+            ->whereHas('Position', function ($query) {
+                $query->where('position_title', '!=', 'admin');
+            })
+            ->get();
+
+        return EmployeeResource::collection($employees);
     }
 
     /**

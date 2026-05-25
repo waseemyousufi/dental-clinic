@@ -50,6 +50,7 @@ return new class extends Migration
             $table->foreignId('patient_id')->constrained()->onDelete('cascade');
             $table->foreignId('tooth_id')->constrained('teeth_reference');
             $table->foreignId('condition_id')->constrained('condition_library');
+            $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
 
             $table->jsonb('surfaces')->nullable(); // e.g., ["distal", "occlusal"]
             $table->jsonb('drawing_data')->nullable(); // For canvas coordinates

@@ -59,7 +59,7 @@ class AccountController extends Controller
             'status' => 'string',
         ]);
 
-        $account = Account::findOrFail($id);
+        $account = Account::where('branch_id', $branchId)->findOrFail($id);
 
         $payload = [
             'branch_id' => $branchId,
@@ -96,7 +96,7 @@ class AccountController extends Controller
 
     public function delete($id)
     {
-        $account = Account::findOrFail($id);
+        $account = Account::where('branch_id', $branchId)->findOrFail($id);
 
         if ((int) $account->total_amount > 0) {
             return response()->json(['message' => 'Accounts with credit cannot be deleted'], 422);
@@ -123,7 +123,7 @@ class AccountController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $account = Account::findOrFail($id);
+        $account = Account::where('branch_id', $branchId)->findOrFail($id);
         $amount = (int) $data['amount'];
         $currentBalance = (int) $account->total_amount;
 

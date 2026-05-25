@@ -11,6 +11,7 @@ class EmployeeSalary extends Model
     public $primaryKey = 'employee_id';
     public $incrementing = false;
     protected $fillable = [
+        'branch_id',
         'salary_month',
         'amount',
         'bonus',

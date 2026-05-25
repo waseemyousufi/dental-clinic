@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('receptions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
             $table->string('status', 30); //['Scheduled', 'Pending']
             $table->integer('fee', false, true);
             $table->date('admission_timestamp');

@@ -15,6 +15,7 @@ class EmployeeExperienceSeeder extends Seeder
     {
         EmployeeExperience::insert([
             [
+                'branch_id' => 1,
                 'workplace' => 'Sama Dental Clinic',
                 'position' => 'Doctor',
                 'total_amount' => 13000,

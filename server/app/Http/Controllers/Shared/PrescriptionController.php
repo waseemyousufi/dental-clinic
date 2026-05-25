@@ -53,7 +53,7 @@ class PrescriptionController extends Controller
             'drug_name' => 'required|string'
         ]);
 
-        $prescription = Prescription::find($id);
+        $prescription = Prescription::where('branch_id', $branchId)->findOrFail($id);
         $prescription->update([
             // 'prescription_date' => $data['prescriptionDate'],
             // 'instructions' => $data['instructions'],
@@ -68,7 +68,8 @@ class PrescriptionController extends Controller
 
     public function destroy(Request $request, string $id)
     {
-        $prescription = Prescription::find($id);
+        $branchId = $this->effectiveBranchId($request);
+        $prescription = Prescription::where('branch_id', $branchId)->findOrFail($id);
 
         if (!$prescription) {
             return response()->json(['message' => 'Prescription not found'], 404);

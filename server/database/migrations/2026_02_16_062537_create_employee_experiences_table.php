@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('employee_experiences', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
             $table->string('workplace', 30)->nullable();
             $table->string('position', 15)->nullable();
             $table->integer('total_amount', false, true)->nullable();

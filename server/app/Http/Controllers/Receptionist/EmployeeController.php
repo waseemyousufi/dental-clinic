@@ -17,23 +17,26 @@ use Illuminate\Support\Facades\Storage;
 use function Laravel\Prompts\info;
 use App\Models\AccountTransaction;
 use App\Models\EmployeeSalary;
-
+use PhpParser\Node\Stmt\TryCatch;
 
 class EmployeeController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
-    {
-        $branchId = $this->effectiveBranchId($request);
+public function index(Request $request)
+{
+    $branchId = $this->effectiveBranchId($request);
 
-        $employees = Employee::with('user')
-            ->where('branch_id', $branchId)
-            ->get();
+    $employees = Employee::with(['user', 'Position'])
+        ->where('branch_id', $branchId)
+        ->whereHas('Position', function ($query) {
+            $query->where('position_title', '!=', 'admin');
+        })
+        ->get();
 
-        return EmployeeResource::collection($employees);
-    }
+    return EmployeeResource::collection($employees);
+}
 
     public function updateProfliePic(String $id, Request $request)
     {
@@ -41,7 +44,8 @@ class EmployeeController extends Controller
             'image' => 'required|image|max:2048', // 2MB Max
         ]);
 
-        $employee = Employee::findOrFail($id);
+        $branchId = $this->effectiveBranchId($request);
+        $employee = Employee::where('branch_id', $branchId)->findOrFail($id);
         $user = $employee->user;
 
         if ($user->profile_image_path) {
@@ -61,24 +65,23 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         $branchId = $this->effectiveBranchId($request);
-
         $data = $request->validate([
             'fName' => 'required|string',
-            'lName' => 'required|string',
-            'email' => 'required|unique:users,email',
-            'phone' => 'nullable|string|max:30',
-            'gender' => 'required', // , new Enum(Gender::class)],
-            'hireDate' => 'required|string',
-            'speciality' => 'required|string',
-            'qualification' => 'required|string',
-            'midLicenseNum' => 'required|string',
-            'workStartTime' => 'required|string',
-            'workEndTime' => 'required|string',
-            'positionId' => 'required',
-            'experience.workplace' => 'nullable',
-            'experience.position' => 'nullable',
-            'experience.totalAmount' => 'nullable'
-        ]);
+                'lName' => 'required|string',
+                'email' => 'required|email|unique:users,email',
+                'phone' => 'nullable|string|max:30',
+                'gender' => 'required',
+                'hireDate' => 'required|date',
+                'speciality' => 'required|string',
+                'qualification' => 'required|string',
+                'midLicenseNum' => 'required|string',
+                'workStartTime' => 'required|date_format:H:i',
+                'workEndTime' => 'required|date_format:H:i',
+                'positionId' => 'required|exists:positions,id',
+                'experience.workplace' => 'nullable|string',
+                'experience.position' => 'nullable|string',
+                'experience.totalAmount' => 'nullable|integer'
+                ]);
 
         return DB::transaction(function () use ($data, $request, $branchId) {
             $user = User::create([
@@ -100,6 +103,7 @@ class EmployeeController extends Controller
                 'work_end_time' => $data['workEndTime'],
                 'branch_id' => $branchId,
                 'position_id' => $data['positionId'],
+                'branch_id' => $branchId,
             ]);
 
 
@@ -108,6 +112,7 @@ class EmployeeController extends Controller
                     'workplace' => $data['experience']['workplace'],
                     'position' => $data['experience']['position'],
                     'total_amount' => $data['experience']['totalAmount'],
+                    'branch_id' => $branchId,
                 ]);
             }
 
@@ -132,6 +137,7 @@ class EmployeeController extends Controller
 
     public function employeeSalary(string $id, Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
         $data = $request->validate([
             'salaryMonth' => 'required|string',
             'amount' => 'required|integer',
@@ -141,13 +147,13 @@ class EmployeeController extends Controller
             'accountId' => 'required|integer',
         ]);
 
-        $employee = Employee::findOrFail($id);
+        $employee = Employee::where('branch_id', $branchId)->findOrFail($id);
 
 
 
-        return DB::transaction(function () use ($employee, $data, $request) {
+        return DB::transaction(function () use ($employee, $data, $request, $branchId) {
 
-            $account = Account::findOrFail($data['accountId']);
+            $account = Account::where('branch_id', $branchId)->findOrFail($data['accountId']);
 
             if ($account->total_amount < $data['totalAmount']) {
                 abort(400, 'Insufficient account balance');
@@ -165,7 +171,7 @@ class EmployeeController extends Controller
                 'description' => "Salary payment for {$employee->fName} {$employee->lName}",
                 'recorded_by_employee_id' => auth()->id() ?? null,
                 'account_id' => $data['accountId'],
-                'branch_id' => $this->effectiveBranchId($request),
+                'branch_id' => $branchId,
             ]);
 
             // 2. CREATE / UPSERT SALARY
@@ -212,7 +218,9 @@ class EmployeeController extends Controller
         ]);
 
         return DB::transaction(function () use ($data, $request, $id, $branchId) {
-            $user = User::with(['employee.experience'])->findOrFail($id);
+            $user = User::with(['employee.experience'])
+                ->whereHas('employee', fn($q) => $q->where('branch_id', $branchId))
+                ->findOrFail($id);
 
             if ($user->employee) {
                 $user->employee()->update([
@@ -251,7 +259,8 @@ class EmployeeController extends Controller
 
     public function delete(string $id)
     {
-        $emp = Employee::find($id);
+        $branchId = $this->effectiveBranchId(request());
+        $emp = Employee::where('branch_id', $branchId)->findOrFail($id);
         $emp->user()->delete();
         $emp->delete();
     }

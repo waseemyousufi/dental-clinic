@@ -50,7 +50,7 @@ class TreatmentPlanController extends Controller
             'start_date' => $validated['start_date'] ?? now()->toDateString(),
         ]);
 
-        $patient = Patient::find($validated['patient_id']);
+        $patient = Patient::where('branch_id', $branchId)->findOrFail($validated['patient_id']);
         $patient->update([
             'total_amount_due' => $patient->total_amount_due + $validated['total_estimated_cost'] ?? 0,
         ]);
@@ -67,7 +67,7 @@ class TreatmentPlanController extends Controller
 
     public function update(Request $request, string $id)
     {
-        $plan = TreatmentPlan::findOrFail($id);
+        $plan = TreatmentPlan::where('branch_id', $branchId)->findOrFail($id);
         $branchId = $this->effectiveBranchId($request);
 
         if ((int) $plan->branch_id !== (int) $branchId) {
@@ -89,7 +89,7 @@ class TreatmentPlanController extends Controller
         //     'total_amount_due' => $patient->total_amount_due + $validated['total_estimated_cost'] ?? 0,
         // ]);
 
-        $plan = TreatmentPlan::find($id);
+        $plan = TreatmentPlan::where('branch_id', $branchId)->findOrFail($id);
 
         $plan->update($validated);
         });
@@ -102,7 +102,7 @@ class TreatmentPlanController extends Controller
 
     public function addAppointment(Request $request, string $id)
     {
-        $plan = TreatmentPlan::findOrFail($id);
+        $plan = TreatmentPlan::where('branch_id', $branchId)->findOrFail($id);
         $branchId = $this->effectiveBranchId($request);
 
         if ((int) $plan->branch_id !== (int) $branchId) {
@@ -113,7 +113,7 @@ class TreatmentPlanController extends Controller
             'appointment_id' => 'required|exists:appointments,id',
         ]);
 
-        $appointment = Appointment::findOrFail($validated['appointment_id']);
+        $appointment = Appointment::where('branch_id', $branchId)->findOrFail($validated['appointment_id']);
         $appointment->treatment_plan_id = $plan->id;
         $appointment->save();
 
@@ -125,7 +125,10 @@ class TreatmentPlanController extends Controller
 
     public function execute(Request $request, $id)
     {
-        $plan = TreatmentPlan::with('procedure.inventoryRequirements')->findOrFail($id);
+        $branchId = $this->effectiveBranchId($request);
+        $plan = TreatmentPlan::where('branch_id', $branchId)
+            ->with('procedure.inventoryRequirements')
+            ->findOrFail($id);
 
         if ($plan->status !== 'accepted') {
             return response()->json(['error' => 'Only accepted plans can be executed.'], 400);
@@ -141,11 +144,12 @@ class TreatmentPlanController extends Controller
                 'description' => $plan->procedure->name,
                 'patient_id' => $plan->patient_id,
                 'treatment_plan_id' => $plan->id,
-                'branch_id' => $request->branch_id ?? 1,
+                'branch_id' => $branchId,
             ]);
 
             foreach ($plan->procedure->inventoryRequirements as $requirement) {
-                $stock = InventoryStock::where('id', $requirement->inventory_stock_id)
+                $stock = InventoryStock::where('branch_id', $plan->branch_id)
+                    ->where('id', $requirement->inventory_stock_id)
                     ->where('quantity', '>=', $requirement->unit_count)
                     ->first();
 
@@ -165,7 +169,7 @@ class TreatmentPlanController extends Controller
 
     public function updateStatus(Request $request, string $id)
     {
-        $plan = TreatmentPlan::findOrFail($id);
+        $plan = TreatmentPlan::where('branch_id', $branchId)->findOrFail($id);
         $branchId = $this->effectiveBranchId($request);
 
         if ((int) $plan->branch_id !== (int) $branchId) {
@@ -180,7 +184,7 @@ class TreatmentPlanController extends Controller
 
     public function delete(Request $request, string $id)
     {
-        $plan = TreatmentPlan::findOrFail($id);
+        $plan = TreatmentPlan::where('branch_id', $branchId)->findOrFail($id);
         $branchId = $this->effectiveBranchId($request);
 
         if ((int) $plan->branch_id !== (int) $branchId) {

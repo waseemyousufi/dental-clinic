@@ -50,7 +50,6 @@ return new class extends Migration
             $table->json('clinic_items')->nullable();
             $table->json('clinic_procedures')->nullable();
             $table->json('prescription_template')->nullable();
-
             $table->timestamps();
         });
     }

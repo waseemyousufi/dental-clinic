@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('patient_files', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
             $table->string('diagnosis', 200);
             $table->text('notes')->nullable();
             $table->json('odontogram_data')->nullable();

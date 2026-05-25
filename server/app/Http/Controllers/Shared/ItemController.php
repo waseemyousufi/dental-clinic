@@ -12,7 +12,9 @@ class ItemController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Item::with(['activePrice', 'suppliers', 'inventoryStocks']);
+        $branchId = $this->effectiveBranchId($request);
+        $query = Item::with(['activePrice', 'suppliers', 'inventoryStocks'])
+            ->where('branch_id', $branchId);
 
         // Filter by category
         if ($request->has('category')) {
@@ -40,7 +42,10 @@ class ItemController extends Controller
 
     public function show($id)
     {
-        $item = Item::with(['activePrice', 'prices', 'inventoryStocks.shelf', 'suppliers'])->findOrFail($id);
+        $branchId = $this->effectiveBranchId(request());
+        $item = Item::with(['activePrice', 'prices', 'inventoryStocks.shelf', 'suppliers'])
+            ->where('branch_id', $branchId)
+            ->findOrFail($id);
         return new ItemResource($item);
     }
 
@@ -62,6 +67,7 @@ class ItemController extends Controller
         ]);
 
         $item = Item::create([
+            'branch_id' => $this->effectiveBranchId($request),
             'name' => $data['name'],
             'category' => $data['category'],
             'materials' => $data['materials'] ?? [],
@@ -90,7 +96,8 @@ class ItemController extends Controller
 
     public function update(Request $request, $id)
     {
-        $item = Item::findOrFail($id);
+        $branchId = $this->effectiveBranchId($request);
+        $item = Item::where('branch_id', $branchId)->findOrFail($id);
 
         $data = $request->validate([
             'name' => 'sometimes|string|max:255',
@@ -145,7 +152,8 @@ class ItemController extends Controller
 
     public function delete($id)
     {
-        $item = Item::findOrFail($id);
+        $branchId = $this->effectiveBranchId(request());
+        $item = Item::where('branch_id', $branchId)->findOrFail($id);
         $item->delete();
 
         return response()->json(['message' => 'Item deleted successfully']);

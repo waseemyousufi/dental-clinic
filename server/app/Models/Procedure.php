@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Procedure extends Model
 {
-    protected $fillable = ['name', 'slug', 'category', 'base_price', 'min_price', 'appointments_needed', 'dentist_commission', 'assistant_commission', 'is_active'];
+    protected $fillable = ['branch_id', 'name', 'slug', 'category', 'base_price', 'min_price', 'appointments_needed', 'dentist_commission', 'assistant_commission', 'is_active'];
 
     public function inventoryRequirements(): HasMany
     {

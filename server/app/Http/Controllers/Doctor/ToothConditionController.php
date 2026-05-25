@@ -29,6 +29,7 @@ class ToothConditionController extends Controller
             'patient_id'           => $validated['patient_id'],
             'tooth_id'             => $validated['tooth_id'],
             'condition_library_id' => $validated['condition_id'],
+            'branch_id'            => $this->effectiveBranchId($request),
             'surfaces'             => $validated['surfaces'],
             'drawing_data'         => $validated['drawing_data'] ?? [],
             'is_active'            => true
@@ -49,7 +50,8 @@ class ToothConditionController extends Controller
      */
     public function destroy($id): JsonResponse
     {
-        $condition = ToothCondition::find($id);
+        $branchId = $this->effectiveBranchId(request());
+        $condition = ToothCondition::where('branch_id', $branchId)->find($id);
 
         if (!$condition) {
             return response()->json([

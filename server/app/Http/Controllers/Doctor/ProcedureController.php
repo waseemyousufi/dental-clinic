@@ -15,16 +15,17 @@ class ProcedureController extends Controller
      */
     public function index(Request $request)
     {
-            if($request->query('include_inactive') === 'true') {
-                return ProcedureResource::collection(Procedure::with('inventoryRequirements.stock')
-                    ->orderBy('name')
-                    ->get());
-            } else {
-                return ProcedureResource::collection(Procedure::where('is_active', true)
-                    ->with('inventoryRequirements.stock')
-                    ->orderBy('name')
-                    ->get());
-            }
+        $branchId = $this->effectiveBranchId($request);
+
+        $query = Procedure::with('inventoryRequirements.stock')
+            ->where('branch_id', $branchId)
+            ->orderBy('name');
+
+        if ($request->query('include_inactive') !== 'true') {
+            $query->where('is_active', true);
+        }
+
+        return ProcedureResource::collection($query->get());
     }
 
     /**
@@ -48,7 +49,7 @@ class ProcedureController extends Controller
             'inventory.*.unit_count' => 'required|integer|min:1',
         ]);
 
-        return DB::transaction(function () use ($validated) {
+        return DB::transaction(function () use ($validated, $request) {
             // 1. Create the Procedure
             $procedure = Procedure::create([
                 'name' => $validated['name'],
@@ -60,6 +61,7 @@ class ProcedureController extends Controller
                 'dentist_commission' => $validated['dentist_commission'] ?? 0,
                 'assistant_commission' => $validated['assistant_commission'] ?? 0,
                 'is_active' => $validated['is_active'] ?? true,
+                'branch_id' => $this->effectiveBranchId($request),
             ]);
 
             // 2. Attach Inventory Requirements (The Bridge Table)
@@ -69,6 +71,7 @@ class ProcedureController extends Controller
                         'inventory_stock_id' => $item['inventory_stock_id'],
                         'unit_count' => $item['unit_count'],
                         'is_optional' => false,
+                        'branch_id' => $this->effectiveBranchId($request),
                     ]);
                 }
             }
@@ -84,6 +87,11 @@ class ProcedureController extends Controller
      */
     public function show(Procedure $procedure)
     {
+        $branchId = $this->effectiveBranchId(request());
+        if ((int) $procedure->branch_id !== (int) $branchId) {
+            abort(404);
+        }
+
         return new ProcedureResource($procedure->load('inventoryRequirements.stock'));
     }
 
@@ -92,6 +100,11 @@ class ProcedureController extends Controller
      */
     public function update(Request $request, Procedure $procedure)
     {
+        $branchId = $this->effectiveBranchId($request);
+        if ((int) $procedure->branch_id !== (int) $branchId) {
+            abort(404);
+        }
+
         $validated = $request->validate([
             'name' => 'sometimes|string|max:100',
             'slug' => 'nullable|string|unique:procedures,slug,' . $procedure->id,
@@ -108,6 +121,7 @@ class ProcedureController extends Controller
             $validated['slug'] = Str::slug($validated['name']);
         }
 
+        $validated['branch_id'] = $branchId;
         $procedure->update($validated);
 
         return new ProcedureResource($procedure->fresh('inventoryRequirements.stock'));
@@ -115,6 +129,11 @@ class ProcedureController extends Controller
 
     public function destroy(Procedure $procedure)
     {
+        $branchId = $this->effectiveBranchId(request());
+        if ((int) $procedure->branch_id !== (int) $branchId) {
+            abort(404);
+        }
+
         $procedure->delete();
 
         return response()->json(['message' => 'Procedure deleted successfully']);

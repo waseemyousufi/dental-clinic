@@ -63,7 +63,7 @@ class AppointmentController extends Controller
             // ✅ M:M compatibility layer (IMPORTANT PART)
             $appointment->procedures()->sync([$data['procedure_id']]);
 
-            $patient = Patient::findOrFail($data['patientId']);
+            $patient = Patient::where('branch_id', $branchId)->findOrFail($data['patientId']);
             // if ($data['status'] === 'Completed') {
             //     $patient->total_amount_due += $data['appointment_cost'];
             //     $patient->save();
@@ -84,7 +84,7 @@ class AppointmentController extends Controller
             // }
             $appointment->patients()->sync([$patient->id]);
 
-            $employee = Employee::findOrFail($data['employeeId']);
+            $employee = Employee::where('branch_id', $branchId)->findOrFail($data['employeeId']);
             $appointment->employees()->sync([$employee->id]);
         });
 
@@ -113,7 +113,7 @@ class AppointmentController extends Controller
             'procedure_id' => 'required|exists:procedures,id',
         ]);
 
-        $appointment = Appointment::findOrFail($id);
+        $appointment = Appointment::where('branch_id', $branchId)->findOrFail($id);
 
         DB::transaction(function () use ($appointment, $data, $branchId) {
             $appointment->update([
@@ -128,7 +128,7 @@ class AppointmentController extends Controller
             ]);
 
             if ($data['status'] === 'completed') {
-                $patient = Patient::findOrFail($data['patientId']);
+                $patient = Patient::where('branch_id', $branchId)->findOrFail($data['patientId']);
                 $patient->total_amount_due += $data['appointment_cost'];
                 $patient->save();
 
@@ -165,6 +165,7 @@ class AppointmentController extends Controller
      */
     public function delete(string $id)
     {
-        Appointment::find($id)->delete();
+        $branchId = $this->effectiveBranchId(request());
+        Appointment::where('branch_id', $branchId)->findOrFail($id)->delete();
     }
 }

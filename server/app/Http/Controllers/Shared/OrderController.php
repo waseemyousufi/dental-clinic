@@ -79,14 +79,17 @@ class OrderController extends Controller
 
     public function show($id)
     {
-        $order = Order::with(['supplier', 'items.item'])->withCount('items')->findOrFail($id);
+        $branchId = $this->effectiveBranchId(request());
+        $order = Order::with(['supplier', 'items.item'])->withCount('items')
+            ->where('branch_id', $branchId)
+            ->findOrFail($id);
         return new OrderResource($order);
     }
 
     public function update(Request $request, $id)
     {
-        $order = Order::with('items')->findOrFail($id);
         $branchId = $this->effectiveBranchId($request);
+        $order = Order::with('items')->where('branch_id', $branchId)->findOrFail($id);
 
         $data = $request->validate([
             'supplierId' => 'sometimes|exists:suppliers,id',
@@ -135,7 +138,7 @@ class OrderController extends Controller
         ) {
             foreach ($order->items as $orderItem) {
 
-                $item = Item::findOrFail($orderItem->item_id);
+                $item = Item::where('branch_id', $branchId)->findOrFail($orderItem->item_id);
 
                 // ✅ Decide type based on item
                 if ($item->is_consumable) {
@@ -214,7 +217,8 @@ class OrderController extends Controller
 
     public function delete($id)
     {
-        $order = Order::findOrFail($id);
+        $branchId = $this->effectiveBranchId(request());
+        $order = Order::where('branch_id', $branchId)->findOrFail($id);
         $order->items()->delete();
         $order->delete();
 

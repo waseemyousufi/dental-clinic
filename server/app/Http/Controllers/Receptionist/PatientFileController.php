@@ -21,6 +21,7 @@ class PatientFileController extends Controller
      */
     public function store(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
         $data = $request->validate([
             'diagnosis' => 'required|string',
             'employeeId' => 'required|integer',
@@ -30,9 +31,10 @@ class PatientFileController extends Controller
             'treatmentId' => 'required|integer',
         ]);
 
-        $patient = Patient::find($data['patientId']);
+        $patient = Patient::where('branch_id', $branchId)->findOrFail($data['patientId']);
 
-        return $patient->PatientFile()->save([
+        return $patient->PatientFile()->create([
+            'branch_id' => $branchId,
             'diagnosis' => $data['diagnosis'],
             'employee_id' => $data['employeeId'],
             'appointmentDate_id' => $data['appointmentDateId'],
@@ -44,6 +46,7 @@ class PatientFileController extends Controller
 
     public function update(Request $request)
     {
+        $branchId = $this->effectiveBranchId($request);
 
         $data = $request->validate([
             'diagnosis' => 'required|string',
@@ -54,9 +57,10 @@ class PatientFileController extends Controller
             'treatmentId' => 'required|integer',
         ]);
 
-        $patient = Patient::find($data['patientId']);
+        $patient = Patient::where('branch_id', $branchId)->findOrFail($data['patientId']);
 
         return $patient->PatientFile()->update([
+            'branch_id' => $branchId,
             'diagnosis' => $data['diagnosis'],
             'employee_id' => $data['employeeId'],
             'appointmentDate_id' => $data['appointmentDateId'],
@@ -71,6 +75,7 @@ class PatientFileController extends Controller
      */
     public function destroy(string $id)
     {
-        return Patient::find($id)->PatientFile->delete();
+        $branchId = $this->effectiveBranchId(request());
+        return Patient::where('branch_id', $branchId)->findOrFail($id)->PatientFile->delete();
     }
 }

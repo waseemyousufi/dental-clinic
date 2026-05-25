@@ -68,13 +68,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/account/{id}/withdraw', [Receptionist\AccountController::class, 'withdraw']);
     });
 
-    Route::middleware('role:receptionist,doctor,assisstant,admin')->group(function () {
+    Route::middleware('role:receptionist,doctor,assistant,admin')->group(function () {
         Route::get('/dashboard', [Admin\DashboardController::class, 'index']);
         Route::get('/reports', [Admin\ReportsController::class, 'index']);
         Route::get('/appointment', [Receptionist\AppointmentController::class, 'index']);
         Route::put('/appointment/{id}', [Receptionist\AppointmentController::class, 'update']);
         Route::delete('/appointment/{id}', [Receptionist\AppointmentController::class, 'delete']);
-
 
         Route::get('/employee', [Receptionist\EmployeeController::class, 'index']);
         Route::post('/appointment', [Receptionist\AppointmentController::class, 'store']);
@@ -162,6 +161,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/settings', [Admin\SettingsController::class, 'index']);
     });
 });
+
 
 Route::get('/clinic-owner', [ClinicOwnerController::class, 'index']);
 Route::post('/clinic-owner', [ClinicOwnerController::class, 'store']);

@@ -24,7 +24,8 @@ class PatientController extends Controller
 
     public function show(string $id)
     {
-        return new PatientResource(Patient::findOrFail($id));
+        $branchId = $this->effectiveBranchId(request());
+        return new PatientResource(Patient::where('branch_id', $branchId)->findOrFail($id));
     }
 
     public function setAllergy(Request $request)
@@ -38,7 +39,7 @@ class PatientController extends Controller
             'patientId' => 'integer|required',
         ]);
 
-        $patient = Patient::find($data['patientId']);
+        $patient = Patient::where('branch_id', $branchId)->find($data['patientId']);
 
         return $patient->allergy->save([
             'allergy_type' => $data['allergyType'],
@@ -56,7 +57,7 @@ class PatientController extends Controller
             'debit' => 'integer|required',
         ]);
 
-        $patient = Patient::find($id);
+        $patient = Patient::where('branch_id', $branchId)->find($id);
         $account = Account::where('branch_id', $branchId)->where('account_type', 'income')->first();
 
         DB::transaction(function () use ($patient, $account, $data, $branchId, $request) {
@@ -154,7 +155,7 @@ class PatientController extends Controller
             'phone' => 'required|string',
         ]);
 
-        return Patient::find($id)->update([
+        return Patient::where('branch_id', $branchId)->findOrFail($id)->update([
             'f_name' => $data['fName'],
             'l_name' => $data['lName'],
             'gender' => $data['gender'],
@@ -171,6 +172,7 @@ class PatientController extends Controller
      */
     public function destroy(string $id)
     {
-        return Patient::find($id)->delete();
+        $branchId = $this->effectiveBranchId(request());
+        return Patient::where('branch_id', $branchId)->findOrFail($id)->delete();
     }
 }

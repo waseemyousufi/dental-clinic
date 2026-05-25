@@ -61,7 +61,8 @@ class SettingsController extends Controller
             'prescription_template.footer' => 'nullable|string',
         ]);
 
-        $branch = Branch::find($effectiveBranchId);
+        $branch = Branch::where('clinic_owner_id', auth()->user()?->clinic_owner_id)
+            ->find($effectiveBranchId);
         if (!$branch) {
             abort(404, 'Branch not found');
         } else {

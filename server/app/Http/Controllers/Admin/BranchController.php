@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BranchResource;
 use App\Models\Branch;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BranchController extends Controller
 {
@@ -14,9 +14,12 @@ class BranchController extends Controller
      */
     public function index()
     {
-        $branches = Branch::all();
+        $user = Auth::user();
+
+        $branches = Branch::query()
+            ->where('clinic_owner_id', $user?->clinic_owner_id)
+            ->get();
+
         return BranchResource::collection($branches);
     }
-
-
 }

@@ -15,6 +15,7 @@ class EmployeeSalarySeeder extends Seeder
     {
         EmployeeSalary::insert([
             [
+                'branch_id' => 1,
                 'employee_id' => 1,
                 'salary_month' => 'jun 2025',
                 'amount' => 10000,

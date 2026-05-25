@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('procedures', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
             $table->string('name'); // e.g., "Composite Filling"
-            $table->string('slug')->unique(); // e.g., "composite_filling"
+            $table->string('slug'); // e.g., "composite_filling"
             $table->string('category'); // e.g., "Endodontics"
             $table->decimal('base_price', 15, 2); // Standard fee in AFN
             $table->decimal('min_price', 15, 2)->nullable();

@@ -19,9 +19,7 @@ public function index(Request $request)
     $query = InventoryStock::with(['stockable', 'shelf']);
 
     // ✅ Only filter by branch if a specific branch ID is provided
-    if ($branchId) {
         $query->where('branch_id', $branchId);
-    }
 
     // Optional: Add sorting (e.g., by expiry date or name)
     $query->orderBy('created_at', 'desc');
@@ -57,15 +55,15 @@ public function index(Request $request)
 
         // Validate stockable exists
         if ($data['stockableType'] === 'App\Models\ClinicMaterial') {
-            ClinicMaterial::findOrFail($data['stockableId']);
+            ClinicMaterial::where('branch_id', $branchId)->findOrFail($data['stockableId']);
         } else {
-            ClinicAsset::findOrFail($data['stockableId']);
+            ClinicAsset::where('branch_id', $branchId)->findOrFail($data['stockableId']);
         }
 
         // Validate shelf capacity if placing on shelf
         if (isset($data['shelfId'])) {
-            $shelf = Shelf::findOrFail($data['shelfId']);
-            $stockable = $data['stockableType']::find($data['stockableId']);
+            $shelf = Shelf::where('branch_id', $branchId)->findOrFail($data['shelfId']);
+            $stockable = $data['stockableType']::where('branch_id', $branchId)->find($data['stockableId']);
 
             if ($stockable && $stockable->width && $stockable->height && $stockable->depth) {
                 $itemVolume = $stockable->width * $stockable->height * $stockable->depth * $data['quantity'];
@@ -96,7 +94,7 @@ public function index(Request $request)
     public function update(Request $request, $id)
     {
         $branchId = $this->effectiveBranchId($request);
-        $inventoryStock = InventoryStock::findOrFail($id);
+        $inventoryStock = InventoryStock::where('branch_id', $branchId)->findOrFail($id);
 
         $data = $request->validate([
             'stockableType' => 'sometimes|string|in:App\Models\ClinicMaterial,App\Models\ClinicAsset',
@@ -112,9 +110,9 @@ public function index(Request $request)
         // Validate stockable if changing
         if (isset($data['stockableId']) && isset($data['stockableType'])) {
             if ($data['stockableType'] === 'App\Models\ClinicMaterial') {
-                ClinicMaterial::findOrFail($data['stockableId']);
+                ClinicMaterial::where('branch_id', $branchId)->findOrFail($data['stockableId']);
             } else {
-                ClinicAsset::findOrFail($data['stockableId']);
+                ClinicAsset::where('branch_id', $branchId)->findOrFail($data['stockableId']);
             }
         }
 
@@ -122,12 +120,12 @@ public function index(Request $request)
         if (isset($data['shelfId']) || isset($data['quantity'])) {
             $shelfId = $data['shelfId'] ?? $inventoryStock->shelf_id;
             if ($shelfId) {
-                $shelf = Shelf::findOrFail($shelfId);
+                $shelf = Shelf::where('branch_id', $branchId)->findOrFail($shelfId);
                 $stockableType = $data['stockableType'] ?? $inventoryStock->stockable_type;
                 $stockableId = $data['stockableId'] ?? $inventoryStock->stockable_id;
                 $quantity = $data['quantity'] ?? $inventoryStock->quantity;
 
-                $stockable = $stockableType::find($stockableId);
+                $stockable = $stockableType::where('branch_id', $branchId)->find($stockableId);
                 if ($stockable && $stockable->width && $stockable->height && $stockable->depth) {
                     $itemVolume = $stockable->width * $stockable->height * $stockable->depth * $quantity;
                     if ($shelf->available_capacity < $itemVolume) {
@@ -157,7 +155,8 @@ public function index(Request $request)
 
     public function delete($id)
     {
-        $inventoryStock = InventoryStock::findOrFail($id);
+        $branchId = $this->effectiveBranchId(request());
+        $inventoryStock = InventoryStock::where('branch_id', $branchId)->findOrFail($id);
         $inventoryStock->delete();
 
         return response()->json(['message' => 'Inventory stock deleted successfully']);

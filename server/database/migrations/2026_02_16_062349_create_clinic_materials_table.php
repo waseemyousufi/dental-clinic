@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('clinic_materials', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
             $table->string('material_name')->nullable();
             $table->unsignedSmallInteger('quantity');
             $table->integer('amount', false, true);

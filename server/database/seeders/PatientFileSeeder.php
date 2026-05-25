@@ -15,10 +15,11 @@ class PatientFileSeeder extends Seeder
      */
     public function run()
     {
-        $xray = DentalXray::find(1);
+        $xray = DentalXray::where('branch_id', 1)->first();
 
         PatientFile::create(
             [
+                'branch_id' => 1,
                 'diagnosis' => 'this is good',
                 'patient_id' => 2,
                 'employee_id' => 2,

@@ -70,13 +70,18 @@ public function index()
 
     public function show($id)
     {
-        $supplier = Supplier::withCount('orders')->with('items')->findOrFail($id);
+        $branchId = $this->effectiveBranchId(request());
+        $supplier = Supplier::withCount('orders')
+            ->with('items')
+            ->where('branch_id', $branchId)
+            ->findOrFail($id);
         return new SupplierResource($supplier);
     }
 
     public function update(Request $request, $id)
     {
-        $supplier = Supplier::findOrFail($id);
+        $branchId = $this->effectiveBranchId($request);
+        $supplier = Supplier::where('branch_id', $branchId)->findOrFail($id);
 
         $data = $request->validate([
             'contactPersonName' => 'required|string|max:255',
@@ -99,7 +104,7 @@ public function index()
             'email' => $data['email'] ?? $supplier->email,
             'status' => $data['status'] ?? $supplier->status,
             'business_id' => $data['businessId'] ?? $supplier->business_id,
-            'branch_id' => $this->effectiveBranchId($request),
+            'branch_id' => $branchId,
             // 'supplier_id' => $data['supplierId'] ?? $supplier->supplier_id, // Optional parent supplier
             'notes' => $data['notes'],
             'address' => $data['address']
@@ -115,7 +120,8 @@ public function index()
 
     public function delete($id)
     {
-        $supplier = Supplier::findOrFail($id);
+        $branchId = $this->effectiveBranchId(request());
+        $supplier = Supplier::where('branch_id', $branchId)->findOrFail($id);
         $supplier->delete();
 
         return response()->json(['message' => 'Supplier deleted successfully']);

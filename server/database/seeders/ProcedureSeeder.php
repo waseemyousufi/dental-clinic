@@ -11,6 +11,7 @@ class ProcedureSeeder extends Seeder
     {
         $procedures = [
             [
+                'branch_id' => 1,
                 'name' => 'Composite Filling (1 Surface)',
                 'slug' => 'composite-filling-1',
                 'category' => 'Restorative',
@@ -21,6 +22,7 @@ class ProcedureSeeder extends Seeder
                 'appointments_needed' => 1
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Simple Extraction',
                 'slug' => 'simple-extraction',
                 'category' => 'Surgery',
@@ -31,6 +33,7 @@ class ProcedureSeeder extends Seeder
                 'appointments_needed' => 1
             ],
             [
+                'branch_id' => 1,
                 'name' => 'Scaling & Polishing',
                 'slug' => 'scaling-polishing',
                 'category' => 'Preventive',

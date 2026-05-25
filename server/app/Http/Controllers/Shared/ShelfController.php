@@ -26,7 +26,10 @@ class ShelfController extends Controller
 
     public function show($id)
     {
-        $shelf = Shelf::with(['inventoryStock.stockable'])->findOrFail($id);
+        $branchId = $this->effectiveBranchId(request());
+        $shelf = Shelf::with(['inventoryStock.stockable'])
+            ->where('branch_id', $branchId)
+            ->findOrFail($id);
         return new ShelfResource($shelf);
     }
 
@@ -54,7 +57,8 @@ class ShelfController extends Controller
 
     public function update(Request $request, $id)
     {
-        $shelf = Shelf::findOrFail($id);
+        $branchId = $this->effectiveBranchId($request);
+        $shelf = Shelf::where('branch_id', $branchId)->findOrFail($id);
 
         $data = $request->validate([
             'shelfName' => 'sometimes|string|max:255',
@@ -78,7 +82,8 @@ class ShelfController extends Controller
 
     public function delete($id)
     {
-        $shelf = Shelf::findOrFail($id);
+        $branchId = $this->effectiveBranchId(request());
+        $shelf = Shelf::where('branch_id', $branchId)->findOrFail($id);
         $shelf->delete();
 
         return response()->json(['message' => 'Shelf deleted successfully']);

@@ -9,7 +9,8 @@ class Reception extends Model
 {
 
     public $timestamps = false;
-protected $fillable = [
+    protected $fillable = [
+        'branch_id',
         'status',
         'fee',
         'admission_timestamp',

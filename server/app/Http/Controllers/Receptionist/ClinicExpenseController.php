@@ -79,7 +79,7 @@ class ClinicExpenseController extends Controller
             'paidByEmployeeId'  => 'string|required',
         ]);
 
-        ClinicExpense::find($id)->update([
+        ClinicExpense::where('branch_id', $branchId)->findOrFail($id)->update([
             'expense_category' => $data['expenseCategory'],
             'unit' => $data['unit'],
             'amount' => $data['amount'],
@@ -96,6 +96,7 @@ class ClinicExpenseController extends Controller
 
     public function delete($id)
     {
-        return ClinicExpense::delete($id);
+        $branchId = $this->effectiveBranchId(request());
+        return ClinicExpense::where('branch_id', $branchId)->findOrFail($id)->delete();
     }
 }

@@ -68,7 +68,7 @@ class XrayController extends Controller
             'takenByEmloyeeId' => 'required|integer',
         ]);
 
-        DentalXray::find($id)->update([
+        DentalXray::where('branch_id', $branchId)->findOrFail($id)->update([
             'xray_type' => $data['xrayType'],
             'xray_timestamp' => $data['createdAt'],
             'tooth_part' => $data['toothPart'],

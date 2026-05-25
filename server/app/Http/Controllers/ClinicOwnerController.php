@@ -38,8 +38,8 @@ class ClinicOwnerController extends Controller
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'email' => 'nullable|email|max:255',
-            'total-amount-due' => 'required|numeric|min:0',
-            'total-amount-paid' => 'required|numeric|min:0',
+            'totalAmountDue' => 'required|numeric|min:0',
+            'totalAmountPaid' => 'required|numeric|min:0',
         ]);
 
         return DB::transaction(function () use ($data) {
@@ -47,8 +47,8 @@ class ClinicOwnerController extends Controller
                 'name' => $data['name'],
                 'phone' => $data['phone'],
                 'email' => $data['email'] ?? null,
-                'total_amount_due' => $data['total-amount-due'],
-                'total_amount_paid' => $data['total-amount-paid'],
+                'total_amount_due' => $data['totalAmountDue'],
+                'total_amount_paid' => $data['totalAmountPaid'],
             ]);
 
             // If an email was provided, create (or attach) a User and return a password reset token
@@ -101,16 +101,16 @@ class ClinicOwnerController extends Controller
             'name' => 'sometimes|string|max:255',
             'phone' => 'sometimes|string|max:20',
             'email' => 'nullable|email|max:255',
-            'total-amount-due' => 'sometimes|numeric|min:0',
-            'total-amount-paid' => 'sometimes|numeric|min:0',
+            'totalAmountDue' => 'sometimes|numeric|min:0',
+            'totalAmountPaid' => 'sometimes|numeric|min:0',
         ]);
 
         $clinicOwner->update([
             'name' => $data['name'] ?? $clinicOwner->name,
             'phone' => $data['phone'] ?? $clinicOwner->phone,
             'email' => $data['email'] ?? $clinicOwner->email,
-            'total_amount_due' => $data['total-amount-due'] ?? $clinicOwner->total_amount_due,
-            'total_amount_paid' => $data['total-amount-paid'] ?? $clinicOwner->total_amount_paid,
+            'total_amount_due' => $data['totalAmountDue'] ?? $clinicOwner->total_amount_due,
+            'total_amount_paid' => $data['totalAmountPaid'] ?? $clinicOwner->total_amount_paid,
         ]);
 
         return new ClinicOwnerResource($clinicOwner);

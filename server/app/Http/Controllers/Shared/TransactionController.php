@@ -47,9 +47,12 @@ class TransactionController extends Controller
             'branch_id' => $branchId,
         ]);
 
-        Branch::find($transaction->branch_id)->accountTransactions()->save($transaction);
+        Branch::where('clinic_owner_id', auth()->user()?->clinic_owner_id)
+            ->findOrFail($transaction->branch_id)
+            ->accountTransactions()
+            ->save($transaction);
 
-        $account = Account::find($data['accountId']);
+        $account = Account::where('branch_id', $branchId)->findOrFail($data['accountId']);
 
         if ($data['transactionType'] == 'in') {
             $account->update([
@@ -79,7 +82,8 @@ class TransactionController extends Controller
             'accountId' => 'required|integer',
         ]);
 
-        return AccountTransaction::find($id)->update([
+        $transaction = AccountTransaction::where('branch_id', $branchId)->findOrFail($id);
+        $transaction->update([
             'transaction_type' => $data['transactionType'],
             'amount' => $data['amount'],
             'transaction_date' => $data['transactionDate'],
@@ -90,17 +94,19 @@ class TransactionController extends Controller
             'branch_id' => $branchId,
         ]);
 
-        $account = Account::find($data['accountId']);
+        $account = Account::where('branch_id', $branchId)->findOrFail($data['accountId']);
 
-        if ($data['transaction_type'] == 'in') {
+        if ($data['transactionType'] == 'in') {
             $account->update([
                 'total_amount' => $account->total_amount + $data['amount'],
             ]);
-        } else if ($data['transaction_type'] == 'out') {
+        } else if ($data['transactionType'] == 'out') {
             $account->update([
                 'total_amount' => $account->total_amount - $data['amount'],
             ]);
         }
+
+        return response()->json(['message' => 'Transaction updated successfully', 'transaction' => new TransactionResource($transaction)]);
     }
 
     /**
@@ -108,8 +114,8 @@ class TransactionController extends Controller
      */
     public function destroy(string $id)
     {
-        $transaction = AccountTransaction::find($id);
-        $account = Account::find($transaction->account_id);
+        $transaction = AccountTransaction::where('branch_id', $this->effectiveBranchId(request()))->findOrFail($id);
+        $account = Account::where('branch_id', $transaction->branch_id)->findOrFail($transaction->account_id);
 
         if ($transaction->transaction_type == 'in') {
             $account->update([

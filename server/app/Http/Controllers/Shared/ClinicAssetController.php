@@ -28,7 +28,9 @@ class ClinicAssetController extends Controller
 
     public function show($id)
     {
+        $branchId = $this->effectiveBranchId(request());
         $clinicAsset = ClinicAsset::with(['Employee', 'Branch', 'activePrice', 'prices', 'inventoryStock.shelf'])
+            ->where('branch_id', $branchId)
             ->findOrFail($id);
 
         return new ClinicAssetResource($clinicAsset);
@@ -70,7 +72,9 @@ class ClinicAssetController extends Controller
     public function update(Request $request, $id)
     {
         $branchId = $this->effectiveBranchId($request);
-        $clinicAsset = ClinicAsset::with('activePrice')->findOrFail($id);
+        $clinicAsset = ClinicAsset::with('activePrice')
+            ->where('branch_id', $branchId)
+            ->findOrFail($id);
         $data = $this->validateAssetPayload($request, true);
 
         DB::transaction(function () use ($clinicAsset, $data, $branchId) {
@@ -104,7 +108,8 @@ class ClinicAssetController extends Controller
 
     public function delete($id)
     {
-        $clinicAsset = ClinicAsset::findOrFail($id);
+        $branchId = $this->effectiveBranchId(request());
+        $clinicAsset = ClinicAsset::where('branch_id', $branchId)->findOrFail($id);
         $clinicAsset->delete();
 
         return response()->json(['message' => 'Clinic asset deleted successfully']);
