@@ -932,7 +932,7 @@ onBeforeUnmount(() => {
               <Icon icon="healthicons:blood-ab-p" />
             <span>{{ patient.bloodType || '—' }}</span>
             </div>
-            <div class="summary-chip">
+            <div class="summary-chip" v-if="userStore.settings.doc_view_contact">
               <Icon icon="tabler:phone" />
             <span>{{ patient.phone || '—' }}</span>
             </div>
@@ -969,21 +969,21 @@ onBeforeUnmount(() => {
               </div>
             </div>
 
-            <div class="profile-item">
+            <div class="profile-item" v-if="userStore.settings.doc_view_contact">
               <div class="profile-icon phone">
                 <Icon icon="tabler:phone" />
               </div>
-              <div class="profile-content">
+              <div class="profile-content" >
                 <span>{{ t('dentistPatientView.profile.phone') }}</span>
                 <strong>{{ patient.phone || '—' }}</strong>
               </div>
             </div>
 
-            <div class="profile-item">
+            <div class="profile-item" v-if="userStore.settings.doc_view_contact">
               <div class="profile-icon emergency">
                 <Icon icon="mdi:ambulance" />
               </div>
-              <div class="profile-content">
+              <div class="profile-content" >
                 <span>{{ t('dentistPatientView.profile.emergencyContact') }}</span>
                 <strong>{{ patient.emgContact || '—' }}</strong>
               </div>
@@ -1244,7 +1244,7 @@ onBeforeUnmount(() => {
             </n-card>
           </section>
 
-          <section class="prescription-section">
+          <section class="prescription-section" v-if="userStore.isAdmin || userStore.settings.doc_issue_prescriptions">
             <n-card class="prescription-board" :segmented="{ content: true }">
               <template #header>
                 <div class="treatment-board__header">

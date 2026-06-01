@@ -141,53 +141,53 @@ const columns = computed(() => [{ title: t('expenseView.columns.date'), key: 'ex
   },
 },
 {
-  title: t('expenseView.columns.paidBy'),
+  title: t('expenseView.columns.recordedBy'),
   key: 'paidByEmployeeName',
   width: 160,
   render(row: ExpenseRow) {
     return row.paidByEmployeeName || t('expenseView.paidById', { id: row.paidByEmployeeId || '-' })
   },
 },
-{
-  title: t('expenseView.columns.actions'),
-  key: 'actions',
-  width: 120,
-  render(row: ExpenseRow) {
-    return h('div', { class: 'row-actions' }, [
-      h(
-        NButton,
-        {
-          text: true,
-          type: 'primary',
-          onClick: () => handleEdit(row),
-        },
-        {
-          icon: () => h(Icon, { icon: 'akar-icons:edit' }),
-        },
-      ),
-      h(
-        NPopconfirm,
-        {
-          onPositiveClick: () => handleDelete(row),
-          negativeText: t('common.cancelButtonText'),
-          positiveText: t('common.deleteButtonText'),
-        },
-        {
-          trigger: () =>
-            h(
-              NButton,
-              {
-                text: true,
-                type: 'error',
-              },
-              { icon: () => h(Icon, { icon: 'fluent:delete-16-filled' }) },
-            ),
-          default: () => t('expenseView.deleteConfirm'),
-        },
-      ),
-    ])
-  },
-},
+// {
+//   title: t('expenseView.columns.actions'),
+//   key: 'actions',
+//   width: 120,
+//   render(row: ExpenseRow) {
+//     return h('div', { class: 'row-actions' }, [
+//       h(
+//         NButton,
+//         {
+//           text: true,
+//           type: 'primary',
+//           onClick: () => handleEdit(row),
+//         },
+//         {
+//           icon: () => h(Icon, { icon: 'akar-icons:edit' }),
+//         },
+//       ),
+//       // h(
+//       //   NPopconfirm,
+//       //   {
+//       //     onPositiveClick: () => handleDelete(row),
+//       //     negativeText: t('common.cancelButtonText'),
+//       //     positiveText: t('common.deleteButtonText'),
+//       //   },
+//       //   {
+//       //     trigger: () =>
+//       //       h(
+//       //         NButton,
+//       //         {
+//       //           text: true,
+//       //           type: 'error',
+//       //         },
+//       //         { icon: () => h(Icon, { icon: 'fluent:delete-16-filled' }) },
+//       //       ),
+//       //     default: () => t('expenseView.deleteConfirm'),
+//       //   },
+//       // ),
+//     ])
+//   },
+// },
 ])
 
 async function fetchExpenses() {

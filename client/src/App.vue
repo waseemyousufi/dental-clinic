@@ -104,8 +104,9 @@ const goBack = () => {
 }
 
 const userBranchId = computed(() => {
-  const id = user?.employee?.branchId
-  return typeof id === 'number' && Number.isFinite(id) ? id : null
+  const rawId = user?.employee?.branchId ?? user?.employee?.branch_id
+  const parsed = typeof rawId === 'number' ? rawId : typeof rawId === 'string' ? Number(rawId) : NaN
+  return Number.isFinite(parsed) ? parsed : null
 })
 
 const isAdmin = computed(() => {
@@ -268,6 +269,8 @@ const handleUserSelect = (key: string | number) => {
 onMounted(async () => {
   canGoBack.value = typeof window !== 'undefined' && window.history.length > 1
 
+  console.log('User branch ID:', userBranchId.value)
+
   if (!authStore.isLoggedIn) return
 
   if (isAdmin.value) {
@@ -275,11 +278,10 @@ onMounted(async () => {
     const raw = route.query.branchId
     const asNumber = typeof raw === 'string' ? Number(raw) : NaN
     if (Number.isFinite(asNumber)) branchStore.setSelectedBranchId(asNumber)
-  } else if (userBranchId.value != null) {
-    const current = route.query.branchId
-    if (String(current) !== String(userBranchId.value)) {
-      router.replace({ query: { ...route.query, branchId: String(userBranchId.value) } })
-    }
+  }
+  else if (userBranchId.value != null) {
+    console.log('user is not admin looks like!')
+    router.replace({ query: { ...route.query, branchId: String(userBranchId.value) } })
   }
 
   if (token) {

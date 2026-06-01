@@ -15,28 +15,28 @@
       </template>
 
       <n-form ref="formRef" :model="formData" :rules="rules" label-placement="top" @submit.prevent>
-      <n-tabs v-model:value="activeTab" type="line" animated placement="top" class="settings-tabs">
-        <n-tab-pane name="branch" :tab="t('settingsView.tabs.branch')">
-          <div class="section-stack">
-            <div class="responsive-grid">
-              <n-form-item :label="t('settingsView.branchForm.clinicNameLabel')" path="clinic_name">
-                <n-input v-model:value="formData.clinic_name" :placeholder="t('settingsView.branchForm.clinicNamePlaceholder')" />
-              </n-form-item>
-              <!-- <n-form-item label="Currency" path="currency">
+        <n-tabs v-model:value="activeTab" type="line" animated placement="top" class="settings-tabs">
+          <n-tab-pane name="branch" :tab="t('settingsView.tabs.branch')">
+            <div class="section-stack">
+              <div class="responsive-grid">
+                <n-form-item :label="t('settingsView.branchForm.clinicNameLabel')" path="clinic_name">
+                  <n-input v-model:value="formData.clinic_name" :placeholder="t('settingsView.branchForm.clinicNamePlaceholder')" />
+                </n-form-item>
+                <!-- <n-form-item label="Currency" path="currency">
                 <n-select :to="false" v-model:value="formData.currency" :options="currencyOptions" />
               </n-form-item> -->
-              <n-form-item class="full-span" :label="t('settingsView.branchForm.addressLabel')" path="address">
-                <n-input v-model:value="formData.address" type="textarea" :placeholder="t('settingsView.branchForm.addressPlaceholder')" :autosize="{ minRows: 3, maxRows: 5 }" />
-              </n-form-item>
-              <n-form-item :label="t('settingsView.branchForm.phoneLabel')" path="phone">
-                <n-input v-model:value="formData.phone" :placeholder="t('settingsView.branchForm.phonePlaceholder')" />
-              </n-form-item>
-              <n-form-item :label="t('settingsView.branchForm.receptionFeeLabel')" path="reception">
-                <n-input-number v-model:value="formData.reception" :min="0" :step="50" />
-              </n-form-item>
-            </div>
+                <n-form-item class="full-span" :label="t('settingsView.branchForm.addressLabel')" path="address">
+                  <n-input v-model:value="formData.address" type="textarea" :placeholder="t('settingsView.branchForm.addressPlaceholder')" :autosize="{ minRows: 3, maxRows: 5 }" />
+                </n-form-item>
+                <n-form-item :label="t('settingsView.branchForm.phoneLabel')" path="phone">
+                  <n-input v-model:value="formData.phone" :placeholder="t('settingsView.branchForm.phonePlaceholder')" />
+                </n-form-item>
+                <n-form-item :label="t('settingsView.branchForm.receptionFeeLabel')" path="reception">
+                  <n-input-number v-model:value="formData.reception" :min="0" :step="50" />
+                </n-form-item>
+              </div>
 
-            <!-- <n-divider title-placement="left">Working Hours</n-divider>
+              <!-- <n-divider title-placement="left">Working Hours</n-divider>
             <div class="hours-grid">
               <n-card v-for="(day, key) in formData.working_hours" :key="key" size="small" class="day-card">
                 <div class="day-header">
@@ -58,116 +58,137 @@
                 </div>
               </n-card>
             </div> -->
-          </div>
-        </n-tab-pane>
-
-        <!-- <n-tab-pane name="whatsapp" tab="WhatsApp">
-          <div class="section-stack">
-            <n-alert type="info" show-icon>
-              <template #header>Dynamic Variables</template>
-              Use placeholders like
-              <n-tag size="small" type="info">patient_name</n-tag>
-              <n-tag size="small" type="info">date</n-tag>
-              <n-tag size="small" type="info">time</n-tag>
-              <n-tag size="small" type="info">clinic_name</n-tag>
-            </n-alert>
-
-            <div class="responsive-grid">
-              <n-form-item label="Patient Reminder">
-                <n-input v-model:value="formData.wa_patient_reminder" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
-              </n-form-item>
-              <n-form-item label="Patient Cancellation">
-                <n-input v-model:value="formData.wa_patient_cancel" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
-              </n-form-item>
-              <n-form-item label="Patient Completion">
-                <n-input v-model:value="formData.wa_patient_complete" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
-              </n-form-item>
-              <n-form-item label="Supplier Order">
-                <n-input v-model:value="formData.wa_supplier_order" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
-              </n-form-item>
-              <n-form-item class="full-span" label="Supplier Cancel">
-                <n-input v-model:value="formData.wa_supplier_cancel" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
-              </n-form-item>
             </div>
-          </div>
-        </n-tab-pane> -->
+          </n-tab-pane>
 
-        <n-tab-pane name="procedures" :tab="t('settingsView.tabs.procedures')">
-          <div class="service-section">
-            <n-card size="small" :title="t('settingsView.procedureForm.addProcedureTitle')">
-              <div class="service-form-grid">
-                <n-form-item :label="t('settingsView.procedureForm.procedureNameLabel')">
-                  <n-input v-model:value="newProcedure.name" :placeholder="t('settingsView.procedureForm.procedureNamePlaceholder')" />
+          <n-tab-pane name="whatsapp" :tab="t('settingsView.tabs.whatsapp')">
+            <div class="section-stack whatsapp-section" :dir="whatsappDir">
+              <n-alert type="info" show-icon>
+                <template #header>{{ t('settingsView.whatsappSection.dynamicVariablesTitle') }}</template>
+                {{ t('settingsView.whatsappSection.dynamicVariablesCopy') }}
+                <n-tag size="small" type="info">{patient_name}</n-tag>
+                <n-tag size="small" type="info">{appointment_date}</n-tag>
+                <n-tag size="small" type="info">{clinic_name}</n-tag>
+                <n-tag size="small" type="info">{appointment_time}</n-tag>
+                <n-tag size="small" type="info">{doctor_name}</n-tag>
+                <n-tag size="small" type="info">{description}</n-tag>
+                
+              </n-alert>
+
+              <div class="responsive-grid">
+                <n-form-item :label="t('settingsView.whatsappForm.patientReminderLabel')">
+                  <n-input
+                    v-model:value="formData.wa_patient_reminder"
+                    type="textarea"
+                    :autosize="{ minRows: 3, maxRows: 6 }"
+                    :input-props="{ dir: whatsappDir }"
+                    :placeholder="t('settingsView.whatsappForm.patientReminderPlaceholder')"
+                  />
                 </n-form-item>
-                <n-form-item :label="t('settingsView.procedureForm.categoryLabel')">
-                  <n-input v-model:value="newProcedure.category" :placeholder="t('settingsView.procedureForm.categoryPlaceholder')" />
+                <n-form-item :label="t('settingsView.whatsappForm.patientCancellationLabel')">
+                  <n-input
+                    v-model:value="formData.wa_patient_cancel"
+                    type="textarea"
+                    :autosize="{ minRows: 3, maxRows: 6 }"
+                    :input-props="{ dir: whatsappDir }"
+                    :placeholder="t('settingsView.whatsappForm.patientCancellationPlaceholder')"
+                  />
                 </n-form-item>
-                <n-form-item :label="t('settingsView.procedureForm.basePriceLabel')">
-                  <n-input-number v-model:value="newProcedure.base_price" :min="0" :precision="2" :placeholder="t('settingsView.procedureForm.basePricePlaceholder')" />
+                <n-form-item :label="t('settingsView.whatsappForm.patientCompletionLabel')">
+                  <n-input
+                    v-model:value="formData.wa_patient_complete"
+                    type="textarea"
+                    :autosize="{ minRows: 3, maxRows: 6 }"
+                    :input-props="{ dir: whatsappDir }"
+                    :placeholder="t('settingsView.whatsappForm.patientCompletionPlaceholder')"
+                  />
                 </n-form-item>
-                <!-- <n-form-item label="Minimum Price">
+                <!-- <n-form-item :label="t('settingsView.whatsappForm.supplierOrderLabel')">
+                <n-input v-model:value="formData.wa_supplier_order" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" :dir="whatsappDir" :placeholder="t('settingsView.whatsappForm.supplierOrderPlaceholder')" />
+              </n-form-item>
+              <n-form-item class="full-span" :label="t('settingsView.whatsappForm.supplierCancelLabel')">
+                <n-input v-model:value="formData.wa_supplier_cancel" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" :dir="whatsappDir" :placeholder="t('settingsView.whatsappForm.supplierCancelPlaceholder')" />
+              </n-form-item> -->
+              </div>
+            </div>
+          </n-tab-pane>
+
+          <n-tab-pane name="procedures" :tab="t('settingsView.tabs.procedures')">
+            <div class="service-section">
+              <n-card size="small" :title="t('settingsView.procedureForm.addProcedureTitle')">
+                <div class="service-form-grid">
+                  <n-form-item :label="t('settingsView.procedureForm.procedureNameLabel')">
+                    <n-input v-model:value="newProcedure.name" :placeholder="t('settingsView.procedureForm.procedureNamePlaceholder')" />
+                  </n-form-item>
+                  <n-form-item :label="t('settingsView.procedureForm.categoryLabel')">
+                    <n-input v-model:value="newProcedure.category" :placeholder="t('settingsView.procedureForm.categoryPlaceholder')" />
+                  </n-form-item>
+                  <n-form-item :label="t('settingsView.procedureForm.basePriceLabel')">
+                    <n-input-number v-model:value="newProcedure.base_price" :min="0" :precision="2" :placeholder="t('settingsView.procedureForm.basePricePlaceholder')" />
+                  </n-form-item>
+                  <!-- <n-form-item label="Minimum Price">
                   <n-input-number v-model:value="newProcedure.min_price" :min="0" :precision="2" placeholder="Min price" />
                 </n-form-item> -->
-                <n-form-item :label="t('settingsView.procedureForm.appointmentsNeededLabel')">
-                  <n-input-number v-model:value="newProcedure.appointments_needed" :min="0" :placeholder="t('settingsView.procedureForm.appointmentsNeededPlaceholder')" />
-                </n-form-item>
-                <!-- <n-form-item label="Dentist Commission">
+                  <n-form-item :label="t('settingsView.procedureForm.appointmentsNeededLabel')">
+                    <n-input-number v-model:value="newProcedure.appointments_needed" :min="0" :placeholder="t('settingsView.procedureForm.appointmentsNeededPlaceholder')" />
+                  </n-form-item>
+                  <!-- <n-form-item label="Dentist Commission">
                   <n-input-number v-model:value="newProcedure.dentist_commission" :min="0" :precision="2" placeholder="Dentist commission" />
                 </n-form-item>
                 <n-form-item label="Assistant Commission">
                   <n-input-number v-model:value="newProcedure.assistant_commission" :min="0" :precision="2" placeholder="Assistant commission" />
                 </n-form-item> -->
-                <n-form-item :label="t('settingsView.procedureForm.activeStatusLabel')">
-                  <n-switch v-model:value="newProcedure.is_active">
-                    <template #checked>{{ t('settingsView.procedureForm.activeStatusChecked') }}</template>
-                    <template #unchecked>{{ t('settingsView.procedureForm.activeStatusUnchecked') }}</template>
-                  </n-switch>
-                </n-form-item>
-              </div>
-              <n-button class="section-action" attr-type="button" type="primary" @click="createProcedure" :loading="procedureSubmitting">{{ t('settingsView.procedureForm.addProcedureButton') }}</n-button>
-            </n-card>
-
-            <div class="service-list">
-              <n-card v-for="procedure in procedures" :key="procedure.id" size="small" class="service-card">
-                <div class="service-form-grid">
-                  <n-form-item :label="t('settingsView.procedureForm.procedureNameLabel')">
-                    <n-input v-model:value="procedure.name" :placeholder="t('settingsView.procedureForm.procedureNamePlaceholder')" />
-                  </n-form-item>
-                  <n-form-item :label="t('settingsView.procedureForm.categoryLabel')">
-                    <n-input v-model:value="procedure.category" :placeholder="t('settingsView.procedureForm.categoryPlaceholder')" />
-                  </n-form-item>
-                  <n-form-item :label="t('settingsView.procedureForm.basePriceLabel')">
-                    <n-input-number v-model:value="procedure.base_price" :min="0" :precision="2" :placeholder="t('settingsView.procedureForm.basePricePlaceholder')" />
-                  </n-form-item>
-                  <!-- <n-form-item label="Minimum Price">
-                    <n-input-number v-model:value="procedure.min_price" :min="0" :precision="2" placeholder="Min price" />
-                  </n-form-item> -->
-                  <n-form-item :label="t('settingsView.procedureForm.appointmentsNeededLabel')">
-                    <n-input-number v-model:value="procedure.appointments_needed" :min="0" :placeholder="t('settingsView.procedureForm.appointmentsNeededPlaceholder')" />
-                  </n-form-item>
-                  <!-- <n-form-item label="Dentist Commission">
-                    <n-input-number v-model:value="procedure.dentist_commission" :min="0" :precision="2" placeholder="Dentist commission" />
-                  </n-form-item>
-                  <n-form-item label="Assistant Commission">
-                    <n-input-number v-model:value="procedure.assistant_commission" :min="0" :precision="2" placeholder="Assistant commission" />
-                  </n-form-item> -->
                   <n-form-item :label="t('settingsView.procedureForm.activeStatusLabel')">
-                    <n-switch v-model:value="procedure.is_active">
+                    <n-switch v-model:value="newProcedure.is_active">
                       <template #checked>{{ t('settingsView.procedureForm.activeStatusChecked') }}</template>
                       <template #unchecked>{{ t('settingsView.procedureForm.activeStatusUnchecked') }}</template>
                     </n-switch>
                   </n-form-item>
                 </div>
-                <div class="service-actions">
-                  <n-button attr-type="button" secondary @click="updateProcedure(procedure)" :loading="pendingProcedureId === procedure.id">{{ t('settingsView.procedureForm.saveProcedureButton') }}</n-button>
-                  <n-button attr-type="button" type="error" quaternary @click="removeProcedure(procedure)" :loading="pendingDeleteProcedureId === procedure.id">{{ t('settingsView.procedureForm.deleteProcedureButton') }}</n-button>
-                </div>
+                <n-button class="section-action" attr-type="button" type="primary" @click="createProcedure" :loading="procedureSubmitting">{{ t('settingsView.procedureForm.addProcedureButton') }}</n-button>
               </n-card>
-            </div>
-          </div>
-        </n-tab-pane>
 
-        <!-- <n-tab-pane name="procedures" tab="Procedures">
+              <div class="service-list">
+                <n-card v-for="procedure in procedures" :key="procedure.id" size="small" class="service-card">
+                  <div class="service-form-grid">
+                    <n-form-item :label="t('settingsView.procedureForm.procedureNameLabel')">
+                      <n-input v-model:value="procedure.name" :placeholder="t('settingsView.procedureForm.procedureNamePlaceholder')" />
+                    </n-form-item>
+                    <n-form-item :label="t('settingsView.procedureForm.categoryLabel')">
+                      <n-input v-model:value="procedure.category" :placeholder="t('settingsView.procedureForm.categoryPlaceholder')" />
+                    </n-form-item>
+                    <n-form-item :label="t('settingsView.procedureForm.basePriceLabel')">
+                      <n-input-number v-model:value="procedure.base_price" :min="0" :precision="2" :placeholder="t('settingsView.procedureForm.basePricePlaceholder')" />
+                    </n-form-item>
+                    <!-- <n-form-item label="Minimum Price">
+                    <n-input-number v-model:value="procedure.min_price" :min="0" :precision="2" placeholder="Min price" />
+                  </n-form-item> -->
+                    <n-form-item :label="t('settingsView.procedureForm.appointmentsNeededLabel')">
+                      <n-input-number v-model:value="procedure.appointments_needed" :min="0" :placeholder="t('settingsView.procedureForm.appointmentsNeededPlaceholder')" />
+                    </n-form-item>
+                    <!-- <n-form-item label="Dentist Commission">
+                    <n-input-number v-model:value="procedure.dentist_commission" :min="0" :precision="2" placeholder="Dentist commission" />
+                  </n-form-item>
+                  <n-form-item label="Assistant Commission">
+                    <n-input-number v-model:value="procedure.assistant_commission" :min="0" :precision="2" placeholder="Assistant commission" />
+                  </n-form-item> -->
+                    <n-form-item :label="t('settingsView.procedureForm.activeStatusLabel')">
+                      <n-switch v-model:value="procedure.is_active">
+                        <template #checked>{{ t('settingsView.procedureForm.activeStatusChecked') }}</template>
+                        <template #unchecked>{{ t('settingsView.procedureForm.activeStatusUnchecked') }}</template>
+                      </n-switch>
+                    </n-form-item>
+                  </div>
+                  <div class="service-actions">
+                    <n-button attr-type="button" secondary @click="updateProcedure(procedure)" :loading="pendingProcedureId === procedure.id">{{ t('settingsView.procedureForm.saveProcedureButton') }}</n-button>
+                    <n-button attr-type="button" type="error" quaternary @click="removeProcedure(procedure)" :loading="pendingDeleteProcedureId === procedure.id">{{ t('settingsView.procedureForm.deleteProcedureButton') }}</n-button>
+                  </div>
+                </n-card>
+              </div>
+            </div>
+          </n-tab-pane>
+
+          <!-- <n-tab-pane name="procedures" tab="Procedures">
           <div class="service-section">
             <n-card size="small" title="Add Procedure">
               <div class="service-form-grid">
@@ -218,64 +239,65 @@
           </div>
         </n-tab-pane> -->
 
-        <n-tab-pane name="prescriptions" :tab="t('settingsView.tabs.prescriptions')">
-          <div class="service-section">
-            <n-card size="small" :title="t('settingsView.prescriptionForm.addPrescriptionTitle')">
-              <div class="service-form-grid">
-                <n-form-item :label="t('settingsView.prescriptionForm.medicineNameLabel')">
-                  <n-input v-model:value="newPrescription.drug_name" :placeholder="t('settingsView.prescriptionForm.medicineNamePlaceholder')" />
-                </n-form-item>
-              </div>
-              <n-button class="section-action" attr-type="button" type="primary" @click="createPrescription" :loading="prescriptionSubmitting">{{ t('settingsView.prescriptionForm.addPrescriptionButton') }}</n-button>
-            </n-card>
-
-            <div class="service-list">
-              <n-card v-for="prescription in prescriptions" :key="prescription.id" size="small" class="service-card">
+          <n-tab-pane name="prescriptions" :tab="t('settingsView.tabs.prescriptions')">
+            <div class="service-section">
+              <n-card size="small" :title="t('settingsView.prescriptionForm.addPrescriptionTitle')">
                 <div class="service-form-grid">
                   <n-form-item :label="t('settingsView.prescriptionForm.medicineNameLabel')">
-                    <n-input v-model:value="prescription.drug_name" :placeholder="t('settingsView.prescriptionForm.medicineNamePlaceholder')" />
+                    <n-input v-model:value="newPrescription.name" :placeholder="t('settingsView.prescriptionForm.medicineNamePlaceholder')" />
                   </n-form-item>
                 </div>
-                <div class="service-actions">
-                  <n-button @click="updatePrescription(prescription)" type="primary" size="small" :loading="pendingPrescriptionId === prescription.id">{{ t('settingsView.prescriptionForm.updatePrescriptionButton') }}</n-button>
-                  <n-button @click="removePrescription(prescription)" type="error" size="small" :loading="pendingDeletePrescriptionId === prescription.id">{{ t('settingsView.prescriptionForm.deletePrescriptionButton') }}</n-button>
+                <n-button class="section-action" attr-type="button" type="primary" @click="createPrescription" :loading="prescriptionSubmitting">{{ t('settingsView.prescriptionForm.addPrescriptionButton') }}</n-button>
+              </n-card>
+
+              <div class="service-list">
+                <n-card v-for="prescription in prescriptions" :key="prescription.id" size="small" class="service-card">
+                  <div class="service-form-grid">
+                    <n-form-item :label="t('settingsView.prescriptionForm.medicineNameLabel')">
+                      <n-input v-model:value="prescription.name" :placeholder="t('settingsView.prescriptionForm.medicineNamePlaceholder')" />
+                    </n-form-item>
+                  </div>
+                  <div class="service-actions">
+                    <n-button @click="updatePrescription(prescription)" type="primary" size="small" :loading="pendingPrescriptionId === prescription.id">{{ t('settingsView.prescriptionForm.updatePrescriptionButton') }}</n-button>
+                    <n-button @click="removePrescription(prescription)" type="error" size="small" :loading="pendingDeletePrescriptionId === prescription.id">{{ t('settingsView.prescriptionForm.deletePrescriptionButton') }}</n-button>
+                  </div>
+                </n-card>
+              </div>
+            </div>
+          </n-tab-pane>
+
+          <n-tab-pane name="permissions" :tab="t('settingsView.tabs.permissions')">
+            <div class="permission-grid">
+              <n-card :title="t('settingsView.permissionCards.receptionistTitle')" size="small">
+                <div class="perm-list">
+                  <n-form-item v-for="(_val, key) in receptionistPerms" :key="key" :label="permLabels.rec[key]" label-placement="left">
+                    <n-switch v-model:value="formData[key]" />
+                  </n-form-item>
+                </div>
+              </n-card>
+              <n-card :title="t('settingsView.permissionCards.doctorTitle')" size="small">
+                <div class="perm-list">
+                  <n-form-item v-for="(_val, key) in doctorPerms" :key="key" :label="permLabels.doc[key]" label-placement="left">
+                    <n-switch v-model:value="formData[key]" />
+                  </n-form-item>
                 </div>
               </n-card>
             </div>
-          </div>
-        </n-tab-pane>
+          </n-tab-pane>
 
-        <n-tab-pane name="permissions" :tab="t('settingsView.tabs.permissions')">
-          <div class="permission-grid">
-            <n-card :title="t('settingsView.permissionCards.receptionistTitle')" size="small">
-              <div class="perm-list">
-                <n-form-item v-for="(_val, key) in receptionistPerms" :key="key" :label="permLabels.rec[key]" label-placement="left">
-                  <n-switch v-model:value="formData[key]" />
-                </n-form-item>
-              </div>
-            </n-card>
-            <n-card :title="t('settingsView.permissionCards.doctorTitle')" size="small">
-              <div class="perm-list">
-                <n-form-item v-for="(_val, key) in doctorPerms" :key="key" :label="permLabels.doc[key]" label-placement="left">
-                  <n-switch v-model:value="formData[key]" />
-                </n-form-item>
-              </div>
-            </n-card>
-          </div>
-        </n-tab-pane>
-
-        <n-tab-pane name="backup" :tab="t('settingsView.tabs.backup')">
-          <div class="section-stack">
-            <n-card :title="t('settingsView.backupCard.title')" size="small">
-              <p class="backup-copy">{{ t('settingsView.backupCard.description') }}</p>
-              <n-space wrap>
+          <n-tab-pane name="backup" :tab="t('settingsView.tabs.backup')">
+            <div class="section-stack">
+              <n-card :title="t('settingsView.backupCard.title')" size="small">
+                <p class="backup-copy">{{ t('settingsView.backupCard.description') }}</p>
+                <p>{{ t('settingsView.backupCard.freePlanAlert') }}</p>
+                <!-- <n-space wrap>
                 <n-button attr-type="button" @click="triggerBackup('full')" :loading="backupLoading === 'full'">{{ t('settingsView.backupCard.fullBackupButton') }}</n-button>
                 <n-button attr-type="button" @click="triggerBackup('monthly')" :loading="backupLoading === 'monthly'">{{ t('settingsView.backupCard.monthlyDataButton') }}</n-button>
-              </n-space>
-            </n-card>
-          </div>
-        </n-tab-pane>
-      </n-tabs>
+              </n-space> -->
+              </n-card>
+            </div>
+          </n-tab-pane>
+        </n-tabs>
       </n-form>
     </n-card>
   </div>
@@ -287,14 +309,10 @@ import {
   NAlert,
   NButton,
   NCard,
-  NDivider,
   NForm,
   NFormItem,
   NInput,
-  NInputGroup,
-  NInputGroupLabel,
   NInputNumber,
-  NSelect,
   NSpace,
   NSwitch,
   NTabPane,
@@ -303,15 +321,14 @@ import {
   useDialog,
   useMessage,
 } from 'naive-ui'
-import type { FormInst, SelectOption } from 'naive-ui'
+import type { FormInst } from 'naive-ui'
 import settingsApi from '@/api/settings'
 import procedureApi from '@/api/procedure'
 import type ProcedureData from '@/api/interfaces/Procedure'
+import type { ProcedureInventory } from '@/api/interfaces/InventoryStock'
 import type PrescriptionData from '@/api/interfaces/Prescription'
 import type { SettingsData } from '@/api/interfaces/Settings'
 import { resolveBranchId } from '@/api/utils/branchParams'
-import useUserStore from '@/stores/user'
-import PrescriptionTemplate from '@/components/PrescriptionTemplate.vue'
 import prescriptionApi from '@api/prescription'
 import { useI18n } from 'vue-i18n'
 
@@ -319,13 +336,13 @@ const message = useMessage()
 const dialog = useDialog()
 const formRef = ref<FormInst | null>(null)
 const loading = ref(false)
-const backupLoading = ref<'full' | 'monthly' | null>(null)
 const procedureSubmitting = ref(false)
 const pendingProcedureId = ref<number | null>(null)
 const pendingDeleteProcedureId = ref<number | null>(null)
 const activeTab = ref('branch')
-const userStore = useUserStore()
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const isRtl = computed(() => locale.value === 'dr' || locale.value === 'ps')
+const whatsappDir = computed(() => (isRtl.value ? 'rtl' : 'ltr'))
 
 const defaultHours = {
   monday: { start: '09:00', end: '17:00', is_off: false },
@@ -351,7 +368,7 @@ const createDefaultSettings = (): SettingsData => ({
   wa_supplier_order: '',
   wa_supplier_cancel: '',
   prescription_template: {
-    header: '{{clinic_name}}\n{{address}}\n{{phone}}',
+    header: '{clinic_name}\n{address}\n{phone}',
     footer: 'Thank you for choosing our clinic.',
   },
   rec_can_edit_whatsapp: false,
@@ -390,7 +407,7 @@ const newProcedure = reactive<ProcedureData>({
 const prescriptions = ref<PrescriptionData[]>([])
 
 const newPrescription = reactive<PrescriptionData>({
-  drug_name: '',
+  name: '',
 })
 
 const prescriptionSubmitting = ref(false)
@@ -403,27 +420,19 @@ const rules = {
   phone: { required: true, message: computed(() => t('settingsView.validation.phoneRequired')).value, trigger: 'blur' },
 }
 
-const currencyOptions: SelectOption[] = [
-  { label: 'USD ($)', value: 'USD' },
-  { label: 'EUR (€)', value: 'EUR' },
-  { label: 'GBP (£)', value: 'GBP' },
-  { label: 'SAR (﷼)', value: 'SAR' },
-  { label: 'AED (د.إ)', value: 'AED' },
-]
-
 const receptionistPerms = computed(() => ({
-  rec_can_edit_whatsapp: formData.rec_can_edit_whatsapp,
+  // rec_can_edit_whatsapp: formData.rec_can_edit_whatsapp,
   rec_can_view_phones: formData.rec_can_view_phones,
   rec_show_kpi: formData.rec_show_kpi,
   // rec_show_suppliers: formData.rec_show_suppliers,
-  rec_log_actions: formData.rec_log_actions,
+  // rec_log_actions: formData.rec_log_actions,
   rec_can_void_transactions: formData.rec_can_void_transactions,
   rec_can_edit_devices: formData.rec_can_edit_devices,
-  rec_can_contact_support: formData.rec_can_contact_support,
+  // rec_can_contact_support: formData.rec_can_contact_support,
 }))
 
 const doctorPerms = computed(() => ({
-  doc_view_appointments: formData.doc_view_appointments,
+  // doc_view_appointments: formData.doc_view_appointments,
   // doc_save_xrays: formData.doc_save_xrays,
   // doc_view_files: formData.doc_view_files,
   doc_view_contact: formData.doc_view_contact,
@@ -452,12 +461,12 @@ const permLabels = computed(() => ({
   },
 }))
 
-function capitalize(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1)
-}
-
 function asBoolean(value: unknown, fallback = false) {
   return typeof value === 'boolean' ? value : fallback
+}
+
+function normalizeText(value: unknown, fallback = '') {
+  return typeof value === 'string' ? value : fallback
 }
 
 function applySettings(data: SettingsData) {
@@ -466,12 +475,17 @@ function applySettings(data: SettingsData) {
   Object.assign(formData, createDefaultSettings(), data, {
     working_hours: {
       ...JSON.parse(JSON.stringify(defaultHours)),
-      ...(data.working_hours || {}),
+      ...data.working_hours,
     },
     prescription_template: {
       header: data.prescription_template?.header || defaults.prescription_template.header,
       footer: data.prescription_template?.footer || defaults.prescription_template.footer,
     },
+    wa_patient_reminder: normalizeText(data.wa_patient_reminder),
+    wa_patient_cancel: normalizeText(data.wa_patient_cancel),
+    wa_patient_complete: normalizeText(data.wa_patient_complete),
+    wa_supplier_order: normalizeText(data.wa_supplier_order),
+    wa_supplier_cancel: normalizeText(data.wa_supplier_cancel),
     rec_can_edit_whatsapp: asBoolean(data.rec_can_edit_whatsapp, defaults.rec_can_edit_whatsapp),
     rec_can_view_phones: asBoolean(data.rec_can_view_phones, defaults.rec_can_view_phones),
     rec_show_kpi: asBoolean(data.rec_show_kpi, defaults.rec_show_kpi),
@@ -494,26 +508,28 @@ function unwrapSettingsResponse(payload: SettingsData | { data: SettingsData }):
   return 'data' in payload ? payload.data : payload
 }
 
-function normalizeProcedure(procedure: any): ProcedureData {
+function normalizeProcedure(procedure: Record<string, unknown>): ProcedureData {
   return {
-    id: procedure.id,
-    name: procedure.name || '',
-    slug: procedure.slug || '',
-    category: procedure.category || '',
-    base_price: Number(procedure.base_price || 0),
-    min_price: Number(procedure.min_price || 0),
-    appointments_needed: Number(procedure.appointments_needed || 0),
-    dentist_commission: Number(procedure.dentist_commission || 0),
-    assistant_commission: Number(procedure.assistant_commission || 0),
+    id: Number(procedure.id as number) || undefined,
+    name: String(procedure.name ?? ''),
+    slug: String(procedure.slug ?? ''),
+    category: String(procedure.category ?? ''),
+    base_price: Number(procedure.base_price ?? 0),
+    min_price: Number(procedure.min_price ?? 0),
+    appointments_needed: Number(procedure.appointments_needed ?? 0),
+    dentist_commission: Number(procedure.dentist_commission ?? 0),
+    assistant_commission: Number(procedure.assistant_commission ?? 0),
     is_active: Boolean(procedure.is_active),
-    inventory_requirements: procedure.inventory_requirements || [],
+    inventory_requirements: Array.isArray(procedure.inventory_requirements)
+      ? (procedure.inventory_requirements as ProcedureInventory[])
+      : [],
   }
 }
 
-function normalizePrescription(prescription: any): PrescriptionData {
+function normalizePrescription(prescription: Record<string, unknown>): PrescriptionData {
   return {
-    id: prescription.id,
-    drug_name: prescription.drug_name || '',
+    id: Number(prescription.id as number) || undefined,
+    name: String(prescription.name ?? prescription.drug_name ?? ''),
   }
 }
 
@@ -524,11 +540,11 @@ function buildSettingsPayload(): Record<string, unknown> {
     phone: formData.phone,
     currency: formData.currency,
     working_hours: formData.working_hours,
-    wa_patient_reminder: formData.wa_patient_reminder,
-    wa_patient_cancel: formData.wa_patient_cancel,
-    wa_patient_complete: formData.wa_patient_complete,
-    wa_supplier_order: formData.wa_supplier_order,
-    wa_supplier_cancel: formData.wa_supplier_cancel,
+    wa_patient_reminder: normalizeText(formData.wa_patient_reminder),
+    wa_patient_cancel: normalizeText(formData.wa_patient_cancel),
+    wa_patient_complete: normalizeText(formData.wa_patient_complete),
+    wa_supplier_order: normalizeText(formData.wa_supplier_order),
+    wa_supplier_cancel: normalizeText(formData.wa_supplier_cancel),
     reception_cost: Number(formData.reception),
     prescription_template: formData.prescription_template,
     rec_can_edit_whatsapp: Boolean(formData.rec_can_edit_whatsapp),
@@ -592,8 +608,6 @@ async function submitForm() {
     loading.value = false
   }
 }
-
-
 
 function resetNewProcedure() {
   Object.assign(newProcedure, {
@@ -672,7 +686,7 @@ function resetNewPrescription() {
 async function createPrescription() {
   prescriptionSubmitting.value = true
   try {
-    const response = await prescriptionApi.postPrescription({ drug_name: newPrescription.drug_name })
+    const response = await prescriptionApi.postPrescription({ name: newPrescription.name })
     prescriptions.value.unshift(normalizePrescription(response.data.data ?? response.data))
     resetNewPrescription()
     message.success('Prescription created')
@@ -687,9 +701,7 @@ async function updatePrescription(prescription: PrescriptionData) {
   if (!prescription.id) return
   pendingPrescriptionId.value = prescription.id
   try {
-    const response = await prescriptionApi.updatePrescription(prescription.id, { drug_name: prescription.drug_name
-
-     })
+    const response = await prescriptionApi.updatePrescription(prescription.id, { name: prescription.name })
     const index = prescriptions.value.findIndex((entry) => entry.id === prescription.id)
     if (index !== -1) prescriptions.value[index] = normalizePrescription(response.data.data ?? response.data)
     message.success('Prescription updated')
@@ -700,17 +712,17 @@ async function updatePrescription(prescription: PrescriptionData) {
   }
 }
 
-function removePrescription(prescription: any) {
+function removePrescription(prescription: PrescriptionData) {
   if (!prescription.id) return
   dialog.warning({
     title: 'Delete prescription?',
-    content: `Delete ${prescription.drug_name || 'this prescription'}?`,
+    content: `Delete ${prescription.name || 'this prescription'}?`,
     positiveText: 'Delete',
     negativeText: 'Cancel',
     async onPositiveClick() {
       pendingDeletePrescriptionId.value = prescription.id || null
       try {
-        await prescriptionApi.deletePrescription(prescription.id)
+        await prescriptionApi.deletePrescription(prescription.id!)
         prescriptions.value = prescriptions.value.filter((entry) => entry.id !== prescription.id)
         message.success('Prescription deleted')
       } catch {
@@ -730,61 +742,6 @@ function resetForm() {
     negativeText: 'Cancel',
     onPositiveClick() {
       if (initialSettings.value) applySettings(initialSettings.value)
-    },
-  })
-}
-
-async function triggerBackup(type: 'full' | 'monthly') {
-  dialog.info({
-    title: `Start ${type} backup?`,
-    content: 'This will generate and download the SQL backup.',
-    positiveText: 'Proceed',
-    negativeText: 'Cancel',
-
-    async onPositiveClick() {
-      backupLoading.value = type
-
-      try {
-        const response = await settingsApi.backupDatabase(type)
-
-        // Create downloadable blob
-        const blob = new Blob([response.data], {
-          type: 'application/sql',
-        })
-
-        // Extract filename from headers
-        const disposition = response.headers['content-disposition']
-
-        let filename = `backup_${type}.sql`
-
-        if (disposition) {
-          const match = disposition.match(/filename="?([^"]+)"?/)
-          if (match?.[1]) {
-            filename = match[1]
-          }
-        }
-
-        // Trigger browser download
-        const url = window.URL.createObjectURL(blob)
-
-        const link = document.createElement('a')
-        link.href = url
-        link.setAttribute('download', filename)
-
-        document.body.appendChild(link)
-        link.click()
-
-        link.remove()
-
-        window.URL.revokeObjectURL(url)
-
-        message.success('Backup downloaded successfully')
-      } catch (error) {
-        console.error(error)
-        message.error('Failed to download backup')
-      } finally {
-        backupLoading.value = null
-      }
     },
   })
 }

@@ -8,12 +8,37 @@ const isAuthenticated = () => {
   return false;
 }
 
+const getDefaultBranchPath = () => {
+  try {
+    const storedUser = JSON.parse(localStorage.getItem('user') || 'null')
+    const user = storedUser?.user || storedUser
+
+    const position = user?.employee?.position
+    const baseUrl = position === 'doctor' ? '/appointments' : '/patients'
+
+    const rawBranchId =
+      user?.employee?.branchId ??
+      user?.employee?.branch_id ??
+      user?.branchId ??
+      user?.branch_id
+    const parsedBranchId = Number(rawBranchId)
+
+    if (Number.isFinite(parsedBranchId)) {
+      return `${baseUrl}/?branchId=${parsedBranchId}`
+    }
+    return baseUrl
+  } catch {
+    // ignore parse errors
+  }
+  return '/patients'
+}
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      redirect: () => isAuthenticated() ? '/patients/?branchId=1' : '/login',
+      redirect: () => (isAuthenticated() ? getDefaultBranchPath() : '/login'),
     },
     {
       path: '/overview',
@@ -122,26 +147,21 @@ const router = createRouter({
     // FIX 2: CATCH-ALL DROPPED TO THE VERY BOTTOM
     {
       path: '/:pathMatch(.*)*',
-      redirect: () => {
-        if (isAuthenticated()) {
-          return '/patients/?branchId=1';
-        } else {
-          return '/login';
-        }
-      },
+      redirect: () => (isAuthenticated() ? getDefaultBranchPath() : '/login'),
     },
   ],
 })
 
 router.beforeEach((to, from, next) => {
-  const user = localStorage.getItem('user')
-  const isLoggedIn = user
+  const isLoggedIn = isAuthenticated()
+  const publicPaths = ['/login', '/register-user', '/reset-password']
+  const isPublicRoute = publicPaths.includes(to.path) || to.meta.requiresAuth === false
 
-  if (to.meta.requiresAuth && !isLoggedIn) {
+  if (!isLoggedIn && !isPublicRoute) {
     return next('/login')
   }
 
-  if (to.meta.guestOnly && isLoggedIn) {
+  if (isLoggedIn && publicPaths.includes(to.path)) {
     return next('/')
   }
 

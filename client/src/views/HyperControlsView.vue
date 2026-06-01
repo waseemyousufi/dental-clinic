@@ -161,7 +161,7 @@
           </template>
 
           <template v-else>
-            <n-form-item label="Name" path="name">
+            <n-form-item label="Full Name" path="name">
               <n-input v-model:value="ownerForm.name" placeholder="Enter owner name" />
             </n-form-item>
 
@@ -175,9 +175,9 @@
 
             <n-grid :cols="2" :x-gap="12">
               <n-grid-item>
-                <n-form-item label="Total amount due" path="total-amount-due">
+                <n-form-item label="Total amount due" path="totalAmountDue">
                   <n-input-number
-                    v-model:value="ownerForm['total-amount-due']"
+                    v-model:value="ownerForm.totalAmountDue"
                     :min="0"
                     :precision="2"
                     placeholder="0.00"
@@ -186,9 +186,9 @@
                 </n-form-item>
               </n-grid-item>
               <n-grid-item>
-                <n-form-item label="Total amount paid" path="total-amount-paid">
+                <n-form-item label="Total amount paid" path="totalAmountPaid">
                   <n-input-number
-                    v-model:value="ownerForm['total-amount-paid']"
+                    v-model:value="ownerForm.totalAmountPaid"
                     :min="0"
                     :precision="2"
                     placeholder="0.00"
@@ -274,8 +274,8 @@ interface BranchData {
 
 interface ClinicOwnerData {
   id?: number
-  'total-amount-due': number
-  'total-amount-paid': number
+  totalAmountDue: number
+  totalAmountPaid: number
   name: string
   phone: string
   email?: string
@@ -320,8 +320,8 @@ const ownerForm = reactive<ClinicOwnerData>({
   name: '',
   phone: '',
   email: '',
-  'total-amount-due': 0,
-  'total-amount-paid': 0
+  totalAmountDue: 0,
+  totalAmountPaid: 0
 })
 
 const loginForm = reactive({
@@ -347,12 +347,28 @@ const formRules: FormRules = {
   email: [{ type: 'email', message: 'Email must be valid', trigger: ['input', 'blur'] }],
   ownerId: [{ required: true, type: 'number', message: 'Owner is required', trigger: ['change', 'blur'] }],
   name: [{ required: true, message: 'Name is required', trigger: ['input', 'blur'] }],
-  'total-amount-due': [{ required: true, type: 'number', message: 'Amount due is required', trigger: ['input', 'blur'] }],
-  'total-amount-paid': [{ required: true, type: 'number', message: 'Amount paid is required', trigger: ['input', 'blur'] }]
+  totalAmountDue: [{ required: true, type: 'number', message: 'Amount due is required', trigger: ['change', 'blur'] }],
+  totalAmountPaid: [{ required: true, type: 'number', message: 'Amount paid is required', trigger: ['change', 'blur'] }]
 }
 
 function normalizeText(value: unknown) {
   return String(value ?? '').toLowerCase().trim()
+}
+
+function toNumber(value: unknown): number {
+  const num = Number(value)
+  return Number.isFinite(num) ? num : 0
+}
+
+function normalizeOwner(owner: any): ClinicOwnerData {
+  return {
+    id: owner?.id,
+    name: owner?.name ?? '',
+    phone: owner?.phone ?? '',
+    email: owner?.email ?? '',
+    totalAmountDue: toNumber(owner?.totalAmountDue ?? owner?.total_amount_due),
+    totalAmountPaid: toNumber(owner?.totalAmountPaid ?? owner?.total_amount_paid)
+  }
 }
 
 const filteredBranches = computed(() => {
@@ -371,7 +387,7 @@ const filteredOwners = computed(() => {
   if (!q) return owners.value
 
   return owners.value.filter((item) => {
-    return [item.name, item.phone, item['total-amount-due'], item['total-amount-paid']]
+    return [item.name, item.phone, item.totalAmountDue, item.totalAmountPaid]
       .map(normalizeText)
       .some((field) => field.includes(q))
   })
@@ -443,13 +459,13 @@ const ownerColumns = [
   { title: 'Phone', key: 'phone' },
   {
     title: 'Amount due',
-    key: 'total-amount-due',
-    render: (row: ClinicOwnerData) => formatCurrency(row['total-amount-due'])
+    key: 'totalAmountDue',
+    render: (row: ClinicOwnerData) => formatCurrency(row.totalAmountDue)
   },
   {
     title: 'Amount paid',
-    key: 'total-amount-paid',
-    render: (row: ClinicOwnerData) => formatCurrency(row['total-amount-paid'])
+    key: 'totalAmountPaid',
+    render: (row: ClinicOwnerData) => formatCurrency(row.totalAmountPaid)
   },
   {
     title: 'Actions',
@@ -506,8 +522,8 @@ function resetOwnerForm() {
   ownerForm.name = ''
   ownerForm.phone = ''
   ownerForm.email = ''
-  ownerForm['total-amount-due'] = 0
-  ownerForm['total-amount-paid'] = 0
+  ownerForm.totalAmountDue = 0
+  ownerForm.totalAmountPaid = 0
 }
 
 function openCreate(mode: FormMode) {
@@ -528,14 +544,14 @@ function openEdit(mode: FormMode, row: BranchData | ClinicOwnerData) {
     branchForm.region = data.region ?? ''
     branchForm.phone = data.phone ?? ''
     branchForm.ownerName = data.ownerName ?? ''
-    branchForm.ownerId = data.ownerId ?? 0
+    branchForm.ownerId = toNumber(data.ownerId)
   } else {
-    const data = row as ClinicOwnerData
-    ownerForm.name = data.name ?? ''
-    ownerForm.phone = data.phone ?? ''
+    const data = normalizeOwner(row as any)
+    ownerForm.name = data.name
+    ownerForm.phone = data.phone
     ownerForm.email = data.email ?? ''
-    ownerForm['total-amount-due'] = data['total-amount-due'] ?? 0
-    ownerForm['total-amount-paid'] = data['total-amount-paid'] ?? 0
+    ownerForm.totalAmountDue = data.totalAmountDue
+    ownerForm.totalAmountPaid = data.totalAmountPaid
   }
 
   formVisible.value = true
@@ -597,8 +613,7 @@ async function loadBranches() {
   branchesLoading.value = true
   try {
     const res: any = await branchApi.getAllBranches()
-    console.log(res)
-    branches.value = Array.isArray(res?.data.data) ? res.data.data : Array.isArray(res) ? res : []
+    branches.value = Array.isArray(res?.data?.data) ? res.data.data : Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []
   } catch (error) {
     message.error('Failed to load branches')
   } finally {
@@ -618,14 +633,7 @@ async function loadOwners() {
           ? res
           : []
 
-    owners.value = rawOwners.map((owner: any) => ({
-      id: owner.id,
-      name: owner.name ?? '',
-      phone: owner.phone ?? '',
-      email: owner.email ?? '',
-      'total-amount-due': owner['total-amount-due'] ?? owner.totalAmountDue ?? 0,
-      'total-amount-paid': owner['total-amount-paid'] ?? owner.totalAmountPaid ?? 0
-    }))
+    owners.value = rawOwners.map(normalizeOwner)
   } catch (error) {
     message.error('Failed to load clinic owners')
   } finally {
@@ -649,7 +657,12 @@ async function submitForm() {
       }
       await loadBranches()
     } else {
-      const payload = { ...ownerForm }
+      const payload = {
+        ...ownerForm,
+        totalAmountDue: toNumber(ownerForm.totalAmountDue),
+        totalAmountPaid: toNumber(ownerForm.totalAmountPaid)
+      }
+
       if (editingId.value) {
         await clinicOwnerApi.putClinicOwner(editingId.value, payload)
         message.success('Clinic owner updated')

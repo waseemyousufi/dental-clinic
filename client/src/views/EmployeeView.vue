@@ -759,13 +759,13 @@ onMounted(() => {
           </n-form-item>
         </div>
 
-        <!-- <div class="form-row dual">
+        <div class="form-row dual">
           <n-form-item :label="t('employeeView.form.workStartTimeLabel')"><n-time-picker v-model:value="formModel.workStartTime"
               format="HH:mm" :placeholder="t('employeeView.form.workStartTimePlaceholder')" /></n-form-item>
           <n-form-item :label="t('employeeView.form.workEndTimeLabel')"><n-time-picker v-model:value="formModel.workEndTime"
               format="HH:mm" :placeholder="t('employeeView.form.workEndTimePlaceholder')" /></n-form-item>
         </div>
-
+<!--
         <div class="form-row dual">
           <n-form-item :label="t('employeeView.form.experienceWorkplaceLabel')"><n-input v-model:value="formModel.experience.workplace" :placeholder="t('employeeView.form.experienceWorkplacePlaceholder')" /></n-form-item>
           <n-form-item :label="t('employeeView.form.experiencePositionLabel')"><n-input v-model:value="formModel.experience.position" :placeholder="t('employeeView.form.experiencePositionPlaceholder')" /></n-form-item>

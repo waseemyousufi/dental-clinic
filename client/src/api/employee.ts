@@ -31,6 +31,7 @@ export default new (class Employee {
   }
 
   paySalary(id: number|string, data: EmployeeSalaryData) {
+    console.log(data)
     return api.post(`/employee-salary/${id}`, data)
   }
 

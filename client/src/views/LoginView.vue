@@ -7,6 +7,7 @@ import { NCard, NForm, NFormItem, NInput, NButton, NH2, NP, useMessage } from 'n
 import userApi from '@api/user'
 import type UserData from '@api/interfaces/User'
 import { useBranchStore } from '@/stores/branchStore'
+import branchApi from '@api/branch'
 
 const router = useRouter()
 const message = useMessage()
@@ -40,10 +41,23 @@ async function handleSubmit() {
     }
 
     message.success(t('loginView.loginSuccess'))
+    console.log(data)
+    const initialBranchId = Number(data.user.employee?.branchId ?? data.user.employee?.branch_id)
+    if (Number.isFinite(initialBranchId)) {
+      branchStore.setSelectedBranchId(initialBranchId)
+    } else {
+      const res = await branchApi.getBranches()
+      console.log(res)
+      branchStore.setSelectedBranchId(res.data.data[0].id)
+    }
+
     await router.push({
       path: '/patients/',
       query: branchStore.selectedBranchId == null ? {} : { branchId: String(branchStore.selectedBranchId) },
     })
+    console.log(branchStore.selectedBranchId)
+    console.log('Router Login View:', router)
+
     window.location.reload()
   } catch (error) {
     console.error(error)
@@ -68,11 +82,13 @@ async function handleSubmit() {
         </n-form-item>
 
         <n-form-item :label="t('loginView.passwordLabel')">
-          <n-input v-model:value="form.password" type="password" :placeholder="t('loginView.passwordPlaceholder')" show-password-on="click" />
+          <n-input v-model:value="form.password" type="password" :placeholder="t('loginView.passwordPlaceholder')"
+            show-password-on="click" />
         </n-form-item>
 
         <div class="login-form__actions">
-          <n-button type="primary" attr-type="submit" :loading="loading" block> {{ t('loginView.signInButtonText') }} </n-button>
+          <n-button type="primary" attr-type="submit" :loading="loading" block> {{ t('loginView.signInButtonText') }}
+          </n-button>
         </div>
       </n-form>
     </n-card>

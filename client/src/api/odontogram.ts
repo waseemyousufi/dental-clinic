@@ -17,6 +17,7 @@ export default new (class Odontogram {
    */
 
   saveToothCondition(patientId: number, data: SaveConditionPayload) {
+    console.log('toothData: ', data)
     return api.post(`/patients/${patientId}/odontogram`, data)
   }
 

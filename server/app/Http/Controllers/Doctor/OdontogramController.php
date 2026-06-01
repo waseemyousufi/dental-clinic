@@ -44,7 +44,8 @@ public function store(Request $request, $patientId)
         'tooth_id'     => $tooth->id, // Save the Primary Key (e.g. 1), not 11
         'condition_id' => $request->condition_id,
         'surfaces'     => $request->surfaces,
-        'is_active'    => true
+        'is_active'    => true,
+        'branch_id' => $this->effectiveBranchId($request)
     ]);
 
     return response()->json(['success' => true, 'data' => $condition]);

@@ -1,23 +1,54 @@
 {
   "common": {
-    "saveButtonText": "خوندیتوب",
-    "cancelButtonText": "بندول",
-    "deleteButtonText": "ډیلیټ",
-    "editButtonText": "ایډیټ",
-    "updateButtonText": "بروزرساني",
+    "saveButtonText": "ذخیره کول",
+    "cancelButtonText": "لغوه کول",
+    "deleteButtonText": "حذف کول",
+    "editButtonText": "سمون (اېډېټ)",
+    "updateButtonText": "اوسمهالول",
     "closeButtonText": "تړل",
-    "addButtonText": "د نوبت اضافه کول",
-    "searchButtonText": "پلټنه",
-    "noDataAvailable": "نامشخص",
-    "paySalaryTooltip": "د تنخا تادیه",
-    "editTooltip": "ایډیټ",
-    "deleteTooltip": "ډیلیټ",
-    "viewEmployeeTooltip": "د کارمند کتل",
-    "copyLinkButtonText": "کاپي کول",
-    "sendEmailButtonText": "د ایمیل له لارې لیږل"
+    "addButtonText": "نوبت زیاتول",
+    "searchButtonText": "لټون",
+    "noDataAvailable": "معلومات نشته",
+    "paySalaryTooltip": "د معاش ورکړه",
+    "editTooltip": "سمون",
+    "deleteTooltip": "حذف",
+    "viewEmployeeTooltip": "کارکوونکی کتل",
+    "copyLinkButtonText": "لینک کاپي کول",
+    "sendEmailButtonText": "په ایمیل لیږل"
+  },
+  "billTemplate": {
+    "patientName": "د ناروغ نوم",
+    "invoiceDate": "د فاکتور نیټه",
+    "invoiceNumber": "د فاکتور شمیره",
+    "treatmentPlanServices": "د درملنې پلان او خدمات",
+    "serviceDescriptionHeader": "د خدماتو تفصیل",
+    "amountHeader": "مقدار/قیمت",
+    "emptyTreatmentPlan": "د درملنې کوم پلان نشته.",
+    "scheduledAppointments": "ټاکل شوي نوبتونه",
+    "emptyAppointments": "کوم نوبت ټاکل شوی نه دی.",
+    "notesSectionTitle": "یادښتونه",
+    "totalTreatmentCost": "د درملنې مجموعي لګښت",
+    "amountPaid": "تحویل شوي پیسې",
+    "balanceRemaining": "پاتې بیلانس",
+    "paymentInstructions": "مهرباني وکړئ پاتې بیلانس د {clinic} د پذیرش برخې سره تصفیه کړئ.",
+    "defaultNotes": "مهرباني وکړئ د درملنې وروسته هغه ټولې سپارښتنې تعقیب کړئ چې د معاینې پرمهال درته شوي دي."
+  },
+  "prescriptionTemplate": {
+    "patientName": "د ناروغ نوم",
+    "date": "نیټه",
+    "defaultMedication1": {
+      "name": "کلور هیکسیدین گلوکونیټ ۰.۱۲٪ د خولې محلول",
+      "dosage": "۱۵ ملی لیتره د غاښونو له برس کولو وروسته، په ورځ کې دوه ځله د ۳۰ ثانیو لپاره په خوله کې وګرځوئ."
+    },
+    "defaultMedication2": {
+      "name": "پاراسیتامول ۵۰۰ ملی ګرامه + کوډین ۳۰ ملی ګرامه",
+      "dosage": "د غاښونو د درد په صورت کې هر ۶ ساعته یو ګولۍ وخورئ."
+    },
+    "legalNotice": "دا سند د کلینیکي ریکارډونو لپاره په بریښنایی ډول جوړ شوی او یوازې د مسؤل کس په لاسلیک اعتبار لري.",
+    "signatureLabel": "د معالج ډاکټر لاسلیک"
   },
   "patientView": {
-    "searchPlaceholder": "د نوم یا تلیفون شمیرې پر بنسټ پلټنه",
+    "searchPlaceholder": "د نوم یا شمیرې په واسطه لټون",
     "newPatientButtonText": "نوی ناروغ",
     "columns": {
       "firstName": "نوم",
@@ -25,19 +56,19 @@
       "gender": "جنسیت",
       "bloodType": "د وینې ګروپ",
       "phone": "تلیفون",
-      "emergencyContact": "بېړنۍ شمیره",
-      "registrationDate": "د راجستر نیټه",
+      "emergencyContact": "د بیړني حالت تماس",
+      "registrationDate": "د ثبت نیټه",
       "actions": "کړنې"
     },
     "actions": {
       "viewTooltip": "کتل",
-      "dentistViewTooltip": "د غاښونو د ډاکټر لید",
-      "editTooltip": "ایډیټ",
-      "deleteTooltip": "ډیلیټ",
-      "deleteConfirmMessage": "ایا دا ناروغ ډیلیټ شي؟"
+      "dentistViewTooltip": "د ډاکټر لیدلوری",
+      "editTooltip": "سمون",
+      "deleteTooltip": "حذف",
+      "deleteConfirmMessage": "آیا دا ناروغ حذف شي؟"
     },
     "modal": {
-      "editTitle": "د ناروغ معلوماتو ایډیټ",
+      "editTitle": "د ناروغ معلوماتو سمون",
       "newTitle": "نوی ناروغ"
     },
     "form": {
@@ -46,14 +77,14 @@
       "lastNameLabel": "تخلص",
       "lastNamePlaceholder": "تخلص",
       "genderLabel": "جنسیت",
-      "genderPlaceholder": "د جنسیت غوره کول",
+      "genderPlaceholder": "جنسیت ټاکل",
       "bloodTypeLabel": "د وینې ګروپ",
-      "bloodTypePlaceholder": "د وینې ګروپ غوره کول",
+      "bloodTypePlaceholder": "د وینې ګروپ ټاکل",
       "phoneLabel": "تلیفون",
-      "phonePlaceholder": "ګرځنده تلیفون",
-      "emergencyContactLabel": "د بېړنۍ اړیکې شمیره",
-      "emergencyContactPlaceholder": "د بېړنۍ اړیکې شمیره",
-      "registeredAtLabel": "ثبت شوی په"
+      "phonePlaceholder": "د موبایل شمیره",
+      "emergencyContactLabel": "د بیړني تماس شمیره",
+      "emergencyContactPlaceholder": "د بیړني تماس شمیره",
+      "registeredAtLabel": "د ثبت ځای"
     },
     "genderOptions": {
       "male": "نارینه",
@@ -70,457 +101,458 @@
       "O-": "O-"
     },
     "messages": {
-      "loadPatientsError": "د ناروغانو په پورته کولو کې ستونزه راغله",
-      "patientDeletedSuccess": "ناروغي ډیلیټ شو",
-      "missingPatientIdError": "د ناروغ آیدي شتون نلري",
-      "deletePatientError": "د ناروغ په ډیلیټ کولو کې ستونزه راغله",
-      "patientUpdatedSuccess": "د ناروغ معلومات بروزرساني شول",
-      "patientCreatedSuccess": "ناروغ اضافه شو",
-      "savePatientError": "د ناروغ معلوماتو په خوندي کولو کې ستونزه راغله"
+      "loadPatientsError": "د ناروغانو په بارولو کې ستونزه",
+      "patientDeletedSuccess": "ناروغ حذف شو",
+      "missingPatientIdError": "د ناروغ آی ډي نشته",
+      "deletePatientError": "د ناروغ په حذفولو کې ستونزه",
+      "patientUpdatedSuccess": "د ناروغ معلومات تازه شول",
+      "patientCreatedSuccess": "ناروغ جوړ شو",
+      "savePatientError": "د ناروغ د معلوماتو په ذخیره کولو کې ستونزه"
     },
     "profilePopup": {
       "title": "د ناروغ پروفایل",
-      "addAppointmentTooltip": "د نوبت اضافه کول",
-      "printBillTooltip": "د بل چاپول",
+      "addAppointmentTooltip": "نوبت زیاتول",
+      "printBillTooltip": "د فاکتور چاپ",
       "patientTag": "ناروغ",
-      "subtitle": "د ناروغ د حساب او جزییاتو بیاکتنه.",
-      "totalAmountDueLabel": "ټوله پاتې دَینداري",
-      "contactNumberLabel": "د اړیکې شمیره",
+      "subtitle": "د ناروغ د جزئیاتو او مالي حساب څیړنه.",
+      "totalAmountDueLabel": "مجموعي قرض",
+      "contactNumberLabel": "د تماس شمیره",
       "genderLabel": "جنسیت",
       "chargeCard": {
-        "title": "د ناروغ چارج کول",
-        "description": "مبلغ دننه کړئ او چارج ولیږئ.",
-        "dueLabel": "پاتې پيسې:",
-        "amountPlaceholder": "د مبلغ دننه کول",
-        "chargeButton": "د ناروغ چارج کول"
+        "title": "د لګښت ثبتول",
+        "description": "قیمت ولیکئ او ثبت یې کړئ.",
+        "dueLabel": "قرض:",
+        "amountPlaceholder": "قیمت ولیکئ",
+        "chargeButton": "د ناروغ لپاره لګښت ثبتول"
       },
-      "emptyState": "د ښودلو لپاره د ناروغ هیڅ معلومات شتون نلري.",
+      "emptyState": "د ښودلو لپاره هیڅ معلومات نشته.",
       "format": {
-        "noDebit": "بې له دَیندارۍ",
-        "none": "هیڅ یو"
+        "noDebit": "قرض نشته",
+        "none": "هیڅ"
       },
       "billTemplate": {
         "appointmentFallback": "نوبت",
         "clinicPrimaryFallback": "کلینیک",
-        "clinicSecondary": "د ناروغ مالي بل",
-        "currencyLabel": "د پیسو واحد: {currency}",
-        "addressUnavailable": "ادرس د لاسرسي وړ ندی",
-        "phoneUnavailable": "تلیفون د لاسرسي وړ ندی",
-        "notes": "د دې ناروغ پاتې باقي داري {balance} ده."
+        "clinicSecondary": "د ناروغ مالي حساب",
+        "currencyLabel": "اسعار: {currency}",
+        "addressUnavailable": "آدرس نشته",
+        "phoneUnavailable": "تلیفون نشته",
+        "notes": "د دې ناروغ پاتې بیلانس {balance} دی."
       },
       "messages": {
-        "prepareBillError": "د ناروغ د بل په چمتو کولو کې ستونزه راغله",
-        "appointmentCreatedSuccess": "نوبت په بریالیتوب سره رامینځته شو",
-        "createAppointmentError": "د نوبت په رامینځته کولو کې ستونزه راغله",
-        "chargePatientError": "د ناروغ په چارج کولو کې ستونزه راغله. مبلغ د چارج وړ ندی."
+        "prepareBillError": "د فاکتور په جوړولو کې ستونزه",
+        "appointmentCreatedSuccess": "نوبت په بریالیتوب جوړ شو",
+        "createAppointmentError": "د نوبت په جوړولو کې ستونزه",
+        "chargePatientError": "د لګښت په ثبتولو کې ستونزه. قیمت د منلو وړ نه دی."
       }
     }
   },
   "dentistPatientView": {
-    "loadingState": "د غاښونو د درملنې د تاریخچې پورته کول...",
-    "emptyState": "د ناروغ هیڅ معلومات شتون نلري",
-    "patientIdLabel": "د ناروغ آیدي: {id}",
+    "loadingState": "د غاښونو د ریکارډونو بارول...",
+    "emptyState": "د ناروغ کوم معلومات نشته",
+    "patientIdLabel": "د ناروغ آی ډي: {id}",
     "common": {
       "yes": "هو",
       "no": "نه",
-      "edit": "ایډیټ"
+      "edit": "سمون"
     },
     "statusLabels": {
       "accepted": "منل شوی",
       "proposed": "وړاندیز شوی",
       "completed": "بشپړ شوی",
       "cancelled": "لغوه شوی",
-      "pending": "په تمه",
-      "unknown": "نامشخص"
+      "pending": "په انتظار",
+      "unknown": "نا معلوم"
     },
     "messages": {
-      "loadTreatmentPlansError": "د درملنې د پلانونو په پورته کولو کې ستونزه راغله",
-      "loadPrescriptionsError": "د نسخو په پورته کولو کې ستونزه راغله",
-      "selectPrescriptionWarning": "لږ تر لږه یوه نسخه غوره کړئ",
-      "preparePrescriptionPrintError": "د نسخې د چاپ په چمتو کولو کې ستونزه راغله",
-      "selectAppointmentWarning": "مهرباني وکړئ لومړی یو نوبت غوره کړئ",
-      "appointmentLinkedSuccess": "نوبت د درملنې له پلان سره وصل شو",
-      "linkAppointmentError": "د نوبت په وصل کولو کې ستونزه راغله",
-      "planStatusUpdated": "پلان د {status} په توګه په نښه شو",
-      "updatePlanError": "بروزرساني ناورغوره شوه",
-      "planDeletedSuccess": "پلان ډیلیټ شو",
-      "deletePlanError": "ډیلیټ کول ناوغوره شول",
-      "treatmentUpdatedSuccess": "درملنه بروزرساني شوه",
-      "treatmentPlanCreatedSuccess": "د درملنې پلان رامینځته شو",
-      "saveTreatmentError": "د درملنې په خوندي کولو کې ستونزه راغله",
-      "appointmentCreatedSuccess": "نوبت په بریالیتوب سره رامینځته شو",
-      "createAppointmentError": "د نوبت په رامینځته کولو کې ستونزه راغله",
-      "invalidConditionError": "نامعتبر حالت",
-      "toolDeselected": "وسایل غیرفعال شول",
-      "conditionSelected": "غوره شوی: {label}",
-      "conditionRemoved": "حالت لرې شو",
-      "removeConditionError": "د حالت په لرې کولو کې ستونزه راغله",
-      "selectConditionWarning": "مهرباني وکړئ لومړی یو حالت غوره کړئ",
-      "conditionSaved": "حالت خوندي شو",
-      "saveConditionError": "د حالت په خوندي کولو کې ستونزه راغله"
+      "loadTreatmentPlansError": "د درملنې پلان په بارولو کې ستونزه",
+      "loadPrescriptionsError": "د نسخو په بارولو کې ستونزه",
+      "selectPrescriptionWarning": "لږترلږه یوه نسخه انتخاب کړئ",
+      "preparePrescriptionPrintError": "د نسخې د چاپ په چمتو کولو کې ستونزه",
+      "selectAppointmentWarning": "لومړی یو نوبت انتخاب کړئ",
+      "appointmentLinkedSuccess": "نوبت د درملنې پلان سره وتړل شو",
+      "linkAppointmentError": "د نوبت په تړلو کې ستونزه",
+      "planStatusUpdated": "د پلان حالت په {status} بدل شو",
+      "updatePlanError": "د تازه کولو ستونزه",
+      "planDeletedSuccess": "پلان حذف شو",
+      "deletePlanError": "د حذف کولو ستونزه",
+      "treatmentUpdatedSuccess": "درملنه تازه شوه",
+      "treatmentPlanCreatedSuccess": "د درملنې پلان جوړ شو",
+      "saveTreatmentError": "د درملنې په ذخیره کولو کې ستونزه",
+      "appointmentCreatedSuccess": "نوبت په بریالیتوب جوړ شو",
+      "createAppointmentError": "د نوبت په جوړولو کې ستونزه",
+      "invalidConditionError": "نا معتبر حالت",
+      "toolDeselected": "وسیله لغوه شوه",
+      "conditionSelected": "انتخاب شوی: {label}",
+      "conditionRemoved": "حالت حذف شو",
+      "removeConditionError": "د حالت په حذفولو کې ستونزه",
+      "selectConditionWarning": "لومړی یو حالت انتخاب کړئ",
+      "conditionSaved": "حالت ذخیره شو",
+      "saveConditionError": "د حالت په ذخیره کولو کې ستونزه"
     },
     "profile": {
       "title": "د ناروغ پروفایل",
-      "subtitle": "د ناروغ لنډ جزییات",
+      "subtitle": "د ناروغ لنډ معلومات",
       "bloodType": "د وینې ګروپ",
       "gender": "جنسیت",
       "phone": "تلیفون",
-      "emergencyContact": "د بېړنۍ اړیکې شمیره",
-      "registrationDate": "د راجستر نیټه"
+      "emergencyContact": "د بیړني تماس شمیره",
+      "registrationDate": "د ثبت نیټه"
     },
     "odontogram": {
-      "title": "د غاښونو حالتونه",
-      "subtitle": "یو حالت غوره کړئ، بیا پر غاښ کلیک وکړئ",
-      "emptyConditions": "هیڅ حالت شتون نلري",
-      "permanentTeeth": "دايمي غاښونه"
+      "title": "د غاښونو حالت",
+      "subtitle": "یو حالت انتخاب کړئ، بیا په غاښ کلیک وکړئ",
+      "emptyConditions": "حالتونه نشته",
+      "permanentTeeth": "دایمي غاښونه"
     },
     "treatmentPlan": {
       "kicker": "کلینیکي پلان جوړونه",
       "title": "د درملنې پلانونه",
-      "subtitle": "د ناروغ فعال پلانونه او تاریخچه وڅارئ، او په مستقیم ډول له هغه پلان څخه چې غواړئ دوام ورکړئ، نوی نوبت جوړ کړئ.",
-      "newPlanButton": "د نوي پلان وړاندیز",
-      "loading": "د درملنې د پلانونو پورته کول...",
-      "empty": "تراوسه د درملنې هیڅ پلان شتون نلري",
-      "procedureFallback": "پروسجر شمیره #{id}",
-      "uncategorized": "بې کټګورۍ",
+      "subtitle": "د ناروغ روان او پخواني پلانونه وګورئ، بیا د درملنې لپاره نوی نوبت جوړ کړئ.",
+      "newPlanButton": "نوی پلان وړاندیزول",
+      "loading": "پلانونه بار کیږي...",
+      "empty": "د درملنې پلان نشته",
+      "procedureFallback": "پروسه #{id}",
+      "uncategorized": "بې برخې",
       "startDate": "د پیل نیټه",
       "appointments": "نوبتونه",
       "accepted": "منل شوی",
-      "paid": "تادیه شوی",
-      "readyForScheduling": "وخت ټاکلو او پلي کولو ته چمتو دی.",
-      "pendingReview": "د تایید یا کلینیکي بیاکتنې په تمه دی.",
-      "linkedAppointments": "وصل شوي نوبتونه: {count}",
-      "unassigned": "نه دی مشخص شوی",
-      "paidButton": "تادیه شوی",
-      "deleteConfirm": "ایا دا پلان ډیلیټ شي؟",
+      "paid": "تحویل شوی",
+      "readyForScheduling": "د نوبت اخیستو لپاره چمتو دی.",
+      "pendingReview": "د تایید یا کتنې په تمه دی.",
+      "linkedAppointments": "تړلي نوبتونه: {count}",
+      "unassigned": "تخصیص شوی نه دی",
+      "paidButton": "تحویل شو",
+      "deleteConfirm": "آیا دا پلان حذف شي؟",
       "stats": {
         "plans": "پلانونه",
-        "accepted": "منل شوي",
-        "proposed": "وړاندیز شوي"
+        "accepted": "منل شوی",
+        "proposed": "وړاندیز شوی"
       }
     },
     "prescription": {
       "kicker": "درمل",
       "title": "نسخه",
-      "subtitle": "یوه یا څو خوندي شوې نسخې غوره کړئ، بیا د ناروغ لپاره چمتو شوې نسخه چاپ کړئ.",
-      "placeholder": "د درملو غوره کول",
-      "button": "د درملو تجویز",
-      "empty": "هیڅ خوندي شوې نسخه شتون نلري",
-      "templateSecondary": "د غاښونو د درملنې نسخه",
-      "addressUnavailable": "ادرس د لاسرسي وړ ندی",
-      "phoneUnavailable": "تلیفون د لاسرسي وړ ندی"
+      "subtitle": "یوه یا څو ذخیره شوې نسخې انتخاب کړئ، بیا یې چاپ کړئ.",
+      "placeholder": "درمل انتخاب کړئ",
+      "button": "نسخه ورکول",
+      "empty": "هیڅ ذخیره شوې نسخه نشته",
+      "templateSecondary": "د غاښونو نسخه",
+      "addressUnavailable": "آدرس نشته",
+      "phoneUnavailable": "تلیفون نشته"
     },
     "print": {
-      "noMedications": "هیڅ درمل ندي غوره شوي",
-      "selectBeforePrinting": "مهرباني وکړئ د چاپولو دمخه، یوه یا څو نسخې غوره کړئ.",
+      "noMedications": "هیڅ درمل انتخاب شوي نه دي",
+      "selectBeforePrinting": "د چاپولو دمخه، لږترلږه یوه نسخه انتخاب کړئ.",
       "patientName": "د ناروغ نوم",
       "date": "نیټه",
-      "legalNotice": "دا سند په بریښنایی توګه د کلینیکي ریکارډونو لپاره چمتو شوی. یوازې د باصلاحیته امضا سره د اعتبار وړ دی.",
+      "legalNotice": "دا سند د کلینیکي ریکارډونو لپاره په بریښنایی ډول جوړ شوی او یوازې د مسؤل کس په لاسلیک اعتبار لري.",
       "signatureLabel": "د معالج ډاکټر لاسلیک"
     }
   },
   "treatmentView": {
     "headerTitle": "د درملنې پلانونه",
-    "headerCopy": "د خپلو ناروغانو د درملنې پلانونه وڅارئ او اداره کړئ.",
+    "headerCopy": "د ناروغانو د درملنې پلانونه مدیریت او تعقیب کړئ.",
     "newPlanButtonText": "د درملنې نوی پلان",
-    "searchPlaceholder": "د ناروغ یا پروسجر پر بنسټ پلټنه...",
+    "searchPlaceholder": "د ناروغ یا پروسې لټون...",
     "stats": {
-      "totalPlans": "ټول پلانونه",
-      "completed": "بشپړ شوي",
-      "accepted": "منل شوي",
-      "revenue": "اټکل شوی عاید"
+      "totalPlans": "مجموعي پلانونه",
+      "completed": "بشپړ شوی",
+      "accepted": "منل شوی",
+      "revenue": "اټکل شوې عواید"
     },
     "columns": {
       "patient": "ناروغ",
-      "procedure": "پروسجر",
+      "procedure": "پروسه",
       "status": "حالت",
       "date": "نیټه",
       "cost": "لګښت",
       "actions": "کړنې"
     },
     "modal": {
-      "editTitle": "د درملنې پلان ایډیټ",
+      "editTitle": "د درملنې پلان سمون",
       "newTitle": "د درملنې نوی پلان"
     },
     "form": {
       "patientLabel": "ناروغ",
-      "patientPlaceholder": "د ناروغ غوره کول",
-      "procedureLabel": "پروسجر",
-      "procedurePlaceholder": "د پروسجر غوره کول",
+      "patientPlaceholder": "ناروغ انتخاب کړئ",
+      "procedureLabel": "پروسه",
+      "procedurePlaceholder": "پروسه انتخاب کړئ",
       "estimatedCostLabel": "اټکل شوی لګښت",
-      "estimatedCostPlaceholder": "0.00",
+      "estimatedCostPlaceholder": "۰.۰۰",
       "statusLabel": "حالت",
       "startDateLabel": "د پیل نیټه",
       "appointmentsNeededLabel": "اړین نوبتونه"
     },
     "editTreatment": {
       "subtitle": {
-        "edit": "د درملنې جزییات لاندې بروزرساني کړئ او بدلونونه خوندي کړئ.",
-        "new": "د نوي پلان د جوړولو لپاره د درملنې جزییات ډک کړئ."
+        "edit": "د درملنې جزئیات تازه کړئ او ذخیره یې کړئ.",
+        "new": "د نوي پلان جوړولو لپاره د درملنې جزئیات ډک کړئ."
       },
       "summary": {
-        "planId": "د پلان آیدي",
-        "procedure": "پروسجر",
+        "planId": "د پلان آی ډي",
+        "procedure": "پروسه",
         "status": "حالت"
       },
-      "procedureFallback": "پروسجر شمیره #{id}",
-      "createButton": "د پلان جوړول"
+      "procedureFallback": "پروسه #{id}",
+      "createButton": "پلان جوړول"
     },
     "statusOptions": {
       "proposed": "وړاندیز شوی",
       "accepted": "منل شوی",
-      "partially_accepted": "تر یو حده منل شوی",
+      "partially_accepted": "په جزوي توګه منل شوی",
       "rejected": "رد شوی",
       "completed": "بشپړ شوی"
     },
     "messages": {
-      "loadDataError": "د معلوماتو په پورته کولو کې ستونزه راغله",
-      "requiredFieldsWarning": "مهرباني وکړئ اړینې خانې ډکې کړئ",
-      "planUpdatedSuccess": "د درملنې پلان بروزرساني شو",
+      "loadDataError": "د معلوماتو په بارولو کې ستونزه",
+      "requiredFieldsWarning": "مهرباني وکړئ اړین خانې ډکې کړئ",
+      "planUpdatedSuccess": "د درملنې پلان تازه شو",
       "planCreatedSuccess": "د درملنې پلان جوړ شو",
-      "operationFailed": "کړنه ناورغوره شوه",
-      "planDeletedSuccess": "د درملنې پلان ډیلیټ شو",
-      "deleteFailed": "ډیلیټ کول ناوغوره شول",
+      "operationFailed": "عملیات ناکام شول",
+      "planDeletedSuccess": "د درملنې پلان حذف شو",
+      "deleteFailed": "د حذف کولو ستونزه",
       "executionSuccess": "درملنه په بریالیتوب سره ترسره شوه",
-      "executionFailed": "ترسره کول ناوغوره شول",
-      "deleteConfirmMessage": "ایا تاسو ډاډه یاست چې غواړئ د درملنې دا پلان ډیلیټ کړئ؟"
+      "executionFailed": "د درملنې ترسره کیدل ناکام شول",
+      "deleteConfirmMessage": "آیا د دې پلان د حذفولو څخه ډاډه یاست؟"
     },
     "executeDialog": {
-      "title": "د درملنې پلي کول",
-      "content": "ایا تاسو ډاډه یاست چې غواړئ د دغه ناروغ {{ patient }} لپاره دغه پروسجر {{ procedure }} پلي کړئ؟ دا کار به د ګودام موجودي کچه هم بدله کړي.",
-      "positiveText": "پلي کول"
+      "title": "د درملنې ترسره کول",
+      "content": "آیا د {{ procedure }} ترسره کولو څخه ډاډه یاست د {{ patient }} لپاره؟ دا به د ګودام معلومات تازه کړي.",
+      "positiveText": "ترسره کول"
     }
   },
   "accountView": {
     "accountsHeaderTitle": "حسابونه",
-    "accountsHeaderCopy": "د حسابونو موجودي او حالت اداره کړئ.",
-    "transactionsHeaderTitle": "مالي معاملې",
-    "transactionsHeaderCopy": "د ټولو مالي معاملو کتل او اداره کول.",
-    "searchPlaceholder": "د نوم، ډول یا حالت له مخې پلټنه",
-    "transactionSearchPlaceholder": "د ډول، شرحې یا حساب له مخې پلټنه",
+    "accountsHeaderCopy": "د حسابونو بیلانس او حالت مدیریت کړئ.",
+    "transactionsHeaderTitle": "تراکنشونه",
+    "transactionsHeaderCopy": "ټول تراکنشونه وګورئ او مدیریت کړئ.",
+    "searchPlaceholder": "د نوم، ډول یا حالت لټون",
+    "transactionSearchPlaceholder": "د ډول، شرح یا حساب لټون",
     "newAccountButtonText": "نوی حساب",
-    "newTransactionButtonText": "نوې مالي معامله",
+    "newTransactionButtonText": "نوی تراکنش",
     "modal": {
-      "editTitle": "د حساب ایډیټ",
+      "editTitle": "د حساب سمون",
       "newTitle": "نوی حساب"
     },
     "transactionModal": {
-      "editTitle": "د مالي معاملې ایډیټ",
-      "newTitle": "نوې مالي معامله"
+      "editTitle": "د تراکنش سمون",
+      "newTitle": "نوی تراکنش"
     },
     "columns": {
       "accountName": "د حساب نوم",
       "accountType": "ډول",
-      "totalAmount": "ټول مبلغ",
+      "totalAmount": "مجموعي مقدار",
       "status": "حالت",
       "actions": "کړنې"
     },
     "transactionColumns": {
       "type": "ډول",
-      "transactionType": "د معاملې ډول",
-      "amount": "مبلغ",
+      "transactionType": "ډول",
+      "amount": "مقدار",
       "date": "نیټه",
-      "transactionDate": "د معاملې نیټه",
+      "transactionDate": "نیټه",
       "referenceType": "د مرجع ډول",
-      "description": "شرحه",
-      "recordedBy": "ثبت شوی د لخوا د",
-      "account": "حساب"
+      "description": "شرح",
+      "recordedBy": "ثبت کوونکی",
+      "account": "حساب",
+      "actions": "کړنې"
     },
     "actions": {
-      "editTooltip": "ایډیټ",
-      "deleteTooltip": "ډیلیټ"
+      "editTooltip": "سمون",
+      "deleteTooltip": "حذف"
     },
     "balanceActions": {
-      "charge": "چارج کول",
-      "withdraw": "ایستل (برداشت)"
+      "charge": "ثبتول (چارج)",
+      "withdraw": "ایستل"
     },
     "form": {
       "accountNameLabel": "د حساب نوم",
-      "accountNamePlaceholder": "د بیلګې په توګه: نغدې پیسې",
+      "accountNamePlaceholder": "لکه: د نقدې پیسې صندوق",
       "accountTypeLabel": "د حساب ډول",
-      "accountTypePlaceholder": "د ډول غوره کول",
-      "totalAmountLabel": "ټول مبلغ",
-      "totalAmountPlaceholder": "د بیلګې په توګه: 100000",
+      "accountTypePlaceholder": "ډول انتخاب کړئ",
+      "totalAmountLabel": "مجموعي مقدار",
+      "totalAmountPlaceholder": "لکه: ۱۰۰۰۰۰",
       "statusLabel": "حالت",
-      "statusPlaceholder": "د حالت غوره کول"
+      "statusPlaceholder": "حالت انتخاب کړئ"
     },
     "transactionForm": {
-      "transactionTypeLabel": "د معاملې ډول",
-      "transactionTypePlaceholder": "د ډول غوره کول",
-      "amountLabel": "مبلغ",
-      "amountPlaceholder": "د بیلګې په توګه: 2500",
-      "transactionDateLabel": "د معاملې نیټه",
+      "transactionTypeLabel": "د تراکنش ډول",
+      "transactionTypePlaceholder": "ډول انتخاب کړئ",
+      "amountLabel": "مقدار",
+      "amountPlaceholder": "لکه: ۲۵۰۰",
+      "transactionDateLabel": "د تراکنش نیټه",
       "referenceTypeLabel": "د مرجع ډول",
-      "referenceTypePlaceholder": "د بیلګې په توګه: بل، فاکتور",
-      "recordedByLabel": "ثبت شوی د لخوا د",
+      "referenceTypePlaceholder": "لکه: فاکتور، رسید",
+      "recordedByLabel": "ثبت کوونکی",
       "accountLabel": "حساب",
-      "descriptionLabel": "شرحه",
-      "descriptionPlaceholder": "د معاملې لنډه شرحه"
+      "descriptionLabel": "شرح",
+      "descriptionPlaceholder": "د تراکنش لنډه شرح"
     },
     "balanceModal": {
-      "chargeTitle": "د حساب چارج کول",
-      "withdrawTitle": "له حساب څخه ایستل",
+      "chargeTitle": "د حساب چارجول",
+      "withdrawTitle": "له حسابه ایستل",
       "accountLabel": "حساب",
-      "currentBalanceLabel": "اوسنۍ موجودي",
-      "amountLabel": "مبلغ",
-      "amountPlaceholder": "د مبلغ دننه کول",
-      "descriptionLabel": "شرحه",
+      "currentBalanceLabel": "اوسنی بیلانس",
+      "amountLabel": "مقدار",
+      "amountPlaceholder": "مقدار ولیکئ",
+      "descriptionLabel": "شرح",
       "chargeDescriptionPlaceholder": "د دې چارج لپاره اختیاري یادښت",
-      "withdrawDescriptionPlaceholder": "له حساب څخه د ایستلو لپاره اختیاري یادښت"
+      "withdrawDescriptionPlaceholder": "د دې ایستلو لپاره اختیاري یادښت"
     },
     "accountTypeOptions": {
-      "asset": "بنسټیزه شتمني (دارایي)",
+      "asset": "شتممني (دارايي)",
       "income": "عاید",
       "expense": "مصارف"
     },
     "statusOptions": {
       "active": "فعال",
-      "inactive": "غیرفعال"
+      "inactive": "غیر فعال"
     },
     "transactionTypeOptions": {
-      "in": "راغلې پيسې (وارده)",
-      "out": "وتلې پيسې (صادره)"
+      "in": "داخل",
+      "out": "خارج"
     },
     "messages": {
-      "loadAccountsError": "د حسابونو په پورته کولو کې ستونزه راغله",
-      "loadTransactionsError": "د مالي معاملو په پورته کولو کې ستونزه راغله",
-      "loadEmployeesError": "د کارمندانو په پورته کولو کې ستونزه راغله",
-      "missingAccountIdError": "د حساب آیدي شتون نلري",
-      "missingTransactionIdError": "د معاملې آیدي شتون نلري",
-      "accountDeletedSuccess": "حساب ډیلیټ شو",
-      "deleteAccountError": "د حساب په ډیلیټ کولو کې ستونزه راغله",
-      "accountUpdatedSuccess": "حساب بروزرساني شو",
+      "loadAccountsError": "د حسابونو په بارولو کې ستونزه",
+      "loadTransactionsError": "د تراکنشونو په بارولو کې ستونزه",
+      "loadEmployeesError": "د کارکوونکو په بارولو کې ستونزه",
+      "missingAccountIdError": "د حساب آی ډي نشته",
+      "missingTransactionIdError": "د تراکنش آی ډي نشته",
+      "accountDeletedSuccess": "حساب حذف شو",
+      "deleteAccountError": "د حساب په حذفولو کې ستونزه",
+      "accountUpdatedSuccess": "حساب تازه شو",
       "accountCreatedSuccess": "حساب جوړ شو",
-      "saveAccountError": "د حساب په خوندي کولو کې ستونزه راغله",
-      "transactionVoidedSuccess": "معامله باطله شوه",
-      "deleteTransactionError": "د معاملې په ډیلیټ کولو کې ستونزه راغله",
-      "transactionUpdatedSuccess": "معامله بروزرساني شوه",
-      "transactionCreatedSuccess": "معامله جوړه شوه",
-      "saveTransactionError": "د معاملې په خوندي کولو کې ستونزه راغله",
-      "enterValidAmountError": "مهرباني وکړئ یو سم او معتبر مبلغ دننه کړئ",
-      "withdrawAmountExceedsBalance": "د ایستلو مبلغ نشي کولی له اوسنۍ موجودۍ څخه ډیر وي",
+      "saveAccountError": "د حساب په ذخیره کولو کې ستونزه",
+      "transactionVoidedSuccess": "تراکنش لغوه شو",
+      "deleteTransactionError": "د تراکنش په حذفولو کې ستونزه",
+      "transactionUpdatedSuccess": "تراکنش تازه شو",
+      "transactionCreatedSuccess": "تراکنش جوړ شو",
+      "saveTransactionError": "د تراکنش په ذخیره کولو کې ستونزه",
+      "enterValidAmountError": "معتبر مقدار ولیکئ",
+      "withdrawAmountExceedsBalance": "د ایستلو مقدار له بیلانس څخه زیات نشي کیدای",
       "accountChargedSuccess": "حساب چارج شو",
-      "accountWithdrawnSuccess": "له حساب څخه پیسې په بریالیتوب سره وایستل شوې",
-      "failedBalanceAction": "د حساب په {{ action }} کې ستونزه راغله",
-      "onlyIncomeAccountDelete": "یوازې د عاید حساب ډیلیټ کیدی نشي.",
-      "creditAccountDelete": "هغه حسابونه چې موجودي لري، نشي ډیلیټ کیدای."
+      "accountWithdrawnSuccess": "له حسابه پیسې وایستل شوې",
+      "failedBalanceAction": "د حساب په {{ action }} کولو کې ستونزه",
+      "onlyIncomeAccountDelete": "اصلي د عاید حساب حذف کیدای نشي.",
+      "creditAccountDelete": "هغه حسابونه چې بیلانس لري حذف کیدای نشي."
     },
-    "fallbackValue": "نامشخص"
+    "fallbackValue": "نا معلوم"
   },
   "appointmentView": {
-    "searchPlaceholder": "د ناروغ، کارمند یا نیټې پر بنسټ پلټنه...",
+    "searchPlaceholder": "د ناروغ، کارمند یا نیټې لټون...",
     "headerTitle": "نوبتونه",
     "calendar": {
-      "title": "د نوبت جزییات",
-      "tooltipView": "د نوبت کتل",
-      "tooltipEdit": "د نوبت ایډیټ",
-      "tooltipDelete": "د نوبت ډیلیټ",
+      "title": "د نوبت جزئیات",
+      "tooltipView": "نوبت کتل",
+      "tooltipEdit": "نوبت سمول",
+      "tooltipDelete": "نوبت حذفول",
       "businessHoursLabel": "د کار ساعتونه:",
-      "businessHoursValue": "له شنبې څخه تر پنجشنبې: د سهار له ۸ څخه تر مازدیګر ۵ بجو پورې",
+      "businessHoursValue": "د شنبې څخه پنجشنبې: ۸ سهار تر ۵ مازدیګر",
       "statusTagTooltip": "د نوبت حالت",
       "detailsSection": {
         "patientLabel": "ناروغ",
-        "assignedToLabel": "سپارل شوی کارمند ته",
+        "assignedToLabel": "تخصیص شوی ته",
         "timeLabel": "وخت",
-        "descriptionLabel": "شرحه"
+        "descriptionLabel": "شرح"
       }
     },
     "addEditModal": {
-      "editTitle": "د نوبت ایډیټ",
+      "editTitle": "د نوبت سمون",
       "newTitle": "نوی نوبت",
       "form": {
         "patientLabel": "ناروغ",
-        "patientPlaceholder": "د ناروغ غوره کول",
+        "patientPlaceholder": "ناروغ انتخاب کړئ",
         "employeeLabel": "کارمند",
-        "employeePlaceholder": "د کارمند غوره کول",
+        "employeePlaceholder": "کارمند انتخاب کړئ",
         "datetimeLabel": "نیټه او وخت",
-        "datetimePlaceholder": "د نیټې او وخت غوره کول",
+        "datetimePlaceholder": "نیټه او وخت انتخاب کړئ",
         "statusLabel": "حالت",
-        "statusPlaceholder": "د حالت غوره کول",
+        "statusPlaceholder": "حالت انتخاب کړئ",
         "treatmentPlanLabel": "د درملنې پلان",
-        "treatmentPlanPlaceholder": "د درملنې پلان غوره کول",
-        "procedureLabel": "پروسجر",
-        "procedurePlaceholder": "د پروسجر غوره کول",
+        "treatmentPlanPlaceholder": "د درملنې پلان انتخاب کړئ",
+        "procedureLabel": "پروسه",
+        "procedurePlaceholder": "پروسه انتخاب کړئ",
         "appointmentCostLabel": "د نوبت لګښت",
         "clinicalNotesLabel": "کلینیکي یادښتونه",
-        "descriptionLabel": "شرحه",
-        "descriptionPlaceholder": "جزییات…",
-        "detailsPlaceholder": "جزییات..."
+        "descriptionLabel": "شرح",
+        "descriptionPlaceholder": "جزئیات...",
+        "detailsPlaceholder": "جزئیات..."
       },
       "validation": {
         "requiredFields": "مهرباني وکړئ ټولې اړینې خانې ډکې کړئ"
       }
     },
     "statusOptions": {
-      "pending": "په تمه",
+      "pending": "په انتظار",
       "confirmed": "تایید شوی",
       "completed": "بشپړ شوی",
       "cancelled": "لغوه شوی",
-      "noShow": "غیرحاضر (نه راتګ)"
+      "noShow": "نه دی راغلی"
     },
     "messages": {
-      "initializeDataError": "د لومړنیو معلوماتو په چمتو کولو کې ستونزه راغله",
-      "fetchAppointmentsError": "د نوبتونو په ترلاسه کولو کې ستونزه راغله",
-      "loadOptionsError": "د نوبت د غوراویو په پورته کولو کې ستونزه راغله",
-      "saveError": "کړنه ناورغوره شوه",
-      "updateSuccess": "نوبت په بریالیتوب سره بروزرساني شو",
-      "createSuccess": "نوبت په بریالیتوب سره رامینځته شو",
-      "deleteSuccess": "نوبت په بریالیتوب سره ډیلیټ شو",
-      "deleteError": "د نوبت په ډیلیټ کولو کې ستونزه راغله",
-      "deleteConfirmMessage": "ایا تاسو ډاډه یاست چې غواړئ دا نوبت ډیلیټ کړئ؟"
+      "initializeDataError": "د معلوماتو په چمتو کولو کې ستونزه",
+      "fetchAppointmentsError": "د نوبتونو په ترلاسه کولو کې ستونزه",
+      "loadOptionsError": "د انتخابونو په بارولو کې ستونزه",
+      "saveError": "عملیات ناکام شول",
+      "updateSuccess": "نوبت په بریالیتوب تازه شو",
+      "createSuccess": "نوبت په بریالیتوب جوړ شو",
+      "deleteSuccess": "نوبت حذف شو",
+      "deleteError": "د نوبت په حذفولو کې ستونزه",
+      "deleteConfirmMessage": "آیا د دې نوبت د حذفولو څخه ډاډه یاست؟"
     },
-    "fallbackName": "ناپېژانده"
+    "fallbackName": "نا معلوم"
   },
   "employeeView": {
-    "searchPlaceholder": "د نوم، ایمیل یا تخصص له مخې پلټنه",
+    "searchPlaceholder": "د نوم، ایمیل یا تخصص لټون",
     "newEmployeeButtonText": "نوی کارمند",
     "modal": {
-      "editTitle": "د کارمند ایډیټ",
+      "editTitle": "د کارمند سمون",
       "newTitle": "نوی کارمند"
     },
     "employeeModal": {
-      "title": "کارمند اضافه شو",
-      "message": "کارمند رامینځته شو، مهرباني وکړئ دا لینک د کلینیک مدیریت سیسټم پیلولو لپاره ورسره شریک کړئ:"
+      "title": "کارمند جوړ شو",
+      "message": "کارمند جوړ شو، مهرباني وکړئ دا لینک ورته ولیږئ ترڅو د کلینیک مدیریت سافټویر پیل کړي:"
     },
     "columns": {
       "name": "نوم",
       "email": "ایمیل",
-      "phone": "تلفن",
-      "position": "بست",
+      "phone": "تلیفون",
+      "position": "سمت/دنده",
       "workStartTime": "د کار پیل",
-      "workEndTime": "د کار پای",
+      "workEndTime": "د کار ختم",
       "actions": "کړنې"
     },
     "form": {
       "emailLabel": "ایمیل",
       "emailPlaceholder": "ایمیل",
-      "phoneLabel": "تلفن",
-      "phonePlaceholder": "ګرځنده تلیفون",
+      "phoneLabel": "تلیفون",
+      "phonePlaceholder": "د موبایل شمیره",
       "firstNameLabel": "نوم",
       "firstNamePlaceholder": "نوم",
       "lastNameLabel": "تخلص",
       "lastNamePlaceholder": "تخلص",
       "genderLabel": "جنسیت",
-      "genderPlaceholder": "د جنسیت غوره کول",
+      "genderPlaceholder": "جنسیت انتخاب کړئ",
       "specialityLabel": "تخصص",
-      "specialityPlaceholder": "د بیلګې په توګه: د غاښونو ډاکټر",
-      "qualificationLabel": "د زده کړې کچه",
-      "qualificationPlaceholder": "د زده کړې کچه",
-      "medicalLicenseNumberLabel": "د طبابت د جواز شمیره",
+      "specialityPlaceholder": "لکه: غاښونو ډاکټر",
+      "qualificationLabel": "د زده کړې سند",
+      "qualificationPlaceholder": "د زده کړې سند",
+      "medicalLicenseNumberLabel": "طبي جواز شمیره",
       "medicalLicenseNumberPlaceholder": "د جواز شمیره",
       "workStartTimeLabel": "د کار پیل وخت",
-      "workStartTimePlaceholder": "د بیلګې په توګه: 09:00",
-      "workEndTimeLabel": "د کار پای وخت",
-      "workEndTimePlaceholder": "د بیلګې په توګه: 17:00",
-      "hireDateLabel": "د ګمارنې نیټه",
-      "positionLabel": "بست",
-      "positionPlaceholder": "د بست غوره کول",
-      "experienceWorkplaceLabel": "د مخکیني کار ځای",
-      "experienceWorkplacePlaceholder": "د مخکیني کار ځای",
-      "experiencePositionLabel": "مخکینی بست",
-      "experiencePositionPlaceholder": "مخکینی بست",
-      "experienceAmountLabel": "د کاري تجربې موده",
-      "experienceAmountPlaceholder": "ټوله تجربه (د بیلګې په توګه: میاشتې)"
+      "workStartTimePlaceholder": "لکه: ۰۹:۰۰",
+      "workEndTimeLabel": "د کار ختم وخت",
+      "workEndTimePlaceholder": "لکه: ۱۷:۰۰",
+      "hireDateLabel": "د استخدام نیټه",
+      "positionLabel": "سمت/دنده",
+      "positionPlaceholder": "سمت انتخاب کړئ",
+      "experienceWorkplaceLabel": "پخوانی کارځای",
+      "experienceWorkplacePlaceholder": "پخوانی کارځای",
+      "experiencePositionLabel": "پخوانۍ دنده",
+      "experiencePositionPlaceholder": "پخوانۍ دنده",
+      "experienceAmountLabel": "د تجربې اندازه",
+      "experienceAmountPlaceholder": "مجموعي تجربه (لکه په میاشتو)"
     },
     "genderOptions": {
       "male": "نارینه",
@@ -528,648 +560,644 @@
     },
     "positionOptions": {
       "doctor": "ډاکټر",
-      "doctorAssistant": "د ډاکټر معاون",
-      "receptionist": "پذیرشګر (منشي)"
+      "doctorAssistant": "د ډاکټر مرستیال",
+      "receptionist": "پذیرش"
     },
     "actions": {
       "viewTooltip": "کتل",
-      "paySalary": "د تنخا تادیه"
+      "paySalary": "معاش ورکول"
     },
     "hero": {
-      "title": "کارمندان",
-      "subtitle": "د پرسونل د ریکارډونو، تنخاګانو او د څانګو د دندو اداره کول."
+      "title": "کارکوونکي",
+      "subtitle": "د کارکوونکو ریکارډونه، معاشونه او د څانګو مدیریت."
     },
     "stats": {
-      "total": "ټول"
+      "total": "مجموعي"
     },
     "salaryPanel": {
-      "title": "د کارمندانو تنخاګانې",
-      "subtitle": "د اوسنۍ څانګې لپاره د تنخاګانو د تادیې تاریخچه",
+      "title": "د کارکوونکو معاشونه",
+      "subtitle": "د اوسنۍ څانګې د معاشونو تاریخچه",
       "records": "ریکارډونه",
-      "basePay": "بنسټیزه تنخا",
-      "totalBonus": "ټول مکافات",
-      "totalPaid": "ټول تادیه شوي: {amount}",
+      "basePay": "بنسټیز معاش",
+      "totalBonus": "مجموعي بونس",
+      "totalPaid": "مجموعي ورکړل شوي: {amount}",
       "payments": "{count} تادیات"
     },
     "salaryColumns": {
-      "salaryMonth": "د تنخا میاشت",
-      "paidTo": "تادیه شوې چا ته",
-      "total": "ټول",
-      "remark": "ملاحظات",
+      "salaryMonth": "د معاش میاشت",
+      "paidTo": "چاته ورکړل شوی",
+      "total": "مجموعي",
+      "remark": "یادښت",
       "account": "حساب"
     },
     "payModal": {
-      "title": "د تنخا تادیه",
-      "salaryMonthLabel": "د تنخا میاشت",
-      "amountLabel": "مبلغ",
-      "bonusLabel": "مکافات",
-      "payFromAccountLabel": "له کوم حساب څخه تادیه شي",
-      "remarksLabel": "ملاحظات",
-      "payButton": "تادیه کول"
+      "title": "معاش ورکول",
+      "salaryMonthLabel": "د معاش میاشت",
+      "amountLabel": "مقدار",
+      "bonusLabel": "بونس",
+      "payFromAccountLabel": "د حساب څخه ورکول",
+      "remarksLabel": "یادښتونه",
+      "payButton": "ورکول"
     },
     "inviteModal": {
-      "title": "د کارمند بلنه",
+      "title": "د کارکوونکي بلنه",
       "sentTitle": "بلنه واستول شوه",
-      "sentCopy": "د پټ نوم د بیا ټاکلو لینک له کارمند سره شریک کړئ",
+      "sentCopy": "د پاسورډ بدلولو لینک د کارکوونکي سره شریک کړئ",
       "emailLabel": "ایمیل",
-      "linkLabel": "د پټ نوم د بیا ټاکلو لینک",
+      "linkLabel": "د پاسورډ بدلولو لینک",
       "copyButton": "کاپي",
-      "note": "کارمند کولی شي له دې لینک څخه د خپل پټ نوم د ټاکلو او سیسټم ته د ننوتلو لپاره ګټه پورته کړي."
+      "note": "کارکوونکی کولی شي دا لینک د خپل پاسورډ ټاکلو او سیسټم ته د ننوتلو لپاره وکاروي."
     },
     "messages": {
-      "loadEmployeesError": "د کارمندانو په پورته کولو کې ستونزه راغله",
-      "loadAccountsError": "د حسابونو په پورته کولو کې ستونزه راغله",
-      "salaryPaidSuccess": "تنخا په بریالیتوب سره تادیه شوه",
-      "paySalaryError": "د تنخا په تادیه کې ستونزه راغله",
-      "loadSalariesError": "د تنخاګانو په پورته کولو کې ستونزه راغله",
-      "employeeDeletedSuccess": "کارمند لرې شو",
-      "missingEmployeeIdError": "د کارمند آیدي شتون نلري",
-      "deleteEmployeeError": "د کارمند په ډیلیټ کولو کې ستونزه راغله",
-      "employeeUpdatedSuccess": "د کارمند معلومات بروزرساني شول",
-      "employeeCreatedSuccess": "کارمند اضافه شو",
-      "saveEmployeeError": "د کارمند په خوندي کولو کې ستونزه راغله",
-      "profilePictureFailed": "کارمند خوندي شو، مګر د پروفایل عکس په اپلوډ کې ستونزه وه",
+      "loadEmployeesError": "د کارکوونکو په بارولو کې ستونزه",
+      "loadAccountsError": "د حسابونو په بارولو کې ستونزه",
+      "salaryPaidSuccess": "معاش په بریالیتوب ورکړل شو",
+      "paySalaryError": "د معاش په ورکولو کې ستونزه",
+      "loadSalariesError": "د معاشونو په بارولو کې ستونزه",
+      "employeeDeletedSuccess": "کارمند حذف شو",
+      "missingEmployeeIdError": "د کارمند آی ډي نشته",
+      "deleteEmployeeError": "د کارمند په حذفولو کې ستونزه",
+      "employeeUpdatedSuccess": "کارمند تازه شو",
+      "employeeCreatedSuccess": "کارمند جوړ شو",
+      "saveEmployeeError": "د کارمند په ذخیره کولو کې ستونزه",
+      "profilePictureFailed": "کارمند ذخیره شو، خو د پروفایل عکس ناکام شو",
       "inviteEmailSentSuccess": "د بلنې ایمیل واستول شو",
-      "sendEmailError": "د ایمیل په لیږلو کې ستونزه راغله",
+      "sendEmailError": "د ایمیل په لیږلو کې ستونزه",
       "copyLinkSuccess": "لینک کاپي شو",
-      "copyLinkError": "د لینک په کاپي کولو کې ستونزه راغله"
+      "copyLinkError": "د لینک په کاپي کولو کې ستونزه"
     }
   },
   "clinicAssetsView": {
     "hero": {
-      "eyebrow": "د کلینیک داراییګانې",
-      "title": "د شتمنیو (داراییګانو) موجودي",
-      "description": "د کلینیک د شتمنیو او تجهیزاتو اداره په منظم او مجهز ډول، چې د موبایل، ټابلیټ او کمپیوټر لپاره چمتو شوی.",
-      "refreshButtonText": "د پاڼو بروزرساني",
-      "newAssetButtonText": "نوې دارایی"
+      "eyebrow": "د کلینیک اموال",
+      "title": "د شتمنیو موجودي",
+      "description": "د کلینیک اموال مدیریت کړئ.",
+      "refreshButtonText": "تازه کول",
+      "newAssetButtonText": "نوی مال"
     },
     "metrics": {
-      "totalAssets": "ټولې داراییګانې",
+      "totalAssets": "مجموعي اموال",
       "active": "فعال",
-      "maintenance": "تر ترمیم لاندې",
-      "totalValue": "ټولیز ارزښت"
+      "maintenance": "ترمیم لاندې",
+      "totalValue": "مجموعي ارزښت"
     },
     "toolbar": {
-      "searchPlaceholder": "د نوم، شرحې، کټګورۍ یا حالت له مخې پلټنه",
-      "categoryPlaceholder": "کټګوري",
+      "searchPlaceholder": "د نوم، شرح، ډول یا حالت لټون",
+      "categoryPlaceholder": "ډول",
       "statusPlaceholder": "حالت"
     },
-    "emptyDescription": "هیڅ شرحه نده چمتو شوې.",
+    "emptyDescription": "هیڅ شرح ورکړل شوې نه ده.",
     "meta": {
-      "category": "کټګوري",
+      "category": "ډول",
       "price": "قیمت",
       "amount": "تعداد",
       "purchased": "پیرودل شوی"
     },
     "footer": {
-      "showingAssets": "د {total} داراییګانو څخه د {shown} ښودل"
+      "showingAssets": "ښودل {shown} د {total} اموالو څخه"
     },
     "modal": {
-      "createTitle": "د کلینیک د نوې دارایۍ جوړول",
-      "editTitle": "د کلینیک د دارایۍ ایډیټ",
-      "createActionButtonText": "د دارایۍ جوړول",
-      "saveActionButtonText": "د بدلونونو خوندي کول"
+      "createTitle": "د کلینیک مال جوړول",
+      "editTitle": "د کلینیک مال سمول",
+      "createActionButtonText": "مال جوړول",
+      "saveActionButtonText": "د بدلونونو ذخیره کول"
     },
     "deleteModal": {
-      "title": "د دارایۍ ډیلیټ کول",
-      "body": "ایا {assetName} ډیلیټ شي؟ دا کړنه د بېرته ګرځېدو وړ نه ده."
+      "title": "د مال حذفول",
+      "body": "آیا {assetName} حذف شي؟ دا عمل نه بدلیدونکی دی."
     },
     "columns": {
-      "asset": "دارایي",
-      "category": "کټګوري",
+      "asset": "مال",
+      "category": "ډول",
       "status": "حالت",
       "amount": "تعداد",
       "price": "قیمت",
-      "totalAmount": "ټول مبلغ",
-      "purchaseDate": "د پیرودلو نیټه",
+      "totalAmount": "مجموعي مقدار",
+      "purchaseDate": "د پیرود نیټه",
       "actions": "کړنې"
     },
     "form": {
       "nameLabel": "نوم",
-      "namePlaceholder": "د جراحي تخت",
-      "assetNameLabel": "د دارایۍ نوم",
-      "assetNamePlaceholder": "هغه نښه چې په ګودام کې کارول کیږي",
-      "descriptionLabel": "شرحه",
-      "descriptionPlaceholder": "د دارایۍ په اړه اختیاري یادښتونه",
-      "categoryLabel": "کټګوري",
-      "categoryPlaceholder": "د کټګورۍ غوره کول",
+      "namePlaceholder": "لکه: د جراحۍ تخت",
+      "assetNameLabel": "د مال نوم",
+      "assetNamePlaceholder": "د موجودۍ لپاره د مال لیبل",
+      "descriptionLabel": "شرح",
+      "descriptionPlaceholder": "د مال په اړه اختیاري یادښت",
+      "categoryLabel": "ډول",
+      "categoryPlaceholder": "ډول انتخاب کړئ",
       "statusLabel": "حالت",
-      "statusPlaceholder": "د حالت غوره کول",
+      "statusPlaceholder": "حالت انتخاب کړئ",
       "amountLabel": "تعداد",
       "priceLabel": "قیمت",
-      "totalAmountLabel": "ټول مبلغ",
-      "dateOfPurchaseLabel": "د پیرودلو نیټه"
+      "totalAmountLabel": "مجموعي مقدار",
+      "dateOfPurchaseLabel": "د پیرود نیټه"
     },
     "categoryOptions": {
-      "device": "طبي تجهیزات",
-      "furniture": "مبایل او فرنیچر"
+      "device": "وسیله",
+      "furniture": "فرنیچر"
     },
     "statusOptions": {
       "active": "فعال",
-      "inactive": "غیرفعال",
-      "maintenance": "تر ترمیم لاندې"
+      "inactive": "غیر فعال",
+      "maintenance": "ترمیم لاندې"
     },
     "validation": {
       "nameRequired": "نوم اړین دی",
-      "assetNameRequired": "د دارایۍ نوم اړین دی",
-      "categoryRequired": "کټګوري اړینه ده",
+      "assetNameRequired": "د مال نوم اړین دی",
+      "categoryRequired": "ډول اړین دی",
       "amountRequired": "تعداد اړین دی",
       "priceRequired": "قیمت اړین دی",
-      "totalAmountRequired": "ټول مبلغ اړین دی",
-      "dateOfPurchaseRequired": "د پیرودلو نیټه اړینه ده",
+      "totalAmountRequired": "مجموعي مقدار اړین دی",
+      "dateOfPurchaseRequired": "د پیرود نیټه اړینه ده",
       "statusRequired": "حالت اړین دی"
     },
     "messages": {
-      "loadAssetsError": "د کلینیک د داراییګانو په پورته کولو کې ستونزه راغله",
-      "saveAssetError": "د دارایۍ په خوندي کولو کې ستونزه راغله",
-      "assetCreatedSuccess": "دارایي جوړه شوه",
-      "assetUpdatedSuccess": "دارایي بروزرساني شوه",
-      "assetDeletedSuccess": "دارایي ډیلیټ شوه",
-      "deleteAssetError": "د دارایۍ په ډیلیټ کولو کې ستونزه راغله"
+      "loadAssetsError": "د کلینیک اموالو په بارولو کې ستونزه",
+      "saveAssetError": "د کلینیک مال په ذخیره کولو کې ستونزه",
+      "assetCreatedSuccess": "مال جوړ شو",
+      "assetUpdatedSuccess": "مال تازه شو",
+      "assetDeletedSuccess": "مال حذف شو",
+      "deleteAssetError": "د مال په حذفولو کې ستونزه"
     }
   },
   "loginView": {
-    "title": "سیسټم ته ننوتل",
-    "description": "د کلینیک مدیریت پاڼې ته د لاسرسي لپاره د خپل حساب معلومات دننه کړئ.",
+    "title": "داشبورد ته ننوتل",
+    "description": "د کلینیک مدیریت پنل ته د لاسرسي لپاره خپل مشخصات ولیکئ.",
     "emailLabel": "ایمیل",
-    "emailPlaceholder": "خپل ایمیل دننه کړئ",
-    "passwordLabel": "پټ نوم (پاسورډ)",
+    "emailPlaceholder": "خپل ایمیل ولیکئ",
+    "passwordLabel": "پاسورډ",
     "passwordPlaceholder": "••••••••",
-    "signInButtonText": "سیسټم ته ننوتل",
-    "missingCredentials": "مهرباني وکړئ ایمیل او پټ نوم دننه کړئ",
-    "loginSuccess": "سیسټم ته ننوتل په بریالیتوب سره ترسره شول",
-    "loginFailed": "ننوتل ناوغوره شول. مهرباني وکړئ خپل معلومات وګورئ."
+    "signInButtonText": "ننوتل",
+    "missingCredentials": "مهرباني وکړئ خپل ایمیل او پاسورډ ولیکئ",
+    "loginSuccess": "په بریالیتوب ننوتئ",
+    "loginFailed": "ننوتل ناکام شول. خپل مشخصات وګورئ."
   },
   "resetPasswordView": {
-    "title": "د نوي پټ نوم ټاکل",
-    "description": "د خپل حساب لپاره ایمیل او نوی پټ نوم دننه کړئ.",
+    "title": "نوی پاسورډ ټاکل",
+    "description": "د خپل حساب لپاره خپل ایمیل او نوی پاسورډ ولیکئ.",
     "emailLabel": "ایمیل",
-    "emailPlaceholder": "you@example.com",
-    "newPasswordLabel": "نوی پټ نوم",
+    "emailPlaceholder": "خپل ایمیل ولیکئ",
+    "newPasswordLabel": "نوی پاسورډ",
     "newPasswordPlaceholder": "••••••••",
-    "confirmPasswordLabel": "د پټ نوم تایید",
-    "confirmPasswordPlaceholder": "نوی پټ نوم تکرار کړئ",
-    "resetButtonText": "د پټ نوم بیا ټاکل",
-    "missingTokenError": "د بیا ټاکلو نښه (ټوکن) شتون نلري یا غلطه ده.",
+    "confirmPasswordLabel": "د پاسورډ تایید",
+    "confirmPasswordPlaceholder": "نوی پاسورډ بیا ولیکئ",
+    "resetButtonText": "پاسورډ بدلول",
+    "missingTokenError": "د ریزیټ ټوکن ناسم دی.",
     "requiredFieldsError": "مهرباني وکړئ ټولې خانې ډکې کړئ.",
-    "passwordMismatchError": "پټ نومونه یو شان نه دي.",
-    "successMessage": "پټ نوم په بریالیتوب سره بدل شو. اوس ننوتلی شئ.",
-    "failureMessage": "د پټ نوم په بدلولو کې ستونزه راغله. ممکن لینک زوړ یا ناسم وي."
+    "passwordMismatchError": "پاسورډونه سره مطابقت نه لري.",
+    "successMessage": "پاسورډ بدل شو. اوس کولی شئ ننوتئ.",
+    "failureMessage": "د پاسورډ په بدلولو کې ستونزه. لینک ممکن پای ته رسیدلی وي."
   },
   "app": {
     "navigation": {
-      "patients": "ناروغان",
+      "patients": "ناروغانو",
       "appointments": "نوبتونه",
-      "clinicAssets": "د کلینیک داراییګانې",
+      "clinicAssets": "د کلینیک اموال",
       "treatments": "درملنې",
       "expenses": "مصارف",
       "accounts": "حسابونه",
-      "dashboard": "اصلي پاڼه",
-      "employees": "کارمندان",
+      "dashboard": "داشبورد",
+      "employees": "کارکوونکي",
       "settings": "تنظیمات",
       "reports": "راپورونه",
-      "overview": "عمومي کتنه"
+      "overview": "لنډه کتنه"
     },
     "branches": {
-      "title": "څانګې (نمایندګۍ)",
-      "loading": "د څانګو پورته کول...",
-      "empty": "هیڅ څانګه ونه موندل شوه"
+      "title": "څانګې",
+      "loading": "څانګې بار کیږي...",
+      "empty": "کومه څانګه ونه موندل شوه"
     },
     "user": {
-      "guest": "مېلمه",
-      "guestEmail": "guest@example.com"
+      "guest": "میلمه",
+      "guestEmail": "ایمیل"
     },
     "userMenu": {
-      "logout": "له سیسټم څخه وتل"
+      "logout": "وتل"
     }
   },
   "reportsView": {
     "periodLabels": {
       "today": "نن",
-      "last7Days": "تیرې ۷ ورځې",
-      "last30Days": "تیرې ۳۰ ورځې",
-      "last90Days": "تیرې ۹۰ ورځې",
-      "customRange": "اختیاري نیټه"
+      "last7Days": "وروستي ۷ ورځې",
+      "last30Days": "وروستي ۳۰ ورځې",
+      "last90Days": "وروستي ۹۰ ورځې",
+      "customRange": "خپله موده"
     },
     "scopeLabel": "اوسنۍ څانګه",
     "controlHeader": {
-      "dateRange": "د نیټې محدوده",
-      "customWindow": "اختیاري حوزه",
-      "applyButton": "پلي کول",
-      "scopeLabel": "ساحه"
+      "dateRange": "د نیټې موده",
+      "customWindow": "د موده انتخاب",
+      "applyButton": "تطبیق",
+      "scopeLabel": "سیمه"
     },
-    "notAvailable": "نامشخص",
-    "rangeNotAvailable": "محدوده د لاسرسي وړ نده",
-    "selectDates": "د نیټو غوره کول",
-    "loadError": "د راپورونو پورته کول ممکن ندي. مهرباني وکړئ بیا هڅه وکړئ.",
-    "syncing": "د همغږۍ په حال کې",
+    "notAvailable": "نشته",
+    "rangeNotAvailable": "موده نشته",
+    "selectDates": "نیټې انتخاب کړئ",
+    "loadError": "د راپورونو په بارولو کې ستونزه. بیا هڅه وکړئ.",
+    "syncing": "په همغږۍ کې",
     "liveData": "ژوندي معلومات",
     "financialOverview": {
-      "title": "مالي عمومي کتنه",
-      "description": "د غوره شوې مودې لپاره د عاید، ترلاسه کیدونکو پیسو، د پیسو راټولولو او د درملنې د ګټې کلیدي شاخصونه."
+      "title": "مالي لنډیز",
+      "description": "د عوایدو کلیدي شاخصونه."
     },
     "cards": {
-      "netProfit": "خالصه ګټه",
-      "netProfitDescription": "په غوره شوې موده کې ترلاسه شوې ټوله خالصه ګټه.",
+      "netProfit": "خالص ګټه",
+      "netProfitDescription": "په ټاکلې موده کې ترلاسه شوې مجموعي ګټه.",
       "income": "عاید",
-      "incomeDescription": "په دې موده کې راټولې شوې نغدې پیسې او نهایي شوي تادیات.",
-      "receivableAmount": "ترلاسه کیدونکی مبلغ",
-      "receivableAmountDescription": "پاتې باقي دارۍ چې باید له ناروغانو یا بیمې څخه راټولې شي.",
-      "collectionRate": "د راټولولو فیصدي",
-      "collectionRateDescription": "په ټاکل شوې موده کې د پیسو د راټولولو موثریت."
+      "incomeDescription": "په ټاکلې موده کې ترلاسه شوې پیسې.",
+      "receivableAmount": "د ترلاسه کیدو وړ مقدار",
+      "receivableAmountDescription": "هغه بیلانس چې باید له ناروغانو ترلاسه شي.",
+      "collectionRate": "د وصولي نرخ",
+      "collectionRateDescription": "د وصولي کارایی."
     },
     "treatmentYield": {
-      "title": "د درملنې ګټه (حاصل)",
-      "description": "د درملنې د ډول پر بنسټ د عوایدو ویش، چې د چټکې بیاکتنې لپاره د کارتونو په بڼه ښودل شوی.",
-      "emptyState": "د درملنې د ګټې معلومات د دې مودې لپاره شتون نلري.",
-      "ofYield": "د درملنې له ګټې څخه"
+      "title": "د درملنې حاصل",
+      "description": "د عوایدو ترکیب د درملنې په اساس.",
+      "emptyState": "د دې مودې لپاره معلومات نشته.",
+      "ofYield": "د حاصل څخه"
     },
     "providerProductivity": {
-      "title": "د معالجینو کاري وړتیا",
-      "description": "د هر معالج ډاکټر د کار پایله، موثریت او د راټولو شویو پیسو کچه."
+      "title": "د کارکوونکو کارایی",
+      "description": "د کارکوونکو عملکرد."
     }
   },
   "appointmentsList": {
     "eyebrow": "نوبتونه",
-    "title": "د نوبتونو عمومي کتنه",
-    "subtitle": "پلټنه، فلټر، د نوبت اضافه کول او نور.",
+    "title": "د نوبتونو لنډیز",
+    "subtitle": "لټون، فلټر، نوبتونه زیاتول...",
     "stats": {
-      "total": "ټول",
+      "total": "مجموعي",
       "today": "نن",
       "upcoming": "راتلونکي"
     },
-    "searchPlaceholder": "د ناروغ، کارمند، خدمت یا حالت له مخې پلټنه...",
+    "searchPlaceholder": "د ناروغ، کارمند، خدمت، حالت لټون...",
     "statusFilterPlaceholder": "ټول حالتونه",
-    "emptyDescription": "هیڅ نوبت ونه موندل شو",
-    "cardSubtitle": "له {name} سره",
-    "noDateSet": "هیڅ نیټه نده ټاکل شوې",
+    "emptyDescription": "کوم نوبت ونه موندل شو",
+    "cardSubtitle": "سره د {name}",
+    "noDateSet": "نیټه نه ده ټاکل شوې",
     "patientLabel": "ناروغ",
     "doctorLabel": "ډاکټر",
     "statusLabels": {
-      "pending": "په تمه",
+      "pending": "په انتظار",
       "confirmed": "تایید شوی",
       "completed": "بشپړ شوی",
       "cancelled": "لغوه شوی",
-      "rescheduled": "بیا مهالویش شوی",
-      "no-show": "غیرحاضر",
-      "unknown": "نامشخص"
+      "rescheduled": "نوی نوبت",
+      "no-show": "نه دی راغلی",
+      "unknown": "نا معلوم"
     }
   },
   "expenseView": {
-    "title": "د کلینیک مصارف",
-    "subtitle": "د کلینیک د ورځنیو مصارفو لکه د توکو، موادو او عملیاتي لګښتونو پیژندل او څارنه.",
-    "addExpenseButton": "د مصرف اضافه کول",
+    "title": "کلینیکي مصارف",
+    "subtitle": "ورځني مصارف مدیریت کړئ.",
+    "addExpenseButton": "مصرف زیاتول",
     "stats": {
-      "totalExpenses": "ټول مصارف",
+      "totalExpenses": "مجموعي مصارف",
       "today": "نن",
       "records": "ریکارډونه"
     },
-    "searchPlaceholder": "د کټګورۍ، نیټې، شرحې یا تادیه کونکي له مخې پلټنه...",
+    "searchPlaceholder": "د ډول، نیټې، شرح، پرداخت کوونکي لټون...",
     "columns": {
       "date": "نیټه",
-      "category": "کټګوري",
-      "description": "شرحه",
+      "category": "ډول",
+      "description": "شرح",
       "unit": "واحد",
-      "amount": "مبلغ",
-      "paidBy": "تادیه شوی د لخوا د",
+      "amount": "قیمت",
+      "recordedBy": "ثبت کوونکی",
       "actions": "کړنې"
     },
-    "paidById": "آیدي: {id}",
-    "deleteConfirm": "ایا دا مصرف ډیلیټ شي؟",
-    "mobilePaidBy": "کارمند شمیره #{id}",
-    "mobileEditButton": "ایډیټ",
-    "mobileDeleteButton": "ډیلیټ",
+    "paidById": "آی ډي: {id}",
+    "deleteConfirm": "آیا دا مصرف حذف شي؟",
+    "mobilePaidBy": "کارمند #{id}",
+    "mobileEditButton": "سمون",
+    "mobileDeleteButton": "حذف",
     "modal": {
-      "editTitle": "د مصرف ایډیټ",
-      "addTitle": "د مصرف اضافه کول",
+      "editTitle": "د مصرف سمون",
+      "addTitle": "د مصرف زیاتول",
       "form": {
-        "categoryLabel": "د مصرف کټګوري",
-        "categoryPlaceholder": "د بیلګې په توګه: د سون توکي، طبي وسایل",
+        "categoryLabel": "د مصرف ډول",
+        "categoryPlaceholder": "لکه: ګاز، طبي وسایل",
         "unitLabel": "واحد",
-        "unitPlaceholder": "د بیلګې په توګه: لیتر، عدد، خدمت",
-        "amountLabel": "مبلغ",
-        "amountPlaceholder": "د بیلګې په توګه: 50",
+        "unitPlaceholder": "لکه: ۱۰ لیتره",
+        "amountLabel": "قیمت",
+        "amountPlaceholder": "لکه: ۵۰",
         "dateLabel": "د مصرف نیټه",
         "accountLabel": "حساب",
-        "accountPlaceholder": "د حساب غوره کول",
-        "descriptionLabel": "شرحه",
-        "descriptionPlaceholder": "د مالي حسابونو او تفتیش لپاره د جزییاتو اضافه کول"
+        "accountPlaceholder": "حساب انتخاب کړئ",
+        "descriptionLabel": "شرح",
+        "descriptionPlaceholder": "د حسابدارۍ لپاره جزئیات"
       },
-      "cancelButton": "بندول",
-      "saveButton": "د مصرف خوندي کول"
+      "cancelButton": "لغوه کول",
+      "saveButton": "د مصرف ذخیره کول"
     },
     "messages": {
-      "loadExpensesError": "د مصارفو په پورته کولو کې ستونزه راغله",
-      "missingExpenseId": "د مصرف آیدي شتون نلري",
-      "expenseDeleted": "مصرف ډیلیټ شو",
-      "deleteExpenseError": "د مصرف په ډیلیټ کولو کې ستونزه راغله",
-      "expenseUpdated": "مصرف بروزرساني شو",
-      "expenseCreated": "مصرف اضافه شو",
-      "saveExpenseError": "د مصرف په خوندي کولو کې ستونزه راغله"
+      "loadExpensesError": "د مصارفو په بارولو کې ستونزه",
+      "missingExpenseId": "د مصرف آی ډي نشته",
+      "expenseDeleted": "مصرف حذف شو",
+      "deleteExpenseError": "د مصرف په حذفولو کې ستونزه",
+      "expenseUpdated": "مصرف تازه شو",
+      "expenseCreated": "مصرف جوړ شو",
+      "saveExpenseError": "د مصرف په ذخیره کولو کې ستونزه"
     }
   },
   "settingsView": {
     "pageTitle": "د څانګې تنظیمات",
-    "pageSubtitle": "د کلینیک د جزییاتو، کالبونو (قالبونو)، صلاحیتونو او پروسجرو اداره کول.",
-    "resetButton": "بیا تنظیمول",
-    "saveChangesButton": "د بدلونونو خوندي کول",
+    "pageSubtitle": "د کلینیک معلومات، ټیمپلیټونه او دسترسی مدیریت کړئ.",
+    "resetButton": "بیا تنظیم",
+    "saveChangesButton": "بدلونونه ذخیره کړئ",
     "tabs": {
       "branch": "څانګه",
-      "procedures": "پروسجرونه",
+      "whatsapp": "واټساپ",
+      "procedures": "پروسې",
       "prescriptions": "نسخې",
-      "permissions": "صلاحیتونه",
-      "backup": "پشتیبانګیري (بک اپ)"
+      "permissions": "دسترسی",
+      "backup": "بک اپ"
     },
     "branchForm": {
       "clinicNameLabel": "د کلینیک نوم",
-      "clinicNamePlaceholder": "د بیلګې په توګه: د غاښونو روغتیايي کلینیک",
-      "addressLabel": "ادرس",
-      "addressPlaceholder": "د کلینیک بشپړ ادرس",
+      "clinicNamePlaceholder": "لکه: د غاښونو کلینیک",
+      "addressLabel": "آدرس",
+      "addressPlaceholder": "د کلینیک پوره آدرس",
       "phoneLabel": "تلیفون",
-      "phonePlaceholder": "+93 20 234 5678",
-      "receptionFeeLabel": "د پذیرش حق‌الزحمه"
+      "phonePlaceholder": "+۹۳...",
+      "receptionFeeLabel": "د پذیرش فیس"
     },
     "procedureForm": {
-      "addProcedureTitle": "د پروسجر اضافه کول",
-      "procedureNameLabel": "د پروسجر نوم",
-      "procedureNamePlaceholder": "د پروسجر نوم",
-      "categoryLabel": "کټګوري",
-      "categoryPlaceholder": "کټګوري",
+      "addProcedureTitle": "پروسه زیاتول",
+      "procedureNameLabel": "د پروسې نوم",
+      "procedureNamePlaceholder": "د پروسې نوم",
+      "categoryLabel": "ډول",
+      "categoryPlaceholder": "ډول",
       "basePriceLabel": "بنسټیز قیمت",
       "basePricePlaceholder": "بنسټیز قیمت",
       "appointmentsNeededLabel": "اړین نوبتونه",
       "appointmentsNeededPlaceholder": "اړین نوبتونه",
-      "activeStatusLabel": "د فعالیت حالت",
+      "activeStatusLabel": "فعال حالت",
       "activeStatusChecked": "فعال",
-      "activeStatusUnchecked": "غیرفعال",
-      "addProcedureButton": "د پروسجر اضافه کول",
-      "saveProcedureButton": "خوندي کول",
-      "deleteProcedureButton": "ډیلیټ"
+      "activeStatusUnchecked": "غیر فعال",
+      "addProcedureButton": "پروسه زیاتول",
+      "saveProcedureButton": "ذخیره کول",
+      "deleteProcedureButton": "حذف"
     },
     "prescriptionForm": {
-      "addPrescriptionTitle": "د فرضي (پیشفرض) نسخې اضافه کول",
+      "addPrescriptionTitle": "نسخه زیاتول",
       "medicineNameLabel": "د درملو نوم",
       "medicineNamePlaceholder": "د درملو نوم",
-      "addPrescriptionButton": "د نسخې اضافه کول",
-      "updatePrescriptionButton": "بروزرساني",
-      "deletePrescriptionButton": "ډیلیټ"
+      "addPrescriptionButton": "نسخه زیاتول",
+      "updatePrescriptionButton": "تازه کول",
+      "deletePrescriptionButton": "حذف"
     },
     "permissionCards": {
-      "receptionistTitle": "پذیرشګر (منشي)",
+      "receptionistTitle": "پذیرش",
       "doctorTitle": "ډاکټر"
     },
     "permissionLabels": {
-      "rec_can_edit_whatsapp": "د واټساپ د متنونو ایډیټ کول",
-      "rec_can_view_phones": "د عمومي تلیفون شمیرو کتل",
-      "rec_show_kpi": "د فعالیت د کلیدي شاخصونو (KPI) پاڼې کتل",
-      "rec_log_actions": "د پذیرشګر د کړنو ثبتول",
-      "rec_can_void_transactions": "د مالي معاملو باطلول",
-      "rec_can_edit_devices": "د وسایلو د حالت ایډیټ کول",
-      "rec_can_contact_support": "له تخنیکي ملاتړ سره اړیکه",
-      "doc_view_appointments": "د نوبتونو کتل",
-      "doc_view_contact": "د ناروغ د اړیکې معلوماتو کتل",
-      "doc_edit_assets": "د کلینیک د داراییګانو ایډیټ کول",
-      "doc_issue_prescriptions": "د نسخې تجویز کول"
+      "rec_can_edit_whatsapp": "د واټساپ ټیمپلیټ سمون",
+      "rec_can_view_phones": "د شمیرو لیدل",
+      "rec_show_kpi": "د داشبورد لیدل",
+      "rec_log_actions": "د پذیرش فعالیت ثبتول",
+      "rec_can_void_transactions": "د تراکنش لغوه کول",
+      "rec_can_edit_devices": "د مال سمون",
+      "rec_can_contact_support": "د تخنیکي ملاتړ سره اړیکه",
+      "doc_view_appointments": "د نوبتونو لیدل",
+      "doc_view_contact": "د ناروغ اړیکو لیدل",
+      "doc_edit_assets": "د مال سمون",
+      "doc_issue_prescriptions": "د نسخې ورکول"
     },
     "backupCard": {
-      "title": "د معلوماتو د بنسټ (ډیټابیس) پشتیبانګیري",
-      "description": "د معلوماتو د خوندي ساتلو لپاره بشپړ بک اپ اخیستل یا د میاشتني ارشیف ایستل.",
-      "fullBackupButton": "بشپړ بک اپ اخیستل",
-      "monthlyDataButton": "میاشتني معلومات"
+      "title": "د ډیټابیس بک اپ",
+      "description": "د ډیټابیس یوه بشپړه نسخه واخلئ.",
+      "fullBackupButton": "بشپړ بک اپ",
+      "monthlyDataButton": "میاشتني معلومات",
+      "freePlanAlert": "بښنه غواړو، بک اپ یوازې د پریمیم کاروونکو لپاره دی."
     },
     "validation": {
       "clinicNameRequired": "د کلینیک نوم اړین دی",
-      "addressRequired": "ادرس اړین دی",
+      "addressRequired": "آدرس اړین دی",
       "phoneRequired": "تلیفون اړین دی"
     },
+    "whatsappSection": {
+      "dynamicVariablesTitle": "پویا متغیرونه",
+      "dynamicVariablesCopy": "د ځای نیونکو څخه کار واخلئ"
+    },
+    "whatsappForm": {
+      "patientReminderLabel": "د ناروغ یادونه",
+      "patientReminderPlaceholder": "د {patient_name} او {appointment_date} وکاروئ",
+      "patientCancellationLabel": "د نوبت لغوه کول",
+      "patientCancellationPlaceholder": "د {patient_name} او {appointment_date} وکاروئ",
+      "patientCompletionLabel": "د درملنې بشپړیدل",
+      "patientCompletionPlaceholder": "د {patient_name} او {clinic_name} وکاروئ",
+      "supplierOrderLabel": "د عرضه کوونکي امر",
+      "supplierOrderPlaceholder": "د {clinic_name} او {clinic_address} وکاروئ",
+      "supplierCancelLabel": "لغوه کول د عرضه کوونکي لخوا",
+      "supplierCancelPlaceholder": "د {clinic_name} او {appointment_date} وکاروئ"
+    },
     "dialogs": {
-      "deleteProcedureTitle": "پروسجر ډیلیټ شي؟",
-      "deleteProcedureContent": "آیا پروسجر {name} ډیلیټ شي؟",
-      "deletePrescriptionTitle": "نسخه ډیلیټ شي؟",
-      "deletePrescriptionContent": "آیا نسخه {name} ډیلیټ شي؟",
-      "resetChangesTitle": "تغیرات لغوه شي؟",
-      "resetChangesContent": "ټول هغه بدلونونه چې ندي خوندي شوي، له منځه ځي.",
-      "startBackupTitle": "د {type} بک اپ پیل شي؟",
-      "startBackupContent": "دا کړنه به د SQL بک اپ فایل جوړ او ډانلوډ کړي."
+      "deleteProcedureTitle": "پروسه حذف شي؟",
+      "deleteProcedureContent": "آیا {name} حذف شي؟",
+      "deletePrescriptionTitle": "نسخه حذف شي؟",
+      "deletePrescriptionContent": "آیا {name} حذف شي؟",
+      "resetChangesTitle": "بدلونونه لغوه شي؟",
+      "resetChangesContent": "ټول ذخیره شوي نه بدلونونه به حذف شي.",
+      "startBackupTitle": "{type} بک اپ پیل شي؟",
+      "startBackupContent": "دا به د SQL بک اپ جوړ او ډاونلوډ کړي."
     },
     "messages": {
-      "settingsSavedSuccess": "تنظیمات په بریالیتوب سره خوندي شول",
-      "failedToSaveSettings": "د تنظیماتو په خوندي کولو کې ستونزه راغله",
-      "procedureCreated": "پروسجر جوړ شو",
-      "failedToCreateProcedure": "د پروسجر په جوړولو کې ستونزه راغله",
-      "procedureUpdated": "پروسجر بروزرساني شو",
-      "failedToUpdateProcedure": "د پروسجر په بروزرساني کې ستونزه راغله",
-      "procedureDeleted": "پروسجر ډیلیټ شو",
-      "failedToDeleteProcedure": "د پروسجر په ډیلیټ کولو کې ستونزه راغله",
+      "settingsSavedSuccess": "تنظیمات ذخیره شول",
+      "failedToSaveSettings": "د تنظیماتو په ذخیره کولو کې ستونزه",
+      "procedureCreated": "پروسه جوړه شوه",
+      "failedToCreateProcedure": "د پروسې په جوړولو کې ستونزه",
+      "procedureUpdated": "پروسه تازه شوه",
+      "failedToUpdateProcedure": "د پروسې په تازه کولو کې ستونزه",
+      "procedureDeleted": "پروسه حذف شوه",
+      "failedToDeleteProcedure": "د پروسې په حذفولو کې ستونزه",
       "prescriptionCreated": "نسخه جوړه شوه",
-      "failedToCreatePrescription": "د نسخې په جوړولو کې ستونزه راغله",
-      "prescriptionUpdated": "نسخه بروزرساني شوه",
-      "failedToUpdatePrescription": "د نسخې په بروزرساني کې ستونزه راغله",
-      "prescriptionDeleted": "نسخه ډیلیټ شوه",
-      "failedToDeletePrescription": "د نسخې په ډیلیټ کولو کې ستونزه راغله",
-      "backupDownloadedSuccess": "بک اپ فایل په بریالیتوب سره ډانلوډ شو",
-      "failedToDownloadBackup": "د بک اپ فایل په ډانلوډ کې ستونزه راغله",
-      "failedToLoadSettingsData": "د تنظیماتو د معلوماتو په پورته کولو کې ستونزه راغله"
+      "failedToCreatePrescription": "د نسخې په جوړولو کې ستونزه",
+      "prescriptionUpdated": "نسخه تازه شوه",
+      "failedToUpdatePrescription": "د نسخې په تازه کولو کې ستونزه",
+      "prescriptionDeleted": "نسخه حذف شوه",
+      "failedToDeletePrescription": "د نسخې په حذفولو کې ستونزه",
+      "backupDownloadedSuccess": "بک اپ ډاونلوډ شو",
+      "failedToDownloadBackup": "د بک اپ په ډاونلوډولو کې ستونزه",
+      "failedToLoadSettingsData": "د تنظیماتو په بارولو کې ستونزه"
     }
   },
   "dashboardView": {
     "hero": {
       "eyebrow": "د غاښونو کلینیک",
-      "title": "اصلي پاڼه.",
-      "description": "د کلینیک د عمومي فعالیت څارنه",
+      "title": "داشبورد.",
+      "description": "د کلینیک عمومي عملکرد وګورئ",
       "meta": {
         "branchLabel": "څانګه",
-        "periodLabel": "د وخت موده",
-        "updatedLabel": "بروزرساني شوی",
+        "periodLabel": "موده",
+        "updatedLabel": "تازه شوی",
         "statusLabel": "حالت",
-        "loading": "د پورته کولو په حال کې…",
-        "ready": "چمتو دی",
+        "loading": "بار کیږي...",
+        "ready": "چمتو",
         "allBranches": "ټولې څانګې"
       }
     },
     "dataScope": {
       "title": "د معلوماتو ساحه",
-      "description": "له سیسټم څخه د راغلو معلوماتو فلټر کول."
+      "description": "د څانګې فلټر."
     },
-    "errorMessage": "له سیسټم څخه د اصلي پاڼې د معلوماتو په پورته کولو کې ستونزه راغله.",
+    "errorMessage": "د داشبورد معلوماتو په بارولو کې ستونزه.",
     "charts": {
       "cashFlow": {
-        "title": "د نغدو پیسو جریان (کاش فلو)",
-        "description": "په ټاکل شوې موده کې د راټولو شویو پیسو او د ناروغانو د باقي دارۍ پرتله کول.",
-        "badge": "ورځنی بهیر",
-        "emptyState": "د نغدو پیسو د جریان هیڅ معلومات شتون نلري.",
-        "cashInLabel": "راغلې پیسې",
-        "appointmentChargesLabel": "د نوبتونو لګښتونه"
+        "title": "نغدي جریان",
+        "description": "وصول شوي پیسې.",
+        "badge": "ورځنی روند",
+        "emptyState": "معلومات نشته.",
+        "cashInLabel": "نغدي داخل",
+        "appointmentChargesLabel": "د نوبت لګښتونه"
       },
       "creditAging": {
-        "title": "د پورونو د تسویې موده",
-        "description": "پاتې باقي دارۍ چې د ځنډ د مودې له مخې ګروپ بندي شوي دي.",
-        "badge": "د مطالباتو څارنه",
-        "emptyState": "د پورونو د تسویې د مودې هیڅ معلومات شتون نلري.",
-        "outstandingBalanceLabel": "پاتې باقي داري"
+        "title": "د بیلانس عمر",
+        "description": "پاتې بیلانسونه.",
+        "badge": "څارنه",
+        "emptyState": "معلومات نشته.",
+        "outstandingBalanceLabel": "پاتې بیلانس"
       },
       "treatmentMix": {
         "title": "د درملنې ترکیب",
-        "description": "د پروسجرو د کټګوریو شمیره.",
-        "badge": "کلینیکي ترکیب",
-        "emptyState": "د درملنې د ترکیب هیڅ معلومات شتون نلري.",
+        "description": "پروسې.",
+        "badge": "ترکیب",
+        "emptyState": "معلومات نشته.",
         "treatmentsLabel": "درملنې"
       },
       "patientBehavior": {
         "title": "د ناروغانو چلند",
-        "description": "د وخت په تیریدو سره د نوبتونو، درملنو او نویو ناروغانو شمیره.",
-        "badge": "د ناروغ ساتنه",
-        "emptyState": "د ناروغانو د چلند هیڅ معلومات شتون نلري.",
+        "description": "نوبتونه.",
+        "badge": "ماندگاري",
+        "emptyState": "معلومات نشته.",
         "appointmentsLabel": "نوبتونه",
-        "treatmentsAcceptedLabel": "منل شوې درملنې",
+        "treatmentsAcceptedLabel": "درملنې منل شوي",
         "newPatientsLabel": "نوي ناروغان"
       },
       "pricingDiscipline": {
-        "title": "د نرخونو د انضباط کنټرول",
-        "description": "دا چې نرخونه څومره د پروسجر له ټاکل شوي قیمت سره سمون خوري.",
-        "badge": "د نرخونو څارنه",
-        "emptyState": "د نرخونو د انضباط د تفتیش هیڅ معلومات شتون نلري.",
-        "pricingAuditLabel": "د نرخونو تفتیش"
+        "title": "د نرخونو نظم",
+        "description": "د نرخونو رعایت.",
+        "badge": "د کنټرول رینج",
+        "emptyState": "معلومات نشته.",
+        "pricingAuditLabel": "د قیمت پلټنه"
       },
       "referralSource": {
-        "title": "د معرفي کولو سرچینه",
-        "description": "دا چې نوي ناروغان څنګه له کلینیک سره بلدیدلي دي.",
-        "badge": "د سرچینو ترکیب",
-        "emptyState": "د معرفي کولو د سرچینو هیڅ معلومات شتون نلري.",
+        "title": "د مراجعاتو سرچینه",
+        "description": "نوي ناروغان.",
+        "badge": "سرچینه",
+        "emptyState": "معلومات نشته.",
         "patientsLabel": "ناروغان"
       },
       "visitType": {
-        "title": "د لیدنې ډول",
-        "description": "د لیدنو او مراجعاتو د ډولونو ویش.",
-        "badge": "د لیدنو ترکیب",
-        "emptyState": "د لیدنې د ډول هیڅ معلومات شتون نلري.",
-        "visitsLabel": "لیدنې"
+        "title": "د مراجعې ډول",
+        "description": "د مراجعاتو ویش.",
+        "badge": "ډول",
+        "emptyState": "معلومات نشته.",
+        "visitsLabel": "مراجعې"
       }
     },
     "kpis": {
-      "cash_collectedLabel": "راټولې شوې پیسې",
-      "cash_collectedHelp": "په ټاکل شوې موده کې ترلاسه شوې حقیقي نغدې پیسې.",
-      "outstanding_arLabel": "پاتې مطالبات",
-      "outstanding_arHelp": "هغه پیسې چې ناروغان یې پاتې پور وړي دي.",
-      "collection_rateLabel": "د راټولولو فیصدي",
-      "collection_rateHelp": "د نوبتونو د لګښتونو په پرتله د راټولو شویو پیسو تناسب.",
-      "avg_ppvLabel": "د هرې لیدنې اوسط عاید",
-      "avg_ppvHelp": "د ډاکټر د وخت د ارزښت د ارزونې لپاره مناسب شاخص دی.",
-      "no_show_rateLabel": "د غیابت فیصدي",
-      "no_show_rateHelp": "په دې موده کې ضایع شوي نوبتونه.",
+      "cash_collectedLabel": "وصول شوي نغدې",
+      "cash_collectedHelp": "په موده کې ترلاسه شوې پیسې.",
+      "outstanding_arLabel": "پاتې بیلانس",
+      "outstanding_arHelp": "هغه پیسې چې ناروغان پوروړي دي.",
+      "collection_rateLabel": "د وصولي نرخ",
+      "collection_rateHelp": "وصول شوي پیسې د نوبت لګښت په مقابل کې.",
+      "avg_ppvLabel": "اوسط تولید په مراجعې",
+      "avg_ppvHelp": "د چوکیو ارزښت.",
+      "no_show_rateLabel": "د نه راتګ نرخ",
+      "no_show_rateHelp": "له لاسه وتلي نوبتونه.",
       "new_patientsLabel": "نوي ناروغان",
-      "new_patientsHelp": "په غوره شوې موده کې ثبت شوي ناروغان.",
-      "same_day_collectionLabel": "په هماغه ورځ راټولول",
-      "same_day_collectionHelp": "هغه نوبتونه چې پیسې یې په هماغه ورځ اخیستل شوي دي.",
-      "pricing_disciplineLabel": "د نرخونو انضباط",
-      "pricing_disciplineHelp": "د هغه نوبتونو فیصدي چې دقیقاً د پروسجر له بنسټیز قیمت سره سمون لري.",
-      "patient_retentionLabel": "د ناروغ ساتنه",
-      "patient_retentionHelp": "د ټولو فعالو ناروغانو په پرتله د بیا ځلي مراجعینو تناسب.",
-      "repeat_patient_rateLabel": "د بیا ځلي مراجعې فیصدي",
-      "repeat_patient_rateHelp": "هغه ناروغان چې له یو څخه ډیر نوبتونه لري.",
-      "plan_acceptanceLabel": "د درملنې پلان منل",
-      "plan_acceptanceHelp": "د ټولو جوړو شویو پلانونو په پرتله د منل شویو پلانونو تناسب.",
-      "plan_completionLabel": "د درملنې بشپړول",
-      "plan_completionHelp": "د منل شویو پلانونو پر بنسټ بشپړ شوي کارونه.",
-      "cashCollectedLabel": "راټولې شوې پیسې",
-      "cashCollectedHelp": "په ټاکل شوې موده کې ترلاسه شوې حقیقي نغدې پیسې.",
-      "cashCollectedTrendFlat": "له بدلون پرته",
-      "outstandingCreditLabel": "پاتې مطالبات",
-      "outstandingCreditHelp": "هغه پیسې چې ناروغان یې پاتې پور وړي دي.",
-      "outstandingCreditTrendClean": "بې له پاتې پور څخه",
-      "collectionRateLabel": "د راټولولو فیصدي",
-      "collectionRateHelp": "د نوبتونو د لګښتونو په پرتله د راټولو شویو پیسو تناسب.",
-      "collectionRateTrendHealthy": "مطلوب حالت",
-      "avgProductionPerVisitLabel": "د هرې لیدنې اوسط عاید",
-      "avgProductionPerVisitHelp": "د ډاکټر د وخت د ارزښت د ارزونې لپاره مناسب شاخص دی.",
-      "avgProductionPerVisitTrend": "د هر نوبت پر بنسټ",
-      "noShowRateLabel": "د غیابت فیصدي",
-      "noShowRateHelp": "په دې موده کې ضایع شوي نوبتونه.",
+      "new_patientsHelp": "په موده کې ثبت شوي ناروغان.",
+      "same_day_collectionLabel": "د ورځنۍ وصولي",
+      "same_day_collectionHelp": "په همدې ورځ وصول شوي پیسې.",
+      "pricing_disciplineLabel": "د نرخونو نظم",
+      "pricing_disciplineHelp": "د پروسې قیمتونو سره مطابقت.",
+      "patient_retentionLabel": "د ناروغ ماندگاري",
+      "patient_retentionHelp": "تکراري ناروغان.",
+      "repeat_patient_rateLabel": "د تکراري ناروغ نرخ",
+      "repeat_patient_rateHelp": "هغه ناروغان چې له یو ځل ډیر راغلي.",
+      "plan_acceptanceLabel": "د پلان منل",
+      "plan_acceptanceHelp": "منل شوي پلانونه.",
+      "plan_completionLabel": "د درملنې بشپړیدل",
+      "plan_completionHelp": "ترسره شوي درملنې.",
+      "cashCollectedLabel": "وصول شوي نغدې",
+      "cashCollectedHelp": "په موده کې ترلاسه شوې پیسې.",
+      "cashCollectedTrendFlat": "ثابت",
+      "outstandingCreditLabel": "پاتې بیلانس",
+      "outstandingCreditHelp": "هغه پیسې چې ناروغان پوروړي دي.",
+      "outstandingCreditTrendClean": "پاک",
+      "collectionRateLabel": "د وصولي نرخ",
+      "collectionRateHelp": "وصول شوي پیسې د نوبت لګښت په مقابل کې.",
+      "collectionRateTrendHealthy": "سالم",
+      "avgProductionPerVisitLabel": "اوسط تولید په مراجعې",
+      "avgProductionPerVisitHelp": "د چوکیو ارزښت.",
+      "avgProductionPerVisitTrend": "په نوبت",
+      "noShowRateLabel": "د نه راتګ نرخ",
+      "noShowRateHelp": "له لاسه وتلي نوبتونه.",
       "noShowRateTrendGood": "ښه",
-      "newPatientsLabel": "نوي ناروغان",
-      "newPatientsHelp": "په غوره شوې موده کې ثبت شوي ناروغان.",
-      "newPatientsTrendFlat": "له بدلون پرته",
-      "sameDayCollectionLabel": "په هماغه ورځ راټولول",
-      "sameDayCollectionHelp": "هغه نوبتونه چې پیسې یې په هماغه ورځ اخیستل شوي دي.",
-      "sameDayCollectionTrendLocalStrength": "داخلي پیاوړتیا",
-      "pricingDisciplineLabel": "د نرخونو انضباط",
-      "pricingDisciplineHelp": "د هغه نوبتونو فیصدي که دقیقاً د پروسجر له بنسټیز قیمت سره سمون لري.",
-      "pricingDisciplineTrend": "0/0 پلي شوی",
-      "patientRetentionLabel": "د ناروغ ساتنه",
-      "patientRetentionHelp": "د ټولو فعالو ناروغانو په پرتله د بیا ځلي مراجعینو تناسب.",
-      "patientRetentionTrend": "د ناروغ د بېرته راګرځېدو چلند",
-      "repeatPatientRateLabel": "د بیا ځلي مراجعې فیصدي",
-      "repeatPatientRateHelp": "هغه ناروغان چې له یو څخه ډیر نوبتونه لري.",
-      "repeatPatientRateTrend": "د مراجعې د تکرار بهیر",
-      "planAcceptanceLabel": "د درملنې پلان منل",
-      "planAcceptanceHelp": "د ټولو جوړو شویو پلانونو په پرتله د منل شویو پلانونو تناسب.",
-      "planAcceptanceTrend": "منل شوي پلانونه",
-      "planCompletionLabel": "د درملنې بشپړول",
-      "planCompletionHelp": "د منل شویو پلانونو پر بنسټ بشپړ شوي کارونه.",
-      "planCompletionTrend": "بشپړ شوي پلانونه",
+      "newPatientsTrendFlat": "ثابت",
+      "sameDayCollectionTrendLocalStrength": "ځايي ځواک",
+      "pricingDisciplineTrend": "۰/۰ مطابقت",
+      "patientRetentionTrend": "رفتار",
+      "repeatPatientRateTrend": "رفتار",
+      "planAcceptanceTrend": "پلانونه منل شوي",
+      "planCompletionTrend": "پلانونه بشپړ شوي",
       "trendGood": "ښه",
       "trendWarn": "خبرداری",
-      "trendBad": "نامناسب",
+      "trendBad": "بد",
       "trendNeutral": "عادي",
-      "trendUp": "صعودي (مخ په پورته)",
-      "trendDown": "نزولي (مخ په کښته)"
+      "trendUp": "پورته",
+      "trendDown": "کښته"
     },
     "operationalSnapshot": {
-      "title": "د کاري وضعیت لنډیز",
-      "description": "د څانګې د مدیریت لپاره لنډ راپور.",
+      "title": "عملیاتي لنډیز",
+      "description": "د څانګې د مدیریت لپاره لنډیز.",
       "badge": "لنډیز",
-      "cashCollectedLabel": "راټولې شوې پیسې",
-      "cashCollectedHelp": "په ټاکل شوې موده کې ترلاسه شوې حقیقي نغدې پیسې.",
-      "outstandingCreditLabel": "پاتې مطالبات",
-      "outstandingCreditHelp": "هغه پیسې چې ناروغان یې پاتې پور وړي دي.",
-      "collectionRateLabel": "د راټولولو فیصدي",
-      "collectionRateHelp": "د ناروغانو د ټولو پورونو په پرتله د راټولو شویو پیسو تناسب.",
-      "noShowRateLabel": "د غیابت فیصدي",
-      "noShowRateHelp": "په دې موده کې ضایع شوي نوبتونه.",
+      "cashCollectedLabel": "وصول شوي نغدې",
+      "outstandingCreditLabel": "پاتې بیلانس",
+      "collectionRateLabel": "د وصولي نرخ",
+      "noShowRateLabel": "د نه راتګ نرخ",
       "newPatientsLabel": "نوي ناروغان",
-      "newPatientsHelp": "په غوره شوې موده کې ثبت شوي ناروغان.",
-      "pricingDisciplineLabel": "د نرخونو انضباط",
-      "pricingDisciplineHelp": "د هغو درملنو فیصدي چې نرخونه یې په مجازه محدوده کې ټاکل شوي.",
-      "sameDayCollectionLabel": "په هماغه ورځ راټولول",
-      "sameDayCollectionHelp": "هغه درملنې چې پیسې یې په هماغه ورځ اخیستل شوي دي.",
-      "caseAcceptanceLabel": "د درملنې پلان منل",
-      "caseAcceptanceHelp": "د وړاندیز شویو پلانونو په پرتله د منل شویو پلانونو تناسب."
+      "pricingDisciplineLabel": "د نرخونو نظم",
+      "sameDayCollectionLabel": "د ورځنۍ وصولي",
+      "caseAcceptanceLabel": "د پلان منل"
     },
     "actionAlerts": {
-      "title": "کاري خبرتیاوې",
-      "description": "له سیسټم څخه ترلاسه شوي خبرداري.",
-      "badge": "پاملرنه",
-      "actionPrefix": "وړاندیز شوې کړنه:",
-      "defaultAction": "د اصلي پاڼې بیاکتنه"
+      "title": "عملیاتي خبرتیاوې",
+      "description": "هشدارونه.",
+      "badge": "توجه",
+      "actionPrefix": "وړاندیز شوی اقدام:",
+      "defaultAction": "داشبورد وګورئ"
     },
     "recentActivity": {
       "title": "وروستي فعالیتونه",
-      "description": "په سیسټم کې وروستۍ ثبت شوې درملنې او مالي معاملې.",
+      "description": "وروستي درملنې او تراکنشونه.",
       "badge": "وروستي ریکارډونه",
       "treatmentsButton": "درملنې",
-      "transactionsButton": "مالي معاملې",
+      "transactionsButton": "تراکنشونه",
       "treatmentsTable": {
         "patient": "ناروغ",
         "date": "نیټه",
         "treatment": "درملنه",
         "status": "حالت",
-        "balance": "باقي داري",
-        "priceFit": "د قیمت سمون",
-        "empty": "هیڅ وروستۍ درملنه ونه موندل شوه."
+        "balance": "بیلانس",
+        "priceFit": "د قیمت مطابقت",
+        "empty": "هیڅ درملنه ونه موندل شوه."
       },
       "transactionsTable": {
         "branch": "څانګه",
         "date": "نیټه",
         "type": "ډول",
-        "amount": "مبلغ",
-        "description": "شرحه",
-        "empty": "هیڅ وروستۍ مالي معامله ونه موندل شوه."
+        "amount": "مقدار",
+        "description": "شرح",
+        "empty": "هیڅ تراکنش ونه موندل شو."
       }
     },
     "common": {
       "branch": "څانګه",
       "branches": "څانګې",
-      "days": "ورځ"
+      "days": "ورځې"
     }
   }
 }

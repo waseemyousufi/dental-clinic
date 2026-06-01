@@ -315,7 +315,7 @@ function getPatientLink(apt: AppointmentData) {
 }
 
 function shouldLinkPatient(apt: AppointmentData): boolean {
-  return !userStore.isReceptionist && getPatientId(apt) != null && branchStore.selectedBranchId != null
+  return !userStore.isReceptionist && getPatientId(apt) != null
 }
 
 function getEmployeeName(apt: AppointmentData): string {

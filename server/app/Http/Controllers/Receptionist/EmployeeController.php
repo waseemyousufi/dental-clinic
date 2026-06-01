@@ -183,6 +183,7 @@ public function index(Request $request)
                     'total_amount' => $data['totalAmount'],
                     'remark' => $data['remark'],
                     'paidByAccountTransaction_id' => $transaction->id,
+                    'branch_id' => $this->effectiveBranchId($request)
                 ]
             );
 

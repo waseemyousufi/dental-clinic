@@ -117,11 +117,11 @@ class TransactionController extends Controller
         $transaction = AccountTransaction::where('branch_id', $this->effectiveBranchId(request()))->findOrFail($id);
         $account = Account::where('branch_id', $transaction->branch_id)->findOrFail($transaction->account_id);
 
-        if ($transaction->transaction_type == 'in') {
+        if ($transaction->transaction_type == 'in' || $transaction->transaction_type == 'charge') {
             $account->update([
                 'total_amount' => $account->total_amount - $transaction->amount,
             ]);
-        } else if ($transaction->transaction_type == 'out') {
+        } else if ($transaction->transaction_type == 'out' || $transaction->transaction_type == 'withdraw') {
             $account->update([
                 'total_amount' => $account->total_amount + $transaction->amount,
             ]);

@@ -120,20 +120,27 @@ const columns = computed(() => [
     key: 'bloodType',
   },
   {
-    title: t('patientView.columns.phone'),
-    key: 'phone',
-    ellipsis: { tooltip: true },
-  },
-  {
-    title: t('patientView.columns.emergencyContact'),
-    key: 'emgContact',
-    ellipsis: { tooltip: true },
-  },
-  {
     title: t('patientView.columns.registrationDate'),
     key: 'registerationDate',
   },
-  {
+])
+
+if (userStore.isAdmin || userStore.settings.rec_can_view_phones) {
+  columns.value.push(
+    {
+      title: t('patientView.columns.phone'),
+      key: 'phone',
+      ellipsis: { tooltip: true },
+    },
+    {
+      title: t('patientView.columns.emergencyContact'),
+      key: 'emgContact',
+      ellipsis: { tooltip: true },
+    },
+  )
+}
+
+columns.value.push(  {
     title: t('patientView.columns.actions'),
     key: 'actions',
     render(row: PatientRow) {
@@ -168,7 +175,7 @@ const columns = computed(() => [
           },
         ),
         // Edit button with icon
-       !userStore.isDoctor && h(
+        !userStore.isDoctor && h(
           Icon,
           {
             icon: 'akar-icons:edit',
@@ -207,8 +214,7 @@ const columns = computed(() => [
         ),
       ])
     },
-  },
-])
+  },)
 
 function resetForm() {
   formModel.fName = ''
@@ -351,7 +357,8 @@ onMounted(fetchPatients)
     <n-card size="small" class="patient-panel">
       <div class="toolbar">
         <n-input v-model:value="keyword" clearable :placeholder="$t('patientView.searchPlaceholder')" size="small" />
-        <n-button type="primary" size="small" @click="openCreate"> {{ $t('patientView.newPatientButtonText') }} </n-button>
+        <n-button type="primary" size="small" @click="openCreate"> {{ $t('patientView.newPatientButtonText') }}
+        </n-button>
       </div>
 
       <div class="table-wrapper">
@@ -393,10 +400,12 @@ onMounted(fetchPatients)
 
         <div class="form-row">
           <n-form-item :label="$t('patientView.form.genderLabel')">
-            <n-select :to="false" v-model:value="formModel.gender" :options="genderOptions" :placeholder="$t('patientView.form.genderPlaceholder')" />
+            <n-select :to="false" v-model:value="formModel.gender" :options="genderOptions"
+              :placeholder="$t('patientView.form.genderPlaceholder')" />
           </n-form-item>
           <n-form-item :label="$t('patientView.form.bloodTypeLabel')">
-            <n-select :to="false" v-model:value="formModel.bloodType" :options="bloodTypeOptions" :placeholder="$t('patientView.form.bloodTypePlaceholder')" />
+            <n-select :to="false" v-model:value="formModel.bloodType" :options="bloodTypeOptions"
+              :placeholder="$t('patientView.form.bloodTypePlaceholder')" />
           </n-form-item>
         </div>
 
@@ -405,7 +414,8 @@ onMounted(fetchPatients)
             <n-input v-model:value="formModel.phone" :placeholder="$t('patientView.form.phonePlaceholder')" />
           </n-form-item>
           <n-form-item :label="$t('patientView.form.emergencyContactLabel')">
-            <n-input v-model:value="formModel.emgContact" :placeholder="$t('patientView.form.emergencyContactPlaceholder')" />
+            <n-input v-model:value="formModel.emgContact"
+              :placeholder="$t('patientView.form.emergencyContactPlaceholder')" />
           </n-form-item>
         </div>
 
@@ -418,7 +428,8 @@ onMounted(fetchPatients)
         </div>
 
         <div class="form-actions">
-          <p style="margin-right: auto;" class="reception-fee">Reception Fee: <span class="digit" style="font-weight: bold; color:green"> {{ userStore.settings.reception_cost || 0 }} AFN</span></p>
+          <p style="margin-right: auto;" class="reception-fee">Reception Fee: <span class="digit"
+              style="font-weight: bold; color:green"> {{ userStore.settings.reception_cost || 0 }} AFN</span></p>
           <n-button size="small" @click="showEditor = false"> {{ $t('common.cancelButtonText') }} </n-button>
           <n-button type="primary" size="small" :loading="submitting" @click="handleSubmit">
             {{ $t('common.saveButtonText') }}

@@ -16,6 +16,37 @@
     "copyLinkButtonText": "Copy to clipboard",
     "sendEmailButtonText": "Send via email"
   },
+  "billTemplate": {
+    "patientName": "Patient Name",
+    "invoiceDate": "Invoice Date",
+    "invoiceNumber": "Invoice No.",
+    "treatmentPlanServices": "Treatment Plan & Services",
+    "serviceDescriptionHeader": "Service Description",
+    "amountHeader": "Amount",
+    "emptyTreatmentPlan": "No treatment plan items available.",
+    "scheduledAppointments": "Scheduled Appointments",
+    "emptyAppointments": "No scheduled appointments.",
+    "notesSectionTitle": "Notes",
+    "totalTreatmentCost": "Total Treatment Cost",
+    "amountPaid": "Amount Paid",
+    "balanceRemaining": "Balance Remaining",
+    "paymentInstructions": "Please complete any remaining balance with {clinic} reception.",
+    "defaultNotes": "Please follow all post-operative instructions provided during your visit."
+  },
+  "prescriptionTemplate": {
+    "patientName": "Patient Name",
+    "date": "Date",
+    "defaultMedication1": {
+      "name": "Chlorhexidine Gluconate 0.12% Oral Rinse",
+      "dosage": "Swish 15ml for 30 seconds twice daily after brushing."
+    },
+    "defaultMedication2": {
+      "name": "Paracetamol 500mg + Codeine 30mg",
+      "dosage": "1 tablet every 6 hours as needed for dental pain."
+    },
+    "legalNotice": "This document is electronically generated for clinical records. Valid only with an authorized signature.",
+    "signatureLabel": "Medical Practitioner Signature"
+  },
   "patientView": {
     "searchPlaceholder": "Search by name or phone",
     "newPatientButtonText": "New Patient",
@@ -324,7 +355,8 @@
       "referenceType": "Reference type",
       "description": "Description",
       "recordedBy": "Recorded by",
-      "account": "Account"
+      "account": "Account",
+      "actions": "Actions"
     },
     "actions": {
       "editTooltip": "Edit",
@@ -831,7 +863,7 @@
       "description": "Description",
       "unit": "Unit",
       "amount": "Price",
-      "paidBy": "Paid by",
+      "recordedBy": "Recorded by",
       "actions": "Actions"
     },
     "paidById": "ID: {id}",
@@ -846,7 +878,7 @@
         "categoryLabel": "Expense category",
         "categoryPlaceholder": "e.g. Gas Tank, Medical Supplies",
         "unitLabel": "Unit",
-        "unitPlaceholder": "e.g. liter, item, service",
+        "unitPlaceholder": "e.g. 10 liters",
         "amountLabel": "Price",
         "amountPlaceholder": "e.g. 50",
         "dateLabel": "Expense date",
@@ -875,6 +907,7 @@
     "saveChangesButton": "Save Changes",
     "tabs": {
       "branch": "Branch",
+      "whatsapp": "WhatsApp",
       "procedures": "Procedures",
       "prescriptions": "Prescriptions",
       "permissions": "Permissions",
@@ -924,7 +957,7 @@
       "rec_show_kpi": "View KPI Dashboard",
       "rec_log_actions": "Log Receptionist Actions",
       "rec_can_void_transactions": "Void Transactions",
-      "rec_can_edit_devices": "Edit Device Status",
+      "rec_can_edit_devices": "Edit Clinic Assets",
       "rec_can_contact_support": "Contact Tech Support",
       "doc_view_appointments": "View Appointments",
       "doc_view_contact": "View Patient's Contact Details",
@@ -935,12 +968,29 @@
       "title": "Database Backup",
       "description": "Create a full database snapshot or export a monthly archive.",
       "fullBackupButton": "Full Backup",
-      "monthlyDataButton": "Monthly Data"
+      "monthlyDataButton": "Monthly Data",
+      "freePlanAlert": "Sorry, Backup is not available for free users; Please Upgrade your plan to access full features in the system."
     },
     "validation": {
       "clinicNameRequired": "Clinic name is required",
       "addressRequired": "Address is required",
       "phoneRequired": "Phone is required"
+    },
+    "whatsappSection": {
+      "dynamicVariablesTitle": "Dynamic Variables",
+      "dynamicVariablesCopy": "Use placeholders like"
+    },
+    "whatsappForm": {
+      "patientReminderLabel": "Patient Reminder",
+      "patientReminderPlaceholder": "Use {patient_name} and {appointment_date} to personalize the reminder",
+      "patientCancellationLabel": "Patient Cancellation",
+      "patientCancellationPlaceholder": "Use {patient_name} and {appointment_date} to personalize the cancellation message",
+      "patientCompletionLabel": "Patient Completion",
+      "patientCompletionPlaceholder": "Use {patient_name} and {clinic_name} to personalize the completion message",
+      "supplierOrderLabel": "Supplier Order",
+      "supplierOrderPlaceholder": "Use {clinic_name} and {clinic_address} for supplier message",
+      "supplierCancelLabel": "Supplier Cancel",
+      "supplierCancelPlaceholder": "Use {clinic_name} and {appointment_date} for supplier cancellation"
     },
     "dialogs": {
       "deleteProcedureTitle": "Delete procedure?",

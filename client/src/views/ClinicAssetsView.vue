@@ -12,10 +12,10 @@
           </div>
 
           <div class="hero-actions">
-            <n-button tertiary @click="handleRefresh" :loading="loading">
+            <!-- <n-button tertiary @click="handleRefresh" :loading="loading">
               {{ t('clinicAssetsView.hero.refreshButtonText') }}
-            </n-button>
-            <n-button type="primary" @click="openCreate">
+            </n-button> -->
+            <n-button v-if="userStore.isAdmin" type="primary" @click="openCreate">
               {{ t('clinicAssetsView.hero.newAssetButtonText') }}
             </n-button>
           </div>
@@ -268,6 +268,7 @@ import {
 import { Icon } from '@iconify/vue'
 import clinicAssetsApi from '@api/clinicAsset.ts'
 import type ClinicAssetData from '@api/interfaces/ClinicAsset'
+import useUserStore from '@/stores/user'
 
 type ClinicAssetFormData = ClinicAssetData & {
   discountPercentage?: number | null
@@ -277,6 +278,7 @@ type ClinicAssetFormData = ClinicAssetData & {
 const { t } = useI18n()
 const message = useMessage()
 const viewportWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1280)
+const userStore = useUserStore()
 
 const handleResize = () => {
   viewportWidth.value = window.innerWidth
@@ -337,6 +339,16 @@ const statusOptions = computed(() => [
   { label: t('clinicAssetsView.statusOptions.inactive'), value: 'inactive' },
   { label: t('clinicAssetsView.statusOptions.maintenance'), value: 'maintenance' },
 ])
+
+function canEdit() {
+  if(userStore.isReceptionist)
+     return userStore.settings.rec_can_edit_devices
+  else if(userStore.isDoctor) {
+    return userStore.settings.doc_edit_assets
+  }
+  else
+    return true;
+}
 
 const rules = computed<FormRules>(() => ({
   assetName: [{ required: true, message: t('clinicAssetsView.validation.assetNameRequired'), trigger: ['input', 'blur'] }],
@@ -689,7 +701,7 @@ const columns = computed<DataTableColumns<ClinicAssetData>>(() => [
         { size: 8 },
         {
           default: () => [
-            h(
+            canEdit() && h(
               NButton,
               { size: 'small', tertiary: true, onClick: () => openEdit(row) },
               { default: () => t('common.editButtonText'), icon: () => h(Icon, { icon: 'solar:pen-2-linear' }) }

@@ -115,6 +115,7 @@ class AccountController extends Controller
         return response()->json(['message' => 'deleted']);
     }
 
+    // BUG account charge won't increase account total amount
     private function applyBalanceChange(Request $request, $id, string $transactionType, string $referenceType)
     {
         $branchId = $this->effectiveBranchId($request);
@@ -127,7 +128,7 @@ class AccountController extends Controller
         $amount = (int) $data['amount'];
         $currentBalance = (int) $account->total_amount;
 
-        if ($transactionType === 'out' && $currentBalance < $amount) {
+        if ($transactionType === 'withdraw' && $currentBalance < $amount) {
             return response()->json(['message' => 'Insufficient account balance'], 422);
         }
 
@@ -147,7 +148,7 @@ class AccountController extends Controller
         Branch::find($branchId)?->accountTransactions()->save($transaction);
 
         $account->update([
-            'total_amount' => $transactionType === 'in'
+            'total_amount' => $transactionType === 'charge'
                 ? $currentBalance + $amount
                 : $currentBalance - $amount,
         ]);

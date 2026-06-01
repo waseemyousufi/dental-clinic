@@ -318,33 +318,38 @@ const transactionColumns = [
     key: 'account',
     width: 120,
   },
-  // {
-  //   title: 'Actions',
-  //   key: 'actions',
-  //   render(row: TransactionRow) {
-  //     return h('div', { style: 'display: flex; gap: 8px; align-items: center;' }, [
-  //       // h(Icon, {
-  //       //   icon: 'akar-icons:edit',
-  //       //   title: 'Edit',
-  //       //   width: 20,
-  //       //   height: 20,
-  //       //   color: '#4f46e5',
-  //       //   style: { cursor: 'pointer' },
-  //       //   onClick: () => handleTransactionEdit(row),
-  //       // }),
-  //       h(Icon, {
-  //         icon: 'fluent:delete-16-filled',
-  //         title: 'Delete',
-  //         width: 20,
-  //         height: 20,
-  //         color: '#dc2626',
-  //         style: { cursor: 'pointer' },
-  //         onClick: () => handleTransactionDelete(row),
-  //       }),
-  //     ])
-  //   },
-  // },
 ]
+
+if (userStore.isAdmin || userStore.settings.rec_can_void_transactions) {
+  transactionColumns.push(
+    {
+      title: t('accountView.transactionColumns.actions'),
+      key: 'actions',
+      render(row: TransactionRow) {
+        return h('div', { style: 'display: flex; gap: 8px; align-items: center;' }, [
+          // h(Icon, {
+          //   icon: 'akar-icons:edit',
+          //   title: t('accountView.actions.editTooltip'),
+          //   width: 20,
+          //   height: 20,
+          //   color: '#4f46e5',
+          //   style: { cursor: 'pointer' },
+          //   onClick: () => handleTransactionEdit(row),
+          // }),
+          h(Icon, {
+            icon: 'fluent:delete-16-filled',
+            title: t('accountView.actions.deleteTooltip'),
+            width: 20,
+            height: 20,
+            color: '#dc2626',
+            style: { cursor: 'pointer' },
+            onClick: () => handleTransactionDelete(row),
+          }),
+        ])
+      },
+    },
+  )
+}
 
 async function fetchAccounts() {
   try {
@@ -637,7 +642,8 @@ onMounted(() => {
       <div class="toolbar">
         <n-input v-model:value="accountKeyword" clearable :placeholder="t('accountView.searchPlaceholder')"
           size="small" />
-        <n-button v-if="userStore.isAdmin" type="primary" size="small" @click="openAccountCreate">{{ t('accountView.newAccountButtonText')
+        <n-button v-if="userStore.isAdmin" type="primary" size="small" @click="openAccountCreate">{{
+          t('accountView.newAccountButtonText')
           }}</n-button>
       </div>
 
@@ -716,8 +722,8 @@ onMounted(() => {
           </n-form-item>
           <n-form-item :label="t('accountView.balanceModal.descriptionLabel')">
             <n-input v-model:value="balanceFormModel.description" :placeholder="balanceActionType === 'charge'
-                ? t('accountView.balanceModal.chargeDescriptionPlaceholder')
-                : t('accountView.balanceModal.withdrawDescriptionPlaceholder')
+              ? t('accountView.balanceModal.chargeDescriptionPlaceholder')
+              : t('accountView.balanceModal.withdrawDescriptionPlaceholder')
               " />
           </n-form-item>
         </div>
@@ -751,8 +757,8 @@ onMounted(() => {
         <div class="form-row">
           <n-form-item :label="t('accountView.transactionForm.transactionDateLabel')">
             <n-date-picker :to="false" type="date" size="small" style="width: 100%" :value="transactionFormModel.transactionDate
-                ? Date.parse(transactionFormModel.transactionDate as string)
-                : null
+              ? Date.parse(transactionFormModel.transactionDate as string)
+              : null
               " @update:value="handleDateChange" />
           </n-form-item>
           <n-form-item :label="t('accountView.transactionForm.referenceTypeLabel')">

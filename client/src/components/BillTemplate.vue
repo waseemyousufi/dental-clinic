@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n'
 
 interface TreatmentItem {
   service: string;
@@ -38,8 +39,10 @@ const props = withDefaults(defineProps<Props>(), {
   currency: 'AFN',
   treatmentPlan: () => [],
   appointments: () => [],
-  notes: "Please follow all post-operative instructions provided during your visit."
+  notes: '',
 });
+
+const { t, locale } = useI18n()
 
 const totalAmount = computed(() => {
   if (typeof props.totalAmount === 'number' && !Number.isNaN(props.totalAmount)) {
@@ -57,6 +60,8 @@ const amountRemaining = computed(() => {
   return totalAmount.value - props.amountPaid;
 });
 
+const notesText = computed(() => (props.notes?.trim() ? props.notes : t('billTemplate.defaultNotes')))
+
 const containerClasses = computed(() => ({
   'bill-sheet': true,
   'size-a4': props.paperSize === 'A4',
@@ -65,8 +70,9 @@ const containerClasses = computed(() => ({
 
 // Formatter for currency
 const formatCurrency = (value: number) => {
+  const localeCode = typeof locale.value === 'string' && locale.value.length ? locale.value : 'en-US'
   try {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat(localeCode, {
       style: 'currency',
       currency: props.currency,
       maximumFractionDigits: 0,
@@ -102,27 +108,27 @@ const formatCurrency = (value: number) => {
 
       <section class="meta-section">
         <div class="field-box">
-          <label>Patient Name</label>
+          <label>{{ t('billTemplate.patientName') }}</label>
           <div class="field-value">{{ props.patientName }}</div>
         </div>
         <div class="field-box">
-          <label>Invoice Date</label>
+          <label>{{ t('billTemplate.invoiceDate') }}</label>
           <div class="field-value">{{ props.invoiceDate }}</div>
         </div>
         <div class="field-box">
-          <label>Invoice No.</label>
+          <label>{{ t('billTemplate.invoiceNumber') }}</label>
           <div class="field-value">#{{ props.invoiceNumber }}</div>
         </div>
       </section>
 
       <section class="content-section">
-        <h4 class="section-title">Treatment Plan & Services</h4>
+        <h4 class="section-title">{{ t('billTemplate.treatmentPlanServices') }}</h4>
         <div class="table-header">
-          <span>Service Description</span>
-          <span class="text-right">Amount</span>
+          <span>{{ t('billTemplate.serviceDescriptionHeader') }}</span>
+          <span class="text-right">{{ t('billTemplate.amountHeader') }}</span>
         </div>
         <div v-if="!props.treatmentPlan.length" class="empty-copy">
-          No treatment plan items available.
+          {{ t('billTemplate.emptyTreatmentPlan') }}
         </div>
         <div v-for="(item, i) in props.treatmentPlan" :key="i" class="table-row">
           <div class="service-info">
@@ -135,9 +141,9 @@ const formatCurrency = (value: number) => {
 
       <div class="secondary-info-grid">
         <section>
-          <h4 class="section-title">Scheduled Appointments</h4>
+          <h4 class="section-title">{{ t('billTemplate.scheduledAppointments') }}</h4>
           <div v-if="!props.appointments.length" class="empty-copy">
-            No scheduled appointments.
+            {{ t('billTemplate.emptyAppointments') }}
           </div>
           <div v-for="(appt, j) in props.appointments" :key="j" class="appt-item">
             <Icon icon="mdi:calendar-clock" class="appt-icon" />
@@ -149,30 +155,30 @@ const formatCurrency = (value: number) => {
         </section>
 
         <section>
-          <h4 class="section-title">Notes</h4>
-          <div class="notes-box">{{ props.notes }}</div>
+          <h4 class="section-title">{{ t('billTemplate.notesSectionTitle') }}</h4>
+          <div class="notes-box">{{ notesText }}</div>
         </section>
       </div>
 
       <footer class="bill-footer">
         <div class="financial-summary">
           <div class="summary-line">
-            <span>Total Treatment Cost</span>
+            <span>{{ t('billTemplate.totalTreatmentCost') }}</span>
             <span>{{ formatCurrency(totalAmount) }}</span>
           </div>
           <!-- <div class="summary-line highlight">
-            <span>Amount Paid</span>
+            <span>{{ t('billTemplate.amountPaid') }}</span>
             <span>- {{ formatCurrency(props.amountPaid) }}</span>
           </div> -->
           <div class="summary-line balance">
-            <span>Balance Remaining</span>
+            <span>{{ t('billTemplate.balanceRemaining') }}</span>
             <span>{{ formatCurrency(amountRemaining) }}</span>
           </div>
         </div>
 
         <div class="payment-instructions">
           <Icon icon="mdi:information-outline" />
-          <span>Please complete any remaining balance with {{ props.clinicPrimary }} reception.</span>
+          <span>{{ t('billTemplate.paymentInstructions', { clinic: props.clinicPrimary }) }}</span>
         </div>
       </footer>
     </article>

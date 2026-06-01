@@ -69,6 +69,7 @@ class ClinicExpenseController extends Controller
     public function update(Request $request, $id)
     {
         $branchId = $this->effectiveBranchId($request);
+        $employeeId = $request->user()->employee->id;
 
         $data = $request->validate([
             'expenseCategory' => 'string|required',
@@ -76,7 +77,7 @@ class ClinicExpenseController extends Controller
             'amount'  => 'string|required',
             'expenseDate'  => 'string|required',
             'description'  => 'string|required',
-            'paidByEmployeeId'  => 'string|required',
+            // 'paidByEmployeeId'  => 'string|required',
         ]);
 
         ClinicExpense::where('branch_id', $branchId)->findOrFail($id)->update([
@@ -85,11 +86,9 @@ class ClinicExpenseController extends Controller
             'amount' => $data['amount'],
             'expense_date' => $data['expenseDate'],
             'description' => $data['description'],
-            'paidByEmployee_id' => $data['paidByEmployeeId'],
+            'paidByEmployee_id' => $employeeId,
             'branch_id' => $branchId,
         ]);
-
-
 
         return response('updated');
     }

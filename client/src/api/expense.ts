@@ -20,6 +20,7 @@ export default new (class Expense {
   }
 
   updateExpense(id: number, data: ExpenseData) {
+    console.log(data)
     return api.put(`/expense/${id}`, data)
   }
 

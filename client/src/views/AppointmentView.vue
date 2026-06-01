@@ -13,6 +13,7 @@ import patientApi from '@api/patient'
 import type AppointmentData from '@api/interfaces/Appointment'
 import type EmployeeData from '@api/interfaces/Employee'
 import type PatientData from '@api/interfaces/patient'
+import { Icon } from '@iconify/vue'
 import {
   useMessage,
   NInput,
@@ -29,13 +30,14 @@ import {
 import AppointmentFormModal from '@/components/AppointmentFormModal.vue'
 import AppointmentsList from '@/components/AppointmentsList.vue'
 import useUserStore from '@/stores/user'
+import { formatWhatsAppPhone, sendViaWhatsApp } from '@/utils/whatsapp'
 
 const message = useMessage()
 const { t } = useI18n()
 const calendarRef = ref<InstanceType<typeof FullCalendar> | null>(null)
 const isSidebarCollapsed = inject<Ref<boolean>>('isSidebarCollapsed', ref(false))
 const route = useRoute()
-const userStore = useUserStore();
+const userStore = useUserStore()
 
 const getEffectiveBranchId = (): number | undefined => {
   const usr = JSON.parse(localStorage.getItem('user') || 'null')
@@ -51,6 +53,7 @@ const getEffectiveBranchId = (): number | undefined => {
 type AppointmentWithNames = AppointmentData & {
   employeeName?: string
   patientName?: string
+  patientPhone?: string
 }
 
 type EmployeeAbbr = {
@@ -65,12 +68,14 @@ type PatientAbbr = {
   name?: string
   fName?: string
   lName?: string
+  phone?: string
 }
 
 // --- States ---
 const appointments = ref<AppointmentWithNames[]>([])
 const employeeOptions = ref<{ label: string; value: number }[]>([])
 const patientOptions = ref<{ label: string; value: number }[]>([])
+const patientContacts = ref<Record<number, { name: string; phone: string }>>({})
 const searchQuery = ref('')
 
 // Modals
@@ -135,6 +140,107 @@ const getStatusColor = (status: string) => {
   }
 }
 
+const clinicName = computed(() => (userStore.settings as any)?.clinic_name ?? '')
+const clinicAddress = computed(() => (userStore.settings as any)?.address ?? '')
+
+const appointmentTemplates = computed(() => ({
+  cancel: (userStore.settings as any)?.wa_patient_cancel ?? '',
+  complete: (userStore.settings as any)?.wa_patient_complete ?? '',
+  reminder: (userStore.settings as any)?.wa_patient_reminder ?? '',
+}))
+
+const formatAppointmentDateTime = (timestamp?: string) => {
+  if (!timestamp) return ''
+  try {
+    return new Date(timestamp).toLocaleString()
+  } catch {
+    return ''
+  }
+}
+
+const formatAppointmentDate = (timestamp?: string) => {
+  if (!timestamp) return ''
+  try {
+    return new Date(timestamp).toLocaleDateString()
+  } catch {
+    return ''
+  }
+}
+
+const formatAppointmentTime = (timestamp?: string) => {
+  if (!timestamp) return ''
+  try {
+    return new Date(timestamp).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  } catch {
+    return ''
+  }
+}
+
+const replaceTemplateVars = (template: string, vars: Record<string, string>) => {
+  return (template || '')
+    .replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_, key: string) => vars[key] ?? '')
+    .replace(/\{\s*([a-zA-Z0-9_]+)\s*\}/g, (_, key: string) => vars[key] ?? '')
+}
+
+const buildAppointmentMessage = (kind: 'cancel' | 'complete' | 'reminder') => {
+  const apt = selectedAppointment.value
+  if (!apt) return ''
+
+  const template = appointmentTemplates.value[kind]
+  const defaultLine =
+    kind === 'cancel'
+      ? 'Your appointment has been cancelled.'
+      : kind === 'complete'
+        ? 'Your appointment has been completed.'
+        : 'This is a reminder for your upcoming appointment.'
+
+  const vars = {
+    patient_name: apt.patientName || '',
+    patient_phone: apt.patientPhone || '',
+    clinic_name: clinicName.value || '',
+    clinic_address: clinicAddress.value || '',
+    appointment_date: formatAppointmentDate(apt.appointment_timestamp),
+    appointment_time: formatAppointmentTime(apt.appointment_timestamp),
+    appointment_datetime: formatAppointmentDateTime(apt.appointment_timestamp),
+    doctor_name: apt.employeeName || '',
+    description: apt.description || '',
+    message_line: defaultLine,
+  }
+
+  const fallback = [
+    `Hello ${vars.patient_name},`,
+    '',
+    `This is ${vars.clinic_name}.`,
+    defaultLine,
+    vars.appointment_datetime ? `Appointment: ${vars.appointment_datetime}` : '',
+    vars.clinic_address ? `Address: ${vars.clinic_address}` : '',
+  ]
+    .filter(Boolean)
+    .join('\n')
+
+  return replaceTemplateVars(template || fallback, vars)
+}
+
+const sendAppointmentWhatsAppMessage = (kind: 'cancel' | 'complete' | 'reminder') => {
+  const apt = selectedAppointment.value
+  if (!apt) return
+
+  const rawPhone = apt.patientPhone || ''
+  const phone = formatWhatsAppPhone(rawPhone)
+
+  if (!phone) {
+    message.error('Patient phone number is missing or invalid.')
+    return
+  }
+
+  const text = buildAppointmentMessage(kind)
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`
+  sendViaWhatsApp(url)
+}
+
 // --- API Calls ---
 const loadData = async () => {
   try {
@@ -151,8 +257,20 @@ const loadData = async () => {
     }))
 
     const rawPats = patRes.data?.data || patRes.data
-    patientOptions.value = (Array.isArray(rawPats) ? rawPats : (rawPats?.patients || [])).map((pat: PatientData) => ({
-      label: formatName(pat),
+    const patients = Array.isArray(rawPats) ? rawPats : (rawPats?.patients || [])
+
+    patientContacts.value = Object.fromEntries(
+      patients.map((pat: PatientData) => [
+        pat.id,
+        {
+          name: formatName(pat as PatientAbbr),
+          phone: (pat as PatientAbbr).phone || '',
+        },
+      ]),
+    )
+
+    patientOptions.value = patients.map((pat: PatientData) => ({
+      label: formatName(pat as PatientAbbr),
       value: pat.id
     }))
 
@@ -168,13 +286,14 @@ const fetchAppointments = async () => {
     const response = await appointmentApi.getBranchAppointments(getEffectiveBranchId())
     const raw = response.data?.data || response.data
     if (Array.isArray(raw)) {
-      appointments.value = raw.map((apt: AppointmentData) => {
+      appointments.value = raw.map((apt: AppointmentData & { patientPhone?: string }) => {
         const emp = employeeOptions.value.find((e) => e.value === apt.employeeId)
-        const pat = patientOptions.value.find((p) => p.value === apt.patientId)
+        const pat = patientContacts.value[apt.patientId]
         return {
           ...apt,
           employeeName: emp?.label || apt.employee || 'N/A',
-          patientName: pat?.label || apt.patient || 'N/A'
+          patientName: pat?.name || (apt as any).patient || 'N/A',
+          patientPhone: apt.patientPhone || pat?.phone || '',
         }
       })
     }
@@ -404,10 +523,62 @@ onMounted(loadData)
               <n-text depth="3">{{ t('appointmentView.calendar.detailsSection.timeLabel') }}</n-text>
               <div>{{ new Date(selectedAppointment.appointment_timestamp).toLocaleString() }}</div>
             </div>
+
+            <div v-if="selectedAppointment.patientPhone">
+              <n-text depth="3">Patient phone</n-text>
+              <div>{{ selectedAppointment.patientPhone }}</div>
+            </div>
+
             <n-divider style="margin: 8px 0" />
+
             <div>
               <n-text depth="3">{{ t('appointmentView.calendar.detailsSection.descriptionLabel') }}</n-text>
               <div style="white-space: pre-wrap">{{ selectedAppointment.description || t('common.noDataAvailable') }}</div>
+            </div>
+
+            <n-divider style="margin: 8px 0" />
+
+            <div>
+              <n-text depth="3">WhatsApp messages</n-text>
+              <div style="margin-top: 8px;">
+                <n-space align="center" size="small" wrap>
+                  <n-button
+                    circle
+                    quaternary
+                    type="error"
+                    :disabled="!selectedAppointment.patientPhone"
+                    title="Send cancellation message"
+                    aria-label="Send cancellation message"
+                    @click="sendAppointmentWhatsAppMessage('cancel')"
+                  >
+                    <Icon icon="mdi:calendar-remove" width="18" height="18" />
+                  </n-button>
+
+                  <n-button
+                    circle
+                    quaternary
+                    type="success"
+                    :disabled="!selectedAppointment.patientPhone"
+                    title="Send completion message"
+                    aria-label="Send completion message"
+                    @click="sendAppointmentWhatsAppMessage('complete')"
+                  >
+                    <Icon icon="mdi:check-circle-outline" width="18" height="18" />
+                  </n-button>
+
+                  <n-button
+                    circle
+                    quaternary
+                    type="warning"
+                    :disabled="!selectedAppointment.patientPhone"
+                    title="Send reminder message"
+                    aria-label="Send reminder message"
+                    @click="sendAppointmentWhatsAppMessage('reminder')"
+                  >
+                    <Icon icon="mdi:bell-outline" width="18" height="18" />
+                  </n-button>
+                </n-space>
+              </div>
             </div>
           </n-space>
         </div>
@@ -515,6 +686,11 @@ onMounted(loadData)
 
 .details {
   line-height: 1.6;
+
+  .n-button {
+    width: 36px;
+    height: 36px;
+  }
 }
 
 :deep(.n-message-container) {
@@ -596,3 +772,4 @@ onMounted(loadData)
   }
 }
 </style>
+style>

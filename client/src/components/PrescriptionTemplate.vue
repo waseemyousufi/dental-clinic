@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n'
 
 interface Medication {
   name: string;
@@ -23,6 +24,8 @@ const props = withDefaults(defineProps<Props>(), {
   paperSize: 'A4',
   medications: () => []
 });
+
+const { t } = useI18n()
 
 const containerClasses = computed(() => ({
   'paper-sheet': true,
@@ -80,7 +83,7 @@ const containerClasses = computed(() => ({
       <section class="patient-section">
 
         <div class="field-box">
-          <label>Patient Name</label>
+          <label>{{ t('prescriptionTemplate.patientName') }}</label>
 
           <div class="field-value">
             {{ props.patientName }}
@@ -88,7 +91,7 @@ const containerClasses = computed(() => ({
         </div>
 
         <div class="field-box">
-          <label>Date</label>
+          <label>{{ t('prescriptionTemplate.date') }}</label>
 
           <div class="field-value">
             {{ props.date }}
@@ -125,21 +128,21 @@ const containerClasses = computed(() => ({
 
             <div class="med-item">
               <div class="name">
-                Chlorhexidine Gluconate 0.12% Oral Rinse
+                {{ t('prescriptionTemplate.defaultMedication1.name') }}
               </div>
 
               <div class="dosage">
-                Swish 15ml for 30 seconds twice daily after brushing.
+                {{ t('prescriptionTemplate.defaultMedication1.dosage') }}
               </div>
             </div>
 
             <div class="med-item">
               <div class="name">
-                Paracetamol 500mg + Codeine 30mg
+                {{ t('prescriptionTemplate.defaultMedication2.name') }}
               </div>
 
               <div class="dosage">
-                1 tablet every 6 hours as needed for dental pain.
+                {{ t('prescriptionTemplate.defaultMedication2.dosage') }}
               </div>
             </div>
 
@@ -152,15 +155,14 @@ const containerClasses = computed(() => ({
       <footer class="prescription-footer">
 
         <div class="legal-notice">
-          This document is electronically generated for clinical records.
-          Valid only with an authorized signature.
+          {{ t('prescriptionTemplate.legalNotice') }}
         </div>
 
         <div class="signature-column">
           <div class="signature-line"></div>
 
           <div class="signature-label">
-            Medical Practitioner Signature
+            {{ t('prescriptionTemplate.signatureLabel') }}
           </div>
         </div>
 
