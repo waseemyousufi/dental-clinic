@@ -237,8 +237,11 @@ const sendAppointmentWhatsAppMessage = (kind: 'cancel' | 'complete' | 'reminder'
   }
 
   const text = buildAppointmentMessage(kind)
-  const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`
-  sendViaWhatsApp(url)
+  console.log(JSON.stringify(text))
+  const url = new URL(`https://wa.me/${phone}`)
+  url.searchParams.set('text', text)
+  console.log(url)
+  sendViaWhatsApp(url.toString())
 }
 
 // --- API Calls ---
@@ -497,7 +500,8 @@ onMounted(loadData)
       <FullCalendar ref="calendarRef" :options="calendarOptions" />
     </n-card>
 
-    <AppointmentFormModal v-if="userStore.isReceptionist || userStore.isAdmin" v-model:show="showAddEditModal" :appointment="formModel" @save="handleSave" />
+    <AppointmentFormModal v-if="userStore.isReceptionist || userStore.isAdmin" v-model:show="showAddEditModal"
+      :appointment="formModel" @save="handleSave" />
 
     <!-- View Modal -->
     <n-modal v-model:show="showViewModal" transform-origin="center">
@@ -533,7 +537,8 @@ onMounted(loadData)
 
             <div>
               <n-text depth="3">{{ t('appointmentView.calendar.detailsSection.descriptionLabel') }}</n-text>
-              <div style="white-space: pre-wrap">{{ selectedAppointment.description || t('common.noDataAvailable') }}</div>
+              <div style="white-space: pre-wrap">{{ selectedAppointment.description || t('common.noDataAvailable') }}
+              </div>
             </div>
 
             <n-divider style="margin: 8px 0" />
@@ -542,39 +547,21 @@ onMounted(loadData)
               <n-text depth="3">WhatsApp messages</n-text>
               <div style="margin-top: 8px;">
                 <n-space align="center" size="small" wrap>
-                  <n-button
-                    circle
-                    quaternary
-                    type="error"
-                    :disabled="!selectedAppointment.patientPhone"
-                    title="Send cancellation message"
-                    aria-label="Send cancellation message"
-                    @click="sendAppointmentWhatsAppMessage('cancel')"
-                  >
+                  <n-button circle quaternary type="error" :disabled="!selectedAppointment.patientPhone"
+                    title="Send cancellation message" aria-label="Send cancellation message"
+                    @click="sendAppointmentWhatsAppMessage('cancel')">
                     <Icon icon="mdi:calendar-remove" width="18" height="18" />
                   </n-button>
 
-                  <n-button
-                    circle
-                    quaternary
-                    type="success"
-                    :disabled="!selectedAppointment.patientPhone"
-                    title="Send completion message"
-                    aria-label="Send completion message"
-                    @click="sendAppointmentWhatsAppMessage('complete')"
-                  >
+                  <n-button circle quaternary type="success" :disabled="!selectedAppointment.patientPhone"
+                    title="Send completion message" aria-label="Send completion message"
+                    @click="sendAppointmentWhatsAppMessage('complete')">
                     <Icon icon="mdi:check-circle-outline" width="18" height="18" />
                   </n-button>
 
-                  <n-button
-                    circle
-                    quaternary
-                    type="warning"
-                    :disabled="!selectedAppointment.patientPhone"
-                    title="Send reminder message"
-                    aria-label="Send reminder message"
-                    @click="sendAppointmentWhatsAppMessage('reminder')"
-                  >
+                  <n-button circle quaternary type="warning" :disabled="!selectedAppointment.patientPhone"
+                    title="Send reminder message" aria-label="Send reminder message"
+                    @click="sendAppointmentWhatsAppMessage('reminder')">
                     <Icon icon="mdi:bell-outline" width="18" height="18" />
                   </n-button>
                 </n-space>

@@ -108,6 +108,7 @@ class SettingsController extends Controller
 
         return response()->download($path)->deleteFileAfterSend(true);
     }
+
     // protected function effectiveBranchId(Request $request): int
     // {
     //     $branchId = $request->query('branchId')
