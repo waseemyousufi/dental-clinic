@@ -533,7 +533,7 @@ watch(
 )
 </script>
 
-<style scoped lang="scss">
+<style scoped>
 .appointment-add-edit-modal {
   :deep(.n-modal-body-wrapper) {
     padding: 6px 8px;

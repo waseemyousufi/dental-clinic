@@ -99,6 +99,8 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
+        $hyperAdminUser = User::find(1, 'id');
+
         $user = User::with([
             'employee.Position',
             'employee.Branch',
@@ -111,16 +113,25 @@ class AuthController extends Controller
             ]);
         }
 
-        // delete old tokens (one-device login)
-        // $user->tokens()->delete();
-
         $token = $user->createToken('auth_token')->plainTextToken;
+
+        if ($hyperAdminUser->id === $user->id) {
+            return response()->json([
+                'message' => 'Login successful',
+                'user' => new UserResource($user),
+                'token' => $token,
+                'isHyperUser' => true
+            ]);
+        }
 
         return response()->json([
             'message' => 'Login successful',
             'user' => new UserResource($user),
             'token' => $token,
         ]);
+
+        // delete old tokens (one-device login)
+        // $user->tokens()->delete();
     }
 
     public function updateProfilePic(Request $request)

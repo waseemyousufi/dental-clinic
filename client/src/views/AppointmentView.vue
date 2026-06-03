@@ -595,7 +595,7 @@ onMounted(loadData)
   </div>
 </template>
 
-<style scoped lang="scss">
+<style scoped>
 .appointment-view {
   padding: 1rem;
   /* Reduced padding */
@@ -607,77 +607,77 @@ onMounted(loadData)
   overflow-x: hidden;
   box-sizing: border-box;
   /* Include padding in the element's total width */
+}
 
-  .header {
-    background: white;
-    padding: 1rem;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
+.appointment-view .header {
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
 
-  .calendar-card {
-    flex-grow: 0;
-    /* Allow calendar card to take up remaining space */
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+.appointment-view .calendar-card {
+  flex-grow: 0;
+  /* Allow calendar card to take up remaining space */
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
 
-    .n-card-content {
-      padding: 0 !important;
-    }
+.appointment-view .calendar-card .n-card-content {
+  padding: 0 !important;
+}
 
-    :deep(.fc) {
-      font-family: inherit;
-      --fc-border-color: #e5e7eb;
-      --fc-today-bg-color: rgba(59, 130, 246, 0.08);
+.appointment-view .calendar-card :deep(.fc) {
+  font-family: inherit;
+  --fc-border-color: #e5e7eb;
+  --fc-today-bg-color: rgba(59, 130, 246, 0.08);
+}
 
-      .fc-day-today {
-        background-color: var(--fc-today-bg-color);
-      }
+.appointment-view .calendar-card :deep(.fc) .fc-day-today {
+  background-color: var(--fc-today-bg-color);
+}
 
-      .fc-toolbar-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-      }
+.appointment-view .calendar-card :deep(.fc) .fc-toolbar-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
 
-      .fc-button-primary {
-        background-color: white;
-        border-color: #d1d5db;
-        color: #374151;
-        text-transform: capitalize;
+.appointment-view .calendar-card :deep(.fc) .fc-button-primary {
+  background-color: white;
+  border-color: #d1d5db;
+  color: #374151;
+  text-transform: capitalize;
+}
 
-        &:hover {
-          background-color: #f9fafb;
-          border-color: #9ca3af;
-        }
+.appointment-view .calendar-card :deep(.fc) .fc-button-primary:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
 
-        &:disabled {
-          background-color: #f3f4f6;
-        }
+.appointment-view .calendar-card :deep(.fc) .fc-button-primary:disabled {
+  background-color: #f3f4f6;
+}
 
-        &.fc-button-active {
-          background-color: #e5e7eb;
-          border-color: #9ca3af;
-          color: #111827;
-        }
-      }
+.appointment-view .calendar-card :deep(.fc) .fc-button-primary.fc-button-active {
+  background-color: #e5e7eb;
+  border-color: #9ca3af;
+  color: #111827;
+}
 
-      .fc-event {
-        cursor: pointer;
-        padding: 2px 4px;
-        border-radius: 4px;
-        font-size: 0.85rem;
-      }
-    }
-  }
+.appointment-view .calendar-card :deep(.fc) .fc-event {
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 0.85rem;
 }
 
 .details {
   line-height: 1.6;
+}
 
-  .n-button {
-    width: 36px;
-    height: 36px;
-  }
+.details .n-button {
+  width: 36px;
+  height: 36px;
 }
 
 :deep(.n-message-container) {
@@ -691,72 +691,70 @@ onMounted(loadData)
 }
 
 /* Add/Edit modal: narrow width cap + tight horizontal padding */
-.appointment-add-edit-modal {
-  :deep(.n-modal-body-wrapper) {
-    padding: 6px 8px;
-  }
+.appointment-add-edit-modal :deep(.n-modal-body-wrapper) {
+  padding: 6px 8px;
+}
 
-  :deep(.appointment-form-card.n-card) {
-    width: 100%;
-    max-width: min(calc(100vw - 20px), 380px);
-    box-sizing: border-box;
-  }
+.appointment-add-edit-modal :deep(.appointment-form-card.n-card) {
+  width: 100%;
+  max-width: min(calc(100vw - 20px), 380px);
+  box-sizing: border-box;
+}
 
-  @media (min-width: 420px) {
-    :deep(.appointment-form-card.n-card) {
-      max-width: min(calc(100vw - 24px), 420px);
-    }
+@media (min-width: 420px) {
+  .appointment-add-edit-modal :deep(.appointment-form-card.n-card) {
+    max-width: min(calc(100vw - 24px), 420px);
   }
+}
 
-  @media (min-width: 520px) {
-    :deep(.appointment-form-card.n-card) {
-      max-width: min(calc(100vw - 28px), 460px);
-    }
+@media (min-width: 520px) {
+  .appointment-add-edit-modal :deep(.appointment-form-card.n-card) {
+    max-width: min(calc(100vw - 28px), 460px);
   }
+}
 
-  :deep(.appointment-form-card .n-card-header) {
-    padding: 10px 12px 6px;
-  }
+.appointment-add-edit-modal :deep(.appointment-form-card .n-card-header) {
+  padding: 10px 12px 6px;
+}
 
-  :deep(.appointment-form-card .n-card-content) {
-    padding: 0 12px 10px;
-  }
+.appointment-add-edit-modal :deep(.appointment-form-card .n-card-content) {
+  padding: 0 12px 10px;
+}
 
-  :deep(.appointment-form-card .n-card__footer) {
-    padding: 6px 12px 10px;
-  }
+.appointment-add-edit-modal :deep(.appointment-form-card .n-card__footer) {
+  padding: 6px 12px 10px;
+}
 
-  :deep(.appointment-form .n-form-item-feedback-wrapper) {
-    min-height: 0;
-  }
+.appointment-add-edit-modal :deep(.appointment-form .n-form-item-feedback-wrapper) {
+  min-height: 0;
+}
 
-  .appointment-form__rows {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
+.appointment-add-edit-modal .appointment-form__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
-  .appointment-form__pair {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px 8px;
-    align-items: start;
-  }
+.appointment-add-edit-modal .appointment-form__pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 8px;
+  align-items: start;
+}
 
-  @media (max-width: 479px) {
-    .appointment-form__pair {
-      grid-template-columns: 1fr;
-    }
+@media (max-width: 479px) {
+  .appointment-add-edit-modal .appointment-form__pair {
+    grid-template-columns: 1fr;
   }
+}
 
-  :deep(.appointment-form__field.n-form-item) {
-    margin-bottom: 0;
-  }
+.appointment-add-edit-modal :deep(.appointment-form__field.n-form-item) {
+  margin-bottom: 0;
+}
 
-  :deep(.appointment-form__field .n-form-item-label) {
-    padding-bottom: 2px;
-    font-size: 12px;
-  }
+.appointment-add-edit-modal :deep(.appointment-form__field .n-form-item-label) {
+  padding-bottom: 2px;
+  font-size: 12px;
 }
 </style>
 style>

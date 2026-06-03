@@ -11,6 +11,19 @@ use App\Http\Controllers\HyperUserController;
 
 
 Route::middleware('auth:sanctum')->group(function () {
+
+    Route::middleware('role:hyper-admin')->group(function () {
+        Route::get('/clinic-owner', [ClinicOwnerController::class, 'index']);
+        Route::post('/clinic-owner', [ClinicOwnerController::class, 'store']);
+        Route::put('/clinic-owner/{id}', [ClinicOwnerController::class, 'update']);
+        Route::delete('/clinic-owner/{id}', [ClinicOwnerController::class, 'destroy']);
+
+        Route::get('/all-branches', [HyperUserController::class, 'fetchBranches']);
+        Route::post('/branch', [HyperUserController::class, 'store']);
+        Route::put('/branch/{id}', [HyperUserController::class, 'update']);
+        Route::delete('/branch/{id}', [HyperUserController::class, 'destroy']);
+    });
+
     Route::middleware('role:admin')->group(function () {
         Route::post('/create-user', [Admin\EmployeeController::class, 'store']);
         Route::get('/branch', [Admin\BranchController::class, 'index']);
@@ -151,7 +164,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/inventory-stock/{id}', [Shared\InventoryStockController::class, 'delete']);
         Route::get('/inventory-stock/pending', [Shared\InventoryStockController::class, 'pending']);
         Route::get('/inventory-stock/placed', [Shared\InventoryStockController::class, 'placed']);
+    });
 
+    Route::middleware('role:receptionist,doctor,assistant,admin,hyper-admin')->group(function () {
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
         Route::post('/login', [AuthController::class, 'login']);
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -162,19 +177,8 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
-
-Route::get('/clinic-owner', [ClinicOwnerController::class, 'index']);
-Route::post('/clinic-owner', [ClinicOwnerController::class, 'store']);
-Route::put('/clinic-owner/{id}', [ClinicOwnerController::class, 'update']);
-Route::delete('/clinic-owner/{id}', [ClinicOwnerController::class, 'destroy']);
-
-Route::get('/all-branches', [HyperUserController::class, 'fetchBranches']);
-Route::post('/branch', [HyperUserController::class, 'store']);
-Route::put('/branch/{id}', [HyperUserController::class, 'update']);
-Route::delete('/branch/{id}', [HyperUserController::class, 'destroy']);
-
-Route::post('/hyper-user-login', [HyperUserController::class, 'login']);
-Route::post('/hyper-user-logout', [HyperUserController::class, 'logout']);
+// Route::post('/hyper-user-login', [HyperUserController::class, 'login']);
+// Route::post('/hyper-user-logout', [HyperUserController::class, 'logout']);
 
 // Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

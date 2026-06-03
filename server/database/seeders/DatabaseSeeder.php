@@ -17,13 +17,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(ClinicOwnerSeeder::class);
+        // $this->call(ClinicOwnerSeeder::class);
         $this->call(PositionSeeder::class);
-        $this->call(BranchSeeder::class);
-        $this->call(UserSeeder::class);
-        $this->call(ProcedureSeeder::class);
-        $this->call(EmployeeSeeder::class);
-        $this->call(AccountSeeder::class);
+        // $this->call(BranchSeeder::class);
+        // $this->call(UserSeeder::class);
+        // $this->call(ProcedureSeeder::class);
+        // $this->call(EmployeeSeeder::class);
+        // $this->call(AccountSeeder::class);
         // $this->call(TransactionSeeder::class);
         // $this->call(PatientSeeder::class);
         // $this->call(ClinicMaterialSeeder::class);
@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(ItemSeeder::class);
         // $this->call(EmployeeSalarySeeder::class);
         // $this->call(EmployeeExperienceSeeder::class);
-        $this->call(PrescriptionSeeder::class);
+        // $this->call(PrescriptionSeeder::class);
         // $this->call(ReceptionSeeder::class);
         // $this->call(ClinicExpenseSeeder::class);
         // $this->call(DentalXraySeeder::class);

@@ -6,10 +6,15 @@
           <h2 class="title">Branches & Clinic Owners</h2>
           <p class="subtitle">Create, edit, search, and delete records from one clean workspace.</p>
         </div>
+        <n-button type="error" ghost round @click="handleLogout">
+          <template #icon>
+            <n-icon><Icon icon="mdi:logout" /></n-icon>
+          </template>
+          Logout
+        </n-button>
       </div>
 
-      <template v-if="hasToken">
-        <n-tabs v-model:value="activeTab" type="line" animated class="tabs-root">
+      <n-tabs v-model:value="activeTab" type="line" animated class="tabs-root">
           <n-tab-pane name="branches" tab="Branches">
             <template #tab>
               <n-space align="center" :size="8">
@@ -94,38 +99,7 @@
             />
           </n-tab-pane>
         </n-tabs>
-      </template>
-
-      <template v-else>
-        <div class="login-wrap">
-          <n-card class="login-card" :bordered="false" size="large">
-            <div class="login-icon-wrap">
-              <n-icon size="34"><Icon icon="mdi:lock-outline" /></n-icon>
-            </div>
-            <h3 class="login-title">Enter password</h3>
-            <p class="login-subtitle">Authentication is required to access branches and clinic owners.</p>
-
-            <n-form ref="loginFormRef" :model="loginForm" :rules="loginRules" label-placement="top">
-              <n-form-item label="Password" path="password">
-                <n-input
-                  v-model:value="loginForm.password"
-                  type="password"
-                  show-password-on="mousedown"
-                  placeholder="Enter password"
-                  @keyup.enter="submitLogin"
-                />
-              </n-form-item>
-            </n-form>
-
-            <n-space justify="end" class="login-actions">
-              <n-button type="primary" :loading="loginLoading" @click="submitLogin">
-                Submit
-              </n-button>
-            </n-space>
-          </n-card>
-        </div>
-      </template>
-    </n-card>
+      </n-card>
 
     <n-modal v-model:show="formVisible" preset="card" :title="modalTitle" :style="modalStyle">
       <n-spin :show="formSubmitting">
@@ -236,6 +210,7 @@
 
 <script setup lang="ts">
 import { computed, h, onMounted, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   NButton,
   NCard,
@@ -286,13 +261,12 @@ type FormMode = 'branch' | 'owner'
 
 const TOKEN_KEY = 'token'
 
+const router = useRouter()
 const message = useMessage()
-const hasToken = ref<boolean>(Boolean(localStorage.getItem(TOKEN_KEY)))
 const activeTab = ref<TabKey>('branches')
 const branchesLoading = ref(false)
 const ownersLoading = ref(false)
 const formSubmitting = ref(false)
-const loginLoading = ref(false)
 const formVisible = ref(false)
 const formMode = ref<FormMode>('branch')
 const editingId = ref<number | null>(null)
@@ -304,7 +278,6 @@ const resetPasswordBaseLink =
 const branchSearch = ref('')
 const ownerSearch = ref('')
 const formRef = ref<FormInst | null>(null)
-const loginFormRef = ref<FormInst | null>(null)
 const branches = ref<BranchData[]>([])
 const owners = ref<ClinicOwnerData[]>([])
 
@@ -324,21 +297,24 @@ const ownerForm = reactive<ClinicOwnerData>({
   totalAmountPaid: 0
 })
 
-const loginForm = reactive({
-  password: ''
-})
-
 const rowKey = (row: any) => row.id
+
+async function handleLogout() {
+  try {
+    await userApi.logout()
+    message.success('Logged out successfully')
+    localStorage.clear()
+    await router.push('/login')
+  } catch (error) {
+    message.error('Logout failed')
+  }
+}
 
 const modalStyle = {
   width: 'min(640px, calc(100vw - 32px))'
 }
 
 const formModel = computed(() => (formMode.value === 'branch' ? branchForm : ownerForm))
-
-const loginRules: FormRules = {
-  password: [{ required: true, message: 'Password is required', trigger: ['input', 'blur'] }]
-}
 
 const formRules: FormRules = {
   branchName: [{ required: true, message: 'Branch name is required', trigger: ['input', 'blur'] }],
@@ -580,35 +556,6 @@ function copyResetLink() {
     })
 }
 
-function resetLoginForm() {
-  loginForm.password = ''
-}
-
-async function submitLogin() {
-  try {
-    await loginFormRef.value?.validate()
-    loginLoading.value = true
-
-    const result: any = await userApi.hyperUserLogin(loginForm.password)
-    const token = result?.data?.token ?? result?.token ?? result?.data ?? result
-
-    if (token) {
-      localStorage.setItem(TOKEN_KEY, String(token))
-      hasToken.value = true
-      resetLoginForm()
-      message.success('Logged in successfully')
-      await Promise.all([loadBranches(), loadOwners()])
-      return
-    }
-
-    message.error('Login did not return a token')
-  } catch (error) {
-    message.error('Login failed')
-  } finally {
-    loginLoading.value = false
-  }
-}
-
 async function loadBranches() {
   branchesLoading.value = true
   try {
@@ -706,11 +653,7 @@ async function removeItem(mode: FormMode, id: number) {
 }
 
 onMounted(async () => {
-  if (hasToken.value) {
-    await Promise.all([loadBranches(), loadOwners()])
-  } else {
-    resetLoginForm()
-  }
+  await Promise.all([loadBranches(), loadOwners()])
 })
 </script>
 
@@ -763,44 +706,6 @@ onMounted(async () => {
 
 .modal-actions {
   margin-top: 18px;
-}
-
-.login-wrap {
-  display: flex;
-  justify-content: center;
-  padding: 48px 0 12px;
-}
-
-.login-card {
-  width: min(460px, 100%);
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-}
-
-.login-icon-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 999px;
-  margin-bottom: 16px;
-  background: rgba(94, 92, 230, 0.1);
-}
-
-.login-title {
-  margin: 0;
-  font-size: 1.3rem;
-  font-weight: 700;
-}
-
-.login-subtitle {
-  margin: 8px 0 18px;
-  color: var(--n-text-color-3);
-}
-
-.login-actions {
-  margin-top: 6px;
 }
 
 .token-modal {

@@ -41,6 +41,12 @@ async function handleSubmit() {
     }
 
     message.success(t('loginView.loginSuccess'))
+
+    if (data.isHyperUser) {
+      await router.push('/hyper-controls')
+      return
+    }
+
     console.log(data)
     const initialBranchId = Number(data.user.employee?.branchId ?? data.user.employee?.branch_id)
     if (Number.isFinite(initialBranchId)) {

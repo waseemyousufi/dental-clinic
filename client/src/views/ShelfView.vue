@@ -729,7 +729,7 @@ const saveShelf = async () => {
   </div>
 </template>
 
-<style scoped lang="scss">
+<style scoped >
 .cms-inventory {
   --slate-50: #f8fafc;
   --slate-100: #f1f5f9;
@@ -786,14 +786,14 @@ const saveShelf = async () => {
   align-items: center;
   gap: 0.5rem 0.75rem;
   min-width: 0;
+}
 
-  h1 {
-    font-size: clamp(1.05rem, 2.5vw, 1.35rem);
-    font-weight: 700;
-    margin: 0;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-  }
+.brand h1 {
+  font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .badge {
@@ -806,12 +806,12 @@ const saveShelf = async () => {
   padding: 0.25rem 0.55rem;
   border-radius: 999px;
   white-space: nowrap;
+}
 
-  &--neutral {
-    background: var(--slate-100);
-    color: var(--slate-600);
-    border: 1px solid var(--slate-200);
-  }
+.badge--neutral {
+  background: var(--slate-100);
+  color: var(--slate-600);
+  border: 1px solid var(--slate-200);
 }
 
 .actions {
@@ -822,8 +822,10 @@ const saveShelf = async () => {
   gap: 0.65rem;
   width: 100%;
   max-width: 100%;
+}
 
-  @media (min-width: 640px) {
+@media (min-width: 640px) {
+  .actions {
     width: auto;
     max-width: none;
     margin-left: auto;
@@ -835,8 +837,10 @@ const saveShelf = async () => {
   flex: 0 1 200px;
   min-width: 0;
   z-index: 5;
+}
 
-  @media (min-width: 640px) {
+@media (min-width: 640px) {
+  .search-field-wrap {
     flex: 1 1 220px;
     max-width: min(100%, 400px);
   }
@@ -845,46 +849,43 @@ const saveShelf = async () => {
 .search-input {
   position: relative;
   width: 100%;
+}
 
-  &__iconify {
-    position: absolute;
-    left: 0.72rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 1.15rem;
-    height: 1.15rem;
-    color: var(--clinical-deep);
-    opacity: 0.75;
-    pointer-events: none;
-  }
+.search-input__iconify {
+  position: absolute;
+  left: 0.72rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.15rem;
+  height: 1.15rem;
+  color: var(--clinical-deep);
+  opacity: 0.75;
+  pointer-events: none;
+}
 
-  &__field {
-    width: 100%;
-    padding: 0.55rem 0.85rem 0.55rem 2.5rem;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--slate-200);
-    background: var(--slate-50);
-    font-size: 0.875rem;
-    transition:
-      border-color 0.15s ease,
-      box-shadow 0.15s ease;
+.search-input__field {
+  width: 100%;
+  padding: 0.55rem 0.85rem 0.55rem 2.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--slate-200);
+  background: var(--slate-50);
+  font-size: 0.875rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
 
-    &::placeholder {
-      color: var(--slate-400);
-    }
+.search-input__field::placeholder {
+  color: var(--slate-400);
+}
 
-    &:hover {
-      border-color: var(--slate-400);
-    }
+.search-input__field:hover {
+  border-color: var(--slate-400);
+}
 
-    &:focus {
-      outline: none;
-      border-color: var(--clinical);
-      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.22);
-      background: var(--surface);
-    }
-  }
-
+.search-input__field:focus {
+  outline: none;
+  border-color: var(--clinical);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.22);
+  background: var(--surface);
 }
 
 .search-lookup {
@@ -917,16 +918,16 @@ const saveShelf = async () => {
   color: inherit;
   font: inherit;
   transition: background 0.12s ease;
+}
 
-  &:last-child {
-    border-bottom: none;
-  }
+.search-lookup__row:last-child {
+  border-bottom: none;
+}
 
-  &:hover,
-  &:focus-visible {
-    background: var(--clinical-soft);
-    outline: none;
-  }
+.search-lookup__row:hover,
+.search-lookup__row:focus-visible {
+  background: var(--clinical-soft);
+  outline: none;
 }
 
 .search-lookup__icon {
@@ -945,10 +946,10 @@ const saveShelf = async () => {
   width: 1.15rem;
   height: 1.15rem;
   color: var(--clinical-deep);
+}
 
-  &--pending {
-    color: #842029;
-  }
+.search-lookup__iconify--pending {
+  color: #842029;
 }
 
 .search-lookup__main {
@@ -1030,12 +1031,16 @@ const saveShelf = async () => {
   grid-template-columns: 1fr;
   gap: 0.75rem;
   padding: 1rem clamp(1rem, 3vw, 1.75rem);
+}
 
-  @media (min-width: 520px) {
+@media (min-width: 520px) {
+  .metrics-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+}
 
-  @media (min-width: 900px) {
+@media (min-width: 900px) {
+  .metrics-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
   }
@@ -1049,65 +1054,65 @@ const saveShelf = async () => {
   box-shadow: var(--shadow);
   position: relative;
   overflow: hidden;
+}
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--clinical) 0%, var(--clinical-soft) 100%);
-    opacity: 0.85;
-  }
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--clinical) 0%, var(--clinical-soft) 100%);
+  opacity: 0.85;
+}
 
-  &__top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-bottom: 0.4rem;
-  }
+.metric-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
 
-  &__label {
-    display: block;
-    font-size: 0.65rem;
-    font-weight: 700;
-    color: var(--slate-400);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    line-height: 1.3;
-    max-width: 70%;
-  }
+.metric-card__label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--slate-400);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  max-width: 70%;
+}
 
-  &__icon-wrap {
-    flex-shrink: 0;
-    width: 2.35rem;
-    height: 2.35rem;
-    border-radius: 10px;
-    background: var(--clinical-soft);
-    border: 1px solid rgba(14, 165, 233, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+.metric-card__icon-wrap {
+  flex-shrink: 0;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 10px;
+  background: var(--clinical-soft);
+  border: 1px solid rgba(14, 165, 233, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  &__iconify {
-    width: 1.2rem;
-    height: 1.2rem;
-    color: var(--clinical-deep);
-  }
+.metric-card__iconify {
+  width: 1.2rem;
+  height: 1.2rem;
+  color: var(--clinical-deep);
+}
 
-  &__value {
-    font-size: clamp(1.35rem, 4vw, 1.65rem);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
+.metric-card__value {
+  font-size: clamp(1.35rem, 4vw, 1.65rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
 
-    &--alert {
-      color: var(--danger);
-    }
-  }
+.metric-card__value--alert {
+  color: var(--danger);
 }
 
 /* —— Main layout —— */
@@ -1116,8 +1121,10 @@ const saveShelf = async () => {
   grid-template-columns: 1fr;
   gap: 1.25rem;
   padding: 0 clamp(1rem, 3vw, 1.75rem) clamp(1.5rem, 4vw, 2.25rem);
+}
 
-  @media (min-width: 1024px) {
+@media (min-width: 1024px) {
+  .view-grid {
     grid-template-columns: minmax(0, 1fr) min(360px, 32vw);
     align-items: start;
     gap: 1.5rem;
@@ -1130,21 +1137,21 @@ const saveShelf = async () => {
 
 .area-header {
   margin-bottom: 1rem;
+}
 
-  h2 {
-    margin: 0 0 0.35rem;
-    font-size: clamp(1rem, 2.2vw, 1.15rem);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-  }
+.area-header h2 {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1rem, 2.2vw, 1.15rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
 
-  p {
-    margin: 0;
-    font-size: 0.875rem;
-    color: var(--slate-600);
-    line-height: 1.45;
-    max-width: 42ch;
-  }
+.area-header p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--slate-600);
+  line-height: 1.45;
+  max-width: 42ch;
 }
 
 .pool-list {
@@ -1181,39 +1188,41 @@ const saveShelf = async () => {
   box-shadow: var(--shadow);
   transition: box-shadow 0.2s ease;
   scroll-margin-top: 1.25rem;
+}
 
-  @media (min-width: 720px) {
+@media (min-width: 720px) {
+  .inventory-row {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 1rem 1.25rem;
   }
+}
 
-  &:focus-within {
-    box-shadow: var(--shadow-md);
-    border-color: var(--slate-200);
-  }
+.inventory-row:focus-within {
+  box-shadow: var(--shadow-md);
+  border-color: var(--slate-200);
+}
 
-  h3 {
-    margin: 0.2rem 0 0.2rem;
-    font-size: 0.95rem;
-    font-weight: 600;
-    line-height: 1.3;
-  }
+.inventory-row h3 {
+  margin: 0.2rem 0 0.2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .item-details {
   flex: 1 1 auto;
   min-width: 0;
+}
 
-  &__tags {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.35rem;
-    margin-bottom: 0.15rem;
-  }
+.item-details__tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.15rem;
 }
 
 .category-tag {
@@ -1253,16 +1262,20 @@ const saveShelf = async () => {
   flex-direction: column;
   gap: 0.65rem;
   width: 100%;
+}
 
-  @media (min-width: 480px) {
+@media (min-width: 480px) {
+  .item-placement {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
     width: auto;
     flex: 0 1 auto;
   }
+}
 
-  @media (min-width: 720px) {
+@media (min-width: 720px) {
+  .item-placement {
     flex-wrap: nowrap;
     justify-content: flex-end;
   }
@@ -1276,8 +1289,10 @@ const saveShelf = async () => {
   border-radius: 8px;
   font-size: 0.8rem;
   align-self: flex-start;
+}
 
-  @media (min-width: 480px) {
+@media (min-width: 480px) {
+  .qty-pill {
     align-self: center;
   }
 }
@@ -1291,18 +1306,20 @@ const saveShelf = async () => {
   font-size: 0.8rem;
   background: var(--surface);
   cursor: pointer;
+}
 
-  @media (min-width: 480px) {
+@media (min-width: 480px) {
+  .shelf-select {
     flex: 1 1 160px;
     min-width: 140px;
     max-width: 220px;
   }
+}
 
-  &:focus {
-    outline: none;
-    border-color: var(--clinical);
-    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.22);
-  }
+.shelf-select:focus {
+  outline: none;
+  border-color: var(--clinical);
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.22);
 }
 
 /* —— Sidebar —— */
@@ -1316,8 +1333,10 @@ const saveShelf = async () => {
   box-shadow: var(--shadow);
   overflow: hidden;
   max-height: none;
+}
 
-  @media (min-width: 1024px) {
+@media (min-width: 1024px) {
+  .shelf-sidebar {
     position: sticky;
     top: 0.75rem;
     max-height: calc(100vh - 1.5rem);
@@ -1328,21 +1347,23 @@ const saveShelf = async () => {
   padding: 1rem 1.1rem;
   border-bottom: 1px solid var(--slate-200);
   background: linear-gradient(180deg, var(--surface) 0%, var(--slate-50) 100%);
+}
 
-  h2 {
-    margin: 0;
-    font-size: 0.95rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-  }
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .shelf-scroll {
   padding: 0.85rem;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+}
 
-  @media (min-width: 1024px) {
+@media (min-width: 1024px) {
+  .shelf-scroll {
     flex: 1;
     min-height: 0;
   }
@@ -1355,15 +1376,15 @@ const saveShelf = async () => {
   padding: 0.9rem 1rem;
   margin-bottom: 0.75rem;
   scroll-margin-top: 1.25rem;
+}
 
-  &:last-child {
-    margin-bottom: 0;
-  }
+.shelf-box:last-child {
+  margin-bottom: 0;
+}
 
-  &--locked {
-    background: var(--danger-soft);
-    border-color: #fecdd3;
-  }
+.shelf-box--locked {
+  background: var(--danger-soft);
+  border-color: #fecdd3;
 }
 
 .shelf-top {
@@ -1372,13 +1393,13 @@ const saveShelf = async () => {
   align-items: flex-start;
   gap: 0.5rem;
   margin-bottom: 0.85rem;
+}
 
-  h4 {
-    margin: 0;
-    font-size: 0.88rem;
-    font-weight: 600;
-    line-height: 1.3;
-  }
+.shelf-top h4 {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .shelf-meta {
@@ -1408,27 +1429,27 @@ const saveShelf = async () => {
   transition:
     background 0.15s ease,
     border-color 0.15s ease;
+}
 
-  &:hover {
-    background: var(--clinical-soft);
-    border-color: rgba(14, 165, 233, 0.25);
-  }
+.lock-btn:hover {
+  background: var(--clinical-soft);
+  border-color: rgba(14, 165, 233, 0.25);
+}
 
-  &:focus-visible {
-    outline: 2px solid var(--clinical);
-    outline-offset: 2px;
-  }
+.lock-btn:focus-visible {
+  outline: 2px solid var(--clinical);
+  outline-offset: 2px;
 }
 
 .shelf-progress {
   font-size: 0.72rem;
   font-weight: 600;
   color: var(--slate-600);
+}
 
-  &__label {
-    display: block;
-    margin-top: 0.35rem;
-  }
+.shelf-progress__label {
+  display: block;
+  margin-top: 0.35rem;
 }
 
 .progress-bar {
@@ -1436,17 +1457,17 @@ const saveShelf = async () => {
   background: var(--slate-200);
   border-radius: 999px;
   overflow: hidden;
+}
 
-  &__fill {
-    height: 100%;
-    background: var(--clinical);
-    border-radius: 999px;
-    transition: width 0.35s ease;
+.progress-bar__fill {
+  height: 100%;
+  background: var(--clinical);
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
 
-    &--warn {
-      background: var(--danger);
-    }
-  }
+.progress-bar__fill--warn {
+  background: var(--danger);
 }
 
 .shelf-items {
@@ -1454,27 +1475,27 @@ const saveShelf = async () => {
   padding: 0.65rem 0 0;
   border-top: 1px solid var(--slate-200);
   list-style: none;
+}
 
-  li {
-    font-size: 0.8rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 0.5rem;
-    padding: 0.3rem 0;
-  }
+.shelf-items li {
+  font-size: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+}
 
-  &__name {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+.shelf-items__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-  &__qty {
-    flex-shrink: 0;
-    font-weight: 700;
-    color: var(--slate-700);
-  }
+.shelf-items__qty {
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--slate-700);
 }
 
 .shelf-empty {
@@ -1621,18 +1642,18 @@ const saveShelf = async () => {
   background: var(--shelf-modal-elevated);
   color: var(--shelf-modal-text);
   font-variant-numeric: tabular-nums;
+}
 
-  &::placeholder {
-    color: var(--shelf-modal-border);
-    letter-spacing: 0.2rem;
-  }
+.shelf-dialog__pin::placeholder {
+  color: var(--shelf-modal-border);
+  letter-spacing: 0.2rem;
+}
 
-  &:focus {
-    outline: none;
-    border-color: var(--shelf-modal-accent);
-    background: var(--shelf-modal-surface);
-    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.25);
-  }
+.shelf-dialog__pin:focus {
+  outline: none;
+  border-color: var(--shelf-modal-accent);
+  background: var(--shelf-modal-surface);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.25);
 }
 
 .shelf-dialog__footer {
@@ -1648,14 +1669,16 @@ const saveShelf = async () => {
 .shelf-form-grid {
   display: grid;
   gap: 0.9rem;
+}
 
-  @media (min-width: 400px) {
+@media (min-width: 400px) {
+  .shelf-form-grid {
     grid-template-columns: 1fr 1fr;
-
-    .shelf-field--full {
-      grid-column: 1 / -1;
-    }
   }
+}
+
+.shelf-form-grid .shelf-field--full {
+  grid-column: 1 / -1;
 }
 
 .shelf-field__label {
@@ -1677,16 +1700,18 @@ const saveShelf = async () => {
   font-size: 0.875rem;
   background: var(--shelf-modal-surface);
   color: var(--shelf-modal-text);
+}
 
-  &:hover {
-    border-color: #cbd5e1;
-  }
+.shelf-field__input:hover,
+.shelf-field__select:hover {
+  border-color: #cbd5e1;
+}
 
-  &:focus {
-    outline: none;
-    border-color: var(--shelf-modal-accent);
-    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
-  }
+.shelf-field__input:focus,
+.shelf-field__select:focus {
+  outline: none;
+  border-color: var(--shelf-modal-accent);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
 }
 
 .shelf-btn {
@@ -1700,35 +1725,35 @@ const saveShelf = async () => {
     background 0.15s ease,
     border-color 0.15s ease,
     transform 0.1s ease;
+}
 
-  &:active {
-    transform: scale(0.98);
-  }
+.shelf-btn:active {
+  transform: scale(0.98);
+}
 
-  &:focus-visible {
-    outline: 2px solid var(--shelf-modal-accent);
-    outline-offset: 2px;
-  }
+.shelf-btn:focus-visible {
+  outline: 2px solid var(--shelf-modal-accent);
+  outline-offset: 2px;
 }
 
 .shelf-btn--primary {
   background: var(--shelf-modal-accent-deep);
   color: #fff;
+}
 
-  &:hover {
-    filter: brightness(1.07);
-  }
+.shelf-btn--primary:hover {
+  filter: brightness(1.07);
 }
 
 .shelf-btn--ghost {
   background: var(--shelf-modal-surface);
   color: var(--shelf-modal-muted);
   border-color: var(--shelf-modal-border);
+}
 
-  &:hover {
-    background: var(--shelf-modal-elevated);
-    color: var(--shelf-modal-text);
-  }
+.shelf-btn--ghost:hover {
+  background: var(--shelf-modal-elevated);
+  color: var(--shelf-modal-text);
 }
 
 .shelf-modal-fade-enter-active,
@@ -1762,53 +1787,51 @@ const saveShelf = async () => {
   font-size: 0.875rem;
   cursor: pointer;
   border: 1px solid transparent;
-  transition:
-    background 0.15s ease,
-    transform 0.1s ease;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
 
-  &:active:not(:disabled) {
-    transform: scale(0.98);
-  }
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
 
-  &:focus-visible {
-    outline: 2px solid var(--clinical);
-    outline-offset: 2px;
-  }
+.btn:focus-visible {
+  outline: 2px solid var(--clinical);
+  outline-offset: 2px;
+}
 
-  &--primary {
-    background: var(--clinical-deep);
-    color: white;
+.btn--primary {
+  background: var(--clinical-deep);
+  color: white;
+}
 
-    &:hover:not(:disabled) {
-      filter: brightness(1.06);
-    }
-  }
+.btn--primary:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
 
-  &--text {
-    background: transparent;
-    color: var(--slate-600);
-    border-color: transparent;
+.btn--text {
+  background: transparent;
+  color: var(--slate-600);
+  border-color: transparent;
+}
 
-    &:hover {
-      color: var(--slate-900);
-      background: var(--slate-100);
-    }
-  }
+.btn--text:hover {
+  color: var(--slate-900);
+  background: var(--slate-100);
+}
 
-  &--action {
-    background: var(--slate-900);
-    color: white;
-    white-space: nowrap;
+.btn--action {
+  background: var(--slate-900);
+  color: white;
+  white-space: nowrap;
+}
 
-    &:hover:not(:disabled) {
-      background: var(--slate-700);
-    }
+.btn--action:hover:not(:disabled) {
+  background: var(--slate-700);
+}
 
-    &:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-    }
-  }
+.btn--action:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 /* —— Toasts —— */
@@ -1823,22 +1846,24 @@ const saveShelf = async () => {
   gap: 0.5rem;
   pointer-events: none;
   z-index: 6000;
+}
 
-  @media (min-width: 480px) {
+@media (min-width: 480px) {
+  .toast-stack {
     left: auto;
   }
+}
 
-  .toast-item {
-    pointer-events: none;
-    background: var(--slate-900);
-    color: white;
-    padding: 0.65rem 1rem;
-    border-radius: var(--radius-sm);
-    font-size: 0.82rem;
-    box-shadow: var(--shadow-md);
-    max-width: min(100%, 320px);
-    animation: toast-in 0.25s ease;
-  }
+.toast-stack .toast-item {
+  pointer-events: none;
+  background: var(--slate-900);
+  color: white;
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  box-shadow: var(--shadow-md);
+  max-width: min(100%, 320px);
+  animation: toast-in 0.25s ease;
 }
 
 @keyframes toast-in {
@@ -1931,7 +1956,6 @@ const saveShelf = async () => {
     gap: 0 !important;
     /* This controls the actual space between them */
     width: 100% !important;
-    // margin-top: 0.5rem;
     /* Optional: space between title and search */
   }
 
@@ -1946,7 +1970,6 @@ const saveShelf = async () => {
   }
 
   .actions button {
-    // display: none;
     align-self: flex-end;
     justify-self: flex-end;
   }

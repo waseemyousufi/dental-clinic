@@ -47,14 +47,17 @@ const router = createRouter({
     },
     {
       path: '/register-user',
+      alias: ['/register-user/'],
       component: () => import('@views/SignInView.vue'),
     },
     {
       path: '/login',
+      alias: ['/login/'],
       component: () => import('@views/LoginView.vue'),
     },
     {
       path: '/reset-password',
+      alias: ['/reset-password/'],
       component: () => import('@views/ResetPasswordView.vue'),
     },
     {
@@ -152,16 +155,19 @@ const router = createRouter({
   ],
 })
 
+const normalizePath = (path: string) => path === '/' ? '/' : path.replace(/\/+$/, '')
+
 router.beforeEach((to, from, next) => {
   const isLoggedIn = isAuthenticated()
   const publicPaths = ['/login', '/register-user', '/reset-password']
-  const isPublicRoute = publicPaths.includes(to.path) || to.meta.requiresAuth === false
+  const normalizedPath = normalizePath(to.path)
+  const isPublicRoute = publicPaths.includes(normalizedPath) || to.meta.requiresAuth === false
 
   if (!isLoggedIn && !isPublicRoute) {
     return next('/login')
   }
 
-  if (isLoggedIn && publicPaths.includes(to.path)) {
+  if (isLoggedIn && publicPaths.includes(normalizedPath)) {
     return next('/')
   }
 

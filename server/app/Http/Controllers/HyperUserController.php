@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 
 class HyperUserController extends Controller
 {
@@ -47,34 +48,13 @@ class HyperUserController extends Controller
 
     public function fetchBranches(Request $request)
     {
-        // 1. Grab the stateless token from the HTTP Authorization header
-        $token = $request->bearerToken();
-
-        if (!$token) {
-            return response()->json(['error' => 'Missing token.'], 401);
-        }
-
-        try {
-            // 2. Decode and verify the signature using core math
-            $decoded = JWT::decode($token, new Key(env('JWT_SECRET_KEY'), 'HS256'));
-
-            // 3. Double-check that the token actually belongs to the hyper-user
-            if ($decoded->role !== 'hyper_user') {
-                return response()->json(['error' => 'Unauthorized role.'], 403);
-            }
-
-            // 4. Success! If the math clears, pull your data from the database
-            $branches = Branch::with('clinicOwner')->get();
-
-            return BranchResource::collection($branches);
-        } catch (Exception $e) {
-            // Catches expired tokens, modified strings, or fakes
-            return response()->json(['error' => 'Token is expired or invalid.'], 401);
-        }
+        $branches = Branch::with('clinicOwner')->get();
+        return BranchResource::collection($branches);
     }
 
     public function store(Request $request)
     {
+
         $validatedData = $request->validate([
             'branchName' => 'required|string|max:20',
             'region' => 'required|string|max:100',
@@ -193,5 +173,13 @@ class HyperUserController extends Controller
             'f_name' => $parts[0] ?? '',
             'l_name' => count($parts) > 1 ? implode(' ', array_slice($parts, 1)) : '',
         ];
+    }
+
+    public function isHyperUser()
+    {
+        $user = Auth::user();
+        $hyperAdminUser = User::find(1, 'id');
+
+        return $user->id === $hyperAdminUser->id;
     }
 }
