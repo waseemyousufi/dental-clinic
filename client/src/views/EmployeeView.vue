@@ -508,7 +508,8 @@ async function handleSubmit() {
       if (created.token && created.email) {
         inviteEmail.value = String(created.email)
         inviteToken.value = String(created.token)
-        inviteLink.value = `http://localhost:1234/reset-password/?token=${encodeURIComponent(inviteToken.value)}`
+        const link = import.meta.env.VITE_RESET_PASSWORD_BASE_LINK
+        inviteLink.value = `${link}${encodeURIComponent(inviteToken.value)}`
         showInvite.value = true
       }
     }

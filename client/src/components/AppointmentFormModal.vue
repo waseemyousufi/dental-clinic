@@ -417,12 +417,8 @@ async function loadOptions() {
 }
 
 function submit() {
-  const requiredText = props.isDoctorUsing
-    ? formModel.value.clinical_notes
-    : formModel.value.description
 
   if (
-    !requiredText ||
     !formModel.value.appointment_timestamp ||
     formModel.value.employeeId == null ||
     formModel.value.patientId == null

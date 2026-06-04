@@ -144,7 +144,7 @@ const router = createRouter({
       path: '/hyper-controls',
       name: 'HyperControls',
       component: () => import('@views/HyperControlsView.vue'),
-      meta: { requiresAuth: false } // Bypasses the global router guard completely!
+      meta: { requiresAuth: true }
     },
 
     // FIX 2: CATCH-ALL DROPPED TO THE VERY BOTTOM
