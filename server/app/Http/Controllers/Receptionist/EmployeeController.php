@@ -106,7 +106,6 @@ public function index(Request $request)
                 'branch_id' => $branchId,
             ]);
 
-
             if ($data['experience']) {
                 $employee->experience()->create([
                     'workplace' => $data['experience']['workplace'],
@@ -149,10 +148,7 @@ public function index(Request $request)
 
         $employee = Employee::where('branch_id', $branchId)->findOrFail($id);
 
-
-
         return DB::transaction(function () use ($employee, $data, $request, $branchId) {
-
             $account = Account::where('branch_id', $branchId)->findOrFail($data['accountId']);
 
             if ($account->total_amount < $data['totalAmount']) {
@@ -168,7 +164,7 @@ public function index(Request $request)
                 'amount' => $data['totalAmount'],
                 'transaction_date' => now(),
                 'reference_type' => 'employee_salary',
-                'description' => "Salary payment for {$employee->fName} {$employee->lName}",
+                'description' => "Salary payment for {$employee->f_name} {$employee->l_name}",
                 'recorded_by_employee_id' => auth()->id() ?? null,
                 'account_id' => $data['accountId'],
                 'branch_id' => $branchId,

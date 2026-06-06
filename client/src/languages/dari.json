@@ -983,7 +983,7 @@
     "whatsappForm": {
       "patientReminderLabel": "یادآوری به بیمار",
       "patientReminderPlaceholder": "از {patient_name} و {appointment_date} برای شخصی‌سازی استفاده کنید",
-      "patientCancellationLabel": "لغو نوبت توسط بیمار",
+      "patientCancellationLabel": "لغو نوبت",
       "patientCancellationPlaceholder": "از {patient_name} و {appointment_date} برای شخصی‌سازی استفاده کنید",
       "patientCompletionLabel": "اتمام تداوی بیمار",
       "patientCompletionPlaceholder": "از {patient_name} و {clinic_name} برای شخصی‌سازی استفاده کنید",

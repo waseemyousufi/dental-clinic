@@ -22,7 +22,7 @@ class PrescriptionController extends Controller
         $branchId = $this->effectiveBranchId($request);
 
         $data  = $request->validate([
-            'drug_name' => 'required|string',
+            'name' => 'required|string',
             // 'prescriptionDate' => 'required|string',
             // 'instructions' => 'required|string',
             // 'patientId' => 'required|integer',
@@ -36,7 +36,7 @@ class PrescriptionController extends Controller
             // 'employee_id' => $employee->id,
             // 'patient_id' => $data['patientId'],
             'branch_id' => $branchId,
-            'drug_name' => $data['drug_name']
+            'drug_name' => $data['name']
         ]);
 
         return response()->json(['data' => $prescription], 201);
@@ -50,7 +50,7 @@ class PrescriptionController extends Controller
             // 'prescriptionDate' => 'required|string',
             // 'instructions' => 'required|string',
             // 'patientId' => 'required|integer',
-            'drug_name' => 'required|string'
+            'name' => 'required|string'
         ]);
 
         $prescription = Prescription::where('branch_id', $branchId)->findOrFail($id);
@@ -60,7 +60,7 @@ class PrescriptionController extends Controller
             // 'employee_id' => $employee->id,
             // 'patient_id' => $data['patientId'],
             'branch_id' => $branchId,
-            'drug_name' => $data['drug_name']
+            'drug_name' => $data['name']
         ]);
 
         return response()->json(['data' => $prescription]);

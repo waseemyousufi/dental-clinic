@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('clinic_expenses', function (Blueprint $table) {
             $table->id();
             $table->string('expense_category', 40); //['Gas']
-            $table->string('unit', 15);
+            $table->string('unit');
             $table->smallInteger('amount', false, true);
             $table->date('expense_date');
             $table->string('description', 300)->nullable();
