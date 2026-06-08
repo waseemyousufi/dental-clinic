@@ -22,7 +22,7 @@ class ClinicOwnerController extends Controller
         // Search by name or phone
         if ($request->has('search')) {
             $query->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('phone', 'like', '%' . $request->search . '%');
+                ->orWhere('phone', 'like', '%' . $request->search . '%');
         }
 
         $clinicOwners = $query->get();
@@ -41,8 +41,49 @@ class ClinicOwnerController extends Controller
             'totalAmountDue' => 'required|numeric|min:0',
             'totalAmountPaid' => 'required|numeric|min:0',
         ]);
-
         return DB::transaction(function () use ($data) {
+            $emailProvided = !empty($data['email']);
+
+            if ($emailProvided) {
+                $email = trim($data['email']);
+                $normalized = strtolower($email);
+
+                // find existing user case-insensitively
+                $user = User::whereRaw('LOWER(email) = ?', [$normalized])->first();
+
+                // If a user exists and is already linked to a clinic owner, do NOT create a new clinic owner.
+                if ($user && $user->clinic_owner_id) {
+                    $clinicOwner = ClinicOwner::find($user->clinic_owner_id);
+
+                    // If clinic owner exists, update it with provided data (keep in sync)
+                    if ($clinicOwner) {
+                        $clinicOwner->update([
+                            'name' => $data['name'] ?? $clinicOwner->name,
+                            'phone' => $data['phone'] ?? $clinicOwner->phone,
+                            'email' => $data['email'] ?? $clinicOwner->email,
+                            'total_amount_due' => $data['totalAmountDue'] ?? $clinicOwner->total_amount_due,
+                            'total_amount_paid' => $data['totalAmountPaid'] ?? $clinicOwner->total_amount_paid,
+                        ]);
+                    } else {
+                        // Defensive: referenced clinic owner missing, create a new one and attach
+                        $clinicOwner = ClinicOwner::create([
+                            'name' => $data['name'],
+                            'phone' => $data['phone'],
+                            'email' => $data['email'] ?? null,
+                            'total_amount_due' => $data['totalAmountDue'],
+                            'total_amount_paid' => $data['totalAmountPaid'],
+                        ]);
+                        $user->clinic_owner_id = $clinicOwner->id;
+                        $user->save();
+                    }
+
+                    $token = Password::createToken($user);
+
+                    return response(['token' => $token, 'email' => $user->email, 'clinicOwnerId' => $clinicOwner->id], 200);
+                }
+            }
+
+            // No existing linked user found (or no email provided) — create a new clinic owner
             $clinicOwner = ClinicOwner::create([
                 'name' => $data['name'],
                 'phone' => $data['phone'],
@@ -51,29 +92,28 @@ class ClinicOwnerController extends Controller
                 'total_amount_paid' => $data['totalAmountPaid'],
             ]);
 
-            // If an email was provided, create (or attach) a User and return a password reset token
-            if (!empty($data['email'])) {
-                $email = $data['email'];
+            if ($emailProvided) {
+                $email = trim($data['email']);
+                $normalized = strtolower($email);
 
-                $user = User::where('email', $email)->first();
+                // If there's an existing user without a clinic_owner_id, attach them.
+                $user = User::whereRaw('LOWER(email) = ?', [$normalized])->first();
 
-                if (!$user) {
+                if ($user) {
+                    $user->clinic_owner_id = $clinicOwner->id;
+                    $user->name = $clinicOwner->name;
+                    $user->save();
+                } else {
+                    // create new user and attach
                     $user = User::create([
                         'name' => $clinicOwner->name,
                         'email' => $email,
                         'password' => Hash::make('temp_pass'),
                         'clinic_owner_id' => $clinicOwner->id,
                     ]);
-                } else {
-                    // attach clinic_owner_id if missing
-                    if ($user->clinic_owner_id !== $clinicOwner->id) {
-                        $user->clinic_owner_id = $clinicOwner->id;
-                        $user->save();
-                    }
                 }
 
                 $token = Password::createToken($user);
-
                 return response(['token' => $token, 'email' => $user->email, 'clinicOwnerId' => $clinicOwner->id], 201);
             }
 

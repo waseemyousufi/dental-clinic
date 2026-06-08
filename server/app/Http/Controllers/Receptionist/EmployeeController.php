@@ -159,13 +159,19 @@ public function index(Request $request)
             $account->save();
 
             // 1. CREATE TRANSACTION FIRST
+            // Use the authenticated user's employee id (not the user id) to satisfy FK constraint
+            $recordedByEmployeeId = null;
+            if (auth()->check()) {
+                $recordedByEmployeeId = auth()->user()?->employee?->id ?? null;
+            }
+
             $transaction = AccountTransaction::create([
                 'transaction_type' => 'out',
                 'amount' => $data['totalAmount'],
                 'transaction_date' => now(),
                 'reference_type' => 'employee_salary',
                 'description' => "Salary payment for {$employee->f_name} {$employee->l_name}",
-                'recorded_by_employee_id' => auth()->id() ?? null,
+                'recorded_by_employee_id' => $recordedByEmployeeId,
                 'account_id' => $data['accountId'],
                 'branch_id' => $branchId,
             ]);

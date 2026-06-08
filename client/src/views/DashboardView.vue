@@ -29,29 +29,6 @@
       </div>
     </section>
 
-<!--
-    <section class="surface-panel scope-panel">
-      <div class="panel-header">
-        <div>
-          <h2>Data scope</h2>
-          <p>Branch filter metadata returned by the backend.</p>
-        </div>
-        <div class="badge tone-brand">{{ branchCountLabel }}</div>
-      </div>
-
-      <div class="branch-grid">
-        <div
-          v-for="branch in branchChips"
-          :key="branch.id"
-          class="branch-chip"
-          :class="branch.id === selectedBranchId ? 'active' : ''"
-        >
-          <span class="branch-name">{{ branch.name }}</span>
-          <span class="branch-id">#{{ branch.id }}</span>
-        </div>
-      </div>
-    </section> -->
-
     <section v-if="errorMessage" class="error-banner">
       {{ errorMessage }}
     </section>
@@ -89,19 +66,19 @@
       <div class="surface-panel chart-card">
         <div class="panel-header">
           <div>
-            <h2>{{ t('dashboardView.charts.creditAging.title') }}</h2>
-            <p>{{ t('dashboardView.charts.creditAging.description') }}</p>
+            <h2>{{ t('dashboardView.charts.pricingDiscipline.title') }}</h2>
+            <p>{{ t('dashboardView.charts.pricingDiscipline.description') }}</p>
           </div>
-          <div class="badge tone-warn">{{ t('dashboardView.charts.creditAging.badge') }}</div>
+          <div class="badge tone-warn">{{ t('dashboardView.charts.pricingDiscipline.badge') }}</div>
         </div>
         <div class="chart-box chart-tall">
-          <canvas v-if="hasChartData('credit_aging')" ref="agingChartRef"></canvas>
-          <div v-else class="empty-state">{{ t('dashboardView.charts.creditAging.emptyState') }}</div>
+          <canvas v-if="hasChartData('pricing_discipline')" ref="pricingChartRef"></canvas>
+          <div v-else class="empty-state">{{ t('dashboardView.charts.pricingDiscipline.emptyState') }}</div>
         </div>
       </div>
     </section>
 
-    <section class="chart-grid chart-grid-three">
+    <section class="chart-grid chart-grid-two">
       <div class="surface-panel chart-card">
         <div class="panel-header">
           <div>
@@ -129,164 +106,7 @@
           <div v-else class="empty-state">{{ t('dashboardView.charts.patientBehavior.emptyState') }}</div>
         </div>
       </div>
-
-      <div class="surface-panel chart-card">
-        <div class="panel-header">
-          <div>
-            <h2>{{ t('dashboardView.charts.pricingDiscipline.title') }}</h2>
-            <p>{{ t('dashboardView.charts.pricingDiscipline.description') }}</p>
-          </div>
-          <div class="badge tone-warn">{{ t('dashboardView.charts.pricingDiscipline.badge') }}</div>
-        </div>
-        <div class="chart-box chart-short">
-          <canvas v-if="hasChartData('pricing_discipline')" ref="pricingChartRef"></canvas>
-          <div v-else class="empty-state">{{ t('dashboardView.charts.pricingDiscipline.emptyState') }}</div>
-        </div>
-      </div>
     </section>
-
-    <!-- <section class="chart-grid chart-grid-three">
-      <div class="surface-panel chart-card">
-        <div class="panel-header">
-          <div>
-            <h2>Referral source</h2>
-            <p>Where new patients are coming from.</p>
-          </div>
-          <div class="badge tone-brand">Source mix</div>
-        </div>
-        <div class="chart-box chart-short">
-          <canvas v-if="hasChartData('referral_source')" ref="referralChartRef"></canvas>
-          <div v-else class="empty-state">No referral source data returned.</div>
-        </div>
-      </div>
-
-      <div class="surface-panel chart-card">
-        <div class="panel-header">
-          <div>
-            <h2>Visit type</h2>
-            <p>How visits are distributed.</p>
-          </div>
-          <div class="badge tone-brand">Visit mix</div>
-        </div>
-        <div class="chart-box chart-short">
-          <canvas v-if="hasChartData('visit_type')" ref="visitChartRef"></canvas>
-          <div v-else class="empty-state">No visit type data returned.</div>
-        </div>
-      </div>
-
-      <div class="surface-panel insights-card">
-        <div class="panel-header">
-          <div>
-            <h2>Operational snapshot</h2>
-            <p>Fast summary for branch leadership.</p>
-          </div>
-          <div class="badge tone-brand">Summary</div>
-        </div>
-        <div class="mini-grid">
-          <div v-for="item in operationalStats" :key="item.label" class="mini-card">
-            <span class="mini-label">{{ item.label }}</span>
-            <span class="mini-value">{{ item.value }}</span>
-            <span class="mini-help">{{ item.help }}</span>
-          </div>
-        </div>
-      </div>
-    </section> -->
-
-    <!-- <section class="chart-grid chart-grid-two">
-      <div class="surface-panel alerts-card">
-        <div class="panel-header">
-          <div>
-            <h2>Action alerts</h2>
-            <p>Warnings surfaced from the backend payload.</p>
-          </div>
-          <div class="badge tone-bad">Attention</div>
-        </div>
-
-        <div class="alert-list">
-          <article v-for="alert in alertsToRender" :key="alert.title" class="alert-item" :class="alert.tone">
-            <div class="alert-title-row">
-              <strong>{{ alert.title }}</strong>
-              <span class="alert-tone">{{ alert.tone }}</span>
-            </div>
-            <p>{{ alert.message }}</p>
-            <div class="alert-action">Suggested action: {{ alert.action }}</div>
-          </article>
-        </div>
-      </div>
-
-      <div class="surface-panel recent-card">
-        <div class="panel-header">
-          <div>
-            <h2>Recent activity</h2>
-            <p>Latest treatments and transactions from the backend.</p>
-          </div>
-          <div class="badge tone-brand">Latest records</div>
-        </div>
-
-        <div class="table-switch">
-          <button :class="['switch-btn', currentTable === 'treatments' ? 'active' : '']" @click="currentTable = 'treatments'">Treatments</button>
-          <button :class="['switch-btn', currentTable === 'transactions' ? 'active' : '']" @click="currentTable = 'transactions'">Transactions</button>
-        </div>
-
-        <div class="table-wrap">
-          <table v-if="currentTable === 'treatments'">
-            <thead>
-              <tr>
-                <th>Patient</th>
-                <th>Date</th>
-                <th>Treatment</th>
-                <th>Status</th>
-                <th>Balance</th>
-                <th>Price fit</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="row in recentTreatments" :key="row.id">
-                <td>
-                  <strong>{{ row.patient_name }}</strong>
-                  <div class="muted-small">{{ row.branch_name }}</div>
-                </td>
-                <td>{{ formatDate(row.date) }}</td>
-                <td>
-                  {{ row.treatment_type }}
-                  <div class="muted-small">{{ row.diagnosis }}</div>
-                </td>
-                <td><span class="row-tag" :class="statusTone(row.status)">{{ row.status }}</span></td>
-                <td>{{ formatMoney(row.balance) }}</td>
-                <td><span class="row-tag" :class="rangeTone(row.range_fit)">{{ row.range_fit }}</span></td>
-              </tr>
-              <tr v-if="!recentTreatments.length">
-                <td colspan="6" class="empty-table">No recent treatments returned.</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <table v-else>
-            <thead>
-              <tr>
-                <th>Branch</th>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Amount</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="row in recentTransactions" :key="row.id">
-                <td>{{ row.branch_name }}</td>
-                <td>{{ formatDate(row.date) }}</td>
-                <td><span class="row-tag" :class="row.transaction_type === 'in' ? 'good' : 'warn'">{{ row.transaction_type }}</span></td>
-                <td>{{ formatMoney(row.amount) }}</td>
-                <td>{{ row.description }}</td>
-              </tr>
-              <tr v-if="!recentTransactions.length">
-                <td colspan="5" class="empty-table">No recent transactions returned.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section> -->
   </div>
 </template>
 
@@ -299,16 +119,12 @@ import dashboardApi from '@api/dashboard'
 Chart.register(...registerables)
 
 type Tone = 'good' | 'warn' | 'bad' | 'up' | 'down' | 'neutral'
-type TableMode = 'treatments' | 'transactions'
 
 type ChartKey =
   | 'cash_flow'
-  | 'credit_aging'
   | 'treatment_mix'
   | 'patient_behavior'
   | 'pricing_discipline'
-  | 'referral_source'
-  | 'visit_type'
 
 interface BranchChip {
   id: number
@@ -326,35 +142,6 @@ interface KpiItem {
   help: string
 }
 
-interface AlertItem {
-  title: string
-  message: string
-  action: string
-  tone: 'good' | 'warn' | 'bad'
-}
-
-interface TreatmentRow {
-  id: number
-  patient_name: string
-  branch_name: string
-  treatment_type: string
-  diagnosis: string
-  date: string
-  status: string
-  amount: number
-  range_fit: string
-  balance: number
-}
-
-interface TransactionRow {
-  id: number
-  branch_name: string
-  transaction_type: 'in' | 'debit' | string
-  amount: number
-  date: string
-  description: string
-}
-
 interface ChartPayload {
   labels: string[]
   datasets: Array<{ label: string; data: number[] }>
@@ -368,36 +155,28 @@ interface DashboardPayload {
     period_days?: number
     period_start?: string
     period_end?: string
+    includes_future_days?: number
   }
   filters?: { branches?: Array<{ id: number; branch_name: string | null }> }
   kpis?: KpiItem[]
   charts?: Partial<Record<ChartKey, ChartPayload>>
-  alerts?: Array<{ tone?: 'good' | 'warn' | 'bad'; title: string; message: string; meta?: { action?: string } }>
-  recent?: { treatments?: TreatmentRow[]; transactions?: TransactionRow[] }
 }
 
 const loading = ref(false)
 const errorMessage = ref<string | null>(null)
 const dashboard = ref<DashboardPayload | null>(null)
-const currentTable = ref<TableMode>('treatments')
 
 const cashChartRef = ref<HTMLCanvasElement | null>(null)
-const agingChartRef = ref<HTMLCanvasElement | null>(null)
 const mixChartRef = ref<HTMLCanvasElement | null>(null)
 const behaviorChartRef = ref<HTMLCanvasElement | null>(null)
 const pricingChartRef = ref<HTMLCanvasElement | null>(null)
-const referralChartRef = ref<HTMLCanvasElement | null>(null)
-const visitChartRef = ref<HTMLCanvasElement | null>(null)
 
 const { t } = useI18n()
 
 let cashChart: Chart | null = null
-let agingChart: Chart | null = null
 let mixChart: Chart | null = null
 let behaviorChart: Chart | null = null
 let pricingChart: Chart | null = null
-let referralChart: Chart | null = null
-let visitChart: Chart | null = null
 
 const palette = ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#84cc16']
 
@@ -447,46 +226,17 @@ const branchChips = computed<BranchChip[]>(() => {
   }))
 })
 
-const branchCountLabel = computed(() => {
-  const total = branchChips.value.length
-  return total === 1 ? '1 branch' : `${total} branches`
-})
-
 const kpisToRender = computed(() =>
   (dashboard.value?.kpis ?? []).map(kpi => ({
     ...kpi,
     label: t(`dashboardView.kpis.${kpi.key}Label`) || kpi.label,
-    help: t(`dashboardView.kpis.${kpi.key}Help`) || kpi.help,
+    help:
+      kpi.key === 'pricing_discipline'
+        ? kpi.help
+        : t(`dashboardView.kpis.${kpi.key}Help`) || kpi.help,
     trend_label: kpiTrendLabel(kpi.trend_label),
   })),
 )
-const recentTreatments = computed<TreatmentRow[]>(() => dashboard.value?.recent?.treatments ?? [])
-const recentTransactions = computed<TransactionRow[]>(() => dashboard.value?.recent?.transactions ?? [])
-
-const alertsToRender = computed<AlertItem[]>(() =>
-  (dashboard.value?.alerts ?? []).map(alert => ({
-    title: alert.title,
-    message: alert.message,
-    action: alert.meta?.action ?? t('dashboardView.actionAlerts.defaultAction'),
-    tone: alert.tone ?? 'warn',
-  })),
-)
-
-const operationalStats = computed(() => {
-  const items = dashboard.value?.kpis ?? []
-  const find = (key: string) => items.find(k => k.key === key)
-
-  return [
-    { label: t('dashboardView.operationalSnapshot.cashCollectedLabel'), value: find('cash_collected')?.formatted ?? '0', help: t('dashboardView.operationalSnapshot.cashCollectedHelp') },
-    { label: t('dashboardView.operationalSnapshot.outstandingCreditLabel'), value: find('outstanding_ar')?.formatted ?? '0', help: t('dashboardView.operationalSnapshot.outstandingCreditHelp') },
-    { label: t('dashboardView.operationalSnapshot.collectionRateLabel'), value: find('collection_rate')?.formatted ?? '0%', help: t('dashboardView.operationalSnapshot.collectionRateHelp') },
-    { label: t('dashboardView.operationalSnapshot.noShowRateLabel'), value: find('no_show_rate')?.formatted ?? '0%', help: t('dashboardView.operationalSnapshot.noShowRateHelp') },
-    { label: t('dashboardView.operationalSnapshot.newPatientsLabel'), value: find('new_patients')?.formatted ?? '0', help: t('dashboardView.operationalSnapshot.newPatientsHelp') },
-    { label: t('dashboardView.operationalSnapshot.pricingDisciplineLabel'), value: find('pricing_discipline')?.formatted ?? '0%', help: t('dashboardView.operationalSnapshot.pricingDisciplineHelp') },
-    { label: t('dashboardView.operationalSnapshot.sameDayCollectionLabel'), value: find('same_day_collection')?.formatted ?? '0%', help: t('dashboardView.operationalSnapshot.sameDayCollectionHelp') },
-    { label: t('dashboardView.operationalSnapshot.caseAcceptanceLabel'), value: find('plan_acceptance')?.formatted ?? '0%', help: t('dashboardView.operationalSnapshot.caseAcceptanceHelp') },
-  ]
-})
 
 function kpiTrendLabel(value: string): string {
   const normalized = String(value ?? '').toLowerCase()
@@ -510,38 +260,34 @@ function toneClass(tone: Tone): string {
   return tone
 }
 
-function statusTone(status: string): string {
-  const s = String(status || '').toLowerCase()
-  if (s.includes('completed') || s.includes('accepted')) return 'good'
-  if (s.includes('cancel')) return 'bad'
-  if (s.includes('progress') || s.includes('partial')) return 'warn'
-  return 'brand'
+type RawRecord = Record<string, unknown>
+
+function isRecord(value: unknown): value is RawRecord {
+  return typeof value === 'object' && value !== null
 }
 
-function rangeTone(rangeFit: string): string {
-  const s = String(rangeFit || '').toLowerCase()
-  if (s.includes('in range')) return 'good'
-  if (s.includes('below') || s.includes('above')) return 'warn'
-  return 'brand'
+function normalizeResponse(response: unknown): unknown {
+  return isRecord(response) && 'data' in response ? response.data : response
 }
 
-function normalizeResponse(response: any): any {
-  return response?.data ?? response
-}
+function normalizeDashboard(raw: unknown): DashboardPayload {
+  const payload = isRecord(raw) ? raw : {}
+  const meta = isRecord(payload.meta) ? payload.meta : {}
+  const filters = isRecord(payload.filters) ? payload.filters : {}
+  const branches = Array.isArray(filters.branches) ? filters.branches : []
+  const kpis = Array.isArray(payload.kpis) ? payload.kpis : []
+  const charts = isRecord(payload.charts) ? payload.charts : {}
 
-function normalizeDashboard(raw: any): DashboardPayload {
   return {
-    meta: raw?.meta ?? {},
+    meta,
     filters: {
-      branches: (raw?.filters?.branches ?? []).map((branch: any) => ({
-        id: branch.id,
-        branch_name: branch.branch_name ?? null,
+      branches: branches.filter(isRecord).map(branch => ({
+        id: Number(branch.id),
+        branch_name: typeof branch.branch_name === 'string' ? branch.branch_name : null,
       })),
     },
-    kpis: raw?.kpis ?? [],
-    charts: raw?.charts ?? {},
-    alerts: raw?.alerts ?? [],
-    recent: raw?.recent ?? { treatments: [], transactions: [] },
+    kpis: kpis.filter(isRecord) as unknown as KpiItem[],
+    charts: charts as Partial<Record<ChartKey, ChartPayload>>,
   }
 }
 
@@ -578,20 +324,14 @@ function chartOptions() {
 
 function destroyCharts() {
   cashChart?.destroy()
-  agingChart?.destroy()
   mixChart?.destroy()
   behaviorChart?.destroy()
   pricingChart?.destroy()
-  referralChart?.destroy()
-  visitChart?.destroy()
 
   cashChart = null
-  agingChart = null
   mixChart = null
   behaviorChart = null
   pricingChart = null
-  referralChart = null
-  visitChart = null
 }
 
 function buildDatasetStyle(index: number) {
@@ -625,34 +365,6 @@ function renderCharts() {
           fill: index === 0,
           ...buildDatasetStyle(index),
         })),
-      },
-      options: {
-        ...chartOptions(),
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: { color: '#e2e8f0' },
-            ticks: { callback: (value: string | number) => formatMoney(value) },
-          },
-          x: { grid: { display: false } },
-        },
-      },
-    })
-  }
-
-  if (agingChartRef.value && charts.credit_aging?.labels?.length) {
-    agingChart = new Chart(agingChartRef.value, {
-      type: 'bar',
-      data: {
-        labels: charts.credit_aging.labels,
-        datasets: [
-          {
-          label: t('dashboardView.charts.creditAging.outstandingBalanceLabel') || (charts.credit_aging.datasets?.[0]?.label ?? 'Outstanding balance'),
-            data: charts.credit_aging.datasets?.[0]?.data ?? [],
-            borderWidth: 1,
-            ...buildDatasetStyle(1),
-          },
-        ],
       },
       options: {
         ...chartOptions(),
@@ -735,47 +447,6 @@ function renderCharts() {
     })
   }
 
-  if (referralChartRef.value && charts.referral_source?.labels?.length) {
-    referralChart = new Chart(referralChartRef.value, {
-      type: 'doughnut',
-      data: {
-        labels: charts.referral_source.labels,
-        datasets: [
-          {
-            label: t('dashboardView.charts.referralSource.patientsLabel') || (charts.referral_source.datasets?.[0]?.label ?? 'Patients'),
-            data: charts.referral_source.datasets?.[0]?.data ?? [],
-            borderWidth: 0,
-            backgroundColor: charts.referral_source.labels.map((_, index) => palette[index % palette.length]),
-          },
-        ],
-      },
-      options: {
-        ...chartOptions(),
-        cutout: '64%',
-      },
-    })
-  }
-
-  if (visitChartRef.value && charts.visit_type?.labels?.length) {
-    visitChart = new Chart(visitChartRef.value, {
-      type: 'doughnut',
-      data: {
-        labels: charts.visit_type.labels,
-        datasets: [
-          {
-            label: t('dashboardView.charts.visitType.visitsLabel') || (charts.visit_type.datasets?.[0]?.label ?? 'Visits'),
-            data: charts.visit_type.datasets?.[0]?.data ?? [],
-            borderWidth: 0,
-            backgroundColor: charts.visit_type.labels.map((_, index) => palette[index % palette.length]),
-          },
-        ],
-      },
-      options: {
-        ...chartOptions(),
-        cutout: '64%',
-      },
-    })
-  }
 }
 
 async function loadDashboard() {
@@ -783,11 +454,7 @@ async function loadDashboard() {
   errorMessage.value = null
 
   try {
-    const api = dashboardApi as any
-    const response =
-      (await api.getBranchDashboard?.(undefined, 30)) ??
-      (await api.index?.()) ??
-      (await api.get?.('/dashboard'))
+    const response = await dashboardApi.getBranchDashboard(undefined, 30)
 
     dashboard.value = normalizeDashboard(normalizeResponse(response))
 
@@ -892,11 +559,7 @@ onBeforeUnmount(() => {
   text-transform: none;
 }
 
-.scope-panel,
 .chart-card,
-.insights-card,
-.alerts-card,
-.recent-card,
 .footer-card {
   padding: 18px;
 }
@@ -1072,10 +735,7 @@ onBeforeUnmount(() => {
   grid-column: span 2;
 }
 
-.chart-card,
-.insights-card,
-.alerts-card,
-.recent-card {
+.chart-card {
   min-width: 0;
 }
 
@@ -1104,196 +764,6 @@ onBeforeUnmount(() => {
   background: #f8fafc;
   color: #64748b;
   font-size: 13px;
-}
-
-.mini-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 12px;
-}
-
-.mini-card {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  padding: 14px;
-  display: grid;
-  gap: 5px;
-}
-
-.mini-label {
-  font-size: 12px;
-  color: #64748b;
-  font-weight: 700;
-}
-
-.mini-value {
-  font-size: 22px;
-  font-weight: 900;
-  color: #0f172a;
-}
-
-.mini-help {
-  font-size: 12px;
-  color: #64748b;
-  line-height: 1.55;
-}
-
-.alert-list {
-  display: grid;
-  gap: 12px;
-}
-
-.alert-item {
-  border-radius: 18px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  padding: 15px 16px;
-  display: grid;
-  gap: 8px;
-}
-
-.alert-item.good {
-  border-left: 5px solid #22c55e;
-}
-
-.alert-item.warn {
-  border-left: 5px solid #f59e0b;
-}
-
-.alert-item.bad {
-  border-left: 5px solid #ef4444;
-}
-
-.alert-title-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: center;
-}
-
-.alert-item strong {
-  font-size: 14px;
-  color: #0f172a;
-}
-
-.alert-tone {
-  font-size: 11px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #64748b;
-}
-
-.alert-item p {
-  margin: 0;
-  color: #64748b;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.alert-action {
-  font-size: 12px;
-  font-weight: 700;
-  color: #334155;
-}
-
-.table-switch {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-}
-
-.switch-btn {
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  color: #0f172a;
-  padding: 10px 14px;
-  border-radius: 12px;
-  font: inherit;
-  font-weight: 800;
-}
-
-.switch-btn.active {
-  background: rgba(37, 99, 235, 0.12);
-  color: #1d4ed8;
-  border-color: rgba(37, 99, 235, 0.24);
-}
-
-.table-wrap {
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 900px;
-}
-
-th,
-td {
-  text-align: left;
-  padding: 13px 10px;
-  border-bottom: 1px solid #e2e8f0;
-  font-size: 13px;
-  vertical-align: top;
-}
-
-th {
-  color: #64748b;
-  font-weight: 800;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-tr:last-child td {
-  border-bottom: 0;
-}
-
-.empty-table {
-  color: #64748b;
-  text-align: center;
-  padding: 24px 10px;
-}
-
-.row-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 800;
-  white-space: nowrap;
-  background: #eef2ff;
-  color: #3730a3;
-}
-
-.row-tag.good {
-  background: rgba(34, 197, 94, 0.12);
-  color: #166534;
-}
-
-.row-tag.warn {
-  background: rgba(245, 158, 11, 0.14);
-  color: #92400e;
-}
-
-.row-tag.bad {
-  background: rgba(239, 68, 68, 0.12);
-  color: #991b1b;
-}
-
-.row-tag.brand {
-  background: rgba(37, 99, 235, 0.12);
-  color: #1d4ed8;
-}
-
-.muted-small {
-  margin-top: 4px;
-  color: #64748b;
-  font-size: 12px;
 }
 
 .footer-grid {
@@ -1363,11 +833,7 @@ tr:last-child td {
   }
 
   .hero-card,
-  .scope-panel,
   .chart-card,
-  .insights-card,
-  .alerts-card,
-  .recent-card,
   .footer-card {
     padding: 16px;
   }
@@ -1375,10 +841,6 @@ tr:last-child td {
   .chart-tall,
   .chart-short {
     height: 240px;
-  }
-
-  table {
-    min-width: 820px;
   }
 }
 </style>

@@ -104,12 +104,12 @@ const columns = computed(() => [
   {
     title: t('patientView.columns.firstName'),
     key: 'fName',
-    ellipsis: { tooltip: true },
+    ellipsis: { tooltip: { to: 'body', placement: 'top' } },
   },
   {
     title: t('patientView.columns.lastName'),
     key: 'lName',
-    ellipsis: { tooltip: true },
+    ellipsis: { tooltip: { to: 'body', placement: 'top' } },
   },
   {
     title: t('patientView.columns.gender'),
@@ -127,15 +127,15 @@ const columns = computed(() => [
 
 if (userStore.isAdmin || userStore.settings.rec_can_view_phones) {
   columns.value.push(
-    {
+      {
       title: t('patientView.columns.phone'),
       key: 'phone',
-      ellipsis: { tooltip: true },
+      ellipsis: { tooltip: { to: 'body', placement: 'top' } },
     },
     {
       title: t('patientView.columns.emergencyContact'),
       key: 'emgContact',
-      ellipsis: { tooltip: true },
+      ellipsis: { tooltip: { to: 'body', placement: 'top' } },
     },
   )
 }

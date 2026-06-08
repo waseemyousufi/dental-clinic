@@ -1,5 +1,6 @@
 # xray data that is too large to be stored in git
 ./client/public/2_skull_ct/
+.env
 
 # Logs
 logs

@@ -147,7 +147,7 @@ class ClinicAssetController extends Controller
             'name' => 'name',
             'asset_name' => 'assetName',
             'assetName' => 'assetName',
-            'description' => 'description',
+            // 'description' => 'description',
             'category' => 'category',
             'width' => 'width',
             'height' => 'height',

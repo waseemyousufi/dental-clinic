@@ -124,7 +124,7 @@ const columns = computed(() => [{ title: t('expenseView.columns.date'), key: 'ex
 {
   title: t('expenseView.columns.description'),
   key: 'description',
-  ellipsis: { tooltip: true },
+  ellipsis: { tooltip: { to: 'false', placement: 'top' } },
 },
 {
   title: t('expenseView.columns.unit'),

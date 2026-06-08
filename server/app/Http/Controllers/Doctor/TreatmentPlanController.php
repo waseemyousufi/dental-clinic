@@ -67,8 +67,8 @@ class TreatmentPlanController extends Controller
 
     public function update(Request $request, string $id)
     {
-        $plan = TreatmentPlan::where('branch_id', $branchId)->findOrFail($id);
         $branchId = $this->effectiveBranchId($request);
+        $plan = TreatmentPlan::where('branch_id', $branchId)->findOrFail($id);
 
         if ((int) $plan->branch_id !== (int) $branchId) {
             return response()->json(['message' => 'Treatment plan not found in this branch'], 404);

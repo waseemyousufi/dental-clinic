@@ -23,6 +23,7 @@ export default new class TreatmentPlan {
   }
 
   putTreatmentPlan(id: number,data: TreatmentPlanData) {
+    console.log('treatment plan data:', data)
     return api.put(`/treatment-plan/${id}`, data)
   }
 

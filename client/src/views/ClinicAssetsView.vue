@@ -74,10 +74,10 @@
                 </div>
                 <n-tag :type="statusTagType(asset.status)" round>{{ translateStatus(asset.status) }}</n-tag>
               </div>
-
+<!--
               <p class="asset-description">
                 {{ asset.description || t('clinicAssetsView.emptyDescription') }}
-              </p>
+              </p> -->
 
               <div class="asset-meta-grid">
                 <div>
@@ -148,11 +148,11 @@
           </n-grid-item>
 
           <n-grid-item :span="2">
-            <n-form-item :label="t('clinicAssetsView.form.descriptionLabel')" path="description">
+            <!-- <n-form-item :label="t('clinicAssetsView.form.descriptionLabel')" path="description">
               <n-input v-model:value="formModel.description" type="textarea"
                 :placeholder="t('clinicAssetsView.form.descriptionPlaceholder')"
                 :autosize="{ minRows: 3, maxRows: 6 }" />
-            </n-form-item>
+            </n-form-item> -->
           </n-grid-item>
 
           <n-grid-item>
@@ -273,6 +273,15 @@ import useUserStore from '@/stores/user'
 type ClinicAssetFormData = ClinicAssetData & {
   discountPercentage?: number | null
   currencyExchangeRate?: number | null
+}
+
+type RawClinicAssetData = ClinicAssetData & {
+  asset_name?: string | null
+  is_sterile?: boolean | number | null
+  total_amount?: number | null
+  date_of_purchase?: string | null
+  purchasedByEmployee_id?: number | null
+  purchased_by_employee_id?: number | null
 }
 
 const { t } = useI18n()
@@ -409,18 +418,28 @@ const statusTagType = (status?: string) => {
   }
 }
 
-const normalizeForm = (asset: ClinicAssetFormData): ClinicAssetFormData => ({
-  ...asset,
-  description: asset.description ?? '',
-  isSterile: Boolean(asset.isSterile),
-  width: asset.width ?? undefined,
-  height: asset.height ?? undefined,
-  depth: asset.depth ?? undefined,
-  purchasedByEmployeeId: asset.purchasedByEmployeeId ?? undefined,
-  totalAmount: asset.totalAmount ?? 0,
-  discountPercentage: asset.discountPercentage ?? undefined,
-  currencyExchangeRate: asset.currencyExchangeRate ?? undefined,
-})
+const normalizeForm = (asset: RawClinicAssetData): ClinicAssetFormData => {
+  const purchasedByEmployeeId =
+    asset.purchasedByEmployeeId ??
+    asset.purchasedByEmployee_id ??
+    asset.purchased_by_employee_id ??
+    undefined
+
+  return {
+    ...asset,
+    assetName: asset.assetName ?? asset.asset_name ?? '',
+    description: asset.description ?? '',
+    isSterile: Boolean(asset.isSterile ?? asset.is_sterile),
+    width: asset.width ?? undefined,
+    height: asset.height ?? undefined,
+    depth: asset.depth ?? undefined,
+    purchasedByEmployeeId,
+    totalAmount: asset.totalAmount ?? asset.total_amount ?? 0,
+    dateOfPurchase: asset.dateOfPurchase ?? asset.date_of_purchase ?? '',
+    discountPercentage: asset.discountPercentage ?? undefined,
+    currencyExchangeRate: asset.currencyExchangeRate ?? undefined,
+  }
+}
 
 const resetForm = () => {
   Object.assign(formModel, emptyForm())

@@ -180,17 +180,17 @@ const columns = [
   {
     title: t('employeeView.columns.name'),
     key: 'name',
-    ellipsis: { tooltip: true },
+    ellipsis: { tooltip: { to: 'body', placement: 'top' } },
   },
   {
     title: t('employeeView.columns.email'),
     key: 'email',
-    ellipsis: { tooltip: true },
+    ellipsis: { tooltip: { to: 'body', placement: 'top' } },
   },
   {
     title: t('employeeView.columns.phone'),
     key: 'phone',
-    ellipsis: { tooltip: true },
+    ellipsis: { tooltip: { to: 'body', placement: 'top' } },
     render(row: EmployeeRow) {
       return row.phone || '-'
     },
@@ -198,7 +198,7 @@ const columns = [
   {
     title: t('employeeView.columns.position'),
     key: 'position',
-    ellipsis: { tooltip: true },
+    ellipsis: { tooltip: { to: 'body', placement: 'top' } },
   },
   {
     title: t('employeeView.columns.workStartTime'),
@@ -283,7 +283,7 @@ const salaryColumns: DataTableColumn<any>[] = [
   {
     title: t('employeeView.salaryColumns.remark'),
     key: 'remark',
-    ellipsis: { tooltip: true },
+    ellipsis: { tooltip: { to: 'body', placement: 'top' } },
     render(row) {
       return row.remark || '-'
     },

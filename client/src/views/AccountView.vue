@@ -35,6 +35,8 @@ type TransactionRow = TransactionData & { id?: number }
 const message = useMessage()
 const route = useRoute()
 const { t } = useI18n()
+
+const isRtl = computed(() => typeof document !== 'undefined' && document.documentElement?.dir === 'rtl')
 const userStore = useUserStore()
 
 const getEffectiveBranchId = (): number | undefined => {
@@ -176,7 +178,7 @@ const accountColumns = [
   {
     title: t('accountView.columns.accountName'),
     key: 'accountName',
-    ellipsis: { tooltip: true },
+    ellipsis: { tooltip: { to: 'false', placement: 'top', direction: 'rtl', textAlign: 'right' } },
   },
   {
     title: t('accountView.columns.accountType'),
@@ -243,7 +245,11 @@ const accountColumns = [
         }),
         userStore.isAdmin && h(
           NTooltip,
-          { disabled: !deleteDisabled },
+          {
+            disabled: !deleteDisabled,
+            to: 'body',
+            placement: 'top',
+          },
           {
             trigger: () =>
               h(Icon, {
@@ -301,12 +307,12 @@ const transactionColumns = [
   {
     title: t('accountView.transactionColumns.referenceType'),
     key: 'referenceType',
-    ellipsis: { tooltip: true },
+    ellipsis: { tooltip: { to: 'body', placement: 'top' } },
   },
   {
     title: t('accountView.transactionColumns.description'),
     key: 'description',
-    ellipsis: { tooltip: true },
+    ellipsis: { tooltip: { to: 'body', placement: 'top' } },
   },
   {
     title: t('accountView.transactionColumns.recordedBy'),

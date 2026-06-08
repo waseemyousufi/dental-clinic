@@ -69,13 +69,18 @@ class PatientController extends Controller
                 'branch_id' => $branchId
             ]);
 
+            $recordedByEmployeeId = null;
+            if (auth()->check()) {
+                $recordedByEmployeeId = auth()->user()?->employee?->id ?? null;
+            }
+
             AccountTransaction::create([
                 'transaction_type' => 'in',
                 'amount' => $data['debit'],
                 'transaction_date' => now(),
                 'reference_type' => 'patient',
                 'description' => 'Collected from ' . $patient->f_name . ' ' . $patient->l_name,
-                'recorded_by_employee_id' => $request->user()->id,
+                'recorded_by_employee_id' => $recordedByEmployeeId,
                 'account_id' => 1,
                 'branch_id' => $branchId
             ]);
@@ -113,13 +118,18 @@ class PatientController extends Controller
                     ->where('account_type', 'income')
                     ->first()
                     ->increment('total_amount', $data['reception_cost']);
+                $recordedByEmployeeId = null;
+                if (auth()->check()) {
+                    $recordedByEmployeeId = auth()->user()?->employee?->id ?? null;
+                }
+
                 AccountTransaction::create([
                     'transaction_type' => 'in',
                     'amount' => $data['reception_cost'],
                     'transaction_date' => now(),
                     'reference_type' => 'patient',
                     'description' => 'Reception fee for new patient: ' . $data['fName'] . ' ' . $data['lName'],
-                    'recorded_by_employee_id' => $request->user()->id,
+                    'recorded_by_employee_id' => $recordedByEmployeeId,
                     'account_id' => 1,
                     'branch_id' => $branchId
                 ]);
