@@ -350,26 +350,20 @@ onMounted(() => {
       </n-button>
     </div>
 
-    <n-grid :cols="{ xs: 1, s: 2, m: 3 }" :x-gap="12" :y-gap="12" class="stats-grid">
-      <n-grid-item>
-        <n-card size="small" class="stat-card">
-          <div class="stat-title">{{ t('expenseView.stats.totalExpenses') }}</div>
-          <div class="stat-value">{{ totalAmount.toLocaleString() }}</div>
-        </n-card>
-      </n-grid-item>
-      <n-grid-item>
-        <n-card size="small" class="stat-card">
-          <div class="stat-title">{{ t('expenseView.stats.today') }}</div>
-          <div class="stat-value">{{ todayTotal.toLocaleString() }}</div>
-        </n-card>
-      </n-grid-item>
-      <n-grid-item>
-        <n-card size="small" class="stat-card">
-          <div class="stat-title">{{ t('expenseView.stats.records') }}</div>
-          <div class="stat-value">{{ filteredExpenses.length }}</div>
-        </n-card>
-      </n-grid-item>
-    </n-grid>
+    <div class="stats-grid">
+      <n-card size="small" class="stat-card">
+        <div class="stat-title">{{ t('expenseView.stats.totalExpenses') }}</div>
+        <div class="stat-value">{{ totalAmount.toLocaleString() }}</div>
+      </n-card>
+      <n-card size="small" class="stat-card">
+        <div class="stat-title">{{ t('expenseView.stats.today') }}</div>
+        <div class="stat-value">{{ todayTotal.toLocaleString() }}</div>
+      </n-card>
+      <n-card size="small" class="stat-card">
+        <div class="stat-title">{{ t('expenseView.stats.records') }}</div>
+        <div class="stat-value">{{ filteredExpenses.length }}</div>
+      </n-card>
+    </div>
 
     <n-card size="small" class="toolbar-card">
       <div class="toolbar">
@@ -538,6 +532,29 @@ onMounted(() => {
 
 .add-btn {
   align-self: flex-start;
+}
+
+.stats-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.stat-card {
+  flex: 1 1 calc((100% - 24px) / 3);
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .stat-card {
+    flex-basis: calc((100% - 12px) / 2);
+  }
+}
+
+@media (max-width: 480px) {
+  .stat-card {
+    flex-basis: 100%;
+  }
 }
 
 .stat-card :deep(.n-card__content) {
