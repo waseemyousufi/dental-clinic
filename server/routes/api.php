@@ -36,6 +36,7 @@ use App\Http\Controllers\HyperUserController;
 //     }
 // });
 
+
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:hyper-admin')->group(function () {

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Branch; // Assuming this is your Branch model
 use App\Models\ClinicOwner;
 use App\Models\Employee;
+use App\Models\Procedure;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -103,6 +104,68 @@ class HyperUserController extends Controller
                 'branch_id' => $branch->id,
                 'user_id' => $branch_admin->id,
             ]);
+
+            $procedures = [
+                [
+                    'branch_id' => $branch->id,
+                    'name' => 'Composite Filling (1 Surface)',
+                    'slug' => 'composite-filling-1',
+                    'category' => 'Restorative',
+                    'base_price' => 1500, // AFN
+                    'dentist_commission' => 20.00,
+                    'min_price' => 100,
+                    'assistant_commission' => 50, // Fixed AFN for Dastyar
+                    'appointments_needed' => 5
+                ],
+                [
+                    'branch_id' => $branch->id,
+                    'name' => 'Simple Extraction',
+                    'slug' => 'simple-extraction',
+                    'category' => 'Surgery',
+                    'base_price' => 1000,
+                    'dentist_commission' => 15.00,
+                    'min_price' => 100,
+                    'assistant_commission' => 30,
+                    'appointments_needed' => 1
+                ],
+                [
+                    'branch_id' => $branch->id,
+                    'name' => 'Polishing',
+                    'slug' => 'polishing',
+                    'category' => 'Preventive',
+                    'base_price' => 800,
+                    'dentist_commission' => 25.00,
+                    'min_price' => 100,
+                    'assistant_commission' => 20,
+                    'appointments_needed' => 1
+                ],
+                [
+                    'branch_id' => $branch->id,
+                    'name' => 'Full Dental Implant (One Tooth)',
+                    'slug' => 'full-dental-implant-one-tooth',
+                    'category' => 'Surgery',
+                    'base_price' => 15000,
+                    'dentist_commission' => 20.00,
+                    'min_price' => 1000,
+                    'assistant_commission' => 20,
+                    'appointments_needed' => 10
+                ],
+                                [
+                    'branch_id' => $branch->id,
+                    'name' => 'Checkup',
+                    'slug' => 'checkup',
+                    'category' => 'Preventive',
+                    'base_price' => 200,
+                    'dentist_commission' => 25.00,
+                    'min_price' => 100,
+                    'assistant_commission' => 20,
+                    'appointments_needed' => 1
+                ]
+            ];
+
+            foreach ($procedures as $p) {
+                Procedure::create($p);
+            }
 
             return response()->json($branch, 201);
         });

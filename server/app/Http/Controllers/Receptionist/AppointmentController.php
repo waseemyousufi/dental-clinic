@@ -42,8 +42,6 @@ class AppointmentController extends Controller
             'treatment_plan_id' => 'nullable|exists:treatment_plans,id',
             'appointment_cost' => 'required|numeric',
             'clinical_notes' => 'nullable|string',
-
-            // frontend still sends single value
             'procedure_id' => 'required|exists:procedures,id',
         ]);
 
@@ -61,7 +59,11 @@ class AppointmentController extends Controller
             ]);
 
             // ✅ M:M compatibility layer (IMPORTANT PART)
-            $appointment->procedures()->sync([$data['procedure_id']]);
+            $appointment->procedures()->sync([
+                $data['procedure_id'] => [
+                    'branch_id' => $branchId // Or $appointment->branch_id, depending on where it's stored
+                ]
+            ]);
 
             $patient = Patient::where('branch_id', $branchId)->findOrFail($data['patientId']);
             // if ($data['status'] === 'Completed') {
@@ -82,10 +84,16 @@ class AppointmentController extends Controller
             //         'branch_id' => $branchId,
             //     ]);
             // }
-            $appointment->patients()->sync([$patient->id]);
+
+            $appointment->patients()->sync([
+                $patient->id => ['branch_id' => $branchId]
+            ]);
+
 
             $employee = Employee::where('branch_id', $branchId)->findOrFail($data['employeeId']);
-            $appointment->employees()->sync([$employee->id]);
+            $appointment->employees()->sync([
+                $employee->id => ['branch_id' => $branchId]
+            ]);
         });
 
         return response()->json([
