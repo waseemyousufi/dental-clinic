@@ -15,6 +15,24 @@ class TreatmentPlanResource extends JsonResource
     public function toArray(Request $request): array
     {
         $procedure = $this->procedure()->first();
+
+        if($request->query('abbreviated') === 'true') {
+            return [
+                'id' => $this->id,
+                'patient_id' => $this->patient_id,
+                'procedure_id' => $this->procedure_id,
+                'procedure_name' => $procedure ? $procedure->name : null,
+                'branch_id' => $this->branch_id,
+                'total_estimated_cost' => $this->total_estimated_cost,
+                // 'total_amount_paid' => $this->total_amount_paid,
+                'status' => $this->status,
+                // 'appointments_needed' => $this->appointments_needed,
+                'start_date' => $this->start_date,
+                'is_accepted' => $this->isAccepted(),
+            ];
+        }
+
+
         return [
             'id' => $this->id,
 
@@ -28,7 +46,7 @@ class TreatmentPlanResource extends JsonResource
             'total_amount_paid' => $this->total_amount_paid,
             'status' => $this->status,
             'appointments_needed' => $this->appointments_needed,
-            'start_date' => $this->start_date, // ⚠️ you likely meant start_date in DB
+            'start_date' => $this->start_date,
 
             // Computed
             'is_accepted' => $this->isAccepted(),

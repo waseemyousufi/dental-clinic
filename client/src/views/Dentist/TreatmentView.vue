@@ -127,42 +127,40 @@ if(!userStore.isDoctor) {
 )
 }
 
-if(!userStore.isReceptionist) {
-  columns.push(
-      {
-    title: t('treatmentView.columns.actions'),
-    key: 'actions',
-    render(row: TreatmentPlanData) {
-      return h(NSpace, {}, {
-        default: () => [
-          h(NButton, {
-            size: 'small',
-            quaternary: true,
-            circle: true,
-            onClick: () => handleEdit(row)
-          }, { icon: () => h(Icon, { icon: 'mdi:pencil-outline' }) }),
-          h(NPopconfirm, {
-            onPositiveClick: () => handleDelete(row.id!)
-          }, {
-            trigger: () => h(NButton, {
-              size: 'small',
-              quaternary: true,
-              circle: true,
-              type: 'error'
-            }, { icon: () => h(Icon, { icon: 'mdi:delete-outline' }) }),
-            default: () => t('treatmentView.messages.deleteConfirmMessage')
-          }),
-          // row.status === 'accepted' ? h(NButton, {
-          //   size: 'small',
-          //   type: 'primary',
-          //   onClick: () => handleExecute(row)
-          // }, { default: () => 'Execute' }) : null
-        ]
-      })
-    }
-  }
-  )
-}
+// if(!userStore.isReceptionist) {
+//   columns.push(
+//       {
+//     title: t('treatmentView.columns.actions'),
+//     key: 'actions',
+//     render(row: TreatmentPlanData) {
+//         // Do not show actions for completed treatment plans
+//         if (row.status === 'completed') return null
+
+//         return h(NSpace, {}, {
+//           default: () => [
+//             // h(NButton, {
+//             //   size: 'small',
+//             //   quaternary: true,
+//             //   circle: true,
+//             //   onClick: () => handleEdit(row)
+//             // }, { icon: () => h(Icon, { icon: 'mdi:pencil-outline' }) }),
+//             h(NPopconfirm, {
+//               onPositiveClick: () => handleDelete(row.id!)
+//             }, {
+//               trigger: () => h(NButton, {
+//                 size: 'small',
+//                 quaternary: true,
+//                 circle: true,
+//                 type: 'error'
+//               }, { icon: () => h(Icon, { icon: 'mdi:delete-outline' }) }),
+//               default: () => t('treatmentView.messages.deleteConfirmMessage')
+//             }),
+//           ]
+//         })
+//     }
+//   }
+//   )
+// }
 
 // Methods
 async function loadData() {
@@ -309,12 +307,12 @@ onMounted(loadData)
             <h1 style="margin: 0;">{{ t('treatmentView.headerTitle') }}</h1>
             <p style="color: #666;">{{ t('treatmentView.headerCopy') }}</p>
           </div>
-          <n-button v-if="!userStore.isReceptionist" type="primary" size="large" @click="handleAdd">
+          <!-- <n-button v-if="!userStore.isReceptionist" type="primary" size="large" @click="handleAdd">
             <template #icon>
               <Icon icon="mdi:plus" />
             </template>
             {{ t('treatmentView.newPlanButtonText') }}
-          </n-button>
+          </n-button> -->
         </div>
 
         <n-grid cols="1 400:2 800:4" x-gap="12" y-gap="12">

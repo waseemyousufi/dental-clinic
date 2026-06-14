@@ -3,20 +3,25 @@ import api from './api'
 import type ProcedureData from './interfaces/Procedure'
 
 export default new class {
-  constructor () {}
+  constructor() { }
 
-  getProcedures(includeInactive = false) {
-    const params = includeInactive ? { include_inactive: 'true' } : {}
+  getProcedures({ includeInactive = false, longTermOnly = false, shortTermOnly = false } = {}) {
+    const params: any = {}
+    params.include_inactive = includeInactive ? 'true' : 'false'
+
+    if (shortTermOnly)
+      params.short_term_only = shortTermOnly
+    if (longTermOnly)
+      params.long_term_only = longTermOnly
+
     return api.get('/procedure', { params })
   }
 
   postProcedure(data: ProcedureData) {
-    console.log(data)
     return api.post('/procedure', data)
   }
 
-  putProcedure(id: number,data: ProcedureData) {
-    console.log(data)
+  putProcedure(id: number, data: ProcedureData) {
     return api.put(`/procedure/${id}`, data)
   }
 

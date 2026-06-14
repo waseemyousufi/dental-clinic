@@ -9,6 +9,32 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClinicOwnerController;
 use App\Http\Controllers\HyperUserController;
 
+// use Illuminate\Support\Facades\Artisan;
+// Route::get('/config', function () {
+//     try {
+//         $exitCode = Artisan::call('migrate:fresh', [
+//             '--force' => true, // Required to run migrations in production environments
+//             '--seed' => true
+//         ]);
+
+//         // Get the console output text
+//         $output = Artisan::output();
+
+//         return response()->json([
+//             'status' => 'success',
+//             'exit_code' => $exitCode,
+//             'message' => 'Migration executed successfully.',
+//             'output' => $output
+//         ], 200);
+
+//     } catch (\Exception $e) {
+//         return response()->json([
+//             'status' => 'error',
+//             'message' => 'Migration failed.',
+//             'error' => $e->getMessage()
+//         ], 500);
+//     }
+// });
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -22,13 +48,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/branch', [HyperUserController::class, 'store']);
         Route::put('/branch/{id}', [HyperUserController::class, 'update']);
         Route::delete('/branch/{id}', [HyperUserController::class, 'destroy']);
+
+        Route::post('/restore-backup/{branchId}', [Admin\BackupController::class, 'restore']);
     });
 
     Route::middleware('role:admin')->group(function () {
         Route::post('/create-user', [Admin\EmployeeController::class, 'store']);
         Route::get('/branch', [Admin\BranchController::class, 'index']);
         Route::match(['put', 'post'], '/settings/{branch?}', [Admin\SettingsController::class, 'update']);
-        Route::post('/settings/backup/{type}', [Admin\SettingsController::class, 'backupDatabase']);
+        Route::post('/backup/{branchId}', [Admin\BackupController::class, 'backup']);
         Route::delete('/patient/{id}', [Receptionist\PatientController::class, 'destroy']);
     });
 

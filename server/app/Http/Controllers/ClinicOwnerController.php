@@ -37,7 +37,7 @@ class ClinicOwnerController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
-            'email' => 'nullable|email|max:255',
+            'email' => 'nullable|email|max:255|unique:clinic_owners,email',
             'totalAmountDue' => 'required|numeric|min:0',
             'totalAmountPaid' => 'required|numeric|min:0',
         ]);
@@ -140,7 +140,7 @@ class ClinicOwnerController extends Controller
         $data = $request->validate([
             'name' => 'sometimes|string|max:255',
             'phone' => 'sometimes|string|max:20',
-            'email' => 'nullable|email|max:255',
+            'email' => 'nullable|email|max:255|unique:clinic_owners,email,' . $id,
             'totalAmountDue' => 'sometimes|numeric|min:0',
             'totalAmountPaid' => 'sometimes|numeric|min:0',
         ]);

@@ -14,6 +14,18 @@ class ProcedureResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+
+        if ($request->query('short_term_only', false)) {
+            if ($this->appointments_needed > 1) {
+                return [];
+            }
+        }
+         if ($request->query('long_term_only', false)) {
+            if ($this->appointments_needed <= 1) {
+                return [];
+            }
+        }
+
         return [
             'id' => $this->id,
 

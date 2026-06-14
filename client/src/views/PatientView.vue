@@ -98,6 +98,25 @@ const filteredPatients = computed(() => {
   )
 })
 
+function parseRegDate(row: any): number {
+  const candidates = [
+    row?.registerationDate,
+    row?.registeration_date,
+    row?.registeredAt,
+    row?.registered_at,
+    row?.created_at,
+    row?.createdAt,
+  ]
+
+  for (const v of candidates) {
+    if (!v && v !== 0) continue
+    const t = Date.parse(String(v))
+    if (!Number.isNaN(t)) return t
+  }
+
+  return 0
+}
+
 
 
 const columns = computed(() => [
@@ -233,7 +252,9 @@ async function fetchPatients() {
     loading.value = true
     const { data } = await patientApi.getBranchPatients(false, getEffectiveBranchId())
     console.log(data.data)
-    patients.value = data.data as PatientRow[]
+    // sort patients by registration date (oldest first)
+    const raw = (data.data as PatientRow[]) || []
+    patients.value = raw.slice().sort((a, b) => parseRegDate(a) - parseRegDate(b))
   } catch (error) {
     console.error(error)
     message.error(t('patientView.messages.loadPatientsError')) // Translated message
