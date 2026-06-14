@@ -13,6 +13,15 @@ const getDefaultBranchPath = () => {
     const storedUser = JSON.parse(localStorage.getItem('user') || 'null')
     const user = storedUser?.user || storedUser
 
+    // If user is admin, default to dashboard
+    const isAdmin = !!(
+      user?.is_admin ?? user?.isAdmin ?? (user?.role === 'admin')
+    ) || (Array.isArray(user?.roles) && user.roles.includes('admin'))
+
+    if (isAdmin) {
+      return '/dashboard'
+    }
+
     const position = user?.employee?.position
     const baseUrl = position === 'doctor' ? '/appointments' : '/patients'
 

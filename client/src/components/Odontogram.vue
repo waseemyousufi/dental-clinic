@@ -14,7 +14,7 @@ export type ToothState = {
 
 export interface OdontogramState { [toothNumber: number]: ToothState }
 
-const props = defineProps<{ modelValue: OdontogramState; slug: string; readonly?: boolean }>()
+const props = defineProps<{ modelValue: OdontogramState; slug: string; readonly?: boolean; patient?: any }>()
 const emit = defineEmits<{ (e: 'update:modelValue', value: OdontogramState): void; (e: 'tooth-click', tooth: number, part: string): void }>()
 
 const state = computed({
@@ -27,8 +27,7 @@ const wrapperRef = ref<HTMLElement | null>(null)
 
 
 // Printing Logic
-const printMode = ref<'portrait' | 'landscape' | null>(null)
-const triggerPrint = (mode: 'portrait' | 'landscape') => {
+const triggerPrint = () => {
   if (!wrapperRef.value) return;
 
   const printWindow = window.open('', '_blank', 'width=1200,height=800');
@@ -42,10 +41,13 @@ const triggerPrint = (mode: 'portrait' | 'landscape') => {
     styles += style.outerHTML;
   });
 
-  let rotation = 'rotate(90deg)' as string | null
-  if (mode === 'portrait') {
-    rotation = null
-  }
+  const patientInfoHtml = props.patient ? `
+    <div class="patient-info-header">
+      <h1>Patient: ${props.patient.fName || props.patient.f_name} ${props.patient.lName || props.patient.l_name}</h1>
+      <p>Gender: ${props.patient.gender || '—'} | Blood Type: ${props.patient.bloodType || '—'} | Phone: ${props.patient.phone || '—'}</p>
+      <p>Date: ${new Date().toLocaleDateString()}</p>
+    </div>
+  ` : '';
 
   printWindow.document.write(`
     <html>
@@ -53,64 +55,163 @@ const triggerPrint = (mode: 'portrait' | 'landscape') => {
         <title>Print Odontogram</title>
         ${styles}
         <style>
-          /* 1. Ensure the container takes up the full page height */
           html, body {
             margin: 0;
             padding: 0;
-            height: 100%;
-            width: 100%;
+            background: white;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
           }
 
-          /* 2. Create a flex container to center the content */
           .print-container {
             display: flex;
-            ${rotation ? 'align-items: center;' : 'margin-top: 100px;'}
-            justify-content: center;
-            height: 100vh;
-            width: 100vw;
-            background: white;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            min-height: 100vh;
+            box-sizing: border-box;
+            position: relative;
           }
 
-          /* 3. Reset component-specific styles for the print doc */
-          .odontogram-wrapper {
+          /* A4 Base Styles (Default) */
+          .patient-info-header {
+            text-align: center;
+            margin-bottom: 120px;
+            width: 100%;
+            max-width: 900px;
+            border-bottom: 3px solid #eee;
+            padding-bottom: 30px;
+            position: relative;
+            z-index: 2;
+          }
+          .patient-info-header h1 {
+            margin: 0 0 20px 0;
+            font-size: 48px;
+            color: #000;
+            font-weight: 900;
+            text-align: center;
+          }
+          .patient-details {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            font-size: 20px;
+            color: #444;
+            line-height: 2;
+          }
+          .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+          .detail-icon {
+            width: 28px;
+            height: 28px;
+            filter: grayscale(1);
+          }
+
+          .print-odontogram-content {
             visibility: visible !important;
             display: block !important;
+            position: relative !important;
+            transform: none !important;
+            top: auto !important;
+            left: auto !important;
+            margin-top: 60px;
           }
 
-          /* 4. Handle scaling based on orientation */
           .odontogram-table {
-            transform: scale(${mode === 'portrait' ? '1' : '1.5'});
-            transform-origin: center;
+            transform: scale(1.4);
+            transform-origin: top center;
           }
 
-            @media (min-width: 1550px) {
-              .odontogram-wrapper {
-                transform: ${rotation} ${rotation ? 'scale(1.5)' : 'scale(1)'}  !important;
-              }
+          /* A5 Responsive Scaling */
+          @media (max-width: 600px), print {
+            .patient-info-header {
+              margin-bottom: 50px;
+              padding-bottom: 20px;
+              // display:none;
+            }
+            .patient-info-header h1 {
+              font-size: 32px;
+              margin-bottom: 15px;
+            }
+            .patient-details {
+              font-size: 16px;
+              gap: 20px;
+            }
+            .detail-icon {
+              width: 20px;
+              height: 20px;
             }
 
-            @media (max-width: 30cm) {
-              .odontogram-wrapper {
-                transform: ${rotation} ${rotation ? 'scale(2)' : 'scale(.8)'}  !important;
-                display: none;
-              }
+            .odontogram-table {
+              transform: scale(1) !important;
             }
 
+            tbody {
+              transform: scale(.84);
+              }
+
+            .odontogram-table td {
+              padding: 2px;
+              text-align: center;
+              border-right: 0px solid #f0f0f0 !important;
+            }
+
+          .odontogram-table td:nth-child(8) {
+            padding-right: 2px !important;
+            border-right: 1px solid #bfbfbf !important;
+          }
+
+          }
+
+          @media print {
+            body {
+              visibility: visible !important;
+            }
+            .print-container {
+              padding: 10mm 0;
+            }
+          }
 
           @page {
-            margin: 0;
+            margin: 10mm;
+            size: auto;
           }
         </style>
       </head>
       <body>
         <div class="print-container">
-          <div class="odontogram-wrapper">
+          ${props.patient ? `
+            <div class="patient-info-header">
+              <h1>${props.patient.fName || props.patient.f_name} ${props.patient.lName || props.patient.l_name}</h1>
+              <div class="patient-details">
+                <div class="detail-item">
+                  <img src="https://api.iconify.design/mdi:gender-male-female.svg" class="detail-icon" />
+                  <span>Gender: ${props.patient.gender || '—'}</span>
+                </div>
+                <div class="detail-item">
+                  <img src="https://api.iconify.design/healthicons:blood-ab-p.svg" class="detail-icon" />
+                  <span>Blood Type: ${props.patient.bloodType || '—'}</span>
+                </div>
+                <div class="detail-item">
+                  <img src="https://api.iconify.design/tabler:phone.svg" class="detail-icon" />
+                  <span>Phone: ${props.patient.phone || '—'}</span>
+                </div>
+                <div class="detail-item">
+                  <img src="https://api.iconify.design/tabler:calendar.svg" class="detail-icon" />
+                  <span>Date: ${new Date().toLocaleDateString()}</span>
+                </div>
+              </div>
+            </div>
+          ` : ''}
+          <div class="print-odontogram-content">
             ${chartHtml}
           </div>
         </div>
         <script>
           window.onload = () => {
-            // Small timeout ensures fonts and SVGs render before print
             setTimeout(() => {
               window.print();
               window.close();
@@ -172,8 +273,7 @@ const getPartStyle = (num: number, partId: string) => {
 </script>
 
 <template>
-  <div class="odontogram-wrapper" ref="wrapperRef"
-    :class="{ 'adult-print-portrait': printMode === 'portrait', 'adult-print-landscape': printMode === 'landscape' }">
+  <div class="odontogram-wrapper" ref="wrapperRef">
     <table class="odontogram-table">
       <tbody>
         <tr class="num-row">
@@ -219,11 +319,8 @@ const getPartStyle = (num: number, partId: string) => {
   </div>
 
   <div class="print-controls">
-    <button type="button" @click="triggerPrint('portrait')">
-      Print Portrait
-    </button>
-    <button type="button" @click="triggerPrint('landscape')">
-      Print Landscape
+    <button type="button" @click="triggerPrint">
+      Print Odontogram
     </button>
   </div>
 </template>
@@ -324,25 +421,17 @@ const getPartStyle = (num: number, partId: string) => {
     z-index: 9999999 !important;
     border: none !important;
     overflow: visible;
+    /* transform: scale(.4) !important; */
   }
 
-  /* 3. Portrait: Scale to fill width */
-  .adult-print-portrait .odontogram-table {
+  /* 3. Scale to fill width */
+  .odontogram-table {
     visibility: visible !important;
-    /* Scale significantly higher to fill the paper width */
-    transform: scale(2.5) !important;
+    transform: scale(1.5) !important;
     transform-origin: center;
   }
 
-  /* 4. Landscape: Fill the maximum area */
-  .adult-print-landscape .odontogram-table {
-    visibility: visible !important;
-    /* Rotated 90deg and scaled to fill the long side of the paper */
-    transform: rotate(90deg) scale(3) !important;
-    transform-origin: center;
-  }
-
-  /* 5. Force the browser to ignore its own default margins */
+  /* 4. Force the browser to ignore its own default margins */
   @page {
     margin: 0;
     size: auto;

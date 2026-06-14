@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('phone')->nullable();
-            $table->string('email')->nullable();
+            $table->string('email')->unique()->nullable();
             $table->decimal('total_amount_due', 10, 2);
             $table->decimal('total_amount_paid', 10, 2);
             $table->timestamps();

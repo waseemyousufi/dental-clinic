@@ -73,7 +73,7 @@ class DashboardController extends Controller
         $appointmentCharges = (float) (clone $appointmentQuery)->sum('appointment_cost');
 
         $previousCashCollected = (float) (clone $previousTransactionQuery)->where('transaction_type', 'in')->sum('amount');
-        $noShowAppointments = (clone $appointmentQuery)->where('status', 'No Show')->count();
+        $noShowAppointments = (clone $appointmentQuery)->where('status', 'no_show')->count();
         $totalAppointments = (clone $appointmentQuery)->count();
 
         $newPatients = (clone $patientQuery)->count();
@@ -83,17 +83,17 @@ class DashboardController extends Controller
             ? round($appointmentCharges / $totalAppointments, 2)
             : 0.0;
 
-        $collectionRate = $appointmentCharges > 0
-            ? round(($cashCollected / $appointmentCharges) * 100, 2)
-            : 100.0;
+        // $collectionRate = $appointmentCharges > 0
+        //     ? round(($cashCollected / $appointmentCharges) * 100, 2)
+        //     : 100.0;
 
-        $pricingAudit = $this->pricingAudit((clone $appointmentQuery)->get(['id', 'appointment_cost']));
+        // $pricingAudit = $this->pricingAudit((clone $appointmentQuery)->get(['id', 'appointment_cost']));
 
         $creditBalances = $this->creditBalances($branchId);
         $outstandingAR = round($creditBalances->sum('balance'), 2);
 
-        $patientRetention = $this->patientRetentionRate($branchId, $start, $end);
-        $repeatPatientRate = $this->repeatPatientRate($branchId, $start, $end);
+        // $patientRetention = $this->patientRetentionRate($branchId, $start, $end);
+        // $repeatPatientRate = $this->repeatPatientRate($branchId, $start, $end);
 
         $sameDayAppointments = (clone $appointmentQuery)
             ->join('appointment_patient', 'appointments.id', '=', 'appointment_patient.appointment_id')
@@ -135,16 +135,16 @@ class DashboardController extends Controller
                 'tone' => $outstandingAR > 0 ? 'warn' : 'good',
                 'help' => 'Balances still owed by patients.',
             ],
-            [
-                'key' => 'collection_rate',
-                'label' => 'Collection Rate',
-                'value' => $collectionRate,
-                'formatted' => $this->percent($collectionRate),
-                'trend' => null,
-                'trend_label' => $collectionRate >= 85 ? 'Healthy' : 'Needs action',
-                'tone' => $collectionRate >= 85 ? 'good' : 'warn',
-                'help' => 'Cash collected versus appointment charges.',
-            ],
+            // [
+            //     'key' => 'collection_rate',
+            //     'label' => 'Collection Rate',
+            //     'value' => $collectionRate,
+            //     'formatted' => $this->percent($collectionRate),
+            //     'trend' => null,
+            //     'trend_label' => $collectionRate >= 85 ? 'Healthy' : 'Needs action',
+            //     'tone' => $collectionRate >= 85 ? 'good' : 'warn',
+            //     'help' => 'Cash collected versus appointment charges.',
+            // ],
             [
                 'key' => 'avg_ppv',
                 'label' => 'Avg Production / Visit',
@@ -185,36 +185,36 @@ class DashboardController extends Controller
                 'tone' => 'good',
                 'help' => 'Appointments that were collected on the same day.',
             ],
-            [
-                'key' => 'pricing_discipline',
-                'label' => 'Pricing Discipline',
-                'value' => $pricingAudit['in_range_rate'],
-                'formatted' => $this->percent($pricingAudit['in_range_rate']),
-                'trend' => null,
-                'trend_label' => $pricingAudit['in_range_count'].'/'.$pricingAudit['audited_count'].' matched',
-                'tone' => $pricingAudit['in_range_rate'] >= 70 ? 'good' : 'warn',
-                'help' => 'Share of appointments priced within procedure minimum and base price.',
-            ],
-            [
-                'key' => 'patient_retention',
-                'label' => 'Patient Retention',
-                'value' => $patientRetention,
-                'formatted' => $this->percent($patientRetention),
-                'trend' => null,
-                'trend_label' => 'Return behavior',
-                'tone' => $patientRetention >= 50 ? 'good' : 'warn',
-                'help' => 'Repeat patients over active patients.',
-            ],
-            [
-                'key' => 'repeat_patient_rate',
-                'label' => 'Repeat Patient Rate',
-                'value' => $repeatPatientRate,
-                'formatted' => $this->percent($repeatPatientRate),
-                'trend' => null,
-                'trend_label' => 'Repeat behavior',
-                'tone' => $repeatPatientRate >= 40 ? 'good' : 'warn',
-                'help' => 'Patients with more than one appointment.',
-            ],
+            // [
+            //     'key' => 'pricing_discipline',
+            //     'label' => 'Pricing Discipline',
+            //     'value' => $pricingAudit['in_range_rate'],
+            //     'formatted' => $this->percent($pricingAudit['in_range_rate']),
+            //     'trend' => null,
+            //     'trend_label' => $pricingAudit['in_range_count'].'/'.$pricingAudit['audited_count'].' matched',
+            //     'tone' => $pricingAudit['in_range_rate'] >= 70 ? 'good' : 'warn',
+            //     'help' => 'Share of appointments priced within procedure minimum and base price.',
+            // ],
+            // [
+            //     'key' => 'patient_retention',
+            //     'label' => 'Patient Retention',
+            //     'value' => $patientRetention,
+            //     'formatted' => $this->percent($patientRetention),
+            //     'trend' => null,
+            //     'trend_label' => 'Return behavior',
+            //     'tone' => $patientRetention >= 50 ? 'good' : 'warn',
+            //     'help' => 'Repeat patients over active patients.',
+            // ],
+            // [
+            //     'key' => 'repeat_patient_rate',
+            //     'label' => 'Repeat Patient Rate',
+            //     'value' => $repeatPatientRate,
+            //     'formatted' => $this->percent($repeatPatientRate),
+            //     'trend' => null,
+            //     'trend_label' => 'Repeat behavior',
+            //     'tone' => $repeatPatientRate >= 40 ? 'good' : 'warn',
+            //     'help' => 'Patients with more than one appointment.',
+            // ],
             [
                 'key' => 'plan_acceptance',
                 'label' => 'Case Acceptance',
@@ -324,7 +324,7 @@ class DashboardController extends Controller
     {
         return Appointment::query()
             ->whereBetween('appointment_timestamp', [$start->toDateTimeString(), $end->copy()->endOfDay()->toDateTimeString()])
-            ->when(! is_null($branchId), fn($q) => $q->where('branch_id', $branchId));
+            ->when(! is_null($branchId), fn($q) => $q->where('appointments.branch_id', $branchId));
     }
 
     private function transactionQuery(?int $branchId, Carbon $start, Carbon $end)

@@ -816,9 +816,26 @@
       "emptyState": "Treatment yield data is not available for this period.",
       "ofYield": "of treatment yield"
     },
+    "operationalGrid": {
+      "totalAppointments": "Total Appointments",
+      "completed": "Completed",
+      "noShows": "No Shows",
+      "cancelled": "Cancelled",
+      "newPatients": "New Patients"
+    },
     "providerProductivity": {
       "title": "Provider Productivity",
       "description": "Performance output, treatment efficiency and collections by provider."
+      ,
+      "tableTitle": "Doctor Productivity",
+      "columns": {
+        "doctorName": "Doctor Name",
+        "patientsTreated": "Patients Treated",
+        "hoursLogged": "Hours Logged",
+        "revenueInvoiced": "Revenue Invoiced",
+        "cashCollected": "Cash Collected"
+      },
+      "emptyState": "No provider data for this range."
     }
   },
   "appointmentsList": {
@@ -966,7 +983,7 @@
     },
     "backupCard": {
       "title": "Database Backup",
-      "description": "Create a full database snapshot or export a monthly archive.",
+      "description": "Create a full database snapshot.",
       "fullBackupButton": "Full Backup",
       "monthlyDataButton": "Monthly Data",
       "freePlanAlert": "Sorry, Backup is not available for free users; Please Upgrade your plan to access full features in the system."

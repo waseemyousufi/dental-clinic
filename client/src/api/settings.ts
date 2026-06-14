@@ -23,13 +23,27 @@ export default new (class Settings {
     })
   }
 
-  async backupDatabase(type: 'full' | 'monthly') {
-    return api.post(
-      `/settings/backup/${type}`,
-      {},
-      {
-        responseType: 'blob',
-      }
-    )
+  // async backupDatabase(type: 'full' | 'monthly') {
+  //   return api.post(
+  //     `/settings/backup/${type}`,
+  //     {},
+  //     {
+  //       responseType: 'blob',
+  //     }
+  //   )
+  // }
+
+  async triggerBackup() {
+    return api.post(`/backup/${resolveBranchId()}`, {}, { responseType: 'blob' })
+  }
+
+  async restoreBackup(id: number, file: File) {
+    const formData = new FormData()
+    formData.append('backup_file', file)
+    return api.post(`/restore-backup/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
   }
 })()

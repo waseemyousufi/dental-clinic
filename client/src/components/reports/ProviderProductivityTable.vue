@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 interface ProviderData {
   name: string
@@ -11,6 +12,8 @@ interface ProviderData {
 
 defineProps<{ data: ProviderData[] }>()
 
+const { t } = useI18n()
+
 const formatCurrency = (value: number) => {
   return `AFN ${value.toLocaleString()}`
 }
@@ -18,21 +21,21 @@ const formatCurrency = (value: number) => {
 
 <template>
   <div class="provider-productivity-table">
-    <div class="table-title">Doctor Productivity</div>
+    <div class="table-title">{{ t('reportsView.providerProductivity.tableTitle') }}</div>
     <table>
       <thead>
         <tr>
           <th scope="col">
-            Doctor Name
+            {{ t('reportsView.providerProductivity.columns.doctorName') }}
           </th>
           <th scope="col">
-            Patients Treated
+            {{ t('reportsView.providerProductivity.columns.patientsTreated') }}
           </th>
           <!-- <th scope="col">
             Hours Logged
           </th> -->
           <th scope="col">
-            Revenue Invoiced
+            {{ t('reportsView.providerProductivity.columns.revenueInvoiced') }}
           </th>
           <!-- <th scope="col">
             Cash Collected
@@ -41,16 +44,16 @@ const formatCurrency = (value: number) => {
       </thead>
       <tbody>
         <tr v-for="provider in data" :key="provider.name">
-          <td data-label="Provider Name">
+          <td :data-label="t('reportsView.providerProductivity.columns.doctorName')">
             {{ provider.name }}
           </td>
-          <td data-label="Patients Treated">
+          <td :data-label="t('reportsView.providerProductivity.columns.patientsTreated')">
             {{ provider.patientsTreated }}
           </td>
           <!-- <td data-label="Hours Logged">
             {{ provider.hoursLogged }}h
           </td> -->
-          <td data-label="Revenue Invoiced">
+          <td :data-label="t('reportsView.providerProductivity.columns.revenueInvoiced')">
             {{ formatCurrency(provider.revenueInvoiced) }}
           </td>
           <!-- <td data-label="Cash Collected">
@@ -58,7 +61,7 @@ const formatCurrency = (value: number) => {
           </td> -->
         </tr>
         <tr v-if="!data.length">
-          <td colspan="5" class="empty">No provider data for this range.</td>
+          <td colspan="5" class="empty">{{ t('reportsView.providerProductivity.emptyState') }}</td>
         </tr>
       </tbody>
     </table>

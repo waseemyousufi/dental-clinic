@@ -334,8 +334,8 @@ async function loadOptions() {
     ] = await Promise.all([
       employeeApi.getBranchEmployees(true),
       patientApi.getBranchPatients(true),
-      procedureApi.getProcedures(),
-      treatmentPlanApi.getBranchTreatmentPlans(),
+      procedureApi.getProcedures({ includeInactive: true, longTermOnly: false, shortTermOnly: true }),
+      treatmentPlanApi.getBranchTreatmentPlans(undefined, true),
     ])
 
     console.log('treatmentPlanRes', treatmentPlanRes)
@@ -362,7 +362,7 @@ async function loadOptions() {
       value: normalizeId(pat.id) ?? 0,
     }))
 
-    const rawProcedures = procedureRes.data?.data || procedureRes.data
+    const rawProcedures = procedureRes.data?.data.filter((p: any) => p.id) || procedureRes.data
     const procedureList = (
       Array.isArray(rawProcedures)
         ? rawProcedures
@@ -401,13 +401,14 @@ async function loadOptions() {
         procedure_id: normalizeId(plan.procedure_id),
         patient_id: normalizeId(plan.patient_id),
         appointment_cost: plan.appointment_cost,
+        procedure_name: plan.procedure_name,
       }))
       .filter(item => item.id !== 0 || item.name)
 
-    console.log(procedureOptions.value)
+      console.log('treatmentPlanRecords', treatmentPlanRecords.value)
 
     treatmentPlanOptions.value = treatmentPlanRecords.value.map((plan) => ({
-      label: procedureOptions.value[plan.procedure_id - 1]?.label || t('appointmentView.fallbackName'),
+      label: plan.procedure_name || t('appointmentView.fallbackName'),
       value: plan.id,
     }))
   } catch (error) {
@@ -506,10 +507,7 @@ watch(
     treatmentPlanOptions.value = treatmentPlanRecords.value
       .filter(plan => plan.patient_id === patientId)
       .map((plan) => ({
-        label:
-          procedureOptions.value.find(
-            p => p.value === plan.procedure_id
-          )?.label || t('appointmentView.fallbackName'),
+        label: plan.procedure_name || t('appointmentView.fallbackName'),
         value: plan.id,
       }))
 

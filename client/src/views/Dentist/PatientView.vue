@@ -395,12 +395,12 @@ async function fetchTreatmentData() {
   try {
     const [plansRes, procRes, appointmentsRes] = await Promise.all([
       TreatmentPlanApi.getBranchTreatmentPlans(patientId.value),
-      procedureApi.getProcedures(),
+      procedureApi.getProcedures({ includeInactive: false, longTermOnly: true, shortTermOnly: false }),
       appointmentApi.getBranchAppointments()
     ])
 
     treatmentPlans.value = plansRes.data?.data ?? plansRes.data ?? []
-    procedures.value = procRes.data?.data ?? procRes.data ?? []
+    procedures.value = procRes.data?.data.filter((p: any) => p && p.id) ?? procRes.data ?? []
     const allAppointments = appointmentsRes.data?.data ?? appointmentsRes.data ?? []
     console.log(allAppointments)
     appointments.value = allAppointments.filter((a: any) => Number(a.patientId) === patientId.value)
@@ -1038,12 +1038,12 @@ onBeforeUnmount(() => {
 
               <div class="odontogram-shell">
                 <Odontogram v-model="odontogramData" ref="odontogramRef" :slug="activeFinding?.slug || ''"
-                  :active-finding="activeFinding?.ui_color || '#ffffff'" @tooth-click="handleToothClick" />
+                  :active-finding="activeFinding?.ui_color || '#ffffff'" :patient="patient" @tooth-click="handleToothClick" />
               </div>
 
               <div class="odontogram-shell">
                 <PrimaryOdontogram v-model="odontogramData" ref="odontogramRef" :slug="activeFinding?.slug || ''"
-                  :active-finding="activeFinding?.ui_color || '#ffffff'" @tooth-click="handleToothClick" />
+                  :active-finding="activeFinding?.ui_color || '#ffffff'" :patient="patient" @tooth-click="handleToothClick" />
               </div>
             </div>
 
@@ -1202,7 +1202,7 @@ onBeforeUnmount(() => {
                     </div>
                   </div>
 
-                  <template #footer>
+                  <template #footer v-if="plan.status !== 'completed'">
                     <div class="plan-actions">
                       <!-- <n-select :to="false" v-model:value="selectedAppointmentByPlan[plan.id]" size="small" clearable filterable
                         placeholder="Link existing appointment" :options="appointmentOptionsForPlan(plan)"

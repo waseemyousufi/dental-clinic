@@ -10,7 +10,7 @@ export default new class TreatmentPlan {
     return api.get(`/treatment-plan`, {
       params: {
         ...(patientId != null ? { patient_id: patientId } : {}),
-        ...(abbreviate ? { abr: true } : {}),
+        ...(abbreviate ? { abbreviated: true } : {}),
         ...(resolvedBranchId != null ? { branchId: resolvedBranchId } : {}),
         with: 'procedure,appointments', // Eager load relationships
       },

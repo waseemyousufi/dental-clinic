@@ -342,27 +342,27 @@ onMounted(loadReports)
 
         <div class="operational-grid">
           <div class="mini-stat">
-            <span>Total Appointments</span>
+            <span>{{ t('reportsView.operationalGrid.totalAppointments') }}</span>
             <strong>{{ operationalSummary.appointments_total }}</strong>
           </div>
 
           <div class="mini-stat">
-            <span>Completed</span>
+            <span>{{ t('reportsView.operationalGrid.completed') }}</span>
             <strong>{{ operationalSummary.appointments_completed }}</strong>
           </div>
 
           <div class="mini-stat">
-            <span>No Shows</span>
+            <span>{{ t('reportsView.operationalGrid.noShows') }}</span>
             <strong>{{ operationalSummary.appointments_no_show }}</strong>
           </div>
 
           <div class="mini-stat">
-            <span>Cancelled</span>
+            <span>{{ t('reportsView.operationalGrid.cancelled') }}</span>
             <strong>{{ operationalSummary.appointments_cancelled }}</strong>
           </div>
 
           <div class="mini-stat">
-            <span>New Patients</span>
+            <span>{{ t('reportsView.operationalGrid.newPatients') }}</span>
             <strong>{{ operationalSummary.new_patients }}</strong>
           </div>
         </div>

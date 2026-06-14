@@ -15,91 +15,91 @@
       </div>
 
       <n-tabs v-model:value="activeTab" type="line" animated class="tabs-root">
-          <n-tab-pane name="branches" tab="Branches">
-            <template #tab>
-              <n-space align="center" :size="8">
-                <n-icon size="18"><Icon icon="mdi:office-building-marker-outline" /></n-icon>
-                <span>Branches</span>
-              </n-space>
-            </template>
+        <n-tab-pane name="branches" tab="Branches">
+          <template #tab>
+            <n-space align="center" :size="8">
+              <n-icon size="18"><Icon icon="mdi:office-building-marker-outline" /></n-icon>
+              <span>Branches</span>
+            </n-space>
+          </template>
 
-            <div class="toolbar">
-              <n-input
-                v-model:value="branchSearch"
-                clearable
-                round
-                placeholder="Search branches..."
-                class="search-box"
-              >
-                <template #prefix>
-                  <n-icon><Icon icon="mdi:magnify" /></n-icon>
-                </template>
-              </n-input>
+          <div class="toolbar">
+            <n-input
+              v-model:value="branchSearch"
+              clearable
+              round
+              placeholder="Search branches..."
+              class="search-box"
+            >
+              <template #prefix>
+                <n-icon><Icon icon="mdi:magnify" /></n-icon>
+              </template>
+            </n-input>
 
-              <n-button type="primary" round @click="openCreate('branch')">
-                <template #icon>
-                  <n-icon><Icon icon="mdi:plus" /></n-icon>
-                </template>
-                Add Branch
-              </n-button>
-            </div>
+            <n-button type="primary" round @click="openCreate('branch')">
+              <template #icon>
+                <n-icon><Icon icon="mdi:plus" /></n-icon>
+              </template>
+              Add Branch
+            </n-button>
+          </div>
 
-            <n-data-table
-              remote
-              :bordered="false"
-              :loading="branchesLoading"
-              :columns="branchColumns"
-              :data="filteredBranches"
-              :pagination="false"
-              :row-key="rowKey"
-              striped
-              class="table-card"
-            />
-          </n-tab-pane>
+          <n-data-table
+            remote
+            :bordered="false"
+            :loading="branchesLoading"
+            :columns="branchColumns"
+            :data="filteredBranches"
+            :pagination="false"
+            :row-key="rowKey"
+            striped
+            class="table-card"
+          />
+        </n-tab-pane>
 
-          <n-tab-pane name="clinic-owners" tab="Clinic Owners">
-            <template #tab>
-              <n-space align="center" :size="8">
-                <n-icon size="18"><Icon icon="mdi:account-group-outline" /></n-icon>
-                <span>Clinic Owners</span>
-              </n-space>
-            </template>
+        <n-tab-pane name="clinic-owners" tab="Clinic Owners">
+          <template #tab>
+            <n-space align="center" :size="8">
+              <n-icon size="18"><Icon icon="mdi:account-group-outline" /></n-icon>
+              <span>Clinic Owners</span>
+            </n-space>
+          </template>
 
-            <div class="toolbar">
-              <n-input
-                v-model:value="ownerSearch"
-                clearable
-                round
-                placeholder="Search clinic owners..."
-                class="search-box"
-              >
-                <template #prefix>
-                  <n-icon><Icon icon="mdi:magnify" /></n-icon>
-                </template>
-              </n-input>
+          <div class="toolbar">
+            <n-input
+              v-model:value="ownerSearch"
+              clearable
+              round
+              placeholder="Search clinic owners..."
+              class="search-box"
+            >
+              <template #prefix>
+                <n-icon><Icon icon="mdi:magnify" /></n-icon>
+              </template>
+            </n-input>
 
-              <n-button type="primary" round @click="openCreate('owner')">
-                <template #icon>
-                  <n-icon><Icon icon="mdi:plus" /></n-icon>
-                </template>
-                Add Owner
-              </n-button>
-            </div>
+            <n-button type="primary" round @click="openCreate('owner')">
+              <template #icon>
+                <n-icon><Icon icon="mdi:plus" /></n-icon>
+              </template>
+              Add Owner
+            </n-button>
+          </div>
 
-            <n-data-table
-              remote
-              :bordered="false"
-              :loading="ownersLoading"
-              :columns="ownerColumns"
-              :data="filteredOwners"
-              :pagination="false"
-              :row-key="rowKey"
-              striped
-              class="table-card"
-            />
-          </n-tab-pane>
-        </n-tabs>
-      </n-card>
+          <n-data-table
+            remote
+            :bordered="false"
+            :loading="ownersLoading"
+            :columns="ownerColumns"
+            :data="filteredOwners"
+            :pagination="false"
+            :row-key="rowKey"
+            striped
+            class="table-card"
+          />
+        </n-tab-pane>
+      </n-tabs>
+    </n-card>
 
     <n-modal v-model:show="formVisible" preset="card" :title="modalTitle" :style="modalStyle">
       <n-spin :show="formSubmitting">
@@ -144,7 +144,11 @@
             </n-form-item>
 
             <n-form-item label="Email" path="email">
-              <n-input v-model:value="ownerForm.email" type="email" placeholder="Enter email (optional)" />
+              <n-input
+                v-model:value="ownerForm.email"
+                type="email"
+                placeholder="Enter email (optional)"
+              />
             </n-form-item>
 
             <n-grid :cols="2" :x-gap="12">
@@ -159,6 +163,7 @@
                   />
                 </n-form-item>
               </n-grid-item>
+
               <n-grid-item>
                 <n-form-item label="Total amount paid" path="totalAmountPaid">
                   <n-input-number
@@ -176,6 +181,7 @@
 
         <n-space justify="end" class="modal-actions">
           <n-button tertiary @click="closeForm">Cancel</n-button>
+
           <n-button type="primary" :loading="formSubmitting" @click="submitForm">
             {{ editingId ? 'Save changes' : 'Create' }}
           </n-button>
@@ -193,12 +199,16 @@
         <div class="token-modal__label">
           Reset link for: <strong>{{ createdTokenEmail || '—' }}</strong>
         </div>
+
         <div class="token-modal__hint">
           Share this link with the user so they can reset their password.
         </div>
+
         <n-input readonly :value="fullResetLink" placeholder="Reset link will appear here" />
+
         <div class="token-modal__actions">
           <n-button tertiary @click="tokenModalVisible = false">Close</n-button>
+
           <n-button type="primary" :disabled="!fullResetLink" @click="copyResetLink">
             Copy Link
           </n-button>
@@ -211,6 +221,7 @@
 <script setup lang="ts">
 import { computed, h, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+
 import {
   NButton,
   NCard,
@@ -233,10 +244,13 @@ import {
   type FormInst,
   type FormRules
 } from 'naive-ui'
+
 import { Icon } from '@iconify/vue'
+
 import branchApi from '@/api/branch'
 import clinicOwnerApi from '@/api/clinicOwner'
 import userApi from '@/api/user'
+import settingsApi from '@/api/settings'
 
 interface BranchData {
   id?: number
@@ -263,21 +277,33 @@ const TOKEN_KEY = 'token'
 
 const router = useRouter()
 const message = useMessage()
+
 const activeTab = ref<TabKey>('branches')
+
 const branchesLoading = ref(false)
 const ownersLoading = ref(false)
+
 const formSubmitting = ref(false)
 const formVisible = ref(false)
+
 const formMode = ref<FormMode>('branch')
+
 const editingId = ref<number | null>(null)
+
 const tokenModalVisible = ref(false)
+
 const createdToken = ref('')
 const createdTokenEmail = ref('')
+
 const resetPasswordBaseLink =
-  import.meta.env.VITE_RESET_PASSWORD_BASE_LINK || 'http://localhost:1234/reset-password/?token='
+  import.meta.env.VITE_RESET_PASSWORD_BASE_LINK ||
+  'http://localhost:1234/reset-password/?token='
+
 const branchSearch = ref('')
 const ownerSearch = ref('')
+
 const formRef = ref<FormInst | null>(null)
+
 const branches = ref<BranchData[]>([])
 const owners = ref<ClinicOwnerData[]>([])
 
@@ -303,32 +329,135 @@ async function handleLogout() {
   try {
     await userApi.logout()
     message.success('Logged out successfully')
+
     localStorage.clear()
+
     await router.push('/login')
   } catch (error) {
     message.error('Logout failed')
   }
 }
 
+async function handleRestoreBackup(branchId: number) {
+  const input = document.createElement('input')
+
+  input.type = 'file'
+  input.accept = '.json,application/json'
+  input.multiple = false
+
+    input.onchange = async (event: Event) => {
+    const target = event.target as HTMLInputElement
+
+    const file = target.files?.[0]
+
+    if (!file) return
+
+    const confirmed = window.confirm(
+      `Restore backup from "${file.name}"?`
+    )
+
+    if (!confirmed) return
+
+    try {
+      await settingsApi.restoreBackup(branchId, file)
+
+      message.success('Backup restored successfully')
+
+      await Promise.all([
+        loadBranches(),
+        loadOwners()
+      ])
+    } catch (error) {
+      message.error('Failed to restore backup')
+    }
+  }
+
+  input.click()
+}
+
 const modalStyle = {
   width: 'min(640px, calc(100vw - 32px))'
 }
 
-const formModel = computed(() => (formMode.value === 'branch' ? branchForm : ownerForm))
+const formModel = computed(() =>
+  formMode.value === 'branch'
+    ? branchForm
+    : ownerForm
+)
 
 const formRules: FormRules = {
-  branchName: [{ required: true, message: 'Branch name is required', trigger: ['input', 'blur'] }],
-  region: [{ required: true, message: 'Region is required', trigger: ['input', 'blur'] }],
-  phone: [{ required: true, message: 'Phone is required', trigger: ['input', 'blur'] }],
-  email: [{ type: 'email', message: 'Email must be valid', trigger: ['input', 'blur'] }],
-  ownerId: [{ required: true, type: 'number', message: 'Owner is required', trigger: ['change', 'blur'] }],
-  name: [{ required: true, message: 'Name is required', trigger: ['input', 'blur'] }],
-  totalAmountDue: [{ required: true, type: 'number', message: 'Amount due is required', trigger: ['change', 'blur'] }],
-  totalAmountPaid: [{ required: true, type: 'number', message: 'Amount paid is required', trigger: ['change', 'blur'] }]
+  branchName: [
+    {
+      required: true,
+      message: 'Branch name is required',
+      trigger: ['input', 'blur']
+    }
+  ],
+
+  region: [
+    {
+      required: true,
+      message: 'Region is required',
+      trigger: ['input', 'blur']
+    }
+  ],
+
+  phone: [
+    {
+      required: true,
+      message: 'Phone is required',
+      trigger: ['input', 'blur']
+    }
+  ],
+
+  email: [
+    {
+      type: 'email',
+      message: 'Email must be valid',
+      trigger: ['input', 'blur']
+    }
+  ],
+
+  ownerId: [
+    {
+      required: true,
+      type: 'number',
+      message: 'Owner is required',
+      trigger: ['change', 'blur']
+    }
+  ],
+
+  name: [
+    {
+      required: true,
+      message: 'Name is required',
+      trigger: ['input', 'blur']
+    }
+  ],
+
+  totalAmountDue: [
+    {
+      required: true,
+      type: 'number',
+      message: 'Amount due is required',
+      trigger: ['change', 'blur']
+    }
+  ],
+
+  totalAmountPaid: [
+    {
+      required: true,
+      type: 'number',
+      message: 'Amount paid is required',
+      trigger: ['change', 'blur']
+    }
+  ]
 }
 
 function normalizeText(value: unknown) {
-  return String(value ?? '').toLowerCase().trim()
+  return String(value ?? '')
+    .toLowerCase()
+    .trim()
 }
 
 function toNumber(value: unknown): number {
@@ -342,17 +471,28 @@ function normalizeOwner(owner: any): ClinicOwnerData {
     name: owner?.name ?? '',
     phone: owner?.phone ?? '',
     email: owner?.email ?? '',
-    totalAmountDue: toNumber(owner?.totalAmountDue ?? owner?.total_amount_due),
-    totalAmountPaid: toNumber(owner?.totalAmountPaid ?? owner?.total_amount_paid)
+    totalAmountDue: toNumber(
+      owner?.totalAmountDue ?? owner?.total_amount_due
+    ),
+    totalAmountPaid: toNumber(
+      owner?.totalAmountPaid ?? owner?.total_amount_paid
+    )
   }
 }
 
 const filteredBranches = computed(() => {
   const q = normalizeText(branchSearch.value)
+
   if (!q) return branches.value
 
   return branches.value.filter((item) => {
-    return [item.branchName, item.region, item.phone, item.ownerName, item.ownerId]
+    return [
+      item.branchName,
+      item.region,
+      item.phone,
+      item.ownerName,
+      item.ownerId
+    ]
       .map(normalizeText)
       .some((field) => field.includes(q))
   })
@@ -360,10 +500,16 @@ const filteredBranches = computed(() => {
 
 const filteredOwners = computed(() => {
   const q = normalizeText(ownerSearch.value)
+
   if (!q) return owners.value
 
   return owners.value.filter((item) => {
-    return [item.name, item.phone, item.totalAmountDue, item.totalAmountPaid]
+    return [
+      item.name,
+      item.phone,
+      item.totalAmountDue,
+      item.totalAmountPaid
+    ]
       .map(normalizeText)
       .some((field) => field.includes(q))
   })
@@ -379,23 +525,48 @@ const ownerSelectOptions = computed(() =>
 )
 
 const modalTitle = computed(() => {
-  const entity = formMode.value === 'branch' ? 'Branch' : 'Clinic Owner'
-  return editingId.value ? `Edit ${entity}` : `Add ${entity}`
+  const entity =
+    formMode.value === 'branch'
+      ? 'Branch'
+      : 'Clinic Owner'
+
+  return editingId.value
+    ? `Edit ${entity}`
+    : `Add ${entity}`
 })
 
 const fullResetLink = computed(() => {
-  return createdToken.value ? `${resetPasswordBaseLink}${createdToken.value}` : ''
+  return createdToken.value
+    ? `${resetPasswordBaseLink}${createdToken.value}`
+    : ''
 })
 
 const branchColumns = [
-  { title: 'Branch name', key: 'branchName' },
-  { title: 'Region', key: 'region' },
-  { title: 'Phone', key: 'phone' },
-  { title: 'Owner name', key: 'ownerName' },
+  {
+    title: 'Branch name',
+    key: 'branchName'
+  },
+
+  {
+    title: 'Region',
+    key: 'region'
+  },
+
+  {
+    title: 'Phone',
+    key: 'phone'
+  },
+
+  {
+    title: 'Owner name',
+    key: 'ownerName'
+  },
+
   {
     title: 'Actions',
     key: 'actions',
-    width: 160,
+    width: 260,
+
     render: (row: BranchData) =>
       h(NSpace, { size: 8 }, () => [
         h(
@@ -405,12 +576,29 @@ const branchColumns = [
             tertiary: true,
             onClick: () => openEdit('branch', row)
           },
-          { default: () => 'Edit' }
+          {
+            default: () => 'Edit'
+          }
         ),
+
+        h(
+          NButton,
+          {
+            size: 'small',
+            type: 'warning',
+            tertiary: true,
+            onClick: () => handleRestoreBackup(row.id)
+          },
+          {
+            default: () => 'Restore Backup'
+          }
+        ),
+
         h(
           NPopconfirm,
           {
-            onPositiveClick: () => removeItem('branch', row.id!)
+            onPositiveClick: () =>
+              removeItem('branch', row.id!)
           },
           {
             trigger: () =>
@@ -421,8 +609,11 @@ const branchColumns = [
                   type: 'error',
                   tertiary: true
                 },
-                { default: () => 'Delete' }
+                {
+                  default: () => 'Delete'
+                }
               ),
+
             default: () => 'Delete this branch?'
           }
         )
@@ -431,22 +622,35 @@ const branchColumns = [
 ]
 
 const ownerColumns = [
-  { title: 'Name', key: 'name' },
-  { title: 'Phone', key: 'phone' },
+  {
+    title: 'Name',
+    key: 'name'
+  },
+
+  {
+    title: 'Phone',
+    key: 'phone'
+  },
+
   {
     title: 'Amount due',
     key: 'totalAmountDue',
-    render: (row: ClinicOwnerData) => formatCurrency(row.totalAmountDue)
+    render: (row: ClinicOwnerData) =>
+      formatCurrency(row.totalAmountDue)
   },
+
   {
     title: 'Amount paid',
     key: 'totalAmountPaid',
-    render: (row: ClinicOwnerData) => formatCurrency(row.totalAmountPaid)
+    render: (row: ClinicOwnerData) =>
+      formatCurrency(row.totalAmountPaid)
   },
+
   {
     title: 'Actions',
     key: 'actions',
     width: 160,
+
     render: (row: ClinicOwnerData) =>
       h(NSpace, { size: 8 }, () => [
         h(
@@ -456,12 +660,16 @@ const ownerColumns = [
             tertiary: true,
             onClick: () => openEdit('owner', row)
           },
-          { default: () => 'Edit' }
+          {
+            default: () => 'Edit'
+          }
         ),
+
         h(
           NPopconfirm,
           {
-            onPositiveClick: () => removeItem('owner', row.id!)
+            onPositiveClick: () =>
+              removeItem('owner', row.id!)
           },
           {
             trigger: () =>
@@ -472,9 +680,13 @@ const ownerColumns = [
                   type: 'error',
                   tertiary: true
                 },
-                { default: () => 'Delete' }
+                {
+                  default: () => 'Delete'
+                }
               ),
-            default: () => 'Delete this clinic owner?'
+
+            default: () =>
+              'Delete this clinic owner?'
           }
         )
       ])
@@ -483,7 +695,11 @@ const ownerColumns = [
 
 function formatCurrency(value: number | null | undefined) {
   const num = Number(value ?? 0)
-  return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(num)
+
+  return new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: 'USD'
+  }).format(num)
 }
 
 function resetBranchForm() {
@@ -504,18 +720,29 @@ function resetOwnerForm() {
 
 function openCreate(mode: FormMode) {
   formMode.value = mode
+
   editingId.value = null
-  if (mode === 'branch') resetBranchForm()
-  else resetOwnerForm()
+
+  if (mode === 'branch') {
+    resetBranchForm()
+  } else {
+    resetOwnerForm()
+  }
+
   formVisible.value = true
 }
 
-function openEdit(mode: FormMode, row: BranchData | ClinicOwnerData) {
+function openEdit(
+  mode: FormMode,
+  row: BranchData | ClinicOwnerData
+) {
   formMode.value = mode
+
   editingId.value = row.id ?? null
 
   if (mode === 'branch') {
     const data = row as BranchData
+
     branchForm.branchName = data.branchName ?? ''
     branchForm.region = data.region ?? ''
     branchForm.phone = data.phone ?? ''
@@ -523,6 +750,7 @@ function openEdit(mode: FormMode, row: BranchData | ClinicOwnerData) {
     branchForm.ownerId = toNumber(data.ownerId)
   } else {
     const data = normalizeOwner(row as any)
+
     ownerForm.name = data.name
     ownerForm.phone = data.phone
     ownerForm.email = data.email ?? ''
@@ -558,9 +786,17 @@ function copyResetLink() {
 
 async function loadBranches() {
   branchesLoading.value = true
+
   try {
     const res: any = await branchApi.getAllBranches()
-    branches.value = Array.isArray(res?.data?.data) ? res.data.data : Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []
+
+    branches.value = Array.isArray(res?.data?.data)
+      ? res.data.data
+      : Array.isArray(res?.data)
+        ? res.data
+        : Array.isArray(res)
+          ? res
+          : []
   } catch (error) {
     message.error('Failed to load branches')
   } finally {
@@ -570,8 +806,10 @@ async function loadBranches() {
 
 async function loadOwners() {
   ownersLoading.value = true
+
   try {
     const res: any = await clinicOwnerApi.getClinicOwners()
+
     const rawOwners = Array.isArray(res?.data?.data)
       ? res.data.data
       : Array.isArray(res?.data)
@@ -591,60 +829,103 @@ async function loadOwners() {
 async function submitForm() {
   try {
     await formRef.value?.validate()
+
     formSubmitting.value = true
 
     if (formMode.value === 'branch') {
       const payload = { ...branchForm }
+
       if (editingId.value) {
-        await branchApi.putBranch(editingId.value, payload)
+        await branchApi.putBranch(
+          editingId.value,
+          payload
+        )
+
         message.success('Branch updated')
       } else {
         await branchApi.postBranch(payload)
+
         message.success('Branch created')
       }
+
       await loadBranches()
     } else {
       const payload = {
         ...ownerForm,
-        totalAmountDue: toNumber(ownerForm.totalAmountDue),
-        totalAmountPaid: toNumber(ownerForm.totalAmountPaid)
+
+        totalAmountDue: toNumber(
+          ownerForm.totalAmountDue
+        ),
+
+        totalAmountPaid: toNumber(
+          ownerForm.totalAmountPaid
+        )
       }
 
       if (editingId.value) {
-        await clinicOwnerApi.putClinicOwner(editingId.value, payload)
+        await clinicOwnerApi.putClinicOwner(
+          editingId.value,
+          payload
+        )
+
         message.success('Clinic owner updated')
       } else {
-        const res: any = await clinicOwnerApi.postClinicOwner(payload)
-        const token = res?.data?.token ?? res?.token ?? ''
-        const email = res?.data?.email ?? payload.email ?? ''
+        const res: any =
+          await clinicOwnerApi.postClinicOwner(
+            payload
+          )
+
+        const token =
+          res?.data?.token ??
+          res?.token ??
+          ''
+
+        const email =
+          res?.data?.email ??
+          payload.email ??
+          ''
 
         if (token) {
           createdToken.value = String(token)
           createdTokenEmail.value = String(email)
+
           tokenModalVisible.value = true
         }
+
         message.success('Clinic owner created')
       }
+
       await loadOwners()
     }
 
     formVisible.value = false
   } catch (error) {
-    if (error) message.error('Please check the form and try again')
+    if (error) {
+      message.error(
+        'Please check the form and try again'
+      )
+    }
   } finally {
     formSubmitting.value = false
   }
 }
 
-async function removeItem(mode: FormMode, id: number) {
+async function removeItem(
+  mode: FormMode,
+  id: number
+) {
   try {
     if (mode === 'branch') {
       await branchApi.deleteBranch(id)
+
       message.success('Branch deleted')
+
       await loadBranches()
     } else {
       await clinicOwnerApi.deleteClinicOwner(id)
+
       message.success('Clinic owner deleted')
+
       await loadOwners()
     }
   } catch (error) {
@@ -653,7 +934,10 @@ async function removeItem(mode: FormMode, id: number) {
 }
 
 onMounted(async () => {
-  await Promise.all([loadBranches(), loadOwners()])
+  await Promise.all([
+    loadBranches(),
+    loadOwners()
+  ])
 })
 </script>
 

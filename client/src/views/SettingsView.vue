@@ -22,9 +22,6 @@
                 <n-form-item :label="t('settingsView.branchForm.clinicNameLabel')" path="clinic_name">
                   <n-input v-model:value="formData.clinic_name" :placeholder="t('settingsView.branchForm.clinicNamePlaceholder')" />
                 </n-form-item>
-                <!-- <n-form-item label="Currency" path="currency">
-                <n-select :to="false" v-model:value="formData.currency" :options="currencyOptions" />
-              </n-form-item> -->
                 <n-form-item class="full-span" :label="t('settingsView.branchForm.addressLabel')" path="address">
                   <n-input v-model:value="formData.address" type="textarea" :placeholder="t('settingsView.branchForm.addressPlaceholder')" :autosize="{ minRows: 3, maxRows: 5 }" />
                 </n-form-item>
@@ -35,29 +32,6 @@
                   <n-input-number v-model:value="formData.reception" :min="0" :step="50" />
                 </n-form-item>
               </div>
-
-              <!-- <n-divider title-placement="left">Working Hours</n-divider>
-            <div class="hours-grid">
-              <n-card v-for="(day, key) in formData.working_hours" :key="key" size="small" class="day-card">
-                <div class="day-header">
-                  <span class="day-name">{{ capitalize(key) }}</span>
-                  <n-switch v-model:value="day.is_off" size="small">
-                    <template #checked>Off</template>
-                    <template #unchecked>Open</template>
-                  </n-switch>
-                </div>
-                <div v-if="!day.is_off" class="day-inputs">
-                  <n-input-group>
-                    <n-input-group-label>Start</n-input-group-label>
-                    <input v-model="day.start" class="time-input" type="time" />
-                  </n-input-group>
-                  <n-input-group>
-                    <n-input-group-label>End</n-input-group-label>
-                    <input v-model="day.end" class="time-input" type="time" />
-                  </n-input-group>
-                </div>
-              </n-card>
-            </div> -->
             </div>
           </n-tab-pane>
 
@@ -72,7 +46,6 @@
                 <n-tag size="small" type="info">{appointment_time}</n-tag>
                 <n-tag size="small" type="info">{doctor_name}</n-tag>
                 <n-tag size="small" type="info">{description}</n-tag>
-                
               </n-alert>
 
               <div class="responsive-grid">
@@ -103,12 +76,6 @@
                     :placeholder="t('settingsView.whatsappForm.patientCompletionPlaceholder')"
                   />
                 </n-form-item>
-                <!-- <n-form-item :label="t('settingsView.whatsappForm.supplierOrderLabel')">
-                <n-input v-model:value="formData.wa_supplier_order" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" :dir="whatsappDir" :placeholder="t('settingsView.whatsappForm.supplierOrderPlaceholder')" />
-              </n-form-item>
-              <n-form-item class="full-span" :label="t('settingsView.whatsappForm.supplierCancelLabel')">
-                <n-input v-model:value="formData.wa_supplier_cancel" type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" :dir="whatsappDir" :placeholder="t('settingsView.whatsappForm.supplierCancelPlaceholder')" />
-              </n-form-item> -->
               </div>
             </div>
           </n-tab-pane>
@@ -126,18 +93,9 @@
                   <n-form-item :label="t('settingsView.procedureForm.basePriceLabel')">
                     <n-input-number v-model:value="newProcedure.base_price" :min="0" :precision="2" :placeholder="t('settingsView.procedureForm.basePricePlaceholder')" />
                   </n-form-item>
-                  <!-- <n-form-item label="Minimum Price">
-                  <n-input-number v-model:value="newProcedure.min_price" :min="0" :precision="2" placeholder="Min price" />
-                </n-form-item> -->
                   <n-form-item :label="t('settingsView.procedureForm.appointmentsNeededLabel')">
                     <n-input-number v-model:value="newProcedure.appointments_needed" :min="0" :placeholder="t('settingsView.procedureForm.appointmentsNeededPlaceholder')" />
                   </n-form-item>
-                  <!-- <n-form-item label="Dentist Commission">
-                  <n-input-number v-model:value="newProcedure.dentist_commission" :min="0" :precision="2" placeholder="Dentist commission" />
-                </n-form-item>
-                <n-form-item label="Assistant Commission">
-                  <n-input-number v-model:value="newProcedure.assistant_commission" :min="0" :precision="2" placeholder="Assistant commission" />
-                </n-form-item> -->
                   <n-form-item :label="t('settingsView.procedureForm.activeStatusLabel')">
                     <n-switch v-model:value="newProcedure.is_active">
                       <template #checked>{{ t('settingsView.procedureForm.activeStatusChecked') }}</template>
@@ -160,18 +118,9 @@
                     <n-form-item :label="t('settingsView.procedureForm.basePriceLabel')">
                       <n-input-number v-model:value="procedure.base_price" :min="0" :precision="2" :placeholder="t('settingsView.procedureForm.basePricePlaceholder')" />
                     </n-form-item>
-                    <!-- <n-form-item label="Minimum Price">
-                    <n-input-number v-model:value="procedure.min_price" :min="0" :precision="2" placeholder="Min price" />
-                  </n-form-item> -->
                     <n-form-item :label="t('settingsView.procedureForm.appointmentsNeededLabel')">
                       <n-input-number v-model:value="procedure.appointments_needed" :min="0" :placeholder="t('settingsView.procedureForm.appointmentsNeededPlaceholder')" />
                     </n-form-item>
-                    <!-- <n-form-item label="Dentist Commission">
-                    <n-input-number v-model:value="procedure.dentist_commission" :min="0" :precision="2" placeholder="Dentist commission" />
-                  </n-form-item>
-                  <n-form-item label="Assistant Commission">
-                    <n-input-number v-model:value="procedure.assistant_commission" :min="0" :precision="2" placeholder="Assistant commission" />
-                  </n-form-item> -->
                     <n-form-item :label="t('settingsView.procedureForm.activeStatusLabel')">
                       <n-switch v-model:value="procedure.is_active">
                         <template #checked>{{ t('settingsView.procedureForm.activeStatusChecked') }}</template>
@@ -187,57 +136,6 @@
               </div>
             </div>
           </n-tab-pane>
-
-          <!-- <n-tab-pane name="procedures" tab="Procedures">
-          <div class="service-section">
-            <n-card size="small" title="Add Procedure">
-              <div class="service-form-grid">
-                <n-form-item label="Procedure Name">
-                  <n-input v-model:value="newProcedure.name" />
-                </n-form-item>
-                <n-form-item label="Category">
-                  <n-input v-model:value="newProcedure.category" />
-                </n-form-item>
-                <n-form-item label="Base Price">
-                  <n-input-number v-model:value="newProcedure.base_price" />
-                </n-form-item>
-                <n-form-item label="Appointments Needed">
-                  <n-input-number v-model:value="newProcedure.appointments_needed" />
-                </n-form-item>
-                <n-form-item label="Active Status">
-                  <n-switch v-model:value="newProcedure.is_active" />
-                </n-form-item>
-              </div>
-              <n-button class="section-action" attr-type="button" type="primary" @click="createProcedure" :loading="procedureSubmitting">Add Procedure</n-button>
-            </n-card>
-
-            <div class="service-list">
-              <n-card v-for="procedure in procedures" :key="procedure.id" size="small" class="service-card">
-                <div class="service-form-grid">
-                  <n-form-item label="Name">
-                    <n-input v-model:value="procedure.name" />
-                  </n-form-item>
-                  <n-form-item label="Category">
-                    <n-input v-model:value="procedure.category" />
-                  </n-form-item>
-                  <n-form-item label="Base Price">
-                    <n-input-number v-model:value="procedure.base_price" />
-                  </n-form-item>
-                  <n-form-item label="Appointments Needed">
-                    <n-input-number v-model:value="procedure.appointments_needed" />
-                  </n-form-item>
-                  <n-form-item label="Active Status">
-                    <n-switch v-model:value="procedure.is_active" />
-                  </n-form-item>
-                </div>
-                <div class="service-actions">
-                  <n-button @click="updateProcedure(procedure)" type="primary" size="small" :loading="pendingProcedureId === procedure.id">Update</n-button>
-                  <n-button @click="removeProcedure(procedure)" type="error" size="small" :loading="pendingDeleteProcedureId === procedure.id">Delete</n-button>
-                </div>
-              </n-card>
-            </div>
-          </div>
-        </n-tab-pane> -->
 
           <n-tab-pane name="prescriptions" :tab="t('settingsView.tabs.prescriptions')">
             <div class="service-section">
@@ -288,12 +186,14 @@
           <n-tab-pane name="backup" :tab="t('settingsView.tabs.backup')">
             <div class="section-stack">
               <n-card :title="t('settingsView.backupCard.title')" size="small">
-                <p class="backup-copy">{{ t('settingsView.backupCard.description') }}</p>
-                <p>{{ t('settingsView.backupCard.freePlanAlert') }}</p>
-                <!-- <n-space wrap>
-                <n-button attr-type="button" @click="triggerBackup('full')" :loading="backupLoading === 'full'">{{ t('settingsView.backupCard.fullBackupButton') }}</n-button>
-                <n-button attr-type="button" @click="triggerBackup('monthly')" :loading="backupLoading === 'monthly'">{{ t('settingsView.backupCard.monthlyDataButton') }}</n-button>
-              </n-space> -->
+                <p style="margin-bottom: .5em;">{{ t('settingsView.backupCard.description') }}</p>
+                <!-- <p class="backup-copy">{{ t('settingsView.backupCard.description') }}</p>
+                <p>{{ t('settingsView.backupCard.freePlanAlert') }}</p> -->
+                <n-space wrap>
+                  <n-button attr-type="button" @click="handleDownloadBackup" :loading="isBackingUp">
+                    {{ t('settingsView.backupCard.fullBackupButton') }}
+                  </n-button>
+                </n-space>
               </n-card>
             </div>
           </n-tab-pane>
@@ -344,6 +244,9 @@ const { t, locale } = useI18n()
 const isRtl = computed(() => locale.value === 'dr' || locale.value === 'ps')
 const whatsappDir = computed(() => (isRtl.value ? 'rtl' : 'ltr'))
 
+// ADDED: Tracks backup generation processing state
+const isBackingUp = ref(false)
+
 const defaultHours = {
   monday: { start: '09:00', end: '17:00', is_off: false },
   tuesday: { start: '09:00', end: '17:00', is_off: false },
@@ -389,7 +292,6 @@ const createDefaultSettings = (): SettingsData => ({
 
 const formData = reactive<SettingsData>(createDefaultSettings())
 const initialSettings = ref<SettingsData | null>(null)
-
 const procedures = ref<ProcedureData[]>([])
 
 const newProcedure = reactive<ProcedureData>({
@@ -405,10 +307,7 @@ const newProcedure = reactive<ProcedureData>({
 })
 
 const prescriptions = ref<PrescriptionData[]>([])
-
-const newPrescription = reactive<PrescriptionData>({
-  name: '',
-})
+const newPrescription = reactive<PrescriptionData>({ name: '' })
 
 const prescriptionSubmitting = ref(false)
 const pendingPrescriptionId = ref<number | null>(null)
@@ -421,20 +320,13 @@ const rules = {
 }
 
 const receptionistPerms = computed(() => ({
-  // rec_can_edit_whatsapp: formData.rec_can_edit_whatsapp,
   rec_can_view_phones: formData.rec_can_view_phones,
   rec_show_kpi: formData.rec_show_kpi,
-  // rec_show_suppliers: formData.rec_show_suppliers,
-  // rec_log_actions: formData.rec_log_actions,
   rec_can_void_transactions: formData.rec_can_void_transactions,
   rec_can_edit_devices: formData.rec_can_edit_devices,
-  // rec_can_contact_support: formData.rec_can_contact_support,
 }))
 
 const doctorPerms = computed(() => ({
-  // doc_view_appointments: formData.doc_view_appointments,
-  // doc_save_xrays: formData.doc_save_xrays,
-  // doc_view_files: formData.doc_view_files,
   doc_view_contact: formData.doc_view_contact,
   doc_edit_assets: formData.doc_edit_assets,
   doc_issue_prescriptions: formData.doc_issue_prescriptions,
@@ -445,7 +337,6 @@ const permLabels = computed(() => ({
     rec_can_edit_whatsapp: t('settingsView.permissionLabels.rec_can_edit_whatsapp'),
     rec_can_view_phones: t('settingsView.permissionLabels.rec_can_view_phones'),
     rec_show_kpi: t('settingsView.permissionLabels.rec_show_kpi'),
-    // rec_show_suppliers: t('settingsView.permissionLabels.rec_show_suppliers'),
     rec_log_actions: t('settingsView.permissionLabels.rec_log_actions'),
     rec_can_void_transactions: t('settingsView.permissionLabels.rec_can_void_transactions'),
     rec_can_edit_devices: t('settingsView.permissionLabels.rec_can_edit_devices'),
@@ -453,8 +344,6 @@ const permLabels = computed(() => ({
   },
   doc: {
     doc_view_appointments: t('settingsView.permissionLabels.doc_view_appointments'),
-    // doc_save_xrays: t('settingsView.permissionLabels.doc_save_xrays'),
-    // doc_view_files: t('settingsView.permissionLabels.doc_view_files'),
     doc_view_contact: t('settingsView.permissionLabels.doc_view_contact'),
     doc_edit_assets: t('settingsView.permissionLabels.doc_edit_assets'),
     doc_issue_prescriptions: t('settingsView.permissionLabels.doc_issue_prescriptions'),
@@ -732,6 +621,38 @@ function removePrescription(prescription: PrescriptionData) {
       }
     },
   })
+}
+
+// ADDED: Programmatic download trigger mapping that links with responseType: 'blob'
+async function handleDownloadBackup() {
+  isBackingUp.value = true
+  try {
+    const response = await settingsApi.triggerBackup()
+
+    // Package stream array segments into binary Blob configuration
+    const blob = new Blob([response.data], { type: 'application/json' })
+    const downloadUrl = window.URL.createObjectURL(blob)
+
+    // Construct automated backup naming pattern
+    const timestamp = new Date().toISOString().replace(/[-:T]/g, '').split('.')[0]
+    const filename = `backup-branch-${formData.branch_id || resolveBranchId()}-${timestamp}.json`
+
+    // Generate transient Anchor node element, inject into viewport, click, and discard
+    const link = document.createElement('a')
+    link.href = downloadUrl
+    link.setAttribute('download', filename)
+    document.body.appendChild(link)
+    link.click()
+
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(downloadUrl)
+    message.success('Database backup downloaded successfully')
+  } catch (error) {
+    console.error('Database backup generation aborted:', error)
+    message.error('Failed to generate structural backup file')
+  } finally {
+    isBackingUp.value = false
+  }
 }
 
 function resetForm() {

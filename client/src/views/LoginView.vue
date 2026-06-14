@@ -47,6 +47,16 @@ async function handleSubmit() {
       return
     }
 
+    // Redirect admin users to dashboard
+    const isAdmin = !!(
+      data.user?.is_admin ?? data.user?.isAdmin ?? (data.user?.role === 'admin')
+    ) || (Array.isArray(data.user?.roles) && data.user.roles.includes('admin'))
+
+    if (isAdmin) {
+      await router.push('/dashboard')
+      return
+    }
+
     console.log(data)
     const initialBranchId = Number(data.user.employee?.branchId ?? data.user.employee?.branch_id)
     if (Number.isFinite(initialBranchId)) {

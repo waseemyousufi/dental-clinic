@@ -27,6 +27,7 @@ const props = defineProps<{
   modelValue: OdontogramState
   slug: string
   readonly?: boolean
+  patient?: any
 }>()
 
 const emit = defineEmits<{
@@ -136,8 +137,7 @@ const getPartStyle = (toothNumber: number, partId: string) => {
 }
 
 // Printing Logic
-const printMode = ref<'portrait' | 'landscape' | null>(null)
-const triggerPrint = (mode: 'portrait' | 'landscape') => {
+const triggerPrint = () => {
   if (!wrapperRef.value) return;
 
   const printWindow = window.open('', '_blank', 'width=1200,height=800');
@@ -151,74 +151,151 @@ const triggerPrint = (mode: 'portrait' | 'landscape') => {
     styles += style.outerHTML;
   });
 
-  let rotation = 'rotate(90deg)' as string | null
-  if (mode === 'portrait') {
-    rotation = null
-  }
-
   printWindow.document.write(`
     <html>
       <head>
         <title>Print Odontogram</title>
         ${styles}
         <style>
-          /* 1. Ensure the container takes up the full page height */
           html, body {
             margin: 0;
             padding: 0;
-            height: 100%;
-            width: 100%;
+            background: white;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
           }
 
-          /* 2. Create a flex container to center the content */
           .print-container {
             display: flex;
-            ${rotation ? 'align-items: center;' : 'margin-top: 100px;'}
-            justify-content: center;
-            height: 100vh;
-            width: 100vw;
-            background: white;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            min-height: 100vh;
+            box-sizing: border-box;
+            position: relative;
           }
 
-          /* 3. Reset component-specific styles for the print doc */
-          .odontogram-wrapper {
+          /* A4 Base Styles (Default) */
+          .patient-info-header {
+            text-align: center;
+            margin-bottom: 120px;
+            width: 100%;
+            max-width: 900px;
+            border-bottom: 3px solid #eee;
+            padding-bottom: 30px;
+            position: relative;
+            z-index: 2;
+          }
+          .patient-info-header h1 { 
+            margin: 0 0 20px 0; 
+            font-size: 48px; 
+            color: #000;
+            font-weight: 900;
+            text-align: center;
+          }
+          .patient-details {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            font-size: 20px;
+            color: #444;
+            line-height: 2;
+          }
+          .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+          .detail-icon {
+            width: 28px;
+            height: 28px;
+            filter: grayscale(1);
+          }
+
+          .print-odontogram-content {
             visibility: visible !important;
             display: block !important;
+            position: relative !important;
+            transform: none !important;
+            top: auto !important;
+            left: auto !important;
+            margin-top: 60px;
           }
 
-          /* 4. Handle scaling based on orientation */
           .odontogram-table {
-            transform: scale(${mode === 'portrait' ? '2.2' : '2.8'});
-            transform-origin: center;
+            transform: scale(1.4);
+            transform-origin: top center;
           }
 
-            @media (min-width: 1550px) {
-              .odontogram-wrapper {
-                transform: ${rotation} ${rotation ? 'scale(1.5)' : 'scale(1)'}  !important;
-              }
+          /* A5 Responsive Scaling */
+          @media (max-width: 600px), print {
+            .patient-info-header {
+              margin-bottom: 50px;
+              padding-bottom: 20px;
             }
+            .patient-info-header h1 { 
+              font-size: 32px; 
+              margin-bottom: 15px;
+            }
+            .patient-details {
+              font-size: 16px;
+              gap: 20px;
+            }
+            .detail-icon {
+              width: 20px;
+              height: 20px;
+            }
+            .odontogram-table {
+              transform: scale(1.1);
+            }
+          }
 
-            @media (max-width: 30cm) {
-              .odontogram-wrapper {
-                transform: ${rotation} ${rotation ? 'scale(1)' : 'scale(.8)'}  !important;
-                display: none;
-              }
+          @media print {
+            body {
+              visibility: visible !important;
             }
+            .print-container {
+              padding: 10mm 0;
+            }
+          }
 
           @page {
-            margin: 0;
+            margin: 10mm;
+            size: auto;
           }
         </style>
       </head>
       <body>
         <div class="print-container">
-          <div class="odontogram-wrapper">
+          ${props.patient ? `
+            <div class="patient-info-header">
+              <h1>${props.patient.fName || props.patient.f_name} ${props.patient.lName || props.patient.l_name}</h1>
+              <div class="patient-details">
+                <div class="detail-item">
+                  <img src="https://api.iconify.design/mdi:gender-male-female.svg" class="detail-icon" />
+                  <span>Gender: ${props.patient.gender || '—'}</span>
+                </div>
+                <div class="detail-item">
+                  <img src="https://api.iconify.design/healthicons:blood-ab-p.svg" class="detail-icon" />
+                  <span>Blood Type: ${props.patient.bloodType || '—'}</span>
+                </div>
+                <div class="detail-item">
+                  <img src="https://api.iconify.design/tabler:phone.svg" class="detail-icon" />
+                  <span>Phone: ${props.patient.phone || '—'}</span>
+                </div>
+                <div class="detail-item">
+                  <img src="https://api.iconify.design/tabler:calendar.svg" class="detail-icon" />
+                  <span>Date: ${new Date().toLocaleDateString()}</span>
+                </div>
+              </div>
+            </div>
+          ` : ''}
+          <div class="print-odontogram-content">
             ${chartHtml}
           </div>
         </div>
         <script>
           window.onload = () => {
-            // Small timeout ensures fonts and SVGs render before print
             setTimeout(() => {
               window.print();
               window.close();
@@ -235,8 +312,7 @@ const triggerPrint = (mode: 'portrait' | 'landscape') => {
 </script>
 
 <template>
-  <div class="odontogram-wrapper" ref="wrapperRef"
-    :class="{ 'primary-primary-print-portrait': printMode === 'portrait', 'primary-print-landscape': printMode === 'landscape' }">
+  <div class="odontogram-wrapper" ref="wrapperRef">
     <table class="odontogram-table">
       <tbody>
         <tr class="num-row">
@@ -284,11 +360,8 @@ const triggerPrint = (mode: 'portrait' | 'landscape') => {
   </div>
 
   <div class="print-controls">
-    <button type="button" @click="triggerPrint('portrait')">
-      Print Portrait
-    </button>
-    <button type="button" @click="triggerPrint('landscape')">
-      Print Landscape
+    <button type="button" @click="triggerPrint">
+      Print Odontogram
     </button>
   </div>
 </template>

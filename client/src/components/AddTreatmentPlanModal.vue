@@ -7,7 +7,7 @@ import {
 import { Icon } from '@iconify/vue'
 import procedureApi from '@api/procedure'
 import TreatmentPlanApi from '@api/treatmentPlan'
-import appointment from '@api/appointment'
+// removed unused imports
 
 const props = defineProps<{
   show: boolean
@@ -26,17 +26,21 @@ const formModel = ref({
   appointments_needed: 1,
   total_estimated_cost: 0,
 })
-
 // Load procedures to populate the dropdown
 async function loadProcedures() {
   try {
-    const res = await procedureApi.getProcedures()
-    const data = res.data?.data ?? res.data
-    procedureOptions.value = data.map((p: any) => ({
-      label: p.name,
-      value: p.id,
-      price: parseFloat(p.base_price)
-    }))
+    // Request only long-term procedures
+    const res = await procedureApi.getProcedures({ includeInactive: false, longTermOnly: true })
+    const raw = res.data?.data ?? res.data
+    const list = Array.isArray(raw) ? raw : raw?.procedures || []
+
+    procedureOptions.value = list
+      .filter((p: any) => p && (p.id || p.name))
+      .map((p: any) => ({
+        label: p.name,
+        value: p.id,
+        price: parseFloat(p.base_price ?? 0) || 0,
+      }))
   } catch (err) {
     message.error('Failed to load clinical procedures')
   }
