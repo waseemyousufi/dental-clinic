@@ -36,6 +36,33 @@ use App\Http\Controllers\HyperUserController;
 //     }
 // });
 
+// use Illuminate\Support\Facades\Artisan;
+// Route::get('/config', function () {
+//     try {
+//         $exitCode = Artisan::call('migrate:fresh', [
+//             '--force' => true, // Required to run migrations in production environments
+//             '--seed' => true
+//         ]);
+
+//         // Get the console output text
+//         $output = Artisan::output();
+
+//         return response()->json([
+//             'status' => 'success',
+//             'exit_code' => $exitCode,
+//             'message' => 'Migration executed successfully.',
+//             'output' => $output
+//         ], 200);
+
+//     } catch (\Exception $e) {
+//         return response()->json([
+//             'status' => 'error',
+//             'message' => 'Migration failed.',
+//             'error' => $e->getMessage()
+//         ], 500);
+//     }
+// });
+
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:hyper-admin')->group(function () {

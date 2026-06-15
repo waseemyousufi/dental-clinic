@@ -68,11 +68,29 @@ class AppointmentController extends Controller
             ]);
 
             $patient = Patient::where('branch_id', $branchId)->findOrFail($data['patientId']);
+            // if ($data['status'] === 'Completed') {
+            //     $patient->total_amount_due += $data['appointment_cost'];
+            //     $patient->save();
+
+            //     $account = Account::where('branch_id', $branchId)->where('account_type', 'income')->first();
+            //     $account->update([
+            //         'total_amount' => $account->total_amount + $data['appointment_cost'],
+            //         'branch_id' => $branchId
+            //     ]);
+
+            //     AccountTransaction::create([
+            //         'account_id' => $account->id,
+            //         'amount' => $data['appointment_cost'],
+            //         'type' => 'debit',
+            //         'description' => "Charge for appointment #{$appointment->id}",
+            //         'branch_id' => $branchId,
+            //     ]);
+            // }
+            $appointment->patients()->sync([$patient->id]);
 
             $appointment->patients()->sync([
-                $patient->id => ['branch_id' => $branchId]
+                                $patient->id => ['branch_id' => $branchId]
             ]);
-
 
             $employee = Employee::where('branch_id', $branchId)->findOrFail($data['employeeId']);
             $appointment->employees()->sync([

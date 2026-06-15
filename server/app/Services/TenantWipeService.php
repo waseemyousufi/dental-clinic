@@ -62,6 +62,13 @@ class TenantWipeService
                 $query = $withTrashedIfApplicable($model::query(), $model);
                 $query->where('branch_id', $tenantId)->forceDelete();
             }
+
+            wipeTenantPivotTable('appointment_patient');
+
         });
+    }
+
+    public function wipeTenantPivotTable(String $table) {
+
     }
 }
