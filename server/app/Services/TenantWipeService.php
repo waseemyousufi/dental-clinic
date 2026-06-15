@@ -9,7 +9,6 @@ class TenantWipeService
 {
     public function wipe(int $tenantId): void
     {
-        // Models to hard-delete by branch (branch_id)
         $models = [
             \App\Models\Order::class,
             \App\Models\Appointment::class,
@@ -24,21 +23,10 @@ class TenantWipeService
             \App\Models\Setting::class,
             \App\Models\Prescription::class,
             \App\Models\Procedure::class,
-            \App\Models\Treatment::class,
             \App\Models\Shelf::class,
             \App\Models\Supplier::class,
             \App\Models\Item::class,
             \App\Models\AccountTransaction::class,
-            \App\Models\Account::class,
-        ];
-
-        // Pivot tables (no models) to delete by branch
-        $pivotTables = [
-            'appointment_patient',
-            'appointment_employee',
-            'appointment_procedure',
-            'treatment_plan_procedure',
-            'account_transaction_clinic_material',
         ];
 
         // 1. Get user IDs from employees BEFORE deleting them
@@ -68,32 +56,19 @@ class TenantWipeService
             $userQuery->whereIn('id', $userIds)->forceDelete();
         }
 
-        // 4. Hard delete all other models and pivot tables
-        DB::transaction(function () use ($models, $pivotTables, $tenantId, $withTrashedIfApplicable) {
-            // delete model records
+        // 4. Hard delete all other models
+        DB::transaction(function () use ($models, $tenantId, $withTrashedIfApplicable) {
             foreach ($models as $model) {
                 $query = $withTrashedIfApplicable($model::query(), $model);
-                // some tables may not have branch_id; guard with try/catch to avoid breaking the wipe
-                try {
-                    $query->where('branch_id', $tenantId)->forceDelete();
-                } catch (\Exception $e) {
-                    // fallback: try deleting via DB table if available
-                    try {
-                        DB::table((new $model)->getTable())->where('branch_id', $tenantId)->delete();
-                    } catch (\Exception $_) {
-                        // ignore and continue
-                    }
-                }
+                $query->where('branch_id', $tenantId)->forceDelete();
             }
 
-            // delete pivot rows directly
-            foreach ($pivotTables as $table) {
-                try {
-                    DB::table($table)->where('branch_id', $tenantId)->delete();
-                } catch (\Exception $e) {
-                    // ignore missing tables or errors and continue
-                }
-            }
+            wipeTenantPivotTable('appointment_patient');
+
         });
+    }
+
+    public function wipeTenantPivotTable(String $table) {
+
     }
 }
