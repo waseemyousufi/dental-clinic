@@ -582,7 +582,7 @@ onMounted(loadData)
             </n-popconfirm>
             <n-space>
               <n-button @click="showViewModal = false">{{ t('common.closeButtonText') }}</n-button>
-              <n-button type="primary" :title="t('common.editTooltip')" @click="openEditModal">
+              <n-button type="primary" v-if="selectedAppointment?.status !== 'completed'" :title="t('common.editTooltip')" @click="openEditModal">
                 {{ t('common.editButtonText') }}
               </n-button>
             </n-space>

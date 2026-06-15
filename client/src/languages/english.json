@@ -48,6 +48,8 @@
     "signatureLabel": "Medical Practitioner Signature"
   },
   "patientView": {
+    "title": "Patient Management",
+    "subtitle": "Register, view, and manage dental patient profiles and medical registration details.",
     "searchPlaceholder": "Search by name or phone",
     "newPatientButtonText": "New Patient",
     "columns": {

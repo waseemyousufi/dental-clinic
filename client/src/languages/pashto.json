@@ -48,6 +48,8 @@
     "signatureLabel": "د معالج ډاکټر لاسلیک"
   },
   "patientView": {
+    "title": "د ناروغانو مدیریت",
+    "subtitle": "د غاښونو د ناروغانو د دوسیه وکتل، ثبتول او مدیریت کول.",
     "searchPlaceholder": "د نوم یا شمیرې په واسطه لټون",
     "newPatientButtonText": "نوی ناروغ",
     "columns": {

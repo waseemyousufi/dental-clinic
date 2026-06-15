@@ -351,17 +351,38 @@ onMounted(() => {
     </div>
 
     <div class="stats-grid">
-      <n-card size="small" class="stat-card">
-        <div class="stat-title">{{ t('expenseView.stats.totalExpenses') }}</div>
-        <div class="stat-value">{{ totalAmount.toLocaleString() }}</div>
+      <n-card size="small" class="stat-card" :bordered="false">
+        <div class="stat-content">
+          <div class="stat-info">
+            <div class="stat-title">{{ t('expenseView.stats.totalExpenses') }}</div>
+            <div class="stat-value">{{ totalAmount.toLocaleString() }}</div>
+          </div>
+          <div class="stat-icon-wrap">
+            <Icon icon="solar:wallet-linear" class="stat-icon" />
+          </div>
+        </div>
       </n-card>
-      <n-card size="small" class="stat-card">
-        <div class="stat-title">{{ t('expenseView.stats.today') }}</div>
-        <div class="stat-value">{{ todayTotal.toLocaleString() }}</div>
+      <n-card size="small" class="stat-card" :bordered="false">
+        <div class="stat-content">
+          <div class="stat-info">
+            <div class="stat-title">{{ t('expenseView.stats.today') }}</div>
+            <div class="stat-value">{{ todayTotal.toLocaleString() }}</div>
+          </div>
+          <div class="stat-icon-wrap">
+            <Icon icon="solar:calendar-linear" class="stat-icon" />
+          </div>
+        </div>
       </n-card>
-      <n-card size="small" class="stat-card">
-        <div class="stat-title">{{ t('expenseView.stats.records') }}</div>
-        <div class="stat-value">{{ filteredExpenses.length }}</div>
+      <n-card size="small" class="stat-card" :bordered="false">
+        <div class="stat-content">
+          <div class="stat-info">
+            <div class="stat-title">{{ t('expenseView.stats.records') }}</div>
+            <div class="stat-value">{{ filteredExpenses.length }}</div>
+          </div>
+          <div class="stat-icon-wrap">
+            <Icon icon="solar:bill-list-linear" class="stat-icon" />
+          </div>
+        </div>
       </n-card>
     </div>
 
@@ -543,6 +564,15 @@ onMounted(() => {
 .stat-card {
   flex: 1 1 calc((100% - 24px) / 3);
   min-width: 0;
+  border-radius: 12px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 14px 36px rgba(15, 23, 42, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.7) inset;
 }
 
 @media (max-width: 768px) {
@@ -558,19 +588,43 @@ onMounted(() => {
 }
 
 .stat-card :deep(.n-card__content) {
-  padding: 14px 16px;
+  padding: 16px 20px;
+}
+
+.stat-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
 }
 
 .stat-title {
   color: rgba(120, 120, 120, 0.95);
   font-size: 12px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .stat-value {
   font-size: 24px;
   font-weight: 750;
   line-height: 1.2;
+}
+
+.stat-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon {
+  font-size: 42px;
+  color: #64748b;
+  opacity: 0.8;
 }
 
 .toolbar {

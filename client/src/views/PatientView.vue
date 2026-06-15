@@ -14,6 +14,7 @@ import {
   NPopconfirm,
   useMessage,
   NAvatar,
+  NIcon,
 } from 'naive-ui'
 import PatientProfilePopup from '@/components/PatientProfilePopup.vue'
 import patientApi from '@api/patient'

@@ -12,6 +12,8 @@ use App\Models\Account;
 use App\Models\AccountTransaction;
 use Illuminate\Support\Facades\DB;
 
+use function Symfony\Component\Clock\now;
+
 class AppointmentController extends Controller
 {
 
@@ -42,8 +44,6 @@ class AppointmentController extends Controller
             'treatment_plan_id' => 'nullable|exists:treatment_plans,id',
             'appointment_cost' => 'required|numeric',
             'clinical_notes' => 'nullable|string',
-
-            // frontend still sends single value
             'procedure_id' => 'required|exists:procedures,id',
         ]);
 
@@ -61,31 +61,23 @@ class AppointmentController extends Controller
             ]);
 
             // ✅ M:M compatibility layer (IMPORTANT PART)
-            $appointment->procedures()->sync([$data['procedure_id']]);
+            $appointment->procedures()->sync([
+                $data['procedure_id'] => [
+                    'branch_id' => $branchId // Or $appointment->branch_id, depending on where it's stored
+                ]
+            ]);
 
             $patient = Patient::where('branch_id', $branchId)->findOrFail($data['patientId']);
-            // if ($data['status'] === 'Completed') {
-            //     $patient->total_amount_due += $data['appointment_cost'];
-            //     $patient->save();
 
-            //     $account = Account::where('branch_id', $branchId)->where('account_type', 'income')->first();
-            //     $account->update([
-            //         'total_amount' => $account->total_amount + $data['appointment_cost'],
-            //         'branch_id' => $branchId
-            //     ]);
+            $appointment->patients()->sync([
+                $patient->id => ['branch_id' => $branchId]
+            ]);
 
-            //     AccountTransaction::create([
-            //         'account_id' => $account->id,
-            //         'amount' => $data['appointment_cost'],
-            //         'type' => 'debit',
-            //         'description' => "Charge for appointment #{$appointment->id}",
-            //         'branch_id' => $branchId,
-            //     ]);
-            // }
-            $appointment->patients()->sync([$patient->id]);
 
             $employee = Employee::where('branch_id', $branchId)->findOrFail($data['employeeId']);
-            $appointment->employees()->sync([$employee->id]);
+            $appointment->employees()->sync([
+                $employee->id => ['branch_id' => $branchId]
+            ]);
         });
 
         return response()->json([
@@ -131,28 +123,22 @@ class AppointmentController extends Controller
                 $patient = Patient::where('branch_id', $branchId)->findOrFail($data['patientId']);
                 $patient->total_amount_due += $data['appointment_cost'];
                 $patient->save();
-
-                // $account = Account::where('branch_id', $branchId)->where('account_type', 'income')->first();
-                // $account->update([
-                //     'total_amount' => $account->total_amount + $data['appointment_cost'],
-                //     'branch_id' => $branchId
-                // ]);
-
-                // AccountTransaction::create([
-                //     'account_id' => $account->id,
-                //     'amount' => $data['appointment_cost'],
-                //     'type' => 'debit',
-                //     'description' => "Charge for appointment #{$appointment->id}",
-                //     'branch_id' => $branchId,
-                // ]);
             }
 
+            $appointment->procedures()->sync([
+                $data['procedure_id'] => [
+                    'branch_id' => $branchId // Or $appointment->branch_id, depending on where it's stored
+                ]
+            ]);
 
+            $appointment->patients()->sync([
+                $data['patientId'] => ['branch_id' => $branchId]
+            ]);
 
-            $appointment->procedures()->sync([$data['procedure_id']]);
-
-            $appointment->employees()->sync([$data['employeeId']]);
-            $appointment->patients()->sync([$data['patientId']]);
+            $employee = Employee::where('branch_id', $branchId)->findOrFail($data['employeeId']);
+            $appointment->employees()->sync([
+                $employee->id => ['branch_id' => $branchId]
+            ]);
 
             return response()->json([
                 'message' => 'Appointment updated successfully',

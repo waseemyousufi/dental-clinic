@@ -497,6 +497,8 @@ onBeforeUnmount(() => {
   border-radius: 24px;
   box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
   backdrop-filter: blur(10px);
+    /* background-image: linear-gradient(0deg, # 0%, #e0f7fa 100%); */
+  /* background-image: linear-gradient(180deg, #b3f6ff88 0%, #f8fafc 100%) !important; */
 }
 
 .hero-card {
@@ -670,12 +672,13 @@ onBeforeUnmount(() => {
 
 .kpi-card {
   background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(226, 232, 240, 0.92);
+  border: 3px solid #b3f6ffee;
   border-radius: 24px;
   box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
   padding: 18px;
   display: grid;
   gap: 12px;
+  /* background-image: linear-gradient(0deg, #b3f6ff 0%, #ffffff 100%); */
 }
 
 .kpi-top {

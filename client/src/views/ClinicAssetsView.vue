@@ -25,26 +25,54 @@
       <n-grid class="stats-grid" :x-gap="16" :y-gap="16" responsive="screen" cols="1 s:2 m:2 l:3">
         <n-grid-item>
           <n-card class="metric-card" :bordered="false">
-            <div class="metric-label">{{ t('clinicAssetsView.metrics.totalAssets') }}</div>
-            <div class="metric-value">{{ filteredAssets.length }}</div>
+            <div class="metric-content">
+              <div class="metric-info">
+                <div class="metric-label">{{ t('clinicAssetsView.metrics.totalAssets') }}</div>
+                <div class="metric-value">{{ filteredAssets.length }}</div>
+              </div>
+              <div class="metric-icon">
+                <Icon icon="solar:box-linear" />
+              </div>
+            </div>
           </n-card>
         </n-grid-item>
         <n-grid-item>
           <n-card class="metric-card" :bordered="false">
-            <div class="metric-label">{{ t('clinicAssetsView.metrics.active') }}</div>
-            <div class="metric-value">{{ statusCount.active }}</div>
+            <div class="metric-content">
+              <div class="metric-info">
+                <div class="metric-label">{{ t('clinicAssetsView.metrics.active') }}</div>
+                <div class="metric-value">{{ statusCount.active }}</div>
+              </div>
+              <div class="metric-icon">
+                <Icon icon="solar:chart-2-linear" />
+              </div>
+            </div>
           </n-card>
         </n-grid-item>
         <n-grid-item>
           <n-card class="metric-card" :bordered="false">
-            <div class="metric-label">{{ t('clinicAssetsView.metrics.maintenance') }}</div>
-            <div class="metric-value">{{ statusCount.maintenance }}</div>
+            <div class="metric-content">
+              <div class="metric-info">
+                <div class="metric-label">{{ t('clinicAssetsView.metrics.maintenance') }}</div>
+                <div class="metric-value">{{ statusCount.maintenance }}</div>
+              </div>
+              <div class="metric-icon">
+                <Icon icon="solar:settings-linear" />
+              </div>
+            </div>
           </n-card>
         </n-grid-item>
         <n-grid-item>
           <n-card class="metric-card" :bordered="false">
-            <div class="metric-label">{{ t('clinicAssetsView.metrics.totalValue') }}</div>
-            <div class="metric-value">{{ formatMoney(totalValue) }}</div>
+            <div class="metric-content">
+              <div class="metric-info">
+                <div class="metric-label">{{ t('clinicAssetsView.metrics.totalValue') }}</div>
+                <div class="metric-value">{{ formatMoney(totalValue) }}</div>
+              </div>
+              <div class="metric-icon">
+                <Icon icon="solar:wallet-linear" />
+              </div>
+            </div>
           </n-card>
         </n-grid-item>
       </n-grid>
@@ -829,6 +857,25 @@ p {
   box-shadow:
     0 14px 36px rgba(15, 23, 42, 0.08),
     0 1px 0 rgba(255, 255, 255, 0.7) inset;
+}
+
+.metric-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.metric-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metric-icon {
+  font-size: 40px;
+  color: #64748b;
+  opacity: 0.8;
 }
 
 .metric-label {

@@ -48,6 +48,8 @@
     "signatureLabel": "امضای داکتر معالج"
   },
   "patientView": {
+    "title": "مدیریت بیماران",
+    "subtitle": "ثبت، مشاهده و مدیریت پرونده‌های بیماران و جزئیات ثبت‌نام صحی.",
     "searchPlaceholder": "جستجو بر اساس نام یا شماره تلفن",
     "newPatientButtonText": "بیمار جدید",
     "columns": {
