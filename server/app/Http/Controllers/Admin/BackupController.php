@@ -28,6 +28,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
 
 class BackupController extends Controller
 {
@@ -48,7 +49,6 @@ class BackupController extends Controller
 
         $patients = $this->getFromBranch('patients', $branchId);
         $appointments = $this->getFromBranch('appointments', $branchId);
-        // $appointmentPatients = $this->getFromBranch('appointment_patient', $branchId);
         $employees = $this->getFromBranch('employees', $branchId);
         $treatments = $this->getFromBranch('treatments', $branchId);
         $allergies = $this->getFromBranch('allergies', $branchId);
@@ -59,9 +59,9 @@ class BackupController extends Controller
         $clinicExpenses = $this->getFromBranch('clinicExpenses', $branchId);
         $employeeSalaries = $this->getFromBranch('employee_salaries', $branchId);
         $procedures = $this->getFromBranch('procedures', $branchId);
-        // $procedureAppointments = $this->getFromBranch('procedure_appointment', $branchId);
         $settings = $this->getFromBranch('settings', $branchId);
-        $treatmentPlans = $this->getFromBranch('treamtment_plans', $branchId);
+        $treatmentPlans = $this->getFromBranch('treatment_plans', $branchId);
+
         $userIds = $employees->pluck('user_id')->filter()->unique()->values();
         $users = $userIds->isNotEmpty()
             ? DB::table('users')->whereIn('id', $userIds)->get()->map(function ($u) {
@@ -85,7 +85,6 @@ class BackupController extends Controller
             return (array) $row;
         });
 
-
         $payload = [
             'branch_id' => $branchId,
             'exported_at' => now()->toISOString(),
@@ -93,7 +92,6 @@ class BackupController extends Controller
                 'users' => $users->count(),
                 'patients' => $patients->count(),
                 'appointments' => $appointments->count(),
-                // 'appointment_patient' => $appointmentPatients->count(),
                 'employees' => $employees->count(),
                 'treatments' => $treatments->count(),
                 'allergies' => $allergies->count(),
@@ -104,7 +102,6 @@ class BackupController extends Controller
                 'clinicExpenses' => $clinicExpenses->count(),
                 'employee_salaries' => $employeeSalaries->count(),
                 'procedures' => $procedures->count(),
-                // 'procedure_appointment' => $procedureAppointments->count(),
                 'settings' => $settings->count(),
                 'treatment_plans' => $treatmentPlans->count(),
             ],
@@ -112,7 +109,6 @@ class BackupController extends Controller
                 'users' => $users->toArray(),
                 'patients' => $patients->toArray(),
                 'appointments' => $appointments->toArray(),
-                // 'appointment_patient' => $appointmentPatients->toArray(),
                 'employees' => $employees->toArray(),
                 'treatments' => $treatments->toArray(),
                 'allergies' => $allergies->toArray(),
@@ -123,7 +119,6 @@ class BackupController extends Controller
                 'clinicExpenses' => $clinicExpenses->toArray(),
                 'employee_salaries' => $employeeSalaries->toArray(),
                 'procedures' => $procedures->toArray(),
-                // 'procedure_appointment' => $procedureAppointments->toArray(),
                 'settings' => $settings->toArray(),
                 'treatment_plans' => $treatmentPlans->toArray(),
                 'appointment_patient' => $appointmentPatient->toArray(),
@@ -149,44 +144,6 @@ class BackupController extends Controller
         ]);
     }
 
-    private function restorePivotTable(
-        string $table,
-        array $rows,
-        int $branchId,
-        array $mappings,
-        array $remapKeys
-    ): void {
-
-        foreach ($rows as $row) {
-
-            unset($row['id']);
-
-            if (array_key_exists('branch_id', $row)) {
-                $row['branch_id'] = $branchId;
-            }
-
-            foreach ($remapKeys as $column => $mappingName) {
-
-                if (!isset($row[$column])) {
-                    continue;
-                }
-
-                if (!isset($mappings[$mappingName][$row[$column]])) {
-
-                    \Log::warning(
-                        "Skipping pivot row in {$table}. Missing mapping for {$mappingName}: {$row[$column]}"
-                    );
-
-                    continue 2;
-                }
-
-                $row[$column] = $mappings[$mappingName][$row[$column]];
-            }
-
-            DB::table($table)->insert($row);
-        }
-    }
-
     public function restore(int $branchId, Request $request, TenantWipeService $wipeService)
     {
         $branch = Branch::findOrFail($branchId);
@@ -203,21 +160,18 @@ class BackupController extends Controller
 
         $data = $payload['data'];
         $targetBranchId = $branch->id;
-
         $mappings = [];
 
         DB::beginTransaction();
 
-        try {
+        // Fix 1: Disable Foreign Key Checks during mass data manipulation
+        Schema::disableForeignKeyConstraints();
 
-            // 1. WIPE FIRST (important: before inserting anything)
+        try {
+            // 1. Clear out pre-existing tenant branch data safely
             $wipeService->wipe($branchId);
 
-            /*
-        |-----------------------------
-        | 1. CORE TABLES (NO FK deps)
-        |-----------------------------
-        */
+            // 2. CORE TABLES (No FK dependencies)
             $mappings['procedures'] = $this->insertRows(
                 $data['procedures'] ?? [],
                 \App\Models\Procedure::class,
@@ -225,21 +179,26 @@ class BackupController extends Controller
                 $targetBranchId
             );
 
-            /*
-        |-----------------------------
-        | 2. USERS (must exist BEFORE employees)
-        |-----------------------------
-        */
+            $mappings['accounts'] = $this->insertRows(
+                $data['accounts'] ?? [],
+                \App\Models\Account::class,
+                $mappings,
+                $targetBranchId
+            );
+
+            $mappings['patients'] = $this->insertRows(
+                $data['patients'] ?? [],
+                \App\Models\Patient::class,
+                $mappings,
+                $targetBranchId
+            );
+
             $mappings['users'] = $this->insertUsers(
                 $data['users'] ?? [],
                 $targetBranchId
             );
 
-            /*
-        |-----------------------------
-        | 3. EMPLOYEES (depends on users)
-        |-----------------------------
-        */
+            // 3. DEPENDENT TABLES (Requires Users)
             $mappings['employees'] = $this->insertRows(
                 $data['employees'] ?? [],
                 \App\Models\Employee::class,
@@ -250,42 +209,19 @@ class BackupController extends Controller
                 ]
             );
 
-            /*
-        |-----------------------------
-        | 4. PATIENTS
-        |-----------------------------
-        */
-            $mappings['patients'] = $this->insertRows(
-                $data['patients'] ?? [],
-                \App\Models\Patient::class,
-                $mappings,
-                $targetBranchId
-            );
-
-            /*
-        |-----------------------------
-        | 5. FINANCIAL
-        |-----------------------------
-        */
-            $mappings['accounts'] = $this->insertRows(
-                $data['accounts'] ?? [],
-                \App\Models\Account::class,
-                $mappings,
-                $targetBranchId
-            );
-
+            // 4. FINANCIAL TRANSACTIONS (Requires Accounts & Employees)
             $mappings['transactions'] = $this->insertRows(
                 $data['transactions'] ?? [],
                 \App\Models\AccountTransaction::class,
                 $mappings,
-                $targetBranchId
+                $targetBranchId,
+                [
+                    'account_id' => 'accounts',
+                    'recorded_by_employee_id' => 'employees'
+                ]
             );
 
-            /*
-        |-----------------------------
-        | 6. APPOINTMENTS
-        |-----------------------------
-        */
+            // 5. APPOINTMENTS (Requires Patients & Employees)
             $mappings['appointments'] = $this->insertRows(
                 $data['appointments'] ?? [],
                 \App\Models\Appointment::class,
@@ -297,33 +233,10 @@ class BackupController extends Controller
                 ]
             );
 
-            // $mappings['appointment_patient'] = $this->insertRows(
-            //     $data['appointment_patient'] ?? [],
-            //     \App\Models\AppointmentPatient::class,
-            //     $mappings,
-            //     $targetBranchId,
-            //     [
-            //         'appointment_id' => 'appointments',
-            //         'patient_id' => 'patients'
-            //     ]
-            // );
+            // Fix 2: Removed the redundant 'procedure_appointment' mapping call that was causing bugs
+            // since it is handled correctly below via restorePivotTable()
 
-            $mappings['procedure_appointment'] = $this->insertRows(
-                $data['procedure_appointment'] ?? [],
-                \App\Models\ProcedureAppointment::class,
-                $mappings,
-                $targetBranchId,
-                [
-                    'procedure_id' => 'procedures',
-                    'appointment_id' => 'appointments'
-                ]
-            );
-
-            /*
-        |-----------------------------
-        | 7. TREATMENTS
-        |-----------------------------
-        */
+            // 6. TREATMENT PLANS & TREATMENTS
             $mappings['treatment_plans'] = $this->insertRows(
                 $data['treatment_plans'] ?? $data['treamtment_plans'] ?? [],
                 \App\Models\TreatmentPlan::class,
@@ -345,11 +258,7 @@ class BackupController extends Controller
                 ]
             );
 
-            /*
-        |-----------------------------
-        | 8. MEDICAL
-        |-----------------------------
-        */
+            // 7. MEDICAL ASSETS
             $mappings['dental_xrays'] = $this->insertRows(
                 $data['dental_xrays'] ?? [],
                 \App\Models\DentalXray::class,
@@ -370,11 +279,7 @@ class BackupController extends Controller
                 ]
             );
 
-            /*
-        |-----------------------------
-        | 9. OPERATIONS
-        |-----------------------------
-        */
+            // 8. OPERATIONS & OPERATIONAL EXPENSES
             $mappings['clinicAssets'] = $this->insertRows(
                 $data['clinicAssets'] ?? [],
                 \App\Models\ClinicAsset::class,
@@ -400,11 +305,6 @@ class BackupController extends Controller
                 ]
             );
 
-            /*
-        |-----------------------------
-        | 10. SETTINGS
-        |-----------------------------
-        */
             $mappings['settings'] = $this->insertRows(
                 $data['settings'] ?? [],
                 \App\Models\Setting::class,
@@ -412,12 +312,7 @@ class BackupController extends Controller
                 $targetBranchId
             );
 
-            /*
-|--------------------------------------------------------------------------
-| PIVOT TABLES
-|--------------------------------------------------------------------------
-*/
-
+            // 9. PIVOT RELATIONSHIPS RESTORATION
             $this->restorePivotTable(
                 'appointment_patient',
                 $data['appointment_patient'] ?? [],
@@ -473,6 +368,7 @@ class BackupController extends Controller
             );
 
             DB::commit();
+            Schema::enableForeignKeyConstraints();
 
             return response()->json([
                 'message' => 'Restore completed',
@@ -480,11 +376,45 @@ class BackupController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
+            Schema::enableForeignKeyConstraints();
 
             return response()->json([
                 'message' => 'Restore failed',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    private function restorePivotTable(
+        string $table,
+        array $rows,
+        int $branchId,
+        array $mappings,
+        array $remapKeys
+    ): void {
+        foreach ($rows as $row) {
+            unset($row['id']);
+
+            if (array_key_exists('branch_id', $row)) {
+                $row['branch_id'] = $branchId;
+            }
+
+            foreach ($remapKeys as $column => $mappingName) {
+                if (!isset($row[$column])) {
+                    continue;
+                }
+
+                if (!isset($mappings[$mappingName][$row[$column]])) {
+                    Log::warning(
+                        "Skipping pivot row in {$table}. Missing mapping for {$mappingName}: {$row[$column]}"
+                    );
+                    continue 2;
+                }
+
+                $row[$column] = $mappings[$mappingName][$row[$column]];
+            }
+
+            DB::table($table)->insert($row);
         }
     }
 
@@ -499,7 +429,6 @@ class BackupController extends Controller
                 continue;
             }
 
-            // FIX: Format dates to prevent SQL errors
             foreach (['created_at', 'updated_at', 'deleted_at'] as $field) {
                 if (!empty($user[$field])) {
                     $user[$field] = Carbon::parse($user[$field])->format('Y-m-d H:i:s');
@@ -511,8 +440,24 @@ class BackupController extends Controller
                 $user['branch_id'] = $branchId;
             }
 
-            $newId = DB::table('users')->insertGetId($user);
+            $email = $user['email'] ?? null;
+            if (!empty($email)) {
+                $existing = DB::table('users')->where('email', $email)->first();
+                if ($existing) {
+                    if (Schema::hasColumn('users', 'branch_id') && empty($existing->branch_id)) {
+                        try {
+                            DB::table('users')->where('id', $existing->id)->update(['branch_id' => $branchId]);
+                        } catch (\Exception $_) {
+                            // ignore update failures
+                        }
+                    }
 
+                    $map[$oldId] = $existing->id;
+                    continue;
+                }
+            }
+
+            $newId = DB::table('users')->insertGetId($user);
             $map[$oldId] = $newId;
         }
 
@@ -549,9 +494,8 @@ class BackupController extends Controller
                 }
 
                 if (!isset($mappings[$mapName][$row[$key]])) {
-                    // FIX: Log the issue and skip this row entirely instead of crashing the restore
-                    // Log::warning("Restore skipped a row in {$table} because it references a missing {$mapName} ID: {$row[$key]}");
-                    continue 2; // 'continue 2' breaks the inner loop and skips to the next $row
+                    Log::warning("Restore skipped a row in {$table} because it references a missing {$mapName} ID: {$row[$key]}");
+                    continue 2;
                 }
 
                 $row[$key] = $mappings[$mapName][$row[$key]];
@@ -589,7 +533,6 @@ class BackupController extends Controller
 
         $table = (new $modelClass)->getTable();
 
-        // FIX: Use DB::table to bypass soft deletes, global scopes, and mutators
         return DB::table($table)->where('branch_id', $branchId)->get()->map(function ($row) {
             return (array) $row;
         });
@@ -613,7 +556,6 @@ class BackupController extends Controller
             'procedures' => Procedure::class,
             'procedure_appointment' => ProcedureAppointment::class,
             'settings' => Setting::class,
-            'treamtment_plans' => TreatmentPlan::class,
             'treatment_plans' => TreatmentPlan::class,
         ];
 

@@ -58,16 +58,16 @@ class PatientController extends Controller
         ]);
 
         $patient = Patient::where('branch_id', $branchId)->find($id);
-        $account = Account::where('branch_id', $branchId)->where('account_type', 'income')->first();
+        // Ensure an income account exists for the branch; create if missing
+        $account = Account::firstOrCreate(
+            ['branch_id' => $branchId, 'account_type' => 'income'],
+            ['total_amount' => 0]
+        );
 
         DB::transaction(function () use ($patient, $account, $data, $branchId, $request) {
 
-
-
-            $account->update([
-                'total_amount' => $account->total_amount + $data['debit'],
-                'branch_id' => $branchId
-            ]);
+            // Increment account total atomically
+            $account->increment('total_amount', $data['debit']);
 
             $recordedByEmployeeId = null;
             if (auth()->check()) {
@@ -79,9 +79,9 @@ class PatientController extends Controller
                 'amount' => $data['debit'],
                 'transaction_date' => now(),
                 'reference_type' => 'patient',
-                'description' => 'Collected from ' . $patient->f_name . ' ' . $patient->l_name,
+                'description' => $patient->f_name . ' ' . $patient->l_name,
                 'recorded_by_employee_id' => $recordedByEmployeeId,
-                'account_id' => 1,
+                'account_id' => $account->id,
                 'branch_id' => $branchId
             ]);
 
@@ -114,10 +114,13 @@ class PatientController extends Controller
 
         DB::transaction(function () use ($data, $branchId, $request) {
             if ($data['reception_cost'] > 0) {
-                Account::where('branch_id', $branchId)
-                    ->where('account_type', 'income')
-                    ->first()
-                    ->increment('total_amount', $data['reception_cost']);
+                // Ensure income account exists for the branch
+                $account = Account::firstOrCreate(
+                    ['branch_id' => $branchId, 'account_type' => 'income'],
+                    ['total_amount' => 0]
+                );
+
+                $account->increment('total_amount', $data['reception_cost']);
                 $recordedByEmployeeId = null;
                 if (auth()->check()) {
                     $recordedByEmployeeId = auth()->user()?->employee?->id ?? null;
@@ -130,7 +133,7 @@ class PatientController extends Controller
                     'reference_type' => 'patient',
                     'description' => 'Reception fee for new patient: ' . $data['fName'] . ' ' . $data['lName'],
                     'recorded_by_employee_id' => $recordedByEmployeeId,
-                    'account_id' => 1,
+                    'account_id' => $account->id,
                     'branch_id' => $branchId
                 ]);
             }
