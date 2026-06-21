@@ -136,6 +136,16 @@ const navLinks = [
     labelKey: 'app.navigation.treatments',
     icon: () => h(Icon, { icon: 'fluent:patient-24-filled', style: 'font-size: 1.45em;' }),
   },
+  // {
+  //   path: '/inventory',
+  //   labelKey: 'shelves',
+  //   icon: () => h(Icon, { icon: 'fluent:patient-24-filled', style: 'font-size: 1.45em;' }),
+  // },
+  // {
+  //   path: '/suppliers',
+  //   labelKey: 'suppliers',
+  //   icon: () => h(Icon, { icon: 'fluent:patient-24-filled', style: 'font-size: 1.45em;' }),
+  // }
 ].filter(Boolean)
 
 if (userStore.isReceptionist || userStore.isAdmin) {

@@ -56,6 +56,22 @@ const editingId = ref<number | null>(null)
 const showViewPopup = ref(false);
 const viewPopupData = ref<PatientRow | null>(null);
 
+const formRef = ref<any>(null)
+const validationRules = {
+  fName: [
+    { required: true, message: t('patientView.form.firstNameRequired') || 'First name is required', trigger: 'blur' },
+  ],
+  lName: [
+    { required: true, message: t('patientView.form.lastNameRequired') || 'Last name is required', trigger: 'blur' },
+  ],
+  gender: [
+    { required: true, message: t('patientView.form.genderRequired') || 'Gender is required', trigger: 'blur' },
+  ],
+  phone: [
+    { required: true, message: t('patientView.form.phoneRequired') || 'Phone number is required', trigger: 'blur' },
+  ],
+}
+
 const profileImage = ref<string | null>(null)
 const profileFile = ref<File | null>(null)
 const fileInputRef = ref<HTMLInputElement | null>(null)
@@ -320,6 +336,15 @@ function handleFileChange(e: Event) {
 }
 
 async function handleSubmit() {
+  if (!formRef.value) return
+
+  try {
+    await formRef.value.validate()
+  } catch (errors: any) {
+    message.error(t('patientView.messages.savePatientError') || 'Please fill in all required fields')
+    return
+  }
+
   submitting.value = true
   try {
     const payload: PatientData = {
@@ -397,7 +422,7 @@ onMounted(fetchPatients)
 
     <n-modal v-model:show="showEditor" preset="card" style="width: 600px"
       :title="isEditing ? $t('patientView.modal.editTitle') : $t('patientView.modal.newTitle')" class="patient-modal">
-      <n-form label-width="110">
+      <n-form ref="formRef" :model="formModel" :rules="validationRules" label-width="110">
         <!-- <div class="profile-upload-row">
           <div class="profile-image-container" @click="triggerFileInput">
             <input type="file" ref="fileInputRef" style="display: none" accept="image/*" @change="handleFileChange" />
@@ -412,16 +437,16 @@ onMounted(fetchPatients)
         </div> -->
 
         <div class="form-row">
-          <n-form-item :label="$t('patientView.form.firstNameLabel')">
+          <n-form-item path="fName" :label="$t('patientView.form.firstNameLabel')">
             <n-input v-model:value="formModel.fName" :placeholder="$t('patientView.form.firstNamePlaceholder')" />
           </n-form-item>
-          <n-form-item :label="$t('patientView.form.lastNameLabel')">
+          <n-form-item path="lName" :label="$t('patientView.form.lastNameLabel')">
             <n-input v-model:value="formModel.lName" :placeholder="$t('patientView.form.lastNamePlaceholder')" />
           </n-form-item>
         </div>
 
         <div class="form-row">
-          <n-form-item :label="$t('patientView.form.genderLabel')">
+          <n-form-item path="gender" :label="$t('patientView.form.genderLabel')">
             <n-select :to="false" v-model:value="formModel.gender" :options="genderOptions"
               :placeholder="$t('patientView.form.genderPlaceholder')" />
           </n-form-item>
@@ -432,7 +457,7 @@ onMounted(fetchPatients)
         </div>
 
         <div class="form-row">
-          <n-form-item :label="$t('patientView.form.phoneLabel')">
+          <n-form-item path="phone" :label="$t('patientView.form.phoneLabel')">
             <n-input v-model:value="formModel.phone" :placeholder="$t('patientView.form.phonePlaceholder')" />
           </n-form-item>
           <n-form-item :label="$t('patientView.form.emergencyContactLabel')">

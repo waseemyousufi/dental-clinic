@@ -41,6 +41,34 @@ const isEditing = ref(false)
 const editingId = ref<number | null>(null)
 const keyword = ref('')
 
+const formRef = ref<any>(null)
+const validationRules = {
+  expenseCategory: [
+    { required: true, message: t('expenseView.modal.form.categoryRequired') || 'Category is required', trigger: 'blur' },
+  ],
+  amount: [
+    { required: true, message: t('expenseView.modal.form.amountRequired') || 'Amount is required', trigger: 'blur' },
+    {
+      validator: (value: string) => {
+        if (isNaN(Number(value))) {
+          return new Error(t('expenseView.modal.form.amountInvalid') || 'Amount must be a number')
+        }
+        return true
+      },
+      trigger: 'blur',
+    },
+  ],
+  expenseDate: [
+    { required: true, message: t('expenseView.modal.form.dateRequired') || 'Date is required', trigger: 'blur' },
+  ],
+  description: [
+    { required: true, message: t('expenseView.modal.form.descriptionRequired') || 'Description is required', trigger: 'blur' },
+  ],
+  accountId: [
+    { required: true, message: t('expenseView.modal.form.accountRequired') || 'Account is required', trigger: 'blur' },
+  ],
+}
+
 const expenses = ref<ExpenseRow[]>([])
 const employeeOptions = ref<SelectOption[]>([])
 const accountOptions = ref<SelectOption[]>([])
@@ -277,6 +305,15 @@ async function handleDelete(row: ExpenseRow) {
 }
 
 async function handleSubmit() {
+  if (!formRef.value) return
+
+  try {
+    await formRef.value.validate()
+  } catch (errors: any) {
+    message.error(t('expenseView.messages.validationError') || 'Please fill in all required fields')
+    return
+  }
+
   const payload: ExpenseData = {
     expenseCategory: formModel.expenseCategory,
     unit: formModel.unit,
@@ -449,9 +486,9 @@ onMounted(() => {
     <n-modal v-model:show="showEditor" preset="card" class="expense-modal"
       style="max-width: 700px; max-height: 90vh; overflow: auto"
       :title="isEditing ? t('expenseView.modal.editTitle') : t('expenseView.modal.addTitle')">
-      <n-form label-placement="top">
+      <n-form ref="formRef" :model="formModel" :rules="validationRules" label-placement="top">
         <div class="form-row">
-          <n-form-item :label="t('expenseView.modal.form.categoryLabel')">
+          <n-form-item path="expenseCategory" :label="t('expenseView.modal.form.categoryLabel')">
             <n-input v-model:value="formModel.expenseCategory as string"
               :placeholder="t('expenseView.modal.form.categoryPlaceholder')" />
           </n-form-item>
@@ -462,11 +499,11 @@ onMounted(() => {
         </div>
 
         <div class="form-row">
-          <n-form-item :label="t('expenseView.modal.form.amountLabel')">
+          <n-form-item path="amount" :label="t('expenseView.modal.form.amountLabel')">
             <n-input v-model:value="formModel.amount as string"
               :placeholder="t('expenseView.modal.form.amountPlaceholder')" />
           </n-form-item>
-          <n-form-item :label="t('expenseView.modal.form.dateLabel')">
+          <n-form-item path="expenseDate" :label="t('expenseView.modal.form.dateLabel')">
             <n-date-picker :to="false" type="date" style="width: 100%"
               :value="formModel.expenseDate ? Date.parse(formModel.expenseDate as string) : null"
               @update:value="handleDateChange" />
@@ -483,7 +520,7 @@ onMounted(() => {
               filterable
             />
           </n-form-item> -->
-          <n-form-item :label="t('expenseView.modal.form.accountLabel')">
+          <n-form-item path="accountId" :label="t('expenseView.modal.form.accountLabel')">
             <n-select :to="false" :options="accountOptions" v-model:value="formModel.accountId as any"
               @update:value="handleAccountChange" :placeholder="t('expenseView.modal.form.accountPlaceholder')"
               filterable />
@@ -491,7 +528,7 @@ onMounted(() => {
         </div>
 
         <div class="form-row single">
-          <n-form-item :label="t('expenseView.modal.form.descriptionLabel')">
+          <n-form-item path="description" :label="t('expenseView.modal.form.descriptionLabel')">
             <n-input v-model:value="formModel.description as string" type="textarea"
               :autosize="{ minRows: 3, maxRows: 5 }"
               :placeholder="t('expenseView.modal.form.descriptionPlaceholder')" />

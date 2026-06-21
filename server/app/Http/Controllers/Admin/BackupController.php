@@ -162,6 +162,8 @@ class BackupController extends Controller
         $targetBranchId = $branch->id;
         $mappings = [];
 
+        // $wipeService->wipe($branchId);
+
         DB::beginTransaction();
 
         // Fix 1: Disable Foreign Key Checks during mass data manipulation
@@ -291,7 +293,10 @@ class BackupController extends Controller
                 $data['clinicExpenses'] ?? [],
                 \App\Models\ClinicExpense::class,
                 $mappings,
-                $targetBranchId
+                $targetBranchId,
+                [
+                    'paidByEmployee_id' => 'employees'
+                ]
             );
 
             $mappings['employee_salaries'] = $this->insertRows(

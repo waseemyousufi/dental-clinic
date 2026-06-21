@@ -222,11 +222,6 @@ const triggerPrint = () => {
             margin-top: 60px;
           }
 
-          .odontogram-table {
-            transform: scale(1.4);
-            transform-origin: top center;
-          }
-
           /* A5 Responsive Scaling */
           @media (max-width: 600px), print {
             .patient-info-header {
@@ -320,7 +315,7 @@ const triggerPrint = () => {
         </tr>
         <tr>
           <td v-for="num in upperRow" :key="num">
-            <svg :width="toothConfigs[getToothType(num)].width" :height="toothConfigs[getToothType(num)].height">
+            <svg :width="toothConfigs[getToothType(num)].width" :height="toothConfigs[getToothType(num)].height" :viewBox="`0 0 ${toothConfigs[getToothType(num)].width} ${toothConfigs[getToothType(num)].height}`">
               <g :transform="`translate(0, ${toothConfigs[getToothType(num)].height}) scale(1,-1)`">
                 <polygon v-for="p in toothConfigs[getToothType(num)].parts" :key="p.id" :points="p.points"
                   class="tooth-part" :style="getPartStyle(num, p.id)" @click="emit('tooth-click', num, p.id)" />
@@ -337,7 +332,7 @@ const triggerPrint = () => {
         </tr>
         <tr>
           <td v-for="num in lowerRow" :key="num">
-            <svg :width="toothConfigs[getToothType(num)].width" :height="toothConfigs[getToothType(num)].height">
+            <svg :width="toothConfigs[getToothType(num)].width" :height="toothConfigs[getToothType(num)].height" :viewBox="`0 0 ${toothConfigs[getToothType(num)].width} ${toothConfigs[getToothType(num)].height}`">
               <g>
                 <polygon v-for="p in toothConfigs[getToothType(num)].parts" :key="p.id" :points="p.points"
                   class="tooth-part" :style="getPartStyle(num, p.id)" @click="emit('tooth-click', num, p.id)" />
@@ -476,7 +471,6 @@ const triggerPrint = () => {
 
   @media (min-width: 1550px) {
     .primary-print-landscape {
-      transform: scale(1.4) !important;
     }
   }
 

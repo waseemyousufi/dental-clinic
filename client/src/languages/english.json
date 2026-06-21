@@ -86,7 +86,11 @@
       "phonePlaceholder": "Mobile phone",
       "emergencyContactLabel": "Emergency contact",
       "emergencyContactPlaceholder": "Emergency contact",
-      "registeredAtLabel": "Registered at"
+      "registeredAtLabel": "Registered at",
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "genderRequired": "Gender is required",
+      "phoneRequired": "Phone number is required"
     },
     "genderOptions": {
       "male": "Male",
@@ -482,7 +486,13 @@
         "detailsPlaceholder": "Details..."
       },
       "validation": {
-        "requiredFields": "Please fill in all required fields"
+        "requiredFields": "Please fill in all required fields",
+        "patientRequired": "Patient is required",
+        "employeeRequired": "Employee is required",
+        "dateRequired": "Date and time is required",
+        "treatmentPlanRequired": "Treatment plan is required",
+        "procedureRequired": "Procedure is required",
+        "costRequired": "Appointment cost is required"
       }
     },
     "statusOptions": {
@@ -554,7 +564,14 @@
       "experiencePositionLabel": "Experience position",
       "experiencePositionPlaceholder": "Previous position",
       "experienceAmountLabel": "Experience Amount",
-      "experienceAmountPlaceholder": "Total experience (e.g. months)"
+      "experienceAmountPlaceholder": "Total experience (e.g. months)",
+      "fNameRequired": "First name is required",
+      "lNameRequired": "Last name is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address",
+      "phoneRequired": "Phone number is required",
+      "genderRequired": "Gender is required",
+      "positionRequired": "Position is required"
     },
     "genderOptions": {
       "male": "Male",
@@ -599,7 +616,11 @@
       "bonusLabel": "Bonus",
       "payFromAccountLabel": "Pay From Account",
       "remarksLabel": "Remarks",
-      "payButton": "Pay"
+      "payButton": "Pay",
+      "monthRequired": "Salary month is required",
+      "amountRequired": "Amount is required",
+      "remarkRequired": "Remarks are required",
+      "accountRequired": "Account is required"
     },
     "inviteModal": {
       "title": "Employee Invitation",
@@ -904,7 +925,13 @@
         "accountLabel": "Account",
         "accountPlaceholder": "Select account",
         "descriptionLabel": "Description",
-        "descriptionPlaceholder": "Add details for accounting and audit trail"
+        "descriptionPlaceholder": "Add details for accounting and audit trail",
+        "categoryRequired": "Category is required",
+        "amountRequired": "Price is required",
+        "amountInvalid": "Price must be a number",
+        "dateRequired": "Date is required",
+        "descriptionRequired": "Description is required",
+        "accountRequired": "Account is required"
       },
       "cancelButton": "Cancel",
       "saveButton": "Save Expense"

@@ -2,7 +2,7 @@
   <n-modal v-model:show="visible" class="appointment-add-edit-modal" transform-origin="center" :mask-closable="true">
     <n-card :title="isEditMode ? t('appointmentView.addEditModal.editTitle') : t('appointmentView.addEditModal.newTitle')" class="appointment-form-card" bordered
       size="medium" style="max-width: 600px;" role="dialog" aria-modal="true" closable @close="visible = false">
-      <n-form :model="formModel" class="appointment-form" size="small" :show-require-mark="false">
+      <n-form ref="formRef" :model="formModel" :rules="validationRules" class="appointment-form" size="small" :show-require-mark="false">
         <div class="appointment-form__rows">
           <div class="appointment-form__pair">
             <n-form-item :label="t('appointmentView.addEditModal.form.patientLabel')" path="patientId" class="appointment-form__field">
@@ -174,6 +174,28 @@ const emit = defineEmits<{
 
 const message = useMessage()
 const { t } = useI18n()
+
+const formRef = ref<any>(null)
+const validationRules = {
+  patientId: [
+    { required: true, message: t('appointmentView.addEditModal.validation.patientRequired') || 'Patient is required', trigger: 'blur' },
+  ],
+  employeeId: [
+    { required: true, message: t('appointmentView.addEditModal.validation.employeeRequired') || 'Employee is required', trigger: 'blur' },
+  ],
+  appointment_timestamp: [
+    { required: true, message: t('appointmentView.addEditModal.validation.dateRequired') || 'Date and time is required', trigger: 'blur' },
+  ],
+  treatment_plan_id: [
+    { required: true, message: t('appointmentView.addEditModal.validation.treatmentPlanRequired') || 'Treatment plan is required', trigger: 'blur' },
+  ],
+  procedure_id: [
+    { required: true, message: t('appointmentView.addEditModal.validation.procedureRequired') || 'Procedure is required', trigger: 'blur' },
+  ],
+  appointment_cost: [
+    { required: true, message: t('appointmentView.addEditModal.validation.costRequired') || 'Appointment cost is required', trigger: 'blur' },
+  ],
+}
 
 const employeeOptions = ref<SelectOption[]>([])
 const patientOptions = ref<SelectOption[]>([])
@@ -418,37 +440,36 @@ async function loadOptions() {
 }
 
 function submit() {
+  if (!formRef.value) return
 
-  if (
-    !formModel.value.appointment_timestamp ||
-    formModel.value.employeeId == null ||
-    formModel.value.patientId == null
-  ) {
-    message.warning(t('appointmentView.addEditModal.validation.requiredFields'))
-    return
-  }
+  formRef.value.validate((errors: any) => {
+    if (errors) {
+      message.warning(t('appointmentView.addEditModal.validation.requiredFields') || 'Please fill in all required fields')
+      return
+    }
 
-  emit('save', {
-    id: formModel.value.id,
+    emit('save', {
+      id: formModel.value.id,
 
-    description: formModel.value.description,
+      description: formModel.value.description,
 
-    appointment_timestamp: toSqlDateTime(formModel.value.appointment_timestamp),
+      appointment_timestamp: toSqlDateTime(formModel.value.appointment_timestamp),
 
-    status: formModel.value.status,
+      status: formModel.value.status,
 
-    employeeId: Number(formModel.value.employeeId),
+      employeeId: Number(formModel.value.employeeId),
 
-    patientId: Number(formModel.value.patientId),
+      patientId: Number(formModel.value.patientId),
 
-    treatment_plan_id: formModel.value.treatment_plan_id,
+      treatment_plan_id: formModel.value.treatment_plan_id,
 
-    procedure_id: formModel.value.procedure_id,
+      procedure_id: formModel.value.procedure_id,
 
-    appointment_cost: Number(formModel.value.appointment_cost ?? 0),
+      appointment_cost: Number(formModel.value.appointment_cost ?? 0),
 
-    clinical_notes: formModel.value.clinical_notes,
-  } as AppointmentData)
+      clinical_notes: formModel.value.clinical_notes,
+    } as AppointmentData)
+  })
 }
 
 watch(

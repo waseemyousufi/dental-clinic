@@ -68,6 +68,53 @@ const inviteLink = ref('')
 const showViewPopup = ref(false);
 const viewPopupData = ref<EmployeeRow | null>(null);
 
+const formRef = ref<any>(null)
+const validationRules = {
+  fName: [
+    { required: true, message: t('employeeView.form.fNameRequired'), trigger: 'blur' },
+  ],
+  lName: [
+    { required: true, message: t('employeeView.form.lNameRequired'), trigger: 'blur' },
+  ],
+  email: [
+    { required: true, message: t('employeeView.form.emailRequired'), trigger: 'blur' },
+    {
+      validator: (value: string) => {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          return new Error(t('employeeView.form.emailInvalid'))
+        }
+        return true
+      },
+      trigger: 'blur',
+    },
+  ],
+  phone: [
+    { required: true, message: t('employeeView.form.phoneRequired'), trigger: 'blur' },
+  ],
+  gender: [
+    { required: true, message: t('employeeView.form.genderRequired'), trigger: 'blur' },
+  ],
+  positionId: [
+    { required: true, message: t('employeeView.form.positionRequired'), trigger: 'blur' },
+  ],
+}
+
+const salaryFormRef = ref<any>(null)
+const salaryValidationRules = {
+  salaryMonth: [
+    { required: true, message: t('employeeView.payModal.monthRequired') || 'Month is required', trigger: 'blur' },
+  ],
+  amount: [
+    { required: true, message: t('employeeView.payModal.amountRequired') || 'Amount is required', trigger: 'blur' },
+  ],
+  remark: [
+    { required: true, message: t('employeeView.payModal.remarkRequired') || 'Remarks are required', trigger: 'blur' },
+  ],
+  accountId: [
+    { required: true, message: t('employeeView.payModal.accountRequired') || 'Account is required', trigger: 'blur' },
+  ],
+}
+
 const profileImage = ref<string | null>(null)
 const profileFile = ref<File | null>(null)
 const fileInputRef = ref<HTMLInputElement | null>(null)
@@ -332,6 +379,15 @@ function formatMonth(ts: number | null) {
 
 async function submitSalary() {
   if (!payingEmployee.value?.id) return
+  if (!salaryFormRef.value) return
+
+  try {
+    await salaryFormRef.value.validate()
+  } catch (errors: any) {
+    message.error(t('employeeView.messages.validationError') || 'Please fill in all required fields')
+    return
+  }
+
   try {
     const payload = {
       salaryMonth: formatMonth(salaryForm.salaryMonth),
@@ -474,6 +530,15 @@ function handleFileChange(e: Event) {
 }
 
 async function handleSubmit() {
+  if (!formRef.value) return
+
+  try {
+    await formRef.value.validate()
+  } catch (errors: any) {
+    message.error(t('employeeView.messages.validationError') || 'Please fill in all required fields')
+    return
+  }
+
   submitting.value = true
   try {
     const payload: EmployeeData = {
@@ -712,7 +777,7 @@ onMounted(() => {
     <EmployeeProfilePopup v-if="showViewPopup" v-model:show="showViewPopup" :employee-data="viewPopupData" />
     <n-modal content-scrollable style="max-width: 600px; max-height: 90vh;" v-model:show="showEditor" preset="card"
       :title="isEditing ? t('employeeView.modal.editTitle') : t('employeeView.modal.newTitle')" class="responsive-modal">
-      <n-form label-placement="top">
+      <n-form ref="formRef" :model="formModel" :rules="validationRules" label-placement="top">
         <div class="profile-upload-row">
           <div class="profile-image-container" @click="triggerFileInput">
             <input type="file" ref="fileInputRef" style="display: none" accept="image/*" @change="handleFileChange" />
@@ -722,8 +787,8 @@ onMounted(() => {
         </div>
 
         <div class="form-row dual">
-          <n-form-item :label="t('employeeView.form.emailLabel')"><n-input v-model:value="formModel.email" :placeholder="t('employeeView.form.emailPlaceholder')" /></n-form-item>
-          <n-form-item :label="t('employeeView.form.phoneLabel')"><n-input v-model:value="formModel.phone" :placeholder="t('employeeView.form.phonePlaceholder')" /></n-form-item>
+          <n-form-item path="email" :label="t('employeeView.form.emailLabel')"><n-input v-model:value="formModel.email" :placeholder="t('employeeView.form.emailPlaceholder')" /></n-form-item>
+          <n-form-item path="phone" :label="t('employeeView.form.phoneLabel')"><n-input v-model:value="formModel.phone" :placeholder="t('employeeView.form.phonePlaceholder')" /></n-form-item>
         </div>
 
         <div class="form-row dual">
@@ -735,11 +800,11 @@ onMounted(() => {
               " @update:value="handleHireDateChange" />
 
           </n-form-item>
-          <n-form-item :label="t('employeeView.form.firstNameLabel')"><n-input v-model:value="formModel.fName" :placeholder="t('employeeView.form.firstNamePlaceholder')" /></n-form-item>
+          <n-form-item path="fName" :label="t('employeeView.form.firstNameLabel')"><n-input v-model:value="formModel.fName" :placeholder="t('employeeView.form.firstNamePlaceholder')" /></n-form-item>
         </div>
 
         <div class="form-row dual">
-          <n-form-item :label="t('employeeView.form.lastNameLabel')"><n-input v-model:value="formModel.lName" :placeholder="t('employeeView.form.lastNamePlaceholder')" /></n-form-item>
+          <n-form-item path="lName" :label="t('employeeView.form.lastNameLabel')"><n-input v-model:value="formModel.lName" :placeholder="t('employeeView.form.lastNamePlaceholder')" /></n-form-item>
           <n-form-item :label="t('employeeView.form.qualificationLabel')"><n-input v-model:value="formModel.qualification" :placeholder="t('employeeView.form.qualificationPlaceholder')" /></n-form-item>
         </div>
 
@@ -752,9 +817,9 @@ onMounted(() => {
         </div>
 
         <div class="form-row dual">
-          <n-form-item :label="t('employeeView.form.genderLabel')"><n-select :to="false" v-model:value="formModel.gender"
+          <n-form-item path="gender" :label="t('employeeView.form.genderLabel')"><n-select :to="false" v-model:value="formModel.gender"
               :options="genderOptions" :placeholder="t('employeeView.form.genderPlaceholder')" /></n-form-item>
-          <n-form-item :label="t('employeeView.form.positionLabel')">
+          <n-form-item path="positionId" :label="t('employeeView.form.positionLabel')">
             <n-select :to="false" :options="positionOptions" @update:value="handlePositionChange"
               :value="positionOptions[(formModel.positionId as number) - 1]?.value" :placeholder="t('employeeView.form.positionPlaceholder')" />
           </n-form-item>
@@ -785,24 +850,26 @@ onMounted(() => {
 
     <n-modal v-model:show="showPayModal" style="max-width: 600px;" preset="card" :title="t('employeeView.payModal.title')"
       class="responsive-modal small">
-      <div class="payroll-container">
-        <div class="payroll-header">
-          <Icon icon="mdi:account-cash" width="22" /><strong>{{ payingEmployee?.name }}</strong>
+      <n-form ref="salaryFormRef" :model="salaryForm" :rules="salaryValidationRules" label-placement="top">
+        <div class="payroll-container">
+          <div class="payroll-header">
+            <Icon icon="mdi:account-cash" width="22" /><strong>{{ payingEmployee?.name }}</strong>
+          </div>
+          <n-form-item path="salaryMonth" :label="t('employeeView.payModal.salaryMonthLabel')"><n-date-picker :to="false" type="month" v-model:value="salaryForm.salaryMonth"
+              style="width: 100%" /></n-form-item>
+          <div class="form-row dual">
+            <n-form-item path="amount" :label="t('employeeView.payModal.amountLabel')"><n-input-number v-model:value="salaryForm.amount" :min="0" /></n-form-item>
+            <n-form-item :label="t('employeeView.payModal.bonusLabel')"><n-input-number v-model:value="salaryForm.bonus" :min="0" /></n-form-item>
+          </div>
+          <n-form-item path="accountId" :label="t('employeeView.payModal.payFromAccountLabel')"><n-select :to="false" v-model:value="salaryForm.accountId"
+              :options="accounts" /></n-form-item>
+          <n-form-item path="remark" :label="t('employeeView.payModal.remarksLabel')"><n-input v-model:value="salaryForm.remark" type="textarea" /></n-form-item>
+          <div class="form-actions">
+            <n-button @click="showPayModal = false">{{ t('common.cancelButtonText') }}</n-button>
+            <n-button type="primary" @click="submitSalary">{{ t('employeeView.payModal.payButton') }}</n-button>
+          </div>
         </div>
-        <n-form-item :label="t('employeeView.payModal.salaryMonthLabel')"><n-date-picker :to="false" type="month" v-model:value="salaryForm.salaryMonth"
-            style="width: 100%" /></n-form-item>
-        <div class="form-row dual">
-          <n-form-item :label="t('employeeView.payModal.amountLabel')"><n-input-number v-model:value="salaryForm.amount" :min="0" /></n-form-item>
-          <n-form-item :label="t('employeeView.payModal.bonusLabel')"><n-input-number v-model:value="salaryForm.bonus" :min="0" /></n-form-item>
-        </div>
-        <n-form-item :label="t('employeeView.payModal.payFromAccountLabel')"><n-select :to="false" v-model:value="salaryForm.accountId"
-            :options="accounts" /></n-form-item>
-        <n-form-item :label="t('employeeView.payModal.remarksLabel')"><n-input v-model:value="salaryForm.remark" type="textarea" /></n-form-item>
-        <div class="form-actions">
-          <n-button @click="showPayModal = false">{{ t('common.cancelButtonText') }}</n-button>
-          <n-button type="primary" @click="submitSalary">{{ t('employeeView.payModal.payButton') }}</n-button>
-        </div>
-      </div>
+      </n-form>
     </n-modal>
 
     <n-modal v-model:show="showInvite" style="max-width: 600px;" preset="card" :title="t('employeeView.inviteModal.title')"
