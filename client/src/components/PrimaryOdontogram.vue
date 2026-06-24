@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, nextTick } from 'vue'
 import DOMPurify from 'dompurify'
+
+// the print functionality not works correctly please refer to odontogram.vue and implement the working print functionality to this component
 
 defineOptions({
   name: 'PrimaryOdontogram'
@@ -137,172 +139,211 @@ const getPartStyle = (toothNumber: number, partId: string) => {
 }
 
 // Printing Logic
-const triggerPrint = () => {
-  if (!wrapperRef.value) return;
+const triggerPrint = async () => {
+  await nextTick()
 
-  const printWindow = window.open('', '_blank', 'width=1200,height=800');
-  if (!printWindow) return;
+  await new Promise(resolve =>
+    requestAnimationFrame(resolve)
+  )
 
-  const chartHtml = wrapperRef.value.innerHTML;
+  if (!wrapperRef.value) return
 
-  // Collect styles from the main app
-  let styles = '';
-  document.querySelectorAll('style, link[rel="stylesheet"]').forEach(style => {
-    styles += style.outerHTML;
-  });
+  const printWindow = window.open('', '_blank', 'width=1200,height=900')
+
+  if (!printWindow) return
+
+  const chartHtml = wrapperRef.value.innerHTML
 
   printWindow.document.write(`
-    <html>
-      <head>
-        <title>Print Odontogram</title>
-        ${styles}
-        <style>
-          html, body {
-            margin: 0;
-            padding: 0;
-            background: white;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-          }
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Odontogram</title>
 
-          .print-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px 20px;
-            min-height: 100vh;
-            box-sizing: border-box;
-            position: relative;
-          }
+<style>
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: white;
+  font-family: Arial, sans-serif;
+}
 
-          /* A4 Base Styles (Default) */
-          .patient-info-header {
-            text-align: center;
-            margin-bottom: 120px;
-            width: 100%;
-            max-width: 900px;
-            border-bottom: 3px solid #eee;
-            padding-bottom: 30px;
-            position: relative;
-            z-index: 2;
-          }
-          .patient-info-header h1 { 
-            margin: 0 0 20px 0; 
-            font-size: 48px; 
-            color: #000;
-            font-weight: 900;
-            text-align: center;
-          }
-          .patient-details {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 30px;
-            font-size: 20px;
-            color: #444;
-            line-height: 2;
-          }
-          .detail-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-          }
-          .detail-icon {
-            width: 28px;
-            height: 28px;
-            filter: grayscale(1);
-          }
+.print-container {
+  padding: 30px;
+  box-sizing: border-box;
+}
 
-          .print-odontogram-content {
-            visibility: visible !important;
-            display: block !important;
-            position: relative !important;
-            transform: none !important;
-            top: auto !important;
-            left: auto !important;
-            margin-top: 60px;
-          }
+.patient-info-header {
+  text-align: center;
+  margin-bottom: 40px;
+  border-bottom: 2px solid #e5e5e5;
+  padding-bottom: 20px;
+}
 
-          /* A5 Responsive Scaling */
-          @media (max-width: 600px), print {
-            .patient-info-header {
-              margin-bottom: 50px;
-              padding-bottom: 20px;
-            }
-            .patient-info-header h1 { 
-              font-size: 32px; 
-              margin-bottom: 15px;
-            }
-            .patient-details {
-              font-size: 16px;
-              gap: 20px;
-            }
-            .detail-icon {
-              width: 20px;
-              height: 20px;
-            }
-            .odontogram-table {
-              transform: scale(1.1);
-            }
-          }
+.patient-info-header h1 {
+  margin: 0 0 16px;
+  font-size: 32px;
+  font-weight: 700;
+}
 
-          @media print {
-            body {
-              visibility: visible !important;
-            }
-            .print-container {
-              padding: 10mm 0;
-            }
-          }
+.patient-details {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24px;
+}
 
-          @page {
-            margin: 10mm;
-            size: auto;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="print-container">
-          ${props.patient ? `
-            <div class="patient-info-header">
-              <h1>${props.patient.fName || props.patient.f_name} ${props.patient.lName || props.patient.l_name}</h1>
-              <div class="patient-details">
-                <div class="detail-item">
-                  <img src="https://api.iconify.design/mdi:gender-male-female.svg" class="detail-icon" />
-                  <span>Gender: ${props.patient.gender || '—'}</span>
-                </div>
-                <div class="detail-item">
-                  <img src="https://api.iconify.design/healthicons:blood-ab-p.svg" class="detail-icon" />
-                  <span>Blood Type: ${props.patient.bloodType || '—'}</span>
-                </div>
-                <div class="detail-item">
-                  <img src="https://api.iconify.design/tabler:phone.svg" class="detail-icon" />
-                  <span>Phone: ${props.patient.phone || '—'}</span>
-                </div>
-                <div class="detail-item">
-                  <img src="https://api.iconify.design/tabler:calendar.svg" class="detail-icon" />
-                  <span>Date: ${new Date().toLocaleDateString()}</span>
-                </div>
-              </div>
-            </div>
-          ` : ''}
-          <div class="print-odontogram-content">
-            ${chartHtml}
-          </div>
+.detail-item {
+  font-size: 14px;
+}
+
+.print-odontogram-content {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* odontogram styles only */
+
+.odontogram-table {
+  border-collapse: collapse;
+  margin: auto;
+}
+
+.odontogram-table td {
+  padding: 2px;
+  text-align: center;
+  border-right: 1px solid #f0f0f0;
+}
+
+.odontogram-table td:nth-child(5) {
+  border-right: 3px solid #bfbfbf;
+}
+
+.num-row {
+  font-size: 10px;
+  font-weight: bold;
+  color: #595959;
+}
+
+.tooth-part {
+  stroke: #8c8c8c;
+  stroke-width: .5;
+}
+
+.symbol-layer {
+  pointer-events: none;
+}
+
+svg {
+  overflow: visible;
+}
+
+@media print {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  .print-container {
+    padding-top: 1em !important;
+  }
+
+  /* IMPORTANT */
+  * {
+    // transform: none !important;
+  }
+
+  @page {
+  margin: 20mm 10mm 10mm 10mm;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="print-container">
+
+  ${
+    props.patient
+      ? `
+    <div class="patient-info-header">
+      <h1>
+        ${props.patient.fName || props.patient.f_name || ''}
+        ${props.patient.lName || props.patient.l_name || ''}
+      </h1>
+
+      <div class="patient-details">
+        <div class="detail-item">
+          Gender: ${props.patient.gender || '—'}
         </div>
-        <script>
-          window.onload = () => {
-            setTimeout(() => {
-              window.print();
-              window.close();
-            }, 250);
-          };
-        <\/script>
-      </body>
-    </html>
-  `);
 
-  printWindow.document.close();
+        <div class="detail-item">
+          Blood Type: ${props.patient.bloodType || '—'}
+        </div>
+
+        <div class="detail-item">
+          Phone: ${props.patient.phone || '—'}
+        </div>
+
+        <div class="detail-item">
+          Date: ${new Date().toLocaleDateString()}
+        </div>
+      </div>
+    </div>
+  `
+      : ''
+  }
+
+  <div class="print-odontogram-content">
+    ${chartHtml}
+  </div>
+
+</div>
+
+<script>
+window.onload = async () => {
+
+  const images = Array.from(document.images);
+
+  await Promise.all(
+    images.map(img => {
+      if (img.complete) return Promise.resolve();
+
+      return new Promise(resolve => {
+        img.onload = resolve;
+        img.onerror = resolve;
+      });
+    })
+  );
+
+  if (document.fonts) {
+    await document.fonts.ready;
+  }
+
+  await new Promise(resolve =>
+    requestAnimationFrame(() =>
+      requestAnimationFrame(resolve)
+    )
+  );
+
+  setTimeout(() => {
+    window.focus();
+    window.print();
+  }, 300);
 };
+<\/script>
+
+</body>
+</html>
+`)
+
+  printWindow.document.close()
+}
 
 </script>
 
@@ -315,7 +356,8 @@ const triggerPrint = () => {
         </tr>
         <tr>
           <td v-for="num in upperRow" :key="num">
-            <svg :width="toothConfigs[getToothType(num)].width" :height="toothConfigs[getToothType(num)].height" :viewBox="`0 0 ${toothConfigs[getToothType(num)].width} ${toothConfigs[getToothType(num)].height}`">
+            <svg :width="toothConfigs[getToothType(num)].width" :height="toothConfigs[getToothType(num)].height"
+              :viewBox="`0 0 ${toothConfigs[getToothType(num)].width} ${toothConfigs[getToothType(num)].height}`">
               <g :transform="`translate(0, ${toothConfigs[getToothType(num)].height}) scale(1,-1)`">
                 <polygon v-for="p in toothConfigs[getToothType(num)].parts" :key="p.id" :points="p.points"
                   class="tooth-part" :style="getPartStyle(num, p.id)" @click="emit('tooth-click', num, p.id)" />
@@ -332,7 +374,8 @@ const triggerPrint = () => {
         </tr>
         <tr>
           <td v-for="num in lowerRow" :key="num">
-            <svg :width="toothConfigs[getToothType(num)].width" :height="toothConfigs[getToothType(num)].height" :viewBox="`0 0 ${toothConfigs[getToothType(num)].width} ${toothConfigs[getToothType(num)].height}`">
+            <svg :width="toothConfigs[getToothType(num)].width" :height="toothConfigs[getToothType(num)].height"
+              :viewBox="`0 0 ${toothConfigs[getToothType(num)].width} ${toothConfigs[getToothType(num)].height}`">
               <g>
                 <polygon v-for="p in toothConfigs[getToothType(num)].parts" :key="p.id" :points="p.points"
                   class="tooth-part" :style="getPartStyle(num, p.id)" @click="emit('tooth-click', num, p.id)" />
@@ -470,8 +513,7 @@ const triggerPrint = () => {
   }
 
   @media (min-width: 1550px) {
-    .primary-print-landscape {
-    }
+    .primary-print-landscape {}
   }
 
   @media (max-width: 30cm) {

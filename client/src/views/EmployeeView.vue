@@ -690,7 +690,8 @@ onMounted(() => {
           </div>
 
           <div class="employees-hero__actions">
-            <n-input v-model:value="keyword" clearable :placeholder="t('employeeView.searchPlaceholder')" class="employees-hero__search">
+            <n-input v-model:value="keyword" clearable :placeholder="t('employeeView.searchPlaceholder')"
+              class="employees-hero__search">
               <template #prefix>
                 <Icon icon="mdi:magnify" width="18" />
               </template>
@@ -766,17 +767,22 @@ onMounted(() => {
 
       <div class="salary-footer">
         <div class="salary-footer-item">
-          <Icon icon="mdi:cash-check" width="18" /><span>{{ t('employeeView.salaryPanel.totalPaid', { amount: formatMoney(salarySummary.totalPaid) }) }}</span>
+          <Icon icon="mdi:cash-check" width="18" /><span>{{ t('employeeView.salaryPanel.totalPaid', {
+            amount:
+              formatMoney(salarySummary.totalPaid) }) }}</span>
         </div>
         <div class="salary-footer-item">
-          <Icon icon="mdi:calendar-month-outline" width="18" /><span>{{ t('employeeView.salaryPanel.payments', { count: salarySummary.count }) }}</span>
+          <Icon icon="mdi:calendar-month-outline" width="18" /><span>{{ t('employeeView.salaryPanel.payments', {
+            count:
+              salarySummary.count }) }}</span>
         </div>
       </div>
     </n-card>
 
     <EmployeeProfilePopup v-if="showViewPopup" v-model:show="showViewPopup" :employee-data="viewPopupData" />
     <n-modal content-scrollable style="max-width: 600px; max-height: 90vh;" v-model:show="showEditor" preset="card"
-      :title="isEditing ? t('employeeView.modal.editTitle') : t('employeeView.modal.newTitle')" class="responsive-modal">
+      :title="isEditing ? t('employeeView.modal.editTitle') : t('employeeView.modal.newTitle')"
+      class="responsive-modal">
       <n-form ref="formRef" :model="formModel" :rules="validationRules" label-placement="top">
         <div class="profile-upload-row">
           <div class="profile-image-container" @click="triggerFileInput">
@@ -787,51 +793,65 @@ onMounted(() => {
         </div>
 
         <div class="form-row dual">
-          <n-form-item path="email" :label="t('employeeView.form.emailLabel')"><n-input v-model:value="formModel.email" :placeholder="t('employeeView.form.emailPlaceholder')" /></n-form-item>
-          <n-form-item path="phone" :label="t('employeeView.form.phoneLabel')"><n-input v-model:value="formModel.phone" :placeholder="t('employeeView.form.phonePlaceholder')" /></n-form-item>
+          <n-form-item path="email" :label="t('employeeView.form.emailLabel')"><n-input v-model:value="formModel.email"
+              :placeholder="t('employeeView.form.emailPlaceholder')" /></n-form-item>
+          <n-form-item path="phone" :label="t('employeeView.form.phoneLabel')"><n-input v-model:value="formModel.phone"
+              :placeholder="t('employeeView.form.phonePlaceholder')" /></n-form-item>
         </div>
 
         <div class="form-row dual">
           <n-form-item :label="t('employeeView.form.hireDateLabel')">
 
             <n-date-picker :to="false" type="date" size="small" style="width: 100%" :value="formModel.hireDate
-                ? new Date(formModel.hireDate + 'T00:00:00').getTime()
-                : null
+              ? new Date(formModel.hireDate + 'T00:00:00').getTime()
+              : null
               " @update:value="handleHireDateChange" />
 
           </n-form-item>
-          <n-form-item path="fName" :label="t('employeeView.form.firstNameLabel')"><n-input v-model:value="formModel.fName" :placeholder="t('employeeView.form.firstNamePlaceholder')" /></n-form-item>
+          <n-form-item path="fName" :label="t('employeeView.form.firstNameLabel')"><n-input
+              v-model:value="formModel.fName"
+              :placeholder="t('employeeView.form.firstNamePlaceholder')" /></n-form-item>
         </div>
 
         <div class="form-row dual">
-          <n-form-item path="lName" :label="t('employeeView.form.lastNameLabel')"><n-input v-model:value="formModel.lName" :placeholder="t('employeeView.form.lastNamePlaceholder')" /></n-form-item>
-          <n-form-item :label="t('employeeView.form.qualificationLabel')"><n-input v-model:value="formModel.qualification" :placeholder="t('employeeView.form.qualificationPlaceholder')" /></n-form-item>
+          <n-form-item path="lName" :label="t('employeeView.form.lastNameLabel')"><n-input
+              v-model:value="formModel.lName" :placeholder="t('employeeView.form.lastNamePlaceholder')" /></n-form-item>
+          <n-form-item :label="t('employeeView.form.qualificationLabel')"><n-input
+              v-model:value="formModel.qualification"
+              :placeholder="t('employeeView.form.qualificationPlaceholder')" /></n-form-item>
         </div>
 
         <div class="form-row">
-          <n-form-item :label="t('employeeView.form.specialityLabel')"><n-input v-model:value="formModel.speciality" :placeholder="t('employeeView.form.specialityPlaceholder')" /></n-form-item>
+          <n-form-item :label="t('employeeView.form.specialityLabel')"><n-input v-model:value="formModel.speciality"
+              :placeholder="t('employeeView.form.specialityPlaceholder')" /></n-form-item>
         </div>
 
         <div class="form-row">
-          <n-form-item :label="t('employeeView.form.medicalLicenseNumberLabel')"><n-input v-model:value="formModel.midLicenseNum" :placeholder="t('employeeView.form.medicalLicenseNumberPlaceholder')" /></n-form-item>
+          <n-form-item :label="t('employeeView.form.medicalLicenseNumberLabel')"><n-input
+              v-model:value="formModel.midLicenseNum"
+              :placeholder="t('employeeView.form.medicalLicenseNumberPlaceholder')" /></n-form-item>
         </div>
 
         <div class="form-row dual">
-          <n-form-item path="gender" :label="t('employeeView.form.genderLabel')"><n-select :to="false" v-model:value="formModel.gender"
-              :options="genderOptions" :placeholder="t('employeeView.form.genderPlaceholder')" /></n-form-item>
+          <n-form-item path="gender" :label="t('employeeView.form.genderLabel')"><n-select :to="false"
+              v-model:value="formModel.gender" :options="genderOptions"
+              :placeholder="t('employeeView.form.genderPlaceholder')" /></n-form-item>
           <n-form-item path="positionId" :label="t('employeeView.form.positionLabel')">
             <n-select :to="false" :options="positionOptions" @update:value="handlePositionChange"
-              :value="positionOptions[(formModel.positionId as number) - 1]?.value" :placeholder="t('employeeView.form.positionPlaceholder')" />
+              :value="positionOptions[(formModel.positionId as number) - 1]?.value"
+              :placeholder="t('employeeView.form.positionPlaceholder')" />
           </n-form-item>
         </div>
 
         <div class="form-row dual">
-          <n-form-item :label="t('employeeView.form.workStartTimeLabel')"><n-time-picker v-model:value="formModel.workStartTime"
-              format="HH:mm" :placeholder="t('employeeView.form.workStartTimePlaceholder')" /></n-form-item>
-          <n-form-item :label="t('employeeView.form.workEndTimeLabel')"><n-time-picker v-model:value="formModel.workEndTime"
-              format="HH:mm" :placeholder="t('employeeView.form.workEndTimePlaceholder')" /></n-form-item>
+          <n-form-item :label="t('employeeView.form.workStartTimeLabel')"><n-time-picker
+              v-model:value="formModel.workStartTime" format="HH:mm"
+              :placeholder="t('employeeView.form.workStartTimePlaceholder')" /></n-form-item>
+          <n-form-item :label="t('employeeView.form.workEndTimeLabel')"><n-time-picker
+              v-model:value="formModel.workEndTime" format="HH:mm"
+              :placeholder="t('employeeView.form.workEndTimePlaceholder')" /></n-form-item>
         </div>
-<!--
+        <!--
         <div class="form-row dual">
           <n-form-item :label="t('employeeView.form.experienceWorkplaceLabel')"><n-input v-model:value="formModel.experience.workplace" :placeholder="t('employeeView.form.experienceWorkplacePlaceholder')" /></n-form-item>
           <n-form-item :label="t('employeeView.form.experiencePositionLabel')"><n-input v-model:value="formModel.experience.position" :placeholder="t('employeeView.form.experiencePositionPlaceholder')" /></n-form-item>
@@ -843,27 +863,31 @@ onMounted(() => {
 
         <div class="form-actions">
           <n-button @click="showEditor = false">{{ t('common.cancelButtonText') }}</n-button>
-          <n-button type="primary" :loading="submitting" @click="handleSubmit">{{ t('common.saveButtonText') }}</n-button>
+          <n-button type="primary" :loading="submitting" @click="handleSubmit">{{ t('common.saveButtonText')
+            }}</n-button>
         </div>
       </n-form>
     </n-modal>
 
-    <n-modal v-model:show="showPayModal" style="max-width: 600px;" preset="card" :title="t('employeeView.payModal.title')"
-      class="responsive-modal small">
+    <n-modal v-model:show="showPayModal" style="max-width: 600px;" preset="card"
+      :title="t('employeeView.payModal.title')" class="responsive-modal small">
       <n-form ref="salaryFormRef" :model="salaryForm" :rules="salaryValidationRules" label-placement="top">
         <div class="payroll-container">
           <div class="payroll-header">
             <Icon icon="mdi:account-cash" width="22" /><strong>{{ payingEmployee?.name }}</strong>
           </div>
-          <n-form-item path="salaryMonth" :label="t('employeeView.payModal.salaryMonthLabel')"><n-date-picker :to="false" type="month" v-model:value="salaryForm.salaryMonth"
-              style="width: 100%" /></n-form-item>
+          <n-form-item path="salaryMonth" :label="t('employeeView.payModal.salaryMonthLabel')"><n-date-picker
+              :to="false" type="month" v-model:value="salaryForm.salaryMonth" style="width: 100%" /></n-form-item>
           <div class="form-row dual">
-            <n-form-item path="amount" :label="t('employeeView.payModal.amountLabel')"><n-input-number v-model:value="salaryForm.amount" :min="0" /></n-form-item>
-            <n-form-item :label="t('employeeView.payModal.bonusLabel')"><n-input-number v-model:value="salaryForm.bonus" :min="0" /></n-form-item>
+            <n-form-item path="amount" :label="t('employeeView.payModal.amountLabel')"><n-input-number
+                v-model:value="salaryForm.amount" :min="0" /></n-form-item>
+            <n-form-item :label="t('employeeView.payModal.bonusLabel')"><n-input-number v-model:value="salaryForm.bonus"
+                :min="0" /></n-form-item>
           </div>
-          <n-form-item path="accountId" :label="t('employeeView.payModal.payFromAccountLabel')"><n-select :to="false" v-model:value="salaryForm.accountId"
-              :options="accounts" /></n-form-item>
-          <n-form-item path="remark" :label="t('employeeView.payModal.remarksLabel')"><n-input v-model:value="salaryForm.remark" type="textarea" /></n-form-item>
+          <n-form-item path="accountId" :label="t('employeeView.payModal.payFromAccountLabel')"><n-select :to="false"
+              v-model:value="salaryForm.accountId" :options="accounts" /></n-form-item>
+          <n-form-item path="remark" :label="t('employeeView.payModal.remarksLabel')"><n-input
+              v-model:value="salaryForm.remark" type="textarea" /></n-form-item>
           <div class="form-actions">
             <n-button @click="showPayModal = false">{{ t('common.cancelButtonText') }}</n-button>
             <n-button type="primary" @click="submitSalary">{{ t('employeeView.payModal.payButton') }}</n-button>
@@ -872,8 +896,8 @@ onMounted(() => {
       </n-form>
     </n-modal>
 
-    <n-modal v-model:show="showInvite" style="max-width: 600px;" preset="card" :title="t('employeeView.inviteModal.title')"
-      class="responsive-modal">
+    <n-modal v-model:show="showInvite" style="max-width: 600px;" preset="card"
+      :title="t('employeeView.inviteModal.title')" class="responsive-modal">
       <div class="invite-container">
         <div class="invite-header">
           <Icon icon="mdi:mail-send" width="24" />
