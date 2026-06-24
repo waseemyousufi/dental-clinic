@@ -2,8 +2,6 @@
 import { computed, ref, nextTick } from 'vue'
 import DOMPurify from 'dompurify'
 
-// the print functionality not works correctly please refer to odontogram.vue and implement the working print functionality to this component
-
 defineOptions({
   name: 'PrimaryOdontogram'
 })

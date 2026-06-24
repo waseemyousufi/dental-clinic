@@ -653,8 +653,6 @@ async function refreshOdontogram() {
 
     odontogramData.value = buildOdontogramState(teethArray)
 
-    activeFinding.value = null
-
     return true
   } catch (err) {
     console.error('Refresh failed:', err)
