@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('patient_files', function (Blueprint $table) {
             $table->id();
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
-            $table->string('diagnosis', 200);
+            $table->string('diagnosis');
             $table->text('notes')->nullable();
             $table->json('odontogram_data')->nullable();
             $table->foreignId('patient_id')->unique()->constrained()->cascadeOnDelete();
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->foreignId('appointmentDate_id')->nullable()->unique()->constrained('appointments')->cascadeOnDelete();
             $table->foreignId('allergy_id')->nullable()->constrained('allergies')->cascadeOnDelete();
             $table->foreignId('treatment_id')->nullable()->unique()->constrained()->cascadeOnDelete();
-            $table->string('diagnosis_notes', 150)->nullable();
+            $table->string('diagnosis_notes')->nullable();
             $table->foreign('diagnosis_notes')->nullable()->references('diagnosis_notes')->on('dental_xrays');
         });
     }

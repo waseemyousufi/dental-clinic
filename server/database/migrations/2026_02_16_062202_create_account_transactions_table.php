@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('account_transactions', function (Blueprint $table) {
             $table->id();
-            $table->string('transaction_type', 10); // in/out
+            $table->string('transaction_type'); // in/out
             $table->integer('amount', false, true);
             $table->date('transaction_date');
-            $table->string('reference_type', 20);
-            $table->string('description', 250);
+            $table->string('reference_type');
+            $table->string('description');
             $table->foreignId('recorded_by_employee_id')->constrained('employees')->cascadeOnDelete();
             $table->foreignId('account_id')->constrained()->cascadeOnDelete();
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();

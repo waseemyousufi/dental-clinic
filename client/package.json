@@ -17,9 +17,6 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
-    "@cornerstonejs/core": "^4.21.7",
-    "@cornerstonejs/dicom-image-loader": "^4.21.7",
-    "@cornerstonejs/tools": "^4.21.7",
     "@fullcalendar/core": "^6.1.20",
     "@fullcalendar/daygrid": "^6.1.20",
     "@fullcalendar/interaction": "^6.1.20",
@@ -30,8 +27,6 @@
     "@vicons/utils": "^0.1.4",
     "axios": "^1.13.5",
     "chart.js": "^4.5.1",
-    "comlink": "^4.4.2",
-    "dicom-parser": "^1.8.21",
     "dompurify": "^3.4.1",
     "pinia": "^3.0.4",
     "vue": "^3.5.27",

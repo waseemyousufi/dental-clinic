@@ -15,22 +15,15 @@ import {
   NTimePicker,
   NInputNumber,
   NAvatar,
-  NTag,
-  NStatistic,
   NGrid,
   NGi,
-  NSpin,
   useMessage,
-  dateArDZ,
   type DataTableColumn,
 } from 'naive-ui'
-// import { Pencil, Trash, CurrencyDollar } from '@vicons/ionicons5'
-
 import employeeApi from '@api/employee';
 import type EmployeeData from '@api/interfaces/employee';
 import userApi from '@api/user'
 import accountApi from '@api/account'
-
 import { Icon } from '@iconify/vue';
 import EmployeeProfilePopup from '../components/EmployeeProfilePopup.vue';
 
@@ -79,7 +72,7 @@ const validationRules = {
   email: [
     { required: true, message: t('employeeView.form.emailRequired'), trigger: 'blur' },
     {
-      validator: (value: string) => {
+      validator: (_rule: unknown, value: string) => {
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
           return new Error(t('employeeView.form.emailInvalid'))
         }

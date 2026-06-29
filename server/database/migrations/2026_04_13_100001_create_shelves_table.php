@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('shelves', function (Blueprint $table) {
             $table->id();
-            $table->string('shelf_name', 100)->nullable();
-            $table->string('shelf_type', 20); // 'glass', 'metal', 'wood', 'refrigerator'
-            $table->string('access_pin', 4)->nullable(); // 4-digit pin
+            $table->string('shelf_name')->nullable();
+            $table->string('shelf_type'); // 'glass', 'metal', 'wood', 'refrigerator'
+            $table->string('access_pin')->nullable(); // 4-digit pin
             $table->decimal('total_capacity_cm3', 15, 2)->nullable(); // The physical volume
-            $table->string('category_restriction', 100)->nullable(); // Optional: only allow 'Surgical' here
+            $table->string('category_restriction')->nullable(); // Optional: only allow 'Surgical' here
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete(); // Each shelf belongs to a branch
             $table->timestamps();
         });

@@ -109,9 +109,6 @@ import treatmentPlanApi from '@api/treatmentPlan'
 import type AppointmentData from '@api/interfaces/Appointment'
 import type EmployeeData from '@api/interfaces/Employee'
 import type PatientData from '@api/interfaces/patient'
-import procedure from '@api/procedure'
-import { BASE_OPTION_DEFAULTS } from '@fullcalendar/core/internal'
-import type patient from '@api/patient'
 
 type EmployeeAbbr = {
   id: number
@@ -178,22 +175,100 @@ const { t } = useI18n()
 const formRef = ref<any>(null)
 const validationRules = {
   patientId: [
-    { required: true, message: t('appointmentView.addEditModal.validation.patientRequired') || 'Patient is required', trigger: 'blur' },
+    {
+      validator: (_rule: unknown, value: number | string | null | undefined) => {
+        if (value === null || value === undefined || value === 0 || value === '') {
+          return new Error(t('appointmentView.addEditModal.validation.patientRequired') || 'Patient is required')
+        }
+        if (typeof value === 'string' && value.trim() === '') {
+          return new Error(t('appointmentView.addEditModal.validation.patientRequired') || 'Patient is required')
+        }
+        if (Number(value) <= 0) {
+          return new Error(t('appointmentView.addEditModal.validation.patientRequired') || 'Patient is required')
+        }
+        return true
+      },
+      trigger: ['blur', 'change'],
+    },
   ],
   employeeId: [
-    { required: true, message: t('appointmentView.addEditModal.validation.employeeRequired') || 'Employee is required', trigger: 'blur' },
+    {
+      validator: (_rule: unknown, value: number | string | null | undefined) => {
+        if (value === null || value === undefined || value === 0 || value === '') {
+          return new Error(t('appointmentView.addEditModal.validation.employeeRequired') || 'Employee is required')
+        }
+        if (typeof value === 'string' && value.trim() === '') {
+          return new Error(t('appointmentView.addEditModal.validation.employeeRequired') || 'Employee is required')
+        }
+        if (Number(value) <= 0) {
+          return new Error(t('appointmentView.addEditModal.validation.employeeRequired') || 'Employee is required')
+        }
+        return true
+      },
+      trigger: ['blur', 'change'],
+    },
   ],
   appointment_timestamp: [
-    { required: true, message: t('appointmentView.addEditModal.validation.dateRequired') || 'Date and time is required', trigger: 'blur' },
-  ],
-  treatment_plan_id: [
-    { required: true, message: t('appointmentView.addEditModal.validation.treatmentPlanRequired') || 'Treatment plan is required', trigger: 'blur' },
+    {
+      validator: (_rule: unknown, value: number | Date | string | null | undefined) => {
+        if (value === null || value === undefined || value === '') {
+          return new Error(t('appointmentView.addEditModal.validation.dateRequired') || 'Date and time is required')
+        }
+        if (value instanceof Date) {
+          if (Number.isNaN(value.getTime())) {
+            return new Error(t('appointmentView.addEditModal.validation.dateRequired') || 'Date and time is required')
+          }
+          return true
+        }
+        if (typeof value === 'number') {
+          if (Number.isNaN(value)) {
+            return new Error(t('appointmentView.addEditModal.validation.dateRequired') || 'Date and time is required')
+          }
+          return true
+        }
+        if (typeof value === 'string') {
+          const d = new Date(value)
+          if (Number.isNaN(d.getTime())) {
+            return new Error(t('appointmentView.addEditModal.validation.dateRequired') || 'Date and time is required')
+          }
+          return true
+        }
+        return true
+      },
+      trigger: ['blur', 'change'],
+    },
   ],
   procedure_id: [
-    { required: true, message: t('appointmentView.addEditModal.validation.procedureRequired') || 'Procedure is required', trigger: 'blur' },
+    {
+      validator: (_rule: unknown, value: number | string | null | undefined) => {
+        if (value === null || value === undefined || value === 0 || value === '') {
+          return new Error(t('appointmentView.addEditModal.validation.procedureRequired') || 'Procedure is required')
+        }
+        if (typeof value === 'string' && value.trim() === '') {
+          return new Error(t('appointmentView.addEditModal.validation.procedureRequired') || 'Procedure is required')
+        }
+        if (Number(value) <= 0) {
+          return new Error(t('appointmentView.addEditModal.validation.procedureRequired') || 'Procedure is required')
+        }
+        return true
+      },
+      trigger: ['blur', 'change'],
+    },
   ],
   appointment_cost: [
-    { required: true, message: t('appointmentView.addEditModal.validation.costRequired') || 'Appointment cost is required', trigger: 'blur' },
+    {
+      validator: (_rule: unknown, value: number | string | null | undefined) => {
+        if (value === null || value === undefined || value === '') {
+          return new Error(t('appointmentView.addEditModal.validation.costRequired') || 'Appointment cost is required')
+        }
+        const numericValue = Number(value)
+        if (Number.isNaN(numericValue) || numericValue < 0) {
+          return new Error(t('appointmentView.addEditModal.validation.costRequired') || 'Appointment cost is required')
+        }
+        return true
+      },
+      trigger: ['blur', 'change'],
+    },
   ],
 }
 

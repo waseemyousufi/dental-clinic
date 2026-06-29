@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('accounts', function (Blueprint $table) {
             $table->id();
-            $table->string('account_name', 30);
-            $table->string('account_type', 30);
+            $table->string('account_name');
+            $table->string('account_type');
             $table->integer('total_amount', false, true);
-            $table->string('status', 20); // active/inactive
+            $table->string('status'); // active/inactive
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
         });
     }

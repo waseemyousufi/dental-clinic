@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('allergies', function (Blueprint $table) {
             $table->id();
-            $table->string('allergy_type', 30);
-            $table->string('severity', 30);
-            $table->string('description', 300);
+            $table->string('allergy_type');
+            $table->string('severity');
+            $table->string('description');
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
             $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
         });

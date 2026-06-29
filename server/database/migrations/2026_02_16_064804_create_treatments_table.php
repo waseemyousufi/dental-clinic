@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('treatments', function (Blueprint $table) {
             $table->id();
-            $table->string('treatment_type', 50); // ['Crwon', 'Filling']
-            $table->string('diagnosis', 100);
+            $table->string('treatment_type'); // ['Crwon', 'Filling']
+            $table->string('diagnosis');
             $table->date('treatment_date');
-            $table->string('duration', 6);
+            $table->string('duration');
             $table->integer('cost', false, true);
-            $table->string('description', 250);
+            $table->string('description');
             $table->foreignId('patient_id')->unique()->constrained()->cascadeOnDelete();
             $table->foreignId('treatment_plan_id')->unique()->constrained('treatment_plans', 'id');
             // $table->foreignId('xray_id')->constrained('dental_xrays')->cascadeOnDelete();

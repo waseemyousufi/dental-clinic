@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('dental_xrays', function (Blueprint $table) {
             $table->id();
-            $table->string('xray_type', 40); //['Periaical', 'Bitewing']
+            $table->string('xray_type'); //['Periaical', 'Bitewing']
             $table->dateTime('xray_timestamp');
-            $table->string('tooth_part', 50); // ["Molar", 'Premolar']
-            $table->string('side', 40); // ['Left', 'Right']
-            $table->string('image_path', 100);
-            $table->string('diagnosis_notes', 150)->unique();
-            $table->string('payment_status', 50); // ['Included']
-            $table->string('results_summery', 150);
+            $table->string('tooth_part'); // ["Molar", 'Premolar']
+            $table->string('side'); // ['Left', 'Right']
+            $table->string('image_path');
+            $table->string('diagnosis_notes')->unique();
+            $table->string('payment_status'); // ['Included']
+            $table->string('results_summery');
             $table->foreignId('patient_id')->unique()->constrained()->cascadeOnDelete();
             $table->foreignId('requestedByEmployee_id')->unique()->constrained('employees')->cascadeOnDelete();
             $table->foreignId('takenByEmployee_id')->unique()->constrained('employees')->cascadeOnDelete();

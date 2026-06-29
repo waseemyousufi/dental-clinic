@@ -8,8 +8,6 @@ import {
   NDatePicker,
   NForm,
   NFormItem,
-  NGrid,
-  NGridItem,
   NIcon,
   NInput,
   NModal,
@@ -47,11 +45,13 @@ const validationRules = {
     { required: true, message: t('expenseView.modal.form.categoryRequired') || 'Category is required', trigger: 'blur' },
   ],
   amount: [
-    { required: true, message: t('expenseView.modal.form.amountRequired') || 'Amount is required', trigger: 'blur' },
     {
-      validator: (value: string) => {
-        if (isNaN(Number(value))) {
-          return new Error(t('expenseView.modal.form.amountInvalid') || 'Amount must be a number')
+      validator: (_rule: unknown, value: string) => {
+        if (!value || value.trim() === '') {
+          return new Error(t('expenseView.modal.form.amountRequired') || 'Amount is required')
+        }
+        if (isNaN(Number(value)) || Number(value) <= 0) {
+          return new Error(t('expenseView.modal.form.amountInvalid') || 'Amount must be a valid number greater than 0')
         }
         return true
       },
@@ -65,7 +65,15 @@ const validationRules = {
     { required: true, message: t('expenseView.modal.form.descriptionRequired') || 'Description is required', trigger: 'blur' },
   ],
   accountId: [
-    { required: true, message: t('expenseView.modal.form.accountRequired') || 'Account is required', trigger: 'blur' },
+    {
+      validator: (_rule: unknown, value: number) => {
+        if (!value || Number(value) <= 0) {
+          return new Error(t('expenseView.modal.form.accountRequired') || 'Account is required')
+        }
+        return true
+      },
+      trigger: 'blur',
+    },
   ],
 }
 

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->float('font_size');
             $table->integer('pos_x');
             $table->integer('pos_y');
-            $table->string('direction',5)->default('ltr');
+            $table->string('direction')->default('ltr');
             $table->timestamps();
         });
     }

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('drug_name');
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
             // $table->date('prescription_date');
-            // $table->string('instructions', 100);
+            // $table->string('instructions');
             // $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
             // $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
             // $table->foreignId('patient_id')->unique()->constrained()->cascadeOnDelete();

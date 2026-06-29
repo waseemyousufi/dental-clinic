@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
-            $table->string('f_name', 15);
-            $table->string('l_name', 15);
-            $table->string('gender', 15); // ['Male', 'Female']
-            $table->string('phone', 10);
-            $table->string('blood_type', 5)->nullable(); // ['O-', 'O+']
-            $table->string('emergency_contact', 10)->nullable();
+            $table->string('f_name');
+            $table->string('l_name');
+            $table->string('gender'); // ['Male', 'Female']
+            $table->string('phone');
+            $table->string('blood_type')->nullable(); // ['O-', 'O+']
+            $table->string('emergency_contact')->nullable();
             $table->date('registeration_date');
             $table->integer('total_amount_due', false, true)->nullable();
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
@@ -28,7 +28,7 @@ return new class extends Migration
         Schema::create('teeth_reference', function (Blueprint $table) {
             $table->id();
             $table->integer('fdi_code')->unique(); // e.g., 11, 51
-            $table->string('universal_code', 2);    // e.g., 1, A
+            $table->string('universal_code');    // e.g., 1, A
             $table->enum('type', ['permanent', 'primary']);
             $table->integer('quadrant');            // 1-8
             $table->integer('default_position');    // For UI sorting/grid layout

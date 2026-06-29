@@ -19,8 +19,8 @@ return new class extends Migration
             $table->foreignId('shelf_id')->nullable()->constrained('shelves')->onDelete('set null');
             $table->integer('quantity')->default(1);
             $table->date('expiry_date')->nullable();
-            $table->string('batch_number', 50)->nullable();
-            $table->string('status', 20)->default('placed'); // 'placed' or 'pending'
+            $table->string('batch_number')->nullable();
+            $table->string('status')->default('placed'); // 'placed' or 'pending'
             $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
             $table->timestamps();
         });

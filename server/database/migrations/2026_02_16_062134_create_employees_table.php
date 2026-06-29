@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
-            $table->string('f_name', 15);
-            $table->string('l_name', 15);
-            $table->string('gender', 15);
+            $table->string('f_name');
+            $table->string('l_name');
+            $table->string('gender');
             $table->date('hire_date');
-            $table->string('qualification', 50);
-            $table->string('speciality', 25);
-            $table->string('medical_license_number', 13)->nullable();
+            $table->string('qualification');
+            $table->string('speciality');
+            $table->string('medical_license_number')->nullable();
             $table->time('work_start_time')->nullable();
             $table->time('work_end_time')->nullable();
             $table->string('phone')->nullable();

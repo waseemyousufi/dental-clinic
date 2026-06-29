@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
             $table->dateTime('appointment_timestamp');
-            $table->string('status', 50); // ['Completed', 'Pending']
+            $table->string('status'); // ['Completed', 'Pending']
             $table->string('description')->nullable();
             $table->integer('appointment_cost');
             $table->string('clinical_notes')->nullable();

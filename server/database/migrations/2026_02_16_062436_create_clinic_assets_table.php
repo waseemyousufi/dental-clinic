@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('clinic_assets', function (Blueprint $table) {
             $table->id();
-            $table->string('asset_name', 30);
-            $table->string('category', 100); //['Medical Equipment', 'Furniture']
+            $table->string('asset_name');
+            $table->string('category'); //['Medical Equipment', 'Furniture']
             $table->smallInteger('amount', false, true);
             $table->integer('price', false, true);
             $table->integer('total_amount', false, true);
             $table->date('date_of_purchase');
-            $table->string('status', 60); // ['Active', 'Under Maintenace']
+            $table->string('status'); // ['Active', 'Under Maintenace']
             $table->foreignId('purchasedByEmployee_id')->constrained('employees')->cascadeOnDelete();
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
         });
