@@ -62,18 +62,38 @@ class AuthController extends Controller
 
     public function resetPassword(Request $request)
     {
+        $user = $request->user();
+        if ($user && $request->filled('current_password')) {
+            $request->validate([
+                'current_password' => 'required|string',
+                'password' => 'required|string|confirmed',
+            ]);
+
+                        // return $user;
+
+            if (!Hash::check($request->input('current_password'), $user->password)) {
+                return response()->json(['message' => 'Current password is incorrect.'], 400);
+            }
+
+            $user->password = Hash::make($request->input('password'));
+            $user->setRememberToken(Str::random(60));
+            $user->save();
+
+            return response()->json(['message' => 'Password reset successful']);
+        }
+
         $request->validate([
             'token' => 'required|string',
             'email' => 'required|email',
-            'password' => 'required|string',
+            'password' => 'required|string|min:6|confirmed',
         ]);
 
         $status = Password::reset(
             [
-                'email' => $request->email,
-                'password' => $request->password,
-                // 'password_confirmation' => $request->password_confirmation,
-                'token' => $request->token,
+                'email' => $request->input('email'),
+                'password' => $request->input('password'),
+                'password_confirmation' => $request->input('password_confirmation'),
+                'token' => $request->input('token'),
             ],
             function ($user, $password) {
                 $user->password = Hash::make($password);

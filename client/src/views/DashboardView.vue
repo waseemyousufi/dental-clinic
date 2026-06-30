@@ -52,7 +52,7 @@
       <div class="surface-panel chart-card span-2">
         <div class="panel-header">
           <div>
-          <h2>{{ t('dashboardView.charts.cashFlow.title') }}</h2>
+            <h2>{{ t('dashboardView.charts.cashFlow.title') }}</h2>
             <p>{{ t('dashboardView.charts.cashFlow.description') }}</p>
           </div>
           <div class="badge tone-brand">{{ t('dashboardView.charts.cashFlow.badge') }}</div>
@@ -60,20 +60,6 @@
         <div class="chart-box chart-tall">
           <canvas v-if="hasChartData('cash_flow')" ref="cashChartRef"></canvas>
           <div v-else class="empty-state">{{ t('dashboardView.charts.cashFlow.emptyState') }}</div>
-        </div>
-      </div>
-
-      <div class="surface-panel chart-card">
-        <div class="panel-header">
-          <div>
-            <h2>{{ t('dashboardView.charts.pricingDiscipline.title') }}</h2>
-            <p>{{ t('dashboardView.charts.pricingDiscipline.description') }}</p>
-          </div>
-          <div class="badge tone-warn">{{ t('dashboardView.charts.pricingDiscipline.badge') }}</div>
-        </div>
-        <div class="chart-box chart-tall">
-          <canvas v-if="hasChartData('pricing_discipline')" ref="pricingChartRef"></canvas>
-          <div v-else class="empty-state">{{ t('dashboardView.charts.pricingDiscipline.emptyState') }}</div>
         </div>
       </div>
     </section>
@@ -124,7 +110,6 @@ type ChartKey =
   | 'cash_flow'
   | 'treatment_mix'
   | 'patient_behavior'
-  | 'pricing_discipline'
 
 interface BranchChip {
   id: number
@@ -169,14 +154,12 @@ const dashboard = ref<DashboardPayload | null>(null)
 const cashChartRef = ref<HTMLCanvasElement | null>(null)
 const mixChartRef = ref<HTMLCanvasElement | null>(null)
 const behaviorChartRef = ref<HTMLCanvasElement | null>(null)
-const pricingChartRef = ref<HTMLCanvasElement | null>(null)
 
 const { t } = useI18n()
 
 let cashChart: Chart | null = null
 let mixChart: Chart | null = null
 let behaviorChart: Chart | null = null
-let pricingChart: Chart | null = null
 
 const palette = ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#84cc16']
 
@@ -230,10 +213,7 @@ const kpisToRender = computed(() =>
   (dashboard.value?.kpis ?? []).map(kpi => ({
     ...kpi,
     label: t(`dashboardView.kpis.${kpi.key}Label`) || kpi.label,
-    help:
-      kpi.key === 'pricing_discipline'
-        ? kpi.help
-        : t(`dashboardView.kpis.${kpi.key}Help`) || kpi.help,
+    help: t(`dashboardView.kpis.${kpi.key}Help`) || kpi.help,
     trend_label: kpiTrendLabel(kpi.trend_label),
   })),
 )
@@ -243,13 +223,9 @@ function kpiTrendLabel(value: string): string {
   const map: Record<string, string> = {
     flat: t('dashboardView.kpis.cashCollectedTrendFlat'),
     clean: t('dashboardView.kpis.outstandingCreditTrendClean'),
-    healthy: t('dashboardView.kpis.collectionRateTrendHealthy'),
     'per appointment': t('dashboardView.kpis.avgProductionPerVisitTrend'),
     good: t('dashboardView.kpis.noShowRateTrendGood'),
     'local strength': t('dashboardView.kpis.sameDayCollectionTrendLocalStrength'),
-    '0/0 matched': t('dashboardView.kpis.pricingDisciplineTrend'),
-    'return behavior': t('dashboardView.kpis.patientRetentionTrend'),
-    'repeat behavior': t('dashboardView.kpis.repeatPatientRateTrend'),
     'plans accepted': t('dashboardView.kpis.planAcceptanceTrend'),
     'plans completed': t('dashboardView.kpis.planCompletionTrend'),
   }
@@ -326,12 +302,10 @@ function destroyCharts() {
   cashChart?.destroy()
   mixChart?.destroy()
   behaviorChart?.destroy()
-  pricingChart?.destroy()
 
   cashChart = null
   mixChart = null
   behaviorChart = null
-  pricingChart = null
 }
 
 function buildDatasetStyle(index: number) {
@@ -426,24 +400,6 @@ function renderCharts() {
           x: { grid: { display: false } },
         },
       },
-    })
-  }
-
-  if (pricingChartRef.value && charts.pricing_discipline?.labels?.length) {
-    pricingChart = new Chart(pricingChartRef.value, {
-      type: 'pie',
-      data: {
-        labels: charts.pricing_discipline.labels,
-        datasets: [
-          {
-            label: t('dashboardView.charts.pricingDiscipline.pricingAuditLabel') || (charts.pricing_discipline.datasets?.[0]?.label ?? 'Pricing audit'),
-            data: charts.pricing_discipline.datasets?.[0]?.data ?? [],
-            borderWidth: 0,
-            backgroundColor: charts.pricing_discipline.labels.map((_, index) => palette[index % palette.length]),
-          },
-        ],
-      },
-      options: chartOptions(),
     })
   }
 
@@ -723,11 +679,7 @@ onBeforeUnmount(() => {
 }
 
 .chart-grid-large {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.chart-grid-three {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .chart-grid-two {
@@ -813,7 +765,6 @@ onBeforeUnmount(() => {
   }
 
   .chart-grid-large,
-  .chart-grid-three,
   .chart-grid-two {
     grid-template-columns: 1fr;
   }

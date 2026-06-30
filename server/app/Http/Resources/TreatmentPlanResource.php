@@ -23,6 +23,7 @@ class TreatmentPlanResource extends JsonResource
                 'procedure_id' => $this->procedure_id,
                 'procedure_name' => $procedure ? $procedure->name : null,
                 'branch_id' => $this->branch_id,
+                'createdBy_id' => $this->createdBy_id,
                 'total_estimated_cost' => $this->total_estimated_cost,
                 // 'total_amount_paid' => $this->total_amount_paid,
                 'status' => $this->status,
@@ -40,6 +41,7 @@ class TreatmentPlanResource extends JsonResource
             'patient_id' => $this->patient_id,
             'procedure_id' => $this->procedure_id,
             'branch_id' => $this->branch_id,
+            'createdBy_id' => $this->createdBy_id,
 
             // Core fields
             'total_estimated_cost' => $this->total_estimated_cost,
@@ -55,6 +57,7 @@ class TreatmentPlanResource extends JsonResource
             'patient' => new PatientResource($this->whenLoaded('patient')),
             'appointments' => AppointmentResource::collection($this->whenLoaded('appointments')),
             'procedure' => new ProcedureResource($procedure),
+            'createdBy' => new EmployeeResource($this->whenLoaded('createdBy')),
 
             // Timestamps
             'created_at' => $this->created_at,

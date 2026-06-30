@@ -189,32 +189,6 @@
       </n-spin>
     </n-modal>
 
-    <n-modal
-      v-model:show="tokenModalVisible"
-      preset="card"
-      title="Password Reset Link"
-      :style="{ width: 'min(580px, calc(100vw - 32px))' }"
-    >
-      <div class="token-modal">
-        <div class="token-modal__label">
-          Reset link for: <strong>{{ createdTokenEmail || '—' }}</strong>
-        </div>
-
-        <div class="token-modal__hint">
-          Share this link with the user so they can reset their password.
-        </div>
-
-        <n-input readonly :value="fullResetLink" placeholder="Reset link will appear here" />
-
-        <div class="token-modal__actions">
-          <n-button tertiary @click="tokenModalVisible = false">Close</n-button>
-
-          <n-button type="primary" :disabled="!fullResetLink" @click="copyResetLink">
-            Copy Link
-          </n-button>
-        </div>
-      </div>
-    </n-modal>
   </div>
 </template>
 
@@ -289,15 +263,6 @@ const formVisible = ref(false)
 const formMode = ref<FormMode>('branch')
 
 const editingId = ref<number | null>(null)
-
-const tokenModalVisible = ref(false)
-
-const createdToken = ref('')
-const createdTokenEmail = ref('')
-
-const resetPasswordBaseLink =
-  import.meta.env.VITE_RESET_PASSWORD_BASE_LINK ||
-  'http://localhost:1234/reset-password/?token='
 
 const branchSearch = ref('')
 const ownerSearch = ref('')
@@ -535,12 +500,6 @@ const modalTitle = computed(() => {
     : `Add ${entity}`
 })
 
-const fullResetLink = computed(() => {
-  return createdToken.value
-    ? `${resetPasswordBaseLink}${createdToken.value}`
-    : ''
-})
-
 const branchColumns = [
   {
     title: 'Branch name',
@@ -765,25 +724,6 @@ function closeForm() {
   formVisible.value = false
 }
 
-function resetTokenModal() {
-  tokenModalVisible.value = false
-  createdToken.value = ''
-  createdTokenEmail.value = ''
-}
-
-function copyResetLink() {
-  if (!fullResetLink.value) return
-
-  navigator.clipboard
-    .writeText(fullResetLink.value)
-    .then(() => {
-      message.success('Reset link copied to clipboard')
-    })
-    .catch(() => {
-      message.error('Failed to copy reset link')
-    })
-}
-
 async function loadBranches() {
   branchesLoading.value = true
 
@@ -870,28 +810,7 @@ async function submitForm() {
 
         message.success('Clinic owner updated')
       } else {
-        const res: any =
-          await clinicOwnerApi.postClinicOwner(
-            payload
-          )
-
-        const token =
-          res?.data?.token ??
-          res?.token ??
-          ''
-
-        const email =
-          res?.data?.email ??
-          payload.email ??
-          ''
-
-        if (token) {
-          createdToken.value = String(token)
-          createdTokenEmail.value = String(email)
-
-          tokenModalVisible.value = true
-        }
-
+        await clinicOwnerApi.postClinicOwner(payload)
         message.success('Clinic owner created')
       }
 

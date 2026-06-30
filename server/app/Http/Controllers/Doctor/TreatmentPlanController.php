@@ -20,7 +20,7 @@ class TreatmentPlanController extends Controller
         $branchId = $this->effectiveBranchId($request);
         $patientId = $request->query('patient_id');
 
-        $query = TreatmentPlan::with(['procedure', 'appointments', 'patient'])
+        $query = TreatmentPlan::with(['procedure', 'appointments', 'patient', 'createdBy'])
             ->where('branch_id', $branchId);
 
         if (is_numeric($patientId)) {
@@ -42,11 +42,13 @@ class TreatmentPlanController extends Controller
         ]);
 
         $branchId = $this->effectiveBranchId($request);
+        $employeeId = $request->user()->employee->id;
 
-        DB::transaction(function () use ($branchId, $validated) {
+        DB::transaction(function () use ($branchId, $validated, $employeeId) {
         $plan = TreatmentPlan::create([
             ...$validated,
             'branch_id' => $branchId,
+            'createdBy_id' => $employeeId,
             'start_date' => $validated['start_date'] ?? now()->toDateString(),
         ]);
 

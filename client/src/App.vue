@@ -252,6 +252,14 @@ const isBranchExpanded = (branchId: number) => {
 
 const userMenuOptions = computed(() => [
   {
+    label: t('app.userMenu.resetPassword'),
+    key: 'resetPassword',
+    icon: () =>
+      h(NIcon, null, {
+        default: () => h(Icon, { icon: 'mdi:lock-reset' }),
+      }),
+  },
+  {
     label: t('app.userMenu.logout'),
     key: 'logout',
     icon: () =>
@@ -265,6 +273,10 @@ const handleUserSelect = (key: string | number) => {
   showUserMenu.value = false
   if (key === 'profile') router.push('/profile')
   if (key === 'settings') router.push('/settings')
+  if (key === 'resetPassword') {
+    router.push('/reset-password')
+    return
+  }
   if (key === 'logout') {
     userApi
       .logout()
@@ -529,6 +541,24 @@ provide(
   border: 1px solid var(--sidebar-border);
   box-shadow: 0 20px 48px rgba(15, 23, 42, 0.08);
   overflow: visible;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.sidebar, .sidebar * {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.content, .content * {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 
 #app.sidebar-collapsed .sidebar {

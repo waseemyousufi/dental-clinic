@@ -83,17 +83,8 @@ class DashboardController extends Controller
             ? round($appointmentCharges / $totalAppointments, 2)
             : 0.0;
 
-        // $collectionRate = $appointmentCharges > 0
-        //     ? round(($cashCollected / $appointmentCharges) * 100, 2)
-        //     : 100.0;
-
-        // $pricingAudit = $this->pricingAudit((clone $appointmentQuery)->get(['id', 'appointment_cost']));
-
         $creditBalances = $this->creditBalances($branchId);
         $outstandingAR = round($creditBalances->sum('balance'), 2);
-
-        // $patientRetention = $this->patientRetentionRate($branchId, $start, $end);
-        // $repeatPatientRate = $this->repeatPatientRate($branchId, $start, $end);
 
         $sameDayAppointments = (clone $appointmentQuery)
             ->join('appointment_patient', 'appointments.id', '=', 'appointment_patient.appointment_id')
@@ -185,36 +176,6 @@ class DashboardController extends Controller
                 'tone' => 'good',
                 'help' => 'Appointments that were collected on the same day.',
             ],
-            // [
-            //     'key' => 'pricing_discipline',
-            //     'label' => 'Pricing Discipline',
-            //     'value' => $pricingAudit['in_range_rate'],
-            //     'formatted' => $this->percent($pricingAudit['in_range_rate']),
-            //     'trend' => null,
-            //     'trend_label' => $pricingAudit['in_range_count'].'/'.$pricingAudit['audited_count'].' matched',
-            //     'tone' => $pricingAudit['in_range_rate'] >= 70 ? 'good' : 'warn',
-            //     'help' => 'Share of appointments priced within procedure minimum and base price.',
-            // ],
-            // [
-            //     'key' => 'patient_retention',
-            //     'label' => 'Patient Retention',
-            //     'value' => $patientRetention,
-            //     'formatted' => $this->percent($patientRetention),
-            //     'trend' => null,
-            //     'trend_label' => 'Return behavior',
-            //     'tone' => $patientRetention >= 50 ? 'good' : 'warn',
-            //     'help' => 'Repeat patients over active patients.',
-            // ],
-            // [
-            //     'key' => 'repeat_patient_rate',
-            //     'label' => 'Repeat Patient Rate',
-            //     'value' => $repeatPatientRate,
-            //     'formatted' => $this->percent($repeatPatientRate),
-            //     'trend' => null,
-            //     'trend_label' => 'Repeat behavior',
-            //     'tone' => $repeatPatientRate >= 40 ? 'good' : 'warn',
-            //     'help' => 'Patients with more than one appointment.',
-            // ],
             [
                 'key' => 'plan_acceptance',
                 'label' => 'Case Acceptance',
@@ -281,9 +242,8 @@ class DashboardController extends Controller
         $patientSeries = $days->map(fn ($day) => (int) ($patientCounts[$day] ?? 0))->values();
 
         $appointmentsForMix = $this->appointmentQuery($branchId, $start, $end)->get(['id', 'procedure_id', 'status']);
-        $procedureMix = $this->procedureMixFromAppointments($appointmentsForMix);
-
-        $pricingAudit = $this->pricingAudit($this->appointmentQuery($branchId, $start, $end)->get(['id', 'appointment_cost']));
+        $treatmentPlansForMix = $this->treatmentPlanQuery($branchId, $start, $end)->get(['id', 'procedure_id']);
+        $procedureMix = $this->procedureMixFromAppointmentsAndPlans($appointmentsForMix, $treatmentPlansForMix);
 
         return [
             'cash_flow' => [
@@ -305,16 +265,6 @@ class DashboardController extends Controller
                     ['label' => 'Appointments', 'data' => $appointmentSeries->all()],
                     ['label' => 'Treatments Accepted', 'data' => $treatmentSeries->all()],
                     ['label' => 'New patients', 'data' => $patientSeries->all()],
-                ],
-            ],
-            'pricing_discipline' => [
-                'labels' => ['In Range', 'Above Base', 'Below Minimum'],
-                'datasets' => [
-                    ['label' => 'Pricing audit', 'data' => [
-                        $pricingAudit['in_range_count'],
-                        $pricingAudit['above_count'],
-                        $pricingAudit['below_count'],
-                    ]],
                 ],
             ],
         ];
@@ -365,86 +315,48 @@ class DashboardController extends Controller
             ->values();
     }
 
-    private function pricingAudit(Collection $appointments): array
+    private function treatmentPlanQuery(?int $branchId, Carbon $start, Carbon $end)
     {
-        $audited = 0; $matched = 0; $above = 0; $below = 0; $totalDeviation = 0.0;
-        $summaries = $this->appointmentPricingSummaries($appointments);
-
-        foreach ($appointments as $appointment) {
-            $summary = $summaries[(int) $appointment->id] ?? null;
-            $base = (float) ($summary['base_total'] ?? 0);
-            $minimum = (float) ($summary['min_total'] ?? $base);
-            if ($base <= 0) continue;
-
-            $audited++;
-            $actual = (float) ($appointment->appointment_cost ?? 0);
-            $diff = $actual > $base
-                ? round($actual - $base, 2)
-                : round($minimum - $actual, 2);
-
-            if ($actual >= $minimum && $actual <= $base) $matched++;
-            elseif ($actual > $base) { $above++; $totalDeviation += abs($diff); }
-            else { $below++; $totalDeviation += abs($diff); }
-        }
-
-        $outOfRange = $above + $below;
-        return [
-            'audited_count' => $audited, 'in_range_count' => $matched,
-            'above_count' => $above, 'below_count' => $below, 'out_of_range_count' => $outOfRange,
-            'in_range_rate' => $audited > 0 ? round(($matched / $audited) * 100, 2) : 0.0,
-            'out_of_range_rate' => $audited > 0 ? round(($outOfRange / $audited) * 100, 2) : 0.0,
-            'total_deviation' => round($totalDeviation, 2),
-            'average_deviation' => $outOfRange > 0 ? round($totalDeviation / $outOfRange, 2) : 0.0,
-        ];
+        return TreatmentPlan::query()
+            ->whereBetween('created_at', [$start->toDateTimeString(), $end->copy()->endOfDay()->toDateTimeString()])
+            ->when(! is_null($branchId), fn($q) => $q->where('branch_id', $branchId));
     }
 
-    private function appointmentPricingSummaries(Collection $appointments): array
+    private function procedureMixFromAppointmentsAndPlans(Collection $appointments, Collection $plans): Collection
     {
-        $appointmentIds = $appointments->pluck('id')->filter()->map(fn ($v) => (int) $v)->values()->all();
-        if (empty($appointmentIds)) return [];
+        $procedureIds = collect()
+            ->concat($appointments->pluck('procedure_id')->filter())
+            ->concat($plans->pluck('procedure_id')->filter())
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
 
-        $pivotRows = DB::table('appointment_procedure')->whereIn('appointment_id', $appointmentIds)->get(['appointment_id', 'procedure_id']);
-        if ($pivotRows->isEmpty()) return [];
-
-        $procedureIds = $pivotRows->pluck('procedure_id')->filter()->map(fn ($v) => (int) $v)->unique()->values()->all();
-        if (empty($procedureIds)) return [];
+        if (empty($procedureIds)) {
+            return collect();
+        }
 
         $procedureMap = class_exists(Procedure::class)
-            ? Procedure::query()->whereIn('id', $procedureIds)->get(['id', 'name', 'base_price', 'min_price'])->keyBy('id')
-            : DB::table('procedures')->whereIn('id', $procedureIds)->get(['id', 'name', 'base_price', 'min_price'])->keyBy('id');
+            ? Procedure::query()->whereIn('id', $procedureIds)->get(['id', 'name'])->keyBy('id')
+            : DB::table('procedures')->whereIn('id', $procedureIds)->get(['id', 'name'])->keyBy('id');
 
-        $summary = [];
-        foreach ($pivotRows->groupBy('appointment_id') as $appId => $rows) {
-            $baseTotal = 0.0; $minTotal = 0.0; $names = []; $unique = [];
-            foreach ($rows as $row) {
-                $proc = $procedureMap->get($row->procedure_id);
-                if (!$proc) continue;
-                $unique[(int) $row->procedure_id] = true;
-                $basePrice = (float) ($proc->base_price ?? 0);
-                $baseTotal += $basePrice;
-                $minTotal += (float) ($proc->min_price ?? $basePrice);
-                $name = trim((string) ($proc->name ?? ''));
-                if ($name !== '') $names[] = $name;
-            }
-            $summary[(int) $appId] = [
-                'base_total' => round($baseTotal, 2),
-                'min_total' => round($minTotal, 2),
-                'procedure_names' => array_values(array_unique($names)),
-                'procedure_count' => count($unique),
-            ];
-        }
-        return $summary;
-    }
-
-    private function procedureMixFromAppointments(Collection $appointments): Collection
-    {
-        $summaries = $this->appointmentPricingSummaries($appointments);
         $counts = [];
-        foreach ($summaries as $summary) {
-            foreach (($summary['procedure_names'] ?? []) as $name) {
-                $counts[$name] = ($counts[$name] ?? 0) + 1;
-            }
+        foreach ($appointments as $appointment) {
+            $proc = $procedureMap->get((int) $appointment->procedure_id);
+            if (!$proc) continue;
+            $name = trim((string) ($proc->name ?? ''));
+            if ($name === '') continue;
+            $counts[$name] = ($counts[$name] ?? 0) + 1;
         }
+
+        foreach ($plans as $plan) {
+            $proc = $procedureMap->get((int) $plan->procedure_id);
+            if (!$proc) continue;
+            $name = trim((string) ($proc->name ?? ''));
+            if ($name === '') continue;
+            $counts[$name] = ($counts[$name] ?? 0) + 1;
+        }
+
         return collect($counts)->sortDesc();
     }
 

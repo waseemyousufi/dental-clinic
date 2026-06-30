@@ -231,7 +231,8 @@ class BackupController extends Controller
                 $targetBranchId,
                 [
                     'patient_id' => 'patients',
-                    'employee_id' => 'employees'
+                    'employee_id' => 'employees',
+                    'procedure_id' => 'procedures'
                 ]
             );
 

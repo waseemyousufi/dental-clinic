@@ -1,0 +1,6 @@
+ON-PREMISE BUILD NOTES = --------------------------------
+
+
+Frontend .env comment == the development links and uncommend the on-premise links
+
+EmployeeView == comment the development link and uncomment the on-premise link 

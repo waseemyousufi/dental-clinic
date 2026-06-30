@@ -86,7 +86,7 @@ public function index(Request $request)
         return DB::transaction(function () use ($data, $request, $branchId) {
             $user = User::create([
                 'name' => $data['fName'] . " " . $data['lName'],
-                'password' => Hash::make('temp_pass'),
+                'password' => Hash::make('temp-pass'),
                 'email' => $data['email'],
             ]);
 

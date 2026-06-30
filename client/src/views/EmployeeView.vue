@@ -22,7 +22,6 @@ import {
 } from 'naive-ui'
 import employeeApi from '@api/employee';
 import type EmployeeData from '@api/interfaces/employee';
-import userApi from '@api/user'
 import accountApi from '@api/account'
 import { Icon } from '@iconify/vue';
 import EmployeeProfilePopup from '../components/EmployeeProfilePopup.vue';
@@ -52,11 +51,6 @@ const showEditor = ref(false)
 const submitting = ref(false)
 const isEditing = ref(false)
 const editingId = ref<number | null>(null)
-
-const showInvite = ref(false)
-const inviteEmail = ref('')
-const inviteToken = ref('')
-const inviteLink = ref('')
 
 const showViewPopup = ref(false);
 const viewPopupData = ref<EmployeeRow | null>(null);
@@ -562,14 +556,6 @@ async function handleSubmit() {
       const { data } = await employeeApi.postEmployee(payload)
       message.success(t('employeeView.messages.employeeCreatedSuccess'))
       employeeId = (data as any)?.employeeId
-      const created: any = data ?? {}
-      if (created.token && created.email) {
-        inviteEmail.value = String(created.email)
-        inviteToken.value = String(created.token)
-        const link = import.meta.env.VITE_RESET_PASSWORD_BASE_LINK
-        inviteLink.value = `${link}${encodeURIComponent(inviteToken.value)}`
-        showInvite.value = true
-      }
     }
 
     if (profileFile.value && employeeId != null) {
@@ -615,26 +601,6 @@ function handlePositionChange(value: number) {
 function ViewEmployee(row: EmployeeRow) {
   viewPopupData.value = row;
   showViewPopup.value = true;
-}
-
-async function copyInviteLink() {
-  if (!inviteLink.value) return
-  try {
-    await navigator.clipboard.writeText(inviteLink.value)
-    message.success(t('employeeView.messages.copyLinkSuccess'))
-  } catch (error) {
-    message.error(t('employeeView.messages.copyLinkError'))
-  }
-}
-
-async function sendInviteWhatsapp() {
-  if (!inviteEmail.value || !inviteToken.value) return
-  try {
-    await userApi.sendTokenViaEmail({ email: inviteEmail.value, token: inviteToken.value })
-    message.success(t('employeeView.messages.inviteEmailSentSuccess'))
-  } catch (error) {
-    message.error(t('employeeView.messages.sendEmailError'))
-  }
 }
 
 watch(() => [salaryForm.amount, salaryForm.bonus], () => {
@@ -862,12 +828,18 @@ onMounted(() => {
       </n-form>
     </n-modal>
 
-    <n-modal v-model:show="showPayModal" style="max-width: 600px;" preset="card"
+    <n-modal v-model:show="showPayModal" style="max-width: 600px; transform: scale(.94);" preset="card"
       :title="t('employeeView.payModal.title')" class="responsive-modal small">
       <n-form ref="salaryFormRef" :model="salaryForm" :rules="salaryValidationRules" label-placement="top">
         <div class="payroll-container">
           <div class="payroll-header">
-            <Icon icon="mdi:account-cash" width="22" /><strong>{{ payingEmployee?.name }}</strong>
+            <div class="payroll-header__icon">
+              <Icon icon="mdi:account-cash" width="20" />
+            </div>
+            <div class="payroll-header__details">
+              <span class="payroll-header__title">{{ payingEmployee?.name || t('employeeView.payModal.employeeLabel') }}</span>
+              <span class="payroll-header__subtitle">{{ t('employeeView.payModal.paySalarySubtitle') }}</span>
+            </div>
           </div>
           <n-form-item path="salaryMonth" :label="t('employeeView.payModal.salaryMonthLabel')"><n-date-picker
               :to="false" type="month" v-model:value="salaryForm.salaryMonth" style="width: 100%" /></n-form-item>
@@ -889,53 +861,6 @@ onMounted(() => {
       </n-form>
     </n-modal>
 
-    <n-modal v-model:show="showInvite" style="max-width: 600px;" preset="card"
-      :title="t('employeeView.inviteModal.title')" class="responsive-modal">
-      <div class="invite-container">
-        <div class="invite-header">
-          <Icon icon="mdi:mail-send" width="24" />
-          <div>
-            <h3>{{ t('employeeView.inviteModal.sentTitle') }}</h3>
-            <p>{{ t('employeeView.inviteModal.sentCopy') }}</p>
-          </div>
-        </div>
-
-        <div class="invite-section">
-          <label class="invite-label">{{ t('employeeView.inviteModal.emailLabel') }}</label>
-          <div class="invite-field">
-            <n-input :value="inviteEmail" readonly />
-          </div>
-        </div>
-
-        <div class="invite-section">
-          <label class="invite-label">{{ t('employeeView.inviteModal.linkLabel') }}</label>
-          <div class="invite-field">
-            <n-input :value="inviteLink" readonly />
-            <n-button ghost type="primary" @click="copyInviteLink" class="copy-btn">
-              <template #icon>
-                <Icon icon="mdi:content-copy" />
-              </template>
-              {{ t('employeeView.inviteModal.copyButton') }}
-            </n-button>
-          </div>
-        </div>
-
-        <div class="invite-note">
-          <Icon icon="mdi:information-outline" />
-          <p>{{ t('employeeView.inviteModal.note') }}</p>
-        </div>
-
-        <!-- <div class="form-actions">
-          <n-button @click="showInvite = false">Close</n-button>
-          <n-button type="primary" @click="sendInviteWhatsapp">
-            <template #icon>
-              <Icon icon="mdi:email-send" />
-            </template>
-            Send via Email
-          </n-button>
-        </div> -->
-      </div>
-    </n-modal>
   </div>
 </template>
 
@@ -1117,6 +1042,49 @@ onMounted(() => {
   border: 2px dashed #cbd5e1;
   border-radius: 50%;
   padding: 4px;
+}
+
+.payroll-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.payroll-header__icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 9999px;
+  display: grid;
+  place-items: center;
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.payroll-header__details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.payroll-header__title {
+  font-weight: 700;
+  font-size: 0.98rem;
+  line-height: 1.3;
+  color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.payroll-header__subtitle {
+  font-size: 0.82rem;
+  color: #475569;
+  line-height: 1.4;
 }
 
 .form-actions {

@@ -41,6 +41,7 @@ class ClinicOwnerController extends Controller
             'totalAmountDue' => 'required|numeric|min:0',
             'totalAmountPaid' => 'required|numeric|min:0',
         ]);
+
         return DB::transaction(function () use ($data) {
             $emailProvided = !empty($data['email']);
 
@@ -108,7 +109,7 @@ class ClinicOwnerController extends Controller
                     $user = User::create([
                         'name' => $clinicOwner->name,
                         'email' => $email,
-                        'password' => Hash::make('temp_pass'),
+                        'password' => Hash::make('temp-pass'),
                         'clinic_owner_id' => $clinicOwner->id,
                     ]);
                 }

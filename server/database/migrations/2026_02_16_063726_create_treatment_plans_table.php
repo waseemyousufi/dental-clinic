@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
             $table->foreignId('procedure_id')->constrained()->cascadeOnDelete();
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('createdBy_id')->constrained('employees')->cascadeOnDelete();
             $table->integer('total_estimated_cost', false, true);
             $table->integer('total_amount_paid', false, true)->nullable();
             $table->integer('appointments_needed')->nullable();

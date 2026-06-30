@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { NCard, NForm, NFormItem, NInput, NButton, NH2, NP, useMessage } from 'naive-ui'
 
 import userApi from '@api/user'
-import type UserData from '@api/interfaces/User'
 
-const route = useRoute()
 const router = useRouter()
 const message = useMessage()
 const { t } = useI18n()
@@ -15,28 +13,18 @@ const { t } = useI18n()
 const loading = ref(false)
 
 const form = ref({
-  email: '',
-  password: '',
+  previousPassword: '',
+  newPassword: '',
   confirmPassword: '',
 })
 
-const token = computed(() => {
-  const t = route.query.token
-  return typeof t === 'string' ? t : ''
-})
-
 async function handleSubmit() {
-  if (!token.value) {
-    message.error(t('resetPasswordView.missingTokenError'))
-    return
-  }
-
-  if (!form.value.email || !form.value.password || !form.value.confirmPassword) {
+  if (!form.value.previousPassword || !form.value.newPassword || !form.value.confirmPassword) {
     message.warning(t('resetPasswordView.requiredFieldsError'))
     return
   }
 
-  if (form.value.password !== form.value.confirmPassword) {
+  if (form.value.newPassword !== form.value.confirmPassword) {
     message.error(t('resetPasswordView.passwordMismatchError'))
     return
   }
@@ -44,11 +32,10 @@ async function handleSubmit() {
   loading.value = true
   try {
     await userApi.resetPassword({
-      name: '',
-      email: form.value.email,
-      password: form.value.password,
-      token: token.value,
-    } as UserData)
+      current_password: form.value.previousPassword,
+      password: form.value.newPassword,
+      password_confirmation: form.value.confirmPassword,
+    })
 
     message.success(t('resetPasswordView.successMessage'))
     router.push('/login')
@@ -70,13 +57,18 @@ async function handleSubmit() {
       </div>
 
       <n-form class="reset-form" @submit.prevent="handleSubmit">
-        <n-form-item :label="t('resetPasswordView.emailLabel')">
-          <n-input v-model:value="form.email" type="email" :placeholder="t('resetPasswordView.emailPlaceholder')" />
+        <n-form-item :label="t('resetPasswordView.currentPasswordLabel')">
+          <n-input
+            v-model:value="form.previousPassword"
+            type="password"
+            :placeholder="t('resetPasswordView.currentPasswordPlaceholder')"
+            show-password-on="click"
+          />
         </n-form-item>
 
         <n-form-item :label="t('resetPasswordView.newPasswordLabel')">
           <n-input
-            v-model:value="form.password"
+            v-model:value="form.newPassword"
             type="password"
             :placeholder="t('resetPasswordView.newPasswordPlaceholder')"
             show-password-on="click"

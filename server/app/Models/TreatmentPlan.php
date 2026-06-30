@@ -17,6 +17,7 @@ class TreatmentPlan extends Model
         'patient_id',
         'procedure_id',
         'branch_id',
+        'createdBy_id',
         'total_estimated_cost',
         'status',
         'appointments_needed',
@@ -31,6 +32,14 @@ class TreatmentPlan extends Model
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class);
+    }
+
+    /**
+     * Relationship to the Employee who created this plan.
+     */
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class, 'createdBy_id');
     }
 
     /**

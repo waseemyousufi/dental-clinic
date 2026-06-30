@@ -83,7 +83,8 @@ class ReportsController extends Controller
         $netProfit = $netCollected - $netSpent;
 
         $appointmentsForMix = (clone $appointmentQuery)->get(['id', 'procedure_id', 'appointment_cost']);
-        $treatmentYield = $this->treatmentYieldFromAppointments($appointmentsForMix);
+        $treatmentPlansForMix = (clone $treatments)->get(['id', 'procedure_id', 'total_estimated_cost']);
+        $treatmentYield = $this->treatmentYieldFromAppointments($appointmentsForMix, $treatmentPlansForMix);
 
         return [
             'grossRevenue' => $grossRevenue,
@@ -99,34 +100,29 @@ class ReportsController extends Controller
         ];
     }
 
-    private function treatmentYieldFromAppointments(Collection $appointments): array
+    private function treatmentYieldFromAppointments(Collection $appointments, Collection $treatmentPlans): array
     {
-        $appointmentIds = $appointments->pluck('id')->filter()->map(fn ($value) => (int) $value)->values()->all();
-        if (empty($appointmentIds)) {
-            return [];
-        }
+        $procedureIds = $appointments->pluck('procedure_id')
+            ->merge($treatmentPlans->pluck('procedure_id'))
+            ->filter()
+            ->map(fn ($value) => (int) $value)
+            ->unique()
+            ->values()
+            ->all();
 
-        $pivotRows = DB::table('appointment_procedure')
-            ->whereIn('appointment_id', $appointmentIds)
-            ->get(['procedure_id']);
-
-        if ($pivotRows->isEmpty()) {
-            return [];
-        }
-
-        $procedureIds = $pivotRows->pluck('procedure_id')->filter()->map(fn ($value) => (int) $value)->unique()->values()->all();
         if (empty($procedureIds)) {
             return [];
         }
 
         $procedureMap = class_exists(Procedure::class)
-            ? Procedure::query()->whereIn('id', $procedureIds)->get(['id', 'name', 'base_price'])->keyBy('id')
-            : DB::table('procedures')->whereIn('id', $procedureIds)->get(['id', 'name', 'base_price'])->keyBy('id');
+            ? Procedure::query()->whereIn('id', $procedureIds)->get(['id', 'name'])->keyBy('id')
+            : DB::table('procedures')->whereIn('id', $procedureIds)->get(['id', 'name'])->keyBy('id');
 
         $procedureAmounts = [];
-        foreach ($pivotRows as $row) {
-            $procedure = $procedureMap->get((int) $row->procedure_id);
-            if (! $procedure) {
+
+        foreach ($appointments as $appointment) {
+            $procedure = $procedureMap->get((int) ($appointment->procedure_id ?? 0));
+            if (!$procedure) {
                 continue;
             }
 
@@ -135,7 +131,23 @@ class ReportsController extends Controller
                 continue;
             }
 
-            $procedureAmounts[$name] = ($procedureAmounts[$name] ?? 0) + (float) ($procedure->base_price ?? 0);
+            $cost = (float) ($appointment->appointment_cost ?? 0);
+            $procedureAmounts[$name] = ($procedureAmounts[$name] ?? 0) + $cost;
+        }
+
+        foreach ($treatmentPlans as $plan) {
+            $procedure = $procedureMap->get((int) $plan->procedure_id);
+            if (!$procedure) {
+                continue;
+            }
+
+            $name = trim((string) ($procedure->name ?? ''));
+            if ($name === '') {
+                continue;
+            }
+
+            $cost = (float) ($plan->total_estimated_cost ?? 0);
+            $procedureAmounts[$name] = ($procedureAmounts[$name] ?? 0) + $cost;
         }
 
         $totalYield = array_sum($procedureAmounts);
@@ -165,7 +177,7 @@ class ReportsController extends Controller
         $providers = Employee::query()
             ->when(!is_null($branchId), fn($q) => $q->where('branch_id', $branchId))
             ->whereIn('position_id', function ($query) {
-                $query->select('id')->from('positions')->whereIn('position_title', ['doctor', 'Specialist']); // Assuming positions table with 'name' column
+                $query->select('id')->from('positions')->where('position_title', 'doctor');
             })
             ->get(['id', 'f_name', 'l_name']);
 
@@ -178,16 +190,35 @@ class ReportsController extends Controller
                 ->whereHas('employees', fn($q) => $q->where('employee_id', $provider->id))
                 ->get(['id', 'appointment_cost']);
 
-            $patientsTreated = AppointmentPatient::query()
+            $appointmentPatientIds = AppointmentPatient::query()
                 ->whereIn('appointment_id', $appointments->pluck('id'))
-                ->distinct('patient_id')
+                ->pluck('patient_id')
+                ->filter()
+                ->unique();
+
+            $appointmentValue = (float) $appointments->sum('appointment_cost');
+
+            $treatmentPlans = TreatmentPlan::query()
+                ->whereBetween('created_at', [$start->toDateTimeString(), $end->copy()->endOfDay()->toDateTimeString()])
+                ->when(! is_null($branchId), fn($q) => $q->where('branch_id', $branchId))
+                ->where('createdBy_id', $provider->id)
+                ->get(['id', 'patient_id', 'total_estimated_cost']);
+
+            $treatmentPlanPatients = $treatmentPlans
+                ->pluck('patient_id')
+                ->filter()
+                ->unique();
+
+            $treatmentPlanValue = (float) $treatmentPlans->sum('total_estimated_cost');
+            $patientsTreated = $appointmentPatientIds
+                ->merge($treatmentPlanPatients)
+                ->unique()
                 ->count();
 
-            $revenueInvoiced = (float) $appointments->sum('appointment_cost');
+            $totalValueGenerated = $appointmentValue + $treatmentPlanValue;
 
-            // This part is complex. Real cash collected per provider would need a more detailed transaction link
-            // For simplicity, we'll mock or proportionally estimate.
-            $cashCollected = $revenueInvoiced * 0.8; // Mock 80% collection rate
+
+            $cashCollected = $totalValueGenerated;
 
             // Hours Logged is highly dependent on a time tracking system. Mocking for now.
             $hoursLogged = rand(120, 180); // Mock 120-180 hours
@@ -196,7 +227,7 @@ class ReportsController extends Controller
                 'name' => trim($provider->f_name . ' ' . $provider->l_name),
                 'patientsTreated' => $patientsTreated,
                 'hoursLogged' => $hoursLogged,
-                'revenueInvoiced' => round($revenueInvoiced, 2),
+                'totalValueGenerated' => round($totalValueGenerated, 2),
                 'cashCollected' => round($cashCollected, 2),
             ];
         }

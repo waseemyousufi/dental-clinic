@@ -611,6 +611,8 @@
     },
     "payModal": {
       "title": "Pay Salary",
+      "employeeLabel": "Employee",
+      "paySalarySubtitle": "Record salary payment for this employee.",
       "salaryMonthLabel": "Salary Month",
       "amountLabel": "Amount",
       "bonusLabel": "Bonus",
@@ -757,19 +759,18 @@
   },
   "resetPasswordView": {
     "title": "Set a new password",
-    "description": "Enter your email and a new password for your account.",
-    "emailLabel": "Email",
-    "emailPlaceholder": "Enter your email",
+    "description": "Enter your current password and choose a new password.",
+    "currentPasswordLabel": "Current password",
+    "currentPasswordPlaceholder": "Enter current password",
     "newPasswordLabel": "New password",
     "newPasswordPlaceholder": "••••••••",
     "confirmPasswordLabel": "Confirm password",
     "confirmPasswordPlaceholder": "Repeat new password",
     "resetButtonText": "Reset password",
-    "missingTokenError": "Reset token is missing or invalid.",
     "requiredFieldsError": "Please fill in all fields.",
     "passwordMismatchError": "Passwords do not match.",
-    "successMessage": "Password has been reset. You can now log in.",
-    "failureMessage": "Failed to reset password. The link may be invalid or expired."
+    "successMessage": "Password has been reset.",
+    "failureMessage": "Failed to reset password. Please try again."
   },
   "app": {
     "navigation": {
@@ -795,7 +796,8 @@
       "guestEmail": "mail"
     },
     "userMenu": {
-      "logout": "Logout"
+      "logout": "Logout",
+      "resetPassword": "Reset Password"
     }
   },
   "reportsView": {

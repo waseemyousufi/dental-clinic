@@ -14,6 +14,7 @@ class TreatmentPlanSeeder extends Seeder
         // Get existing IDs to ensure foreign key constraints pass
         $patientId = Patient::first()?->id ?? 1;
         $appointmentId = Appointment::first()?->id ?? 1;
+        $employeeId = \App\Models\Employee::first()?->id ?? 1;
 
         // Fetch specific procedures to calculate estimated costs
         $filling = Procedure::where('slug', 'composite-filling-1')->first();
@@ -24,6 +25,7 @@ class TreatmentPlanSeeder extends Seeder
                 'patient_id' => $patientId,
                 'procedure_id' => $filling?->id ?? 1,
                 'branch_id' => 1,
+                'createdBy_id' => $employeeId,
                 'total_estimated_cost' => $filling?->base_price ?? 1500,
                 'total_amount_paid' => 100,
                 'appointments_needed' => 4,

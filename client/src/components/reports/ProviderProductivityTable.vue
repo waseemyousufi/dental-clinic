@@ -6,7 +6,7 @@ interface ProviderData {
   name: string
   patientsTreated: number
   hoursLogged: number
-  revenueInvoiced: number
+  totalValueGenerated: number
   cashCollected: number
 }
 
@@ -54,7 +54,7 @@ const formatCurrency = (value: number) => {
             {{ provider.hoursLogged }}h
           </td> -->
           <td :data-label="t('reportsView.providerProductivity.columns.revenueInvoiced')">
-            {{ formatCurrency(provider.revenueInvoiced) }}
+            {{ formatCurrency(provider.totalValueGenerated) }}
           </td>
           <!-- <td data-label="Cash Collected">
             {{ formatCurrency(provider.cashCollected) }}

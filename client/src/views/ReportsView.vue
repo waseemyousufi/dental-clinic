@@ -28,7 +28,7 @@ interface ReportResponse {
     name: string
     patientsTreated: number
     hoursLogged: number
-    revenueInvoiced: number
+    totalValueGenerated: number
     cashCollected: number
   }>
   operational_summary: {

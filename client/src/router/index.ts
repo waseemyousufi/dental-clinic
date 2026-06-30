@@ -176,7 +176,7 @@ router.beforeEach((to, from, next) => {
     return next('/login')
   }
 
-  if (isLoggedIn && publicPaths.includes(normalizedPath)) {
+  if (isLoggedIn && publicPaths.includes(normalizedPath) && normalizedPath !== '/reset-password') {
     return next('/')
   }
 
